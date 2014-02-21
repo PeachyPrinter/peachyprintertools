@@ -5,7 +5,7 @@ echo Cleaning workspace
 echo ------------------------------------
 
 del *.msi
-rmdir /s src\build
+rmdir /S /Q src\build
 REM TODO JT 2014-02-04 - Should clean the workspace
 
 echo ------------------------------------
