@@ -65,4 +65,4 @@ echo ------------------------------------
 echo Moving file
 echo ------------------------------------
 
-move src\build\*.msi .
+move src\dist\*.msi .
