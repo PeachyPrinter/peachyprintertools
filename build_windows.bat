@@ -34,14 +34,14 @@ echo # THIS IS A GENERATED FILE  > version.properties
 echo version='%VERSION%' >> version.properties
 echo revision='%GIT_REV%' >> version.properties
 echo Git Revision Number is %GIT_REV_COUNT%
-copy version.properties src/VERSION.py
+copy version.properties src\VERSION.py
 
 
 echo ------------------------------------
 echo Running Tests
 echo ------------------------------------
 
-python test/tests.py
+python test/test-all.py
 IF NOT ERRORLEVEL 0 (
     echo FAILED TESTS ABORTING
     exit 1
