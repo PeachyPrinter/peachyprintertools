@@ -60,4 +60,9 @@ IF NOT ERRORLEVEL 0 (
     exit 1
 )
 cd ..
+
+echo ------------------------------------
+echo Moving file
+echo ------------------------------------
+
 move src\build\*.msi .

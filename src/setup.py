@@ -9,7 +9,7 @@ import sys
 base = 'Win32GUI' if sys.platform=='win32' else None
 
 executables = [
-    Executable('peachyprintertools.py', base=base, targetName = 'PeachyPrinterTools')
+    Executable('peachyprintertools.py', base=base, targetName = 'PeachyPrinterTools.exe')
 ]
 
 setup(name='Peachy Printer Tools',
