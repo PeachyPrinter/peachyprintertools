@@ -1,5 +1,5 @@
 from cx_Freeze import setup, Executable
-import VERSION
+from VERSION import version
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
