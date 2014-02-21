@@ -1,4 +1,5 @@
 from cx_Freeze import setup, Executable
+import VERSION
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
@@ -12,7 +13,7 @@ executables = [
 ]
 
 setup(name='Peachy Printer Tools',
-      version = '0.1.0',
+      version = version,
       description = 'Tool Set for calibrating the Peachy Printer and printing models',
       options = dict(build_exe = buildOptions),
       executables = executables)
