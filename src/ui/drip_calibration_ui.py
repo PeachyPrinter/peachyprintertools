@@ -26,6 +26,9 @@ class DripCalibrationUI(Tkinter.Frame):
         label.grid(column=1,row=1,columnspan=2,sticky='EW')
         self.drip_count_label.set(str(self._drip_api.get_drips()))
         
+        reset_button = Tkinter.Button(self,text=u"Reset Counter", command=self.reset_button_clicked)
+        reset_button.grid(column=2,row=1)   
+
         quit_button = Tkinter.Button(self,text=u"Quit", command=self.close_button_clicked)
         quit_button.grid(column=2,row=2)        
         
@@ -35,6 +38,9 @@ class DripCalibrationUI(Tkinter.Frame):
     def update_drips(self):
         self.drip_count_label.set("Drips: %d" % self._drip_api.get_drips())
         self.id=self.after(100, self.update_drips)
+
+    def reset_button_clicked(self):
+        self._drip_api.reset_drips()
 
     def close_button_clicked(self):
         self.close()
