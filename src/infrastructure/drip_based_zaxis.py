@@ -17,7 +17,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
     _hold_samples = 0
     _indrip = False
 
-    def __init__(self, drips_per_mm = 1, initial_height = 0.0, sampling_frequency = 48000, threshold = 400, release_ms = 6, echo_drips = False):
+    def __init__(self, drips_per_mm = 1, initial_height = 0.0, sampling_frequency = 44100, threshold = 400, release_ms = 6, echo_drips = False):
         threading.Thread.__init__(self)
         self._drips_per_mm = drips_per_mm * 1.0
         self._sampling_frequency = sampling_frequency
@@ -40,6 +40,14 @@ class DripBasedZAxis(ZAxis, threading.Thread):
 
     def run(self):
         pa = pyaudio.PyAudio()
+        if not pa.is_format_supported(
+            self._sampling_frequency, 
+            input_device = 0, 
+            input_channels = 1, 
+            input_format=pa.get_format_from_width(2, unsigned=False),
+            ):
+            raise Exception("Unsupported Format for your audio card")
+
         self.instream = pa.open(
                 format=pa.get_format_from_width(2, unsigned=False),
                  channels=1,

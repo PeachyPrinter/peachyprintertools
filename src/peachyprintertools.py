@@ -2,6 +2,8 @@
 # -*- coding: iso-8859-1 -*-
 
 import Tkinter
+import tkMessageBox
+from ui.drip_calibration_ui import DripCalibrationUI
 
 class MainFrame(Tkinter.Frame):
     def __init__(self,parent):
@@ -12,42 +14,23 @@ class MainFrame(Tkinter.Frame):
     def initialize(self):
         self.grid()
 
-        button = Tkinter.Button(self,text=u"Start Drip Calibration", command=self.OnButtonClick)
-        button.grid(column=1,row=0)
+        drip_calibration_button = Tkinter.Button(self,text=u"Start Drip Calibration", command=self.drip_calibration_button_click)
+        drip_calibration_button.grid(column=1,row=0)
 
-        self.labelVariable = Tkinter.StringVar()
-        label = Tkinter.Label(self,textvariable=self.labelVariable, anchor="w",fg="white",bg="blue")
-        label.grid(column=0,row=1,columnspan=2,sticky='EW')
-        self.labelVariable.set(u"ONE")
+        button = Tkinter.Button(self,text=u"Start Calibration", command=self.start_calibration_button_click)
+        button.grid(column=1,row=1)
 
-        self.grid_columnconfigure(0,weight=1)
+        self.grid_columnconfigure(1,weight=1)
         self.update()
 
-    def OnButtonClick(self):
+    def drip_calibration_button_click(self):
         self.parent.start_drip_calibration()
 
-class DripCalibration(Tkinter.Frame):
-    def __init__(self,parent):
-        Tkinter.Frame.__init__(self, parent)
-        self.parent = parent
-        self.initialize()
-
-    def initialize(self):
-        self.grid()
-
-        button = Tkinter.Button(self,text=u"Quit", command=self.OnButtonClick)
-        button.grid(column=1,row=0)
-
-        self.labelVariable = Tkinter.StringVar()
-        label = Tkinter.Label(self,textvariable=self.labelVariable, anchor="w",fg="white",bg="blue")
-        label.grid(column=0,row=1,columnspan=2,sticky='EW')
-        self.labelVariable.set(u"TWO !")
-        
-        self.grid_columnconfigure(0,weight=1)
-        self.update()
-
-    def OnButtonClick(self):
-        self.parent.start_main_window()
+    def start_calibration_button_click(self):
+        tkMessageBox.showwarning(
+            "Coming Soon",
+            "Peachy Printer Calibration Coming Soon"
+        )
 
 
 class PeachyPrinterTools(Tkinter.Tk):
@@ -64,7 +47,7 @@ class PeachyPrinterTools(Tkinter.Tk):
  
     def start_drip_calibration(self):
         self.close_current()
-        self.main_frame = DripCalibration(self)
+        self.main_frame = DripCalibrationUI(self)
         self.main_frame.pack()
 
     def start_main_window(self):
