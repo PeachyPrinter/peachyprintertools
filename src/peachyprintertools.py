@@ -12,6 +12,7 @@ class MainFrame(Tkinter.Frame):
         self.initialize()
 
     def initialize(self):
+        
         self.grid()
 
         drip_calibration_button = Tkinter.Button(self,text=u"Start Drip Calibration", command=self.drip_calibration_button_click)
@@ -32,29 +33,41 @@ class MainFrame(Tkinter.Frame):
             "Peachy Printer Calibration Coming Soon"
         )
 
+    def close(self):
+        pass
+
 
 class PeachyPrinterTools(Tkinter.Tk):
     def __init__(self,parent):
         Tkinter.Tk.__init__(self,parent)
         self.parent = parent
-        self.main_frame = None
+        self.current_frame = None
         self.start_main_window()
 
+        self.protocol("WM_DELETE_WINDOW", self.close)
+
     def close_current(self):
-        if self.main_frame:
-            self.main_frame.grid_forget()
-            self.main_frame.destroy()
+        if self.current_frame:
+            self.current_frame.close()
+            self.current_frame.grid_forget()
+            self.current_frame.destroy()
  
     def start_drip_calibration(self):
         self.close_current()
-        self.main_frame = DripCalibrationUI(self)
-        self.main_frame.pack()
+        self.current_frame = DripCalibrationUI(self)
+        self.current_frame.pack()
 
     def start_main_window(self):
         self.close_current()
-        self.main_frame = MainFrame(self)
-        self.main_frame.pack()
+        self.current_frame = MainFrame(self)
+        self.current_frame.pack()
 
+    def close(self):
+        if self.current_frame.__class__.__name__ == "MainFrame":
+            self.destroy()
+            exit(0)
+        else:
+            self.start_main_window()
 
 if __name__ == "__main__":
     app = PeachyPrinterTools(None)
