@@ -3,7 +3,7 @@ from VERSION import version
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
-buildOptions = dict(packages = [], excludes = [])
+buildOptions = dict(packages = ['domain','infrastructure'], excludes = [])
 
 import sys
 base = 'Win32GUI' if sys.platform=='win32' else None

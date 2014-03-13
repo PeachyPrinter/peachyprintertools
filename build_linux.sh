@@ -59,10 +59,10 @@ echo "Create Peachy Tool Chain app"
 echo "------------------------------------"
 
 cd src
-python setup.py bdist_dmg
+python setup.py bdist_rpm
 if [ $? != 0 ]; then
     echo "Packaging Failed Aborting"
     exit 55
 fi
 cd ..
-mv src/build/*.dmg .
+mv src/dist/*.rpm .
