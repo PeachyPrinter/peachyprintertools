@@ -40,5 +40,6 @@ setup(
       version = version,
       description = 'Tool Set for calibrating the Peachy Printer and printing models',
       options =  { 'build_exe' : buildOptions, "bdist_msi": bdist_msi_options, },
+      data_files=[('resources', [ os.path.join('resources','peach.ico') ])],
       executables = executables
       )
