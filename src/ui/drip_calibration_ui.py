@@ -34,8 +34,6 @@ class DripCalibrationUI(Tkinter.Frame, FieldValidations):
         self.update_drips()
 
     def initialize(self):
-        
-
         self.grid()
         
         self.instructions = u"Some much better text and instructions go here"
