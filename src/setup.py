@@ -14,7 +14,7 @@ shortcut_table = [
      None,                                  # Arguments
      None,                                  # Description
      None,                                  # Hotkey
-     os.path.join('resources','peach.ico'), # Icon
+     "[TARGETDIR]resources\peach.ico",      # Icon
      None,                                  # IconIndex
      None,                                  # ShowCmd
      'TARGETDIR'                            # WkDir
