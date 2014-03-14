@@ -14,7 +14,7 @@ shortcut_table = [
      None,                                  # Arguments
      None,                                  # Description
      None,                                  # Hotkey
-     "[TARGETDIR]resources\peach.ico",      # Icon
+     None,                                  # Icon
      None,                                  # IconIndex
      None,                                  # ShowCmd
      'TARGETDIR'                            # WkDir
@@ -32,7 +32,7 @@ bdist_msi_options = { 'data': { 'Shortcut' : shortcut_table } }
 base = 'Win32GUI' if sys.platform=='win32' else None
 
 executables = [
-    Executable('peachyprintertools.py', base=base, targetName = 'PeachyPrinterTools.exe')
+    Executable('peachyprintertools.py', base=base, targetName = 'PeachyPrinterTools.exe', icon=os.path.join('resources', 'peach.ico'))
 ]
 
 setup(
