@@ -1,5 +1,7 @@
 from cx_Freeze import setup, Executable
 from VERSION import version
+import sys
+import os
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
@@ -12,7 +14,7 @@ shortcut_table = [
      None,                                  # Arguments
      None,                                  # Description
      None,                                  # Hotkey
-     None,                                  # Icon
+     os.path.join('resources','peach.ico'), # Icon
      None,                                  # IconIndex
      None,                                  # ShowCmd
      'TARGETDIR'                            # WkDir
@@ -26,7 +28,7 @@ buildOptions = {
 
 bdist_msi_options = { 'data': { 'Shortcut' : shortcut_table } }
 
-import sys
+
 base = 'Win32GUI' if sys.platform=='win32' else None
 
 executables = [
