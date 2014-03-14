@@ -35,3 +35,64 @@ class DripCalibrationAPITests(unittest.TestCase):
 
         self.assertEquals(mock_zaxis.reset.call_count, 1)
         
+
+    @patch('infrastructure.drip_based_zaxis.DripBasedZAxis')
+    def test_drip_calibration_should_be_able_to_set_target_height(self, mock_DripBasedZAxis):
+        mock_zaxis = mock_DripBasedZAxis.retutn_value
+        drip_calibration_api = DripCalibrationAPI(mock_zaxis)
+
+        drip_calibration_api.set_target_height(10.0)
+
+    @patch('infrastructure.drip_based_zaxis.DripBasedZAxis')
+    def test_drip_calibration_target_height_must_be_greater_than_0(self, mock_DripBasedZAxis):
+        mock_zaxis = mock_DripBasedZAxis.retutn_value
+        drip_calibration_api = DripCalibrationAPI(mock_zaxis)
+        passed = False
+        try:
+            drip_calibration_api.set_target_height(0.0)
+            passed = False
+        except: 
+            passed = True
+        self.assertTrue(passed)
+
+    @patch('infrastructure.drip_based_zaxis.DripBasedZAxis')
+    def test_drip_calibration_target_height_must_be_float(self, mock_DripBasedZAxis):
+        mock_zaxis = mock_DripBasedZAxis.retutn_value
+        drip_calibration_api = DripCalibrationAPI(mock_zaxis)
+        passed = False
+        try:
+            drip_calibration_api.set_target_height('a')
+            passed = False
+        except: 
+            passed = True
+        self.assertTrue(passed)
+
+    @patch('infrastructure.drip_based_zaxis.DripBasedZAxis')
+    def test_drip_calibration_should_not_be_able_to_mark_when_target_not_specified(self, mock_DripBasedZAxis):
+        mock_zaxis = mock_DripBasedZAxis.retutn_value
+        drip_calibration_api = DripCalibrationAPI(mock_zaxis)
+        passed = False
+
+        try:
+            drip_calibration_api.mark_drips_at_target()
+            passed = False
+        except Exception as ex:
+            passed = True
+
+        self.assertTrue(passed)
+
+    @patch('infrastructure.drip_based_zaxis.DripBasedZAxis')
+    def test_drip_calibration_should_be_able_to_mark_when_target_specified(self, mock_DripBasedZAxis):
+        fake_drip_counter = 70
+        target_height = 10.0
+        expected_drips_per_mm = fake_drip_counter / target_height
+        mock_zaxis = mock_DripBasedZAxis.retutn_value
+        drip_calibration_api = DripCalibrationAPI(mock_zaxis)
+        mock_zaxis.current_z_location_mm.return_value = fake_drip_counter
+        drip_calibration_api.set_target_height(target_height)
+
+        drip_calibration_api.mark_drips_at_target()
+
+        self.assertEquals(expected_drips_per_mm, drip_calibration_api.get_drips_per_mm())
+
+
