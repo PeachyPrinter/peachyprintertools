@@ -37,11 +37,18 @@ class DripCalibrationAPITests(unittest.TestCase):
         
 
     @patch('infrastructure.drip_based_zaxis.DripBasedZAxis')
-    def test_drip_calibration_should_be_able_to_set_target_height(self, mock_DripBasedZAxis):
+    def test_drip_calibration_should_be_able_to_set_target_height_if_float(self, mock_DripBasedZAxis):
         mock_zaxis = mock_DripBasedZAxis.retutn_value
         drip_calibration_api = DripCalibrationAPI(mock_zaxis)
 
         drip_calibration_api.set_target_height(10.0)
+
+    @patch('infrastructure.drip_based_zaxis.DripBasedZAxis')
+    def test_drip_calibration_should_be_able_to_set_target_height_if_int(self, mock_DripBasedZAxis):
+        mock_zaxis = mock_DripBasedZAxis.retutn_value
+        drip_calibration_api = DripCalibrationAPI(mock_zaxis)
+
+        drip_calibration_api.set_target_height(10)
 
     @patch('infrastructure.drip_based_zaxis.DripBasedZAxis')
     def test_drip_calibration_target_height_must_be_greater_than_0(self, mock_DripBasedZAxis):
@@ -56,7 +63,7 @@ class DripCalibrationAPITests(unittest.TestCase):
         self.assertTrue(passed)
 
     @patch('infrastructure.drip_based_zaxis.DripBasedZAxis')
-    def test_drip_calibration_target_height_must_be_float(self, mock_DripBasedZAxis):
+    def test_drip_calibration_target_height_must_be_numeric(self, mock_DripBasedZAxis):
         mock_zaxis = mock_DripBasedZAxis.retutn_value
         drip_calibration_api = DripCalibrationAPI(mock_zaxis)
         passed = False

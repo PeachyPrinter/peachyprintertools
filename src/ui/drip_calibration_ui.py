@@ -1,4 +1,6 @@
 import Tkinter
+import tkMessageBox
+
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 from api.drip_calibration import DripCalibrationAPI
 
@@ -54,15 +56,18 @@ class DripCalibrationUI(Tkinter.Frame, FieldValidations):
         self.height_mm_entry = Tkinter.Entry(self, width=20, justify="left", text=str(10), validate = 'key', validatecommand=self.validate_int_command())
         self.height_mm_entry.grid(column=1,row=2)
 
-        self.drips_per_mm_label_text = Tkinter.StringVar()
-        drips_per_mm_label = Tkinter.Label(self,textvariable=self.drips_per_mm_label_text, anchor="w",fg="black",bg="white")
-        drips_per_mm_label.grid(column=2,row=3,columnspan=1,sticky='EW')
-        self.drips_per_mm_label_text.set("Booya")
+        drips_per_mm_label = Tkinter.Label(self,text="Drips per mm", anchor="w",fg="black",bg="white", justify="right")
+        drips_per_mm_label.grid(column=0,row=3,columnspan=1,sticky='EW')
+
+        self.drips_per_mm_field_text = Tkinter.StringVar()
+        drips_per_mm_field = Tkinter.Label(self,textvariable=self.drips_per_mm_field_text, anchor="w",fg="black",bg="white")
+        drips_per_mm_field.grid(column=1,row=3,columnspan=1,sticky='EW')
+        self.drips_per_mm_field_text.set("")
 
         mark_button = Tkinter.Button(self,text=u"Mark", command=self.mark_button_clicked)
         mark_button.grid(column=2,row=2) 
 
-        quit_button = Tkinter.Button(self,text=u"Save", command=self.close_button_clicked)
+        quit_button = Tkinter.Button(self,text=u"Save", command=self.save_button_clicked)
         quit_button.grid(column=3,row=4)    
        
         self.grid_columnconfigure(3,weight=1)
@@ -80,17 +85,20 @@ class DripCalibrationUI(Tkinter.Frame, FieldValidations):
         self._drip_api.reset_drips()
         self.update_drips()
 
-    def close_button_clicked(self):
+    def save_button_clicked(self):
         self.close()
         self.parent.start_main_window()
 
     def mark_button_clicked(self):
-        if self.update_drips_job:
-            self.after_cancel(self.update_drips_job)
-        if self.height_mm_entry.get():
-            drips_per_mm = self.drips * 1.0 / int(self.height_mm_entry.getint()) * 1.0
-            print(drips_per_mm)
-            self.drips_per_mm_label_text.set(str(drips_per_mm))
+        try:
+            self._drip_api.set_target_height(self.height_mm_entry.get())
+            self._drip_api.mark_drips_at_target()
+            self.drips_per_mm_field_text.set("%.2f" %self._drip_api.get_drips_per_mm())
+        except Exception as ex:
+            tkMessageBox.showwarning(
+            "Error",
+            ex.message
+        )
 
     def close(self):
         self.__drip_detector.stop()

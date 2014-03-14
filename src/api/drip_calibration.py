@@ -14,10 +14,13 @@ class DripCalibrationAPI(object):
             raise Exception("Target height must be specified before marking end point")
 
     def set_target_height(self,height_mm):
-        if type(height_mm) is float and height_mm > 0.0:
-            self._target_height = height_mm
-        else:
-            raise Exception("Target height must be a positive floating point value")
+        try:
+            if float(height_mm) > 0.0:
+                self._target_height = float(height_mm)
+            else:
+                raise Exception("Target height must be a positive numeric value")
+        except:
+            raise Exception("Target height must be a positive numeric value")
 
     def reset_drips(self):
         self._drip_detector.reset(0)
