@@ -24,7 +24,7 @@ buildOptions = {
         'excludes' : [],
         }
 
-bdist_msi_options = dict(buildOptions.items(), data = { 'Shortcut' : shortcut_table })
+bdist_msi_options = { 'data': { 'Shortcut' : shortcut_table } }
 
 import sys
 base = 'Win32GUI' if sys.platform=='win32' else None
@@ -33,8 +33,10 @@ executables = [
     Executable('peachyprintertools.py', base=base, targetName = 'PeachyPrinterTools.exe')
 ]
 
-setup(name='Peachy Printer Tools',
+setup(
+      name='Peachy Printer Tools',
       version = version,
       description = 'Tool Set for calibrating the Peachy Printer and printing models',
       options =  { 'build_exe' : buildOptions, "bdist_msi": bdist_msi_options, },
-      executables = executables)
+      executables = executables
+      )
