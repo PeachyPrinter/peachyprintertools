@@ -24,22 +24,27 @@ shortcut_table = [
 buildOptions = { 
         'packages' : ['domain','infrastructure'], 
         'excludes' : [],
+        
         }
 
-bdist_msi_options = { 'data': { 'Shortcut' : shortcut_table } }
+bdist_dmg_options = { }
+
+bdist_mac_options = { 'iconfile': os.path.join('resources', 'peachy.icns') } #Note to james use img2icns and iconutil first to iconset then to icns
+
+bdist_msi_options = { 'icon' : os.path.join('resources', 'peach.ico'), 'data': { 'Shortcut' : shortcut_table } }
 
 
 base = 'Win32GUI' if sys.platform=='win32' else None
 
 executables = [
-    Executable('peachyprintertools.py', base=base, targetName = 'PeachyPrinterTools.exe', icon=os.path.join('resources', 'peach.ico'))
+    Executable('peachyprintertools.py', base=base, targetName = 'PeachyPrinterTools.exe')
 ]
 
 setup(
       name='Peachy Printer Tools',
       version = version,
       description = 'Tool Set for calibrating the Peachy Printer and printing models',
-      options =  { 'build_exe' : buildOptions, "bdist_msi": bdist_msi_options, },
-      data_files=[('resources', [ os.path.join('resources','peach.ico') ])],
+      options =  { 'build_exe' : buildOptions,  "bdist_msi": bdist_msi_options, 'bdist_dmg' : bdist_dmg_options, 'bdist_mac' : bdist_mac_options },
+      data_files=[('resources', [ os.path.join('resources','peach.ico'), os.path.join('resources','peach512x512.png') ])],
       executables = executables
       )
