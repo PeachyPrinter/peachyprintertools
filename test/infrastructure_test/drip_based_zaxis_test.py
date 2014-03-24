@@ -9,7 +9,7 @@ import time
 
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 
-class MockPyAudioStream(object):
+class MockPyAudioInputStream(object):
     _read_frames = 0
     def __init__(self, wavefile, chunk_size = 1024):
         self._wave_data = wave.open(wavefile, 'rb')
@@ -61,7 +61,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     def test_drip_zaxis_should_report_1_drips_after_1_slow_drips(self, mock_pyaudio):
         drips_per = 1
         wave_file = os.path.join(self.test_file_path, '1_drip.wav')
-        self.stream = MockPyAudioStream(wave_file)
+        self.stream = MockPyAudioInputStream(wave_file)
 
         my_mock_pyaudio = mock_pyaudio.return_value
         my_mock_pyaudio.open.return_value = self.stream
@@ -76,7 +76,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     def test_drip_zaxis_should_not_round_up_drips(self, mock_pyaudio):
         drips_per = 10
         wave_file = os.path.join(self.test_file_path, '1_drip.wav')
-        self.stream = MockPyAudioStream(wave_file)
+        self.stream = MockPyAudioInputStream(wave_file)
 
         my_mock_pyaudio = mock_pyaudio.return_value
         my_mock_pyaudio.open.return_value = self.stream
@@ -91,7 +91,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     def test_drip_zaxis_should_report_1_drips_after_1_fast_drips(self, mock_pyaudio):
         drips_per = 1
         wave_file = os.path.join(self.test_file_path, '1_drip_fast.wav')
-        self.stream = MockPyAudioStream(wave_file)
+        self.stream = MockPyAudioInputStream(wave_file)
 
         my_mock_pyaudio = mock_pyaudio.return_value
         my_mock_pyaudio.open.return_value = self.stream
@@ -106,7 +106,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     def test_drip_zaxis_should_report_14_drips_after_14_drips(self, mock_pyaudio):
         drips_per = 1
         wave_file = os.path.join(self.test_file_path, '14_drips.wav')
-        self.stream = MockPyAudioStream(wave_file)
+        self.stream = MockPyAudioInputStream(wave_file)
 
         my_mock_pyaudio = mock_pyaudio.return_value
         my_mock_pyaudio.open.return_value = self.stream
@@ -121,7 +121,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     def test_drip_zaxis_should_report_22_drips_after_22_drips_speed_up(self, mock_pyaudio):
         drips_per = 1
         wave_file = os.path.join(self.test_file_path, '22_drips_speeding_up.wav')
-        self.stream = MockPyAudioStream(wave_file)
+        self.stream = MockPyAudioInputStream(wave_file)
 
         my_mock_pyaudio = mock_pyaudio.return_value
         my_mock_pyaudio.open.return_value = self.stream
@@ -136,7 +136,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     def test_drip_zaxis_should_run_in_its_own_thread(self, mock_pyaudio):
         drips_per = 1
         wave_file = os.path.join(self.test_file_path, '22_drips_speeding_up.wav')
-        self.stream = MockPyAudioStream(wave_file)
+        self.stream = MockPyAudioInputStream(wave_file)
 
         my_mock_pyaudio = mock_pyaudio.return_value
         my_mock_pyaudio.open.return_value = self.stream
@@ -150,7 +150,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     def test_drip_zaxis_should_report_2_drips_if_started_half_way_though_drip(self, mock_pyaudio):
         drips_per = 1
         wave_file = os.path.join(self.test_file_path, 'half_and_1_drips.wav')
-        self.stream = MockPyAudioStream(wave_file)
+        self.stream = MockPyAudioInputStream(wave_file)
 
         my_mock_pyaudio = mock_pyaudio.return_value
         my_mock_pyaudio.open.return_value = self.stream
@@ -166,7 +166,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     def test_reset_should_set_height_back_specified_height(self, mock_pyaudio):
         drips_per = 1
         wave_file = os.path.join(self.test_file_path, '1_drip_fast.wav')
-        self.stream = MockPyAudioStream(wave_file)
+        self.stream = MockPyAudioInputStream(wave_file)
         my_mock_pyaudio = mock_pyaudio.return_value
         my_mock_pyaudio.open.return_value = self.stream
         drip_zaxis = DripBasedZAxis(drips_per)
