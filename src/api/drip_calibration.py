@@ -1,5 +1,3 @@
-
-
 class DripCalibrationAPI(object):
     def __init__(self, drip_detector):
         self._drip_detector = drip_detector
