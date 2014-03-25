@@ -11,21 +11,21 @@ class AudioModulationLaserControlTests(unittest.TestCase, test_helpers.TestHelpe
     on_frequency = sample_rate / 4
     off_frequency = sample_rate / 8
     _MODULATION_AMPLITUDE_RATIO = 0.25
-        
+    
     def test_when_laser_off_modulate_it_at_off_frequency(self):
         laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency)
         laser_control.set_laser_off()
         sample_data_chunk = numpy.array([(0,0)])
-        po1 = ( ( math.cos(0.0 / 8.0 * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po2 = ( ( math.cos(1.0 / 8.0 * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po3 = ( ( math.cos(2.0 / 8.0 * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po4 = ( ( math.cos(3.0 / 8.0 * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po5 = ( ( math.cos(4.0 / 8.0 * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po6 = ( ( math.cos(5.0 / 8.0 * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po7 = ( ( math.cos(6.0 / 8.0 * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po8 = ( ( math.cos(7.0 / 8.0 * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
+        po1 = math.cos(0.0 / 8.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po2 = math.cos(1.0 / 8.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po3 = math.cos(2.0 / 8.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po4 = math.cos(3.0 / 8.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po5 = math.cos(4.0 / 8.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po6 = math.cos(5.0 / 8.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po7 = math.cos(6.0 / 8.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po8 = math.cos(7.0 / 8.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
         expected_data = numpy.array([[po1,po1],[po2,po2],[po3,po3],[po4,po4],[po5,po5],[po6,po6],[po7,po7],[po8,po8]])
-        
+
         actual_data =  laser_control.modulate(sample_data_chunk).next()
 
         self.assertNumpyArrayEquals(expected_data,actual_data)
@@ -34,14 +34,14 @@ class AudioModulationLaserControlTests(unittest.TestCase, test_helpers.TestHelpe
         laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency)
         laser_control.set_laser_on()
         sample_data_chunk = numpy.array([(0,0)])
-        po1 = ( ( math.cos((0.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po2 = ( ( math.cos((1.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po3 = ( ( math.cos((2.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po4 = ( ( math.cos((3.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po5 = ( ( math.cos((0.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po6 = ( ( math.cos((1.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po7 = ( ( math.cos((2.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
-        po8 = ( ( math.cos((3.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0 ) * self._MODULATION_AMPLITUDE_RATIO
+        po1 = math.cos(0.0 / 4.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po2 = math.cos(1.0 / 4.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po3 = math.cos(2.0 / 4.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po4 = math.cos(3.0 / 4.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po5 = math.cos(0.0 / 4.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po6 = math.cos(1.0 / 4.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po7 = math.cos(2.0 / 4.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
+        po8 = math.cos(3.0 / 4.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
         expected_data = numpy.array([[po1,po1],[po2,po2],[po3,po3],[po4,po4],[po5,po5],[po6,po6],[po7,po7],[po8,po8]])
         
         actual_data =  laser_control.modulate(sample_data_chunk).next()
@@ -80,14 +80,14 @@ class AudioModulationLaserControlTests(unittest.TestCase, test_helpers.TestHelpe
         laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency)
         laser_control.set_laser_on()
         sample_data_chunk = numpy.array([(1.0,1.0)])
-        po1 = ( ( math.cos((0.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75)
-        po2 = ( ( math.cos((1.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75)
-        po3 = ( ( math.cos((2.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75)
-        po4 = ( ( math.cos((3.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75)
-        po5 = ( ( math.cos((0.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75)
-        po6 = ( ( math.cos((1.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75)
-        po7 = ( ( math.cos((2.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75)
-        po8 = ( ( math.cos((3.0 / 4.0) * 2.0 * math.pi) + 1.0 ) / 2.0) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75)
+        po1 = math.cos(0.0 / 4.0 * 2.0 * math.pi ) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75 )
+        po2 = math.cos(1.0 / 4.0 * 2.0 * math.pi ) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75 )
+        po3 = math.cos(2.0 / 4.0 * 2.0 * math.pi ) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75 )
+        po4 = math.cos(3.0 / 4.0 * 2.0 * math.pi ) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75 )
+        po5 = math.cos(0.0 / 4.0 * 2.0 * math.pi ) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75 )
+        po6 = math.cos(1.0 / 4.0 * 2.0 * math.pi ) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75 )
+        po7 = math.cos(2.0 / 4.0 * 2.0 * math.pi ) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75 )
+        po8 = math.cos(3.0 / 4.0 * 2.0 * math.pi ) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75 )
         expected_data = numpy.array([[po1,po1],[po2,po2],[po3,po3],[po4,po4],[po5,po5],[po6,po6],[po7,po7],[po8,po8]])
 
         actual_data =  laser_control.modulate(sample_data_chunk).next()

@@ -33,13 +33,12 @@ class AudioModulationLaserControl(LaserControl):
         for _ in range(0, cycles):
             for i in range(0,int(steps)):
                 cos_wave = math.cos(i * 1.0 / steps * 1.0 * scale )
-                shifted = (cos_wave + 1.0) / 2.0
-                wave.append(shifted)
+                wave.append(cos_wave)
         return wave
 
     def modulate(self, data):
         pattern = self.on_laser_wave if self._laser_on else self.off_laser_wave
         for (left,right) in data:
-            l = numpy.multiply( [ 0.25 + (left  * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
-            r = numpy.multiply( [ 0.25 + (right * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
+            l = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + (left  * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
+            r = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + (right * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
             yield numpy.column_stack((l, r))
