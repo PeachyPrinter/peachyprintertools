@@ -1,7 +1,5 @@
 
 class AudioPrinter(object):
-    def init(self,sampling_frequency):
-        self.sampling_frequency = sampling_frequency
 
     def start(self, output_stream):
         raise NotImplementedException()
@@ -13,6 +11,9 @@ class AudioPrinter(object):
 class MockAudioPrinter(AudioPrinter):
     recorded_data = []
     running = False
+
+    def __init__(self, sample_rate):
+        self.sample_rate = sample_rate
 
     def start(self, output_stream):
         running = True
