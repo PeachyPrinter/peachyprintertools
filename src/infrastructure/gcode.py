@@ -52,13 +52,14 @@ class GCodeToLayerGenerator(ConsoleLog):
                     if command and type(command) != VerticalMove:
                         self.info("Adding: %s to layer" % str(command))
                         layer.commands.append(command)
+                    else:
+                        self.current_z = command.z
                 except Exception as ex:
                     self.info("Error %s: %s" % (self.line_number, ex.message))
                     self.errors.append("Error %s: %s" % (self.line_number, ex.message))
             except StopIteration:
                 self.info("EOF: Finalizing")
                 running = False
-                self.info(layer.commands)
                 if layer.commands == []:
                     self.info("EOF: Stopping")
                     raise StopIteration
@@ -70,7 +71,7 @@ class GCodeCommandReader(ConsoleLog):
         super(GCodeCommandReader, self).__init__(on = verbose)
 
     def to_command(self, gcode):
-        if gcode[0] == (";"):
+        if gcode[0] in self._IGNORABLE_PREFIXES:
             return []
         commands = gcode.split(' ')
         if commands[0] in self._COMMAND_HANDLERS:
@@ -99,6 +100,8 @@ class GCodeCommandReader(ConsoleLog):
                 return None
         return LateralDraw(x,y,rate)
 
+    _IGNORABLE_PREFIXES = [ ';', 'M', 'O', ] 
+    
     _COMMAND_HANDLERS = {
         'G01' : _command_draw,
         'G1' : _command_draw
