@@ -2,20 +2,36 @@ import numpy
 import unittest
 from domain.commands import *
 
-class TestHelpers(object):
+class NumpyTestHelpers(object):
+
     def assertNumpyArrayEquals(self,array1, array2):
         equal = numpy.array_equal(array1,array2)
         if not equal:
             self.fail("\n%s \ndid not equal \n%s" % (str(array1),str(array2)))
 
+class CommandTestHelpers(object):
+
+    def assertLateralDrawEqual(self, command1, command2):
+        if not (command1.x == command2.x and command1.y == command2.y and command1.speed == command2.speed):
+            self.fail("Commands do not match\n %s\ndid not equal\n%s" % (command1, command2))
+
+    def assertLateralMoveEqual(self, command1, command2):
+        if not (command1.x == command2.x and command1.y == command2.y and command1.speed == command2.speed):
+            self.fail("Commands do not match\n %s\ndid not equal\n%s" % (command1, command2))
+
+    def assertVerticleMoveEqual(self, command1, command2):
+        if not (command1.z == command2.z and command1.speed == command2.speed):
+            self.fail("Commands do not match\n %s\ndid not equal\n%s" % (command1, command2))
+
     def assertCommandsEqual(self, command1, command2):
         if type(command1) != type(command2):
             self.fail("Commands do not match\n %s\ndid not equal\n%s" % (command1, command2))
         if type(command1) == LateralDraw:
-            if command1.x == command2.x and command1.y == command2.y and command1.rate == command2.rate:
-                pass
-            else:
-                self.fail("Commands do not match\n %s\ndid not equal\n%s" % (command1, command2))
+            self.assertLateralDrawEqual(command1,command2)
+        elif type(command1) == LateralMove:
+            self.assertLateralMoveEqual(command1,command2)
+        elif type(command1) == VerticalMove:
+            self.assertVerticleMoveEqual(command1,command2)
         else:
             self.fail("Test Helper Unsupported type: %s" % type(command1) )
 
@@ -35,3 +51,6 @@ class TestHelpers(object):
             self.fail("Count of Layers do not match\n %s\ndid not equal\n%s" % (layers1, layers2))
         for i in range(len(layers1)):
             self.assertLayerEquals(layers1[i],layers2[i])
+
+class TestHelpers(NumpyTestHelpers,CommandTestHelpers):
+    pass

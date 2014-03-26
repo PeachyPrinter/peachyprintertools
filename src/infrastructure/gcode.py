@@ -69,6 +69,7 @@ class GCodeToLayerGenerator(ConsoleLog):
 class GCodeCommandReader(ConsoleLog):
     def __init__(self, verbose = False):
         super(GCodeCommandReader, self).__init__(on = verbose)
+        self._mm_per_s = None
 
     def to_command(self, gcode):
         if self._can_ignore(gcode):
@@ -80,25 +81,43 @@ class GCodeCommandReader(ConsoleLog):
 
     def _command_draw(self, line):
         command_details = line.split(' ')
-        x = None
-        y = None
-        z = None
-        rate = None
+        x_mm = None
+        y_mm = None
+        z_mm = None
+        mm_per_s = None
+        write = False
         for detail in command_details[1:]:
             detail_type = detail[0]
             if detail_type == 'X':
-                x = float(detail[1:])
+                x_mm = float(detail[1:])
             elif detail_type == 'Y':
-                y = float(detail[1:])
+                y_mm = float(detail[1:])
             elif detail_type == 'Z':
-                pass
+                z_mm = float(detail[1:])
             elif detail_type == 'F':
-                rate = self._to_mm_per_second(float(detail[1:]))
+                mm_per_s = self._to_mm_per_second(float(detail[1:]))
+                self._mm_per_s = mm_per_s
             elif detail_type == 'E':
-                pass
+                if float(detail[1:]) <=0:
+                    write = False
+                else:
+                    write = True
             else:
                 return None
-        return LateralDraw(x,y,rate)
+        if not mm_per_s:
+            if self._mm_per_s:
+                mm_per_s = self._mm_per_s
+            else:
+                raise Exception("Feed Rate Never Specified")
+        if z_mm:
+            return VerticalMove(z_mm,mm_per_s)
+        elif x_mm and y_mm:
+            if write:
+                return LateralDraw(x_mm,y_mm,mm_per_s)
+            else:
+                return LateralMove(x_mm,y_mm,mm_per_s)
+        else:
+            return []
 
     def _to_mm_per_second(self,mm_per_minute):
         return mm_per_minute / 60.0
@@ -111,13 +130,15 @@ class GCodeCommandReader(ConsoleLog):
 
     _COMMAND_HANDLERS = {
         'G01' : _command_draw,
-        'G1'  : _command_draw
+        'G1'  : _command_draw,
+        'G0'  : _command_draw,
+        'G01' : _command_draw,
     }
 
     _IGNORABLE_PREFIXES = [ 
     ';', # Comment
     'M', # Miscilanious / Machine Specific
     'O', # Title
-    'G90', # Absolute Posisitioning
+    'G90', # Absolute Posisitioning Currently assumed
 
     ] 

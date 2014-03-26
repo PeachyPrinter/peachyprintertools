@@ -111,15 +111,67 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         actual = command_reader.to_command(gcode_line)
         
         self.assertCommandsEqual(expected, actual)
+
+    def test_to_command_remembers_last_speed_if_none_specified(self):
+        gcode_setup = "G1 X1.0 Y1.0 F6000 E12"
+        gcode_test = "G1 X1.0 Y1.0 E12"
+        command_reader = GCodeCommandReader()
+        expected = LateralDraw(1.0, 1.0, 100)
+
+        command_reader.to_command(gcode_setup)
+        actual = command_reader.to_command(gcode_test)
         
+        self.assertCommandsEqual(expected, actual)
+        
+    def test_to_command_throws_exception_if_speed_never_specified(self):
+        gcode_test = "G1 X1.0 Y1.0 E12"
+        command_reader = GCodeCommandReader()
+        expected = LateralDraw(1.0, 1.0, 100)
+
+        with self.assertRaises(Exception):
+            command_reader.to_command(gcode_test)
+
+    def test_to_command_remembers_last_speed_if_only_specified(self):
+        gcode_setup = "G1 F6000"
+        gcode_test = "G1 X1.0 Y1.0 E12"
+        command_reader = GCodeCommandReader()
+        expected_verify  = LateralDraw(1.0, 1.0, 100)
+
+        setup = command_reader.to_command(gcode_setup)
+        verify = command_reader.to_command(gcode_test)
+        
+        self.assertEqual([], setup)
+        self.assertCommandsEqual(expected_verify, verify)
+
+    def test_to_command_creates_move_if_E_is_0(self):
+        gcode_test = "G0 X1.0 Y1.0 F6000 E0.0"
+        command_reader = GCodeCommandReader()
+        expected = LateralMove(1.0, 1.0, 100.0)
+
+        actual = command_reader.to_command(gcode_test)
+        
+        self.assertCommandsEqual(expected, actual)
+
+    def test_to_command_creates_move_if_E_not_specified(self):
+        gcode_test = "G0 X1.0 Y1.0 F6000"
+        command_reader = GCodeCommandReader()
+        expected = LateralMove(1.0, 1.0, 100.0)
+
+        actual = command_reader.to_command(gcode_test)
+        
+        self.assertCommandsEqual(expected, actual)
+
+    def test_to_command_handles_vertical_movement(self):
+        gcode_test = "G0 Z1.0 F6000 E0"
+        command_reader = GCodeCommandReader()
+        expected  = VerticalMove(1.0, 100)
+
+        actual = command_reader.to_command(gcode_test)
+        
+        self.assertCommandsEqual(expected, actual)
+
 # units
 # down axis vertial travel
 
 if __name__ == '__main__':
     unittest.main()
-
-# @patch('my_module.MyClass')
-# def test_my_method_shouldCallMyClassMethodMyMethod_whenSomeOtherClassMethodIsCalled(self, mock_my_class):
-#     some_other_class =  SomeOtherClassThatUsesMyClass()
-#     some_other_class.method_under_test()
-#     self.assertTrue(mock_my_class.called)
