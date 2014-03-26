@@ -70,6 +70,7 @@ class GCodeCommandReader(ConsoleLog):
     def __init__(self, verbose = False):
         super(GCodeCommandReader, self).__init__(on = verbose)
         self._mm_per_s = None
+        self.current_z_pos = None
 
     def to_command(self, gcode):
         if self._can_ignore(gcode):
@@ -94,6 +95,10 @@ class GCodeCommandReader(ConsoleLog):
                 y_mm = float(detail[1:])
             elif detail_type == 'Z':
                 z_mm = float(detail[1:])
+                if self.current_z_pos and self.current_z_pos > z_mm:
+                    raise Exception("Negitive Vertical Movement Unsupported")
+                else:
+                    self.current_z_pos = z_mm
             elif detail_type == 'F':
                 mm_per_s = self._to_mm_per_second(float(detail[1:]))
                 self._mm_per_s = mm_per_s

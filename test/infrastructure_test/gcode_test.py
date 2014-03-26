@@ -170,6 +170,16 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         
         self.assertCommandsEqual(expected, actual)
 
+    def test_to_command_does_not_permit_handles_vertical_down_movement(self):
+        gcode_setup = "G0 Z1.0 F6000 E0"
+        gcode_test = "G0 Z0.1 F6000 E0"
+        command_reader = GCodeCommandReader()
+        
+        command_reader.to_command(gcode_setup)
+        
+        with self.assertRaises(Exception):
+            command_reader.to_command(gcode_test)
+
 # units
 # down axis vertial travel
 
