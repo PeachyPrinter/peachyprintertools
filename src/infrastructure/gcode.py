@@ -29,6 +29,7 @@ class GCodeToLayerGenerator(ConsoleLog):
         self.file_object = file_object
         self.line_number = 0
         self.current_z = 0.0
+        self.gcode_command_reader = GCodeCommandReader()
 
     def __iter__(self):
         return self
@@ -39,7 +40,6 @@ class GCodeToLayerGenerator(ConsoleLog):
 
     def next(self):
         layer = Layer(self.current_z)
-        self.info("commands %s" % layer.commands)
         command = None
         running = True
         while running and type(command) != VerticalMove:
@@ -47,10 +47,14 @@ class GCodeToLayerGenerator(ConsoleLog):
                 line = self.file_object.next()
                 self.line_number += 1
                 self.info("%d: Processing: %s" % (self.line_number, line))
-                command = self._parse(line.strip(), self.line_number)
-                if command and type(command) != VerticalMove:
-                    self.info("Adding: %s to layer" % str(command))
-                    layer.commands.append(command)
+                try:
+                    command = self.gcode_command_reader.to_command(line.strip())
+                    if command and type(command) != VerticalMove:
+                        self.info("Adding: %s to layer" % str(command))
+                        layer.commands.append(command)
+                except Exception as ex:
+                    self.info("Error %s: %s" % (self.line_number, ex.message))
+                    self.errors.append("Error %s: %s" % (self.line_number, ex.message))
             except StopIteration:
                 self.info("EOF: Finalizing")
                 running = False
@@ -61,14 +65,17 @@ class GCodeToLayerGenerator(ConsoleLog):
         self.info("Layer Complete" )
         return layer
 
-    def _parse(self, line, line_number):
-        if line[0] == (";"):
-            return None
-        commands = line.split(' ')
+class GCodeCommandReader(ConsoleLog):
+    def __init__(self, verbose = False):
+        super(GCodeCommandReader, self).__init__(on = verbose)
+
+    def to_command(self, gcode):
+        if gcode[0] == (";"):
+            return []
+        commands = gcode.split(' ')
         if commands[0] in self._COMMAND_HANDLERS:
-            return self._COMMAND_HANDLERS[commands[0]](self,line)
-        self.errors.append('Unreconized Command %s: %s' % (line_number,line))
-        return None
+            return self._COMMAND_HANDLERS[commands[0]](self,gcode)
+        raise Exception('Unreconized Command: %s' % (gcode))
 
     def _command_draw(self, line):
         command_details = line.split(' ')

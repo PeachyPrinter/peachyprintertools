@@ -10,12 +10,12 @@ class TestHelpers(object):
 
     def assertCommandsEqual(self, command1, command2):
         if type(command1) != type(command2):
-            self.fail("Commands do not match\n %s\ndid not equal\n%s" % (layer1.commands, layer2.commands))
+            self.fail("Commands do not match\n %s\ndid not equal\n%s" % (command1, command2))
         if type(command1) == LateralDraw:
             if command1.x == command2.x and command1.y == command2.y and command1.rate == command2.rate:
                 pass
             else:
-                self.fail("Commands do not match\n %s\ndid not equal\n%s" % (layer1.commands, layer2.commands))
+                self.fail("Commands do not match\n %s\ndid not equal\n%s" % (command1, command2))
         else:
             self.fail("Test Helper Unsupported type: %s" % type(command1) )
 
