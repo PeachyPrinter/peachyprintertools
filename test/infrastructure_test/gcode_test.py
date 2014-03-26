@@ -90,13 +90,30 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals([], actual)
 
     def test_to_command_returns_empty_list_for_ignorable_codes(self):
-        test_gcode_line = ";Comment\nM101\nO NAME OF PROGRAM"
+        test_gcode_lines = [";Comment","M101","O NAME OF PROGRAM"]
         command_reader = GCodeCommandReader()
 
-        actual = command_reader.to_command(test_gcode_line)
+        actuals = [ command_reader.to_command(line) for line in test_gcode_lines ]
         
-        self.assertEquals([], actual)
+        self.assertEquals([[],[],[]], actuals)
+
+    def test_unsupported_codes_raises_exception(self):
+        test_gcode_line = "P01 X123.0 C7"
+        command_reader = GCodeCommandReader()
+        with self.assertRaises(Exception):
+            command_reader.to_command(test_gcode_line)
+
+    def test_to_command_returns_a_LateralDraw_given_move_with_extrude(self):
+        gcode_line = "G1 X1.0 Y1.0 F6000 E12"
+        command_reader = GCodeCommandReader()
+        expected = LateralDraw(1.0, 1.0, 100)
+
+        actual = command_reader.to_command(gcode_line)
+        
+        self.assertCommandsEqual(expected, actual)
+        
 # units
+# down axis vertial travel
 
 if __name__ == '__main__':
     unittest.main()

@@ -71,7 +71,7 @@ class GCodeCommandReader(ConsoleLog):
         super(GCodeCommandReader, self).__init__(on = verbose)
 
     def to_command(self, gcode):
-        if gcode[0] in self._IGNORABLE_PREFIXES:
+        if self._can_ignore(gcode):
             return []
         commands = gcode.split(' ')
         if commands[0] in self._COMMAND_HANDLERS:
@@ -93,16 +93,31 @@ class GCodeCommandReader(ConsoleLog):
             elif detail_type == 'Z':
                 pass
             elif detail_type == 'F':
-                rate = float(detail[1:])
+                rate = self._to_mm_per_second(float(detail[1:]))
             elif detail_type == 'E':
                 pass
             else:
                 return None
         return LateralDraw(x,y,rate)
 
-    _IGNORABLE_PREFIXES = [ ';', 'M', 'O', ] 
-    
+    def _to_mm_per_second(self,mm_per_minute):
+        return mm_per_minute / 60.0
+
+    def _can_ignore(self, command):
+        for prefix in self._IGNORABLE_PREFIXES:
+            if command.startswith(prefix):
+                return True
+        return False
+
     _COMMAND_HANDLERS = {
         'G01' : _command_draw,
-        'G1' : _command_draw
+        'G1'  : _command_draw
     }
+
+    _IGNORABLE_PREFIXES = [ 
+    ';', # Comment
+    'M', # Miscilanious / Machine Specific
+    'O', # Title
+    'G90', # Absolute Posisitioning
+
+    ] 
