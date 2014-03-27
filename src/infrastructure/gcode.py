@@ -70,7 +70,8 @@ class GCodeCommandReader(ConsoleLog):
     def __init__(self, verbose = False):
         super(GCodeCommandReader, self).__init__(on = verbose)
         self._mm_per_s = None
-        self.current_z_pos = None
+        self._current_z_pos = None
+        self._layer_height = None
 
     def to_command(self, gcode):
         if self._can_ignore(gcode):
@@ -87,6 +88,7 @@ class GCodeCommandReader(ConsoleLog):
         z_mm = None
         mm_per_s = None
         write = False
+        layer_height = None
         for detail in command_details[1:]:
             detail_type = detail[0]
             if detail_type == 'X':
@@ -95,10 +97,11 @@ class GCodeCommandReader(ConsoleLog):
                 y_mm = float(detail[1:])
             elif detail_type == 'Z':
                 z_mm = float(detail[1:])
-                if self.current_z_pos and self.current_z_pos > z_mm:
+                if self._current_z_pos and self._current_z_pos > z_mm:
                     raise Exception("Negitive Vertical Movement Unsupported")
                 else:
-                    self.current_z_pos = z_mm
+                    self._update_layer_height(self._current_z_pos,z_mm)
+                    self._current_z_pos = z_mm
             elif detail_type == 'F':
                 mm_per_s = self._to_mm_per_second(float(detail[1:]))
                 self._mm_per_s = mm_per_s
@@ -109,13 +112,17 @@ class GCodeCommandReader(ConsoleLog):
                     write = True
             else:
                 return None
+
         if not mm_per_s:
             if self._mm_per_s:
                 mm_per_s = self._mm_per_s
             else:
                 raise Exception("Feed Rate Never Specified")
         if z_mm:
-            return VerticalMove(z_mm,mm_per_s)
+            if write:
+                pass
+            else:
+                return VerticalMove(z_mm,mm_per_s)
         elif x_mm and y_mm:
             if write:
                 return LateralDraw(x_mm,y_mm,mm_per_s)
@@ -123,9 +130,13 @@ class GCodeCommandReader(ConsoleLog):
                 return LateralMove(x_mm,y_mm,mm_per_s)
         else:
             return []
-
+    
     def _to_mm_per_second(self,mm_per_minute):
         return mm_per_minute / 60.0
+
+    def _calculate_layer_height(self, current_height, new_height):
+        this_layer_height = new_height - current_height
+        self._layer_height = this_layer_height 
 
     def _can_ignore(self, command):
         for prefix in self._IGNORABLE_PREFIXES:

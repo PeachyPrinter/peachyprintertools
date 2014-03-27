@@ -164,7 +164,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
     def test_to_command_handles_vertical_movement(self):
         gcode_test = "G0 Z1.0 F6000 E0"
         command_reader = GCodeCommandReader()
-        expected  = VerticalMove(1.0, 100)
+        expected  = VerticalMove(1.0, 100.0)
 
         actual = command_reader.to_command(gcode_test)
         
@@ -176,10 +176,33 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         command_reader = GCodeCommandReader()
         
         command_reader.to_command(gcode_setup)
-        
+
         with self.assertRaises(Exception):
             command_reader.to_command(gcode_test)
 
+    def test_to_command_allows_vertical_write_provide_layer_increment_specified(self):
+        gcode_setup1 = "G0 Z0.1 F6000 E0"
+        gcode_setup2 = "G0 Z0.2 F6000 E0"
+        gcode_setup3 = "G0 X0.0 Y0.0 F6000"
+        gcode_test = "G0 Z0.5 F6000 E1"
+        command_reader = GCodeCommandReader()
+        expected = [ 
+            LateralDraw(0.0,0.0,100.0),
+            VerticalMove(0.3,100.0), 
+            LateralDraw(0.0,0.0,100.0),
+            VerticalMove(0.4,100.0), 
+            LateralDraw(0.0,0.0,100.0),
+            VerticalMove(0.5,100.0), 
+            LateralDraw(0.0,0.0,100.0),
+            ]
+        
+        command_reader.to_command(gcode_setup1)
+        command_reader.to_command(gcode_setup2)
+        command_reader.to_command(gcode_setup3)
+
+        actual = command_reader.to_command(gcode_test)
+        
+        self.assertCommandsEqual(expected, actual)
 # units
 # down axis vertial travel
 
