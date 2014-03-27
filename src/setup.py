@@ -24,14 +24,14 @@ shortcut_table = [
 buildOptions = { 
         'packages' : ['domain','infrastructure'], 
         'excludes' : [],
-        
+        'icon' : os.path.join('resources', 'peach.ico'),
         }
 
 bdist_dmg_options = { }
 
 bdist_mac_options = { 'iconfile': os.path.join('resources', 'peachy.icns') } #Note to james use img2icns and iconutil first to iconset then to icns
 
-bdist_msi_options = { 'icon' : os.path.join('resources', 'peach.ico'), 'data': { 'Shortcut' : shortcut_table } }
+bdist_msi_options = { 'data': { 'Shortcut' : shortcut_table } }
 
 
 base = 'Win32GUI' if sys.platform=='win32' else None
