@@ -48,12 +48,13 @@ class GCodeToLayerGenerator(ConsoleLog):
                 self.line_number += 1
                 self.info("%d: Processing: %s" % (self.line_number, line))
                 try:
-                    command = self.gcode_command_reader.to_command(line.strip())
-                    if command and type(command) != VerticalMove:
-                        self.info("Adding: %s to layer" % str(command))
-                        layer.commands.append(command)
-                    else:
-                        self.current_z = command.z
+                    commands = self.gcode_command_reader.to_command(line.strip())
+                    for command in commands:
+                        if command and type(command) !=  VerticalMove:
+                            self.info("Adding: %s to layer" % str(command))
+                            layer.commands.append(command)
+                        else:
+                            self.current_z = command.z
                 except Exception as ex:
                     self.info("Error %s: %s" % (self.line_number, ex.message))
                     self.errors.append("Error %s: %s" % (self.line_number, ex.message))
@@ -100,8 +101,7 @@ class GCodeCommandReader(ConsoleLog):
             elif detail_type == 'Z':
                 z_mm = float(detail[1:])
             elif detail_type == 'F':
-                mm_per_s = self._to_mm_per_second(float(detail[1:]))
-                self._mm_per_s = mm_per_s
+                self._mm_per_s = self._to_mm_per_second(float(detail[1:]))
             elif detail_type == 'E':
                 if float(detail[1:]) <=0:
                     write = False
@@ -110,11 +110,8 @@ class GCodeCommandReader(ConsoleLog):
             else:
                 return None
 
-        if not mm_per_s:
-            if self._mm_per_s:
-                mm_per_s = self._mm_per_s
-            else:
-                raise Exception("Feed Rate Never Specified")
+        if not self._mm_per_s:
+            raise Exception("Feed Rate Never Specified")
         if z_mm:
             self._zaxis_change(z_mm)
             if write:
@@ -122,22 +119,25 @@ class GCodeCommandReader(ConsoleLog):
                 layers = int(distance_to_traverse / self._layer_height)
                 commands = []
                 for layer in range(0, layers + 1):
-                    commands.append(VerticalMove(self._current_z_pos + self._layer_height * (layer + 1),mm_per_s))
-                    commands.append(LateralDraw(self._current_x_pos,self._current_y_pos,mm_per_s))
+                    commands.append(VerticalMove(self._current_z_pos + self._layer_height * (layer + 1),self._mm_per_s))
+                    commands.append(LateralDraw(self._current_x_pos,self._current_y_pos,self._mm_per_s))
                 self._current_z_pos = z_mm
                 return commands
             else:
                 self._current_z_pos = z_mm
-                return VerticalMove(z_mm,mm_per_s)
+                return [ VerticalMove(z_mm,self._mm_per_s) ]
         elif x_mm and y_mm:
-            self._current_x_pos = x_mm
-            self._current_y_pos = y_mm
-            if write:
-                return LateralDraw(x_mm,y_mm,mm_per_s)
-            else:
-                return LateralMove(x_mm,y_mm,mm_per_s)
+            return self._get_lateral_movement(x_mm,y_mm, write)
         else:
             return []
+
+    def _get_lateral_movement(self, x_mm, y_mm, write):
+        self._current_x_pos = x_mm
+        self._current_y_pos = y_mm
+        if write:
+            return [ LateralDraw(x_mm,y_mm,self._mm_per_s) ]
+        else:
+            return [ LateralMove(x_mm,y_mm,self._mm_per_s) ]
 
     def _zaxis_change(self,z_mm):
         if self._current_z_pos and self._current_z_pos > z_mm:
