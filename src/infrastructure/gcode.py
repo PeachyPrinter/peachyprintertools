@@ -70,7 +70,9 @@ class GCodeCommandReader(ConsoleLog):
     def __init__(self, verbose = False):
         super(GCodeCommandReader, self).__init__(on = verbose)
         self._mm_per_s = None
-        self._current_z_pos = None
+        self._current_x_pos = 0.0
+        self._current_y_pos = 0.0
+        self._current_z_pos = 0.0
         self._layer_height = None
 
     def to_command(self, gcode):
@@ -97,11 +99,6 @@ class GCodeCommandReader(ConsoleLog):
                 y_mm = float(detail[1:])
             elif detail_type == 'Z':
                 z_mm = float(detail[1:])
-                if self._current_z_pos and self._current_z_pos > z_mm:
-                    raise Exception("Negitive Vertical Movement Unsupported")
-                else:
-                    self._update_layer_height(self._current_z_pos,z_mm)
-                    self._current_z_pos = z_mm
             elif detail_type == 'F':
                 mm_per_s = self._to_mm_per_second(float(detail[1:]))
                 self._mm_per_s = mm_per_s
@@ -119,24 +116,46 @@ class GCodeCommandReader(ConsoleLog):
             else:
                 raise Exception("Feed Rate Never Specified")
         if z_mm:
+            self._zaxis_change(z_mm)
             if write:
-                pass
+                distance_to_traverse = z_mm - self._current_z_pos
+                layers = int(distance_to_traverse / self._layer_height)
+                commands = []
+                for layer in range(0, layers + 1):
+                    commands.append(VerticalMove(self._current_z_pos + self._layer_height * (layer + 1),mm_per_s))
+                    commands.append(LateralDraw(self._current_x_pos,self._current_y_pos,mm_per_s))
+                self._current_z_pos = z_mm
+                return commands
             else:
+                self._current_z_pos = z_mm
                 return VerticalMove(z_mm,mm_per_s)
         elif x_mm and y_mm:
+            self._current_x_pos = x_mm
+            self._current_y_pos = y_mm
             if write:
                 return LateralDraw(x_mm,y_mm,mm_per_s)
             else:
                 return LateralMove(x_mm,y_mm,mm_per_s)
         else:
             return []
+
+    def _zaxis_change(self,z_mm):
+        if self._current_z_pos and self._current_z_pos > z_mm:
+            raise Exception("Negitive Vertical Movement Unsupported")
+        else:
+            self._update_layer_height(self._current_z_pos,z_mm)
     
     def _to_mm_per_second(self,mm_per_minute):
         return mm_per_minute / 60.0
 
-    def _calculate_layer_height(self, current_height, new_height):
-        this_layer_height = new_height - current_height
-        self._layer_height = this_layer_height 
+    def _update_layer_height(self, current_height, new_height):
+        if current_height:
+            this_layer_height = new_height - current_height
+            if self._layer_height:
+                if self._layer_height > this_layer_height:
+                    self._layer_height = this_layer_height
+            else:
+                self._layer_height = this_layer_height
 
     def _can_ignore(self, command):
         for prefix in self._IGNORABLE_PREFIXES:

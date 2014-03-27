@@ -110,7 +110,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
 
         actual = command_reader.to_command(gcode_line)
         
-        self.assertCommandsEqual(expected, actual)
+        self.assertCommandEqual(expected, actual)
 
     def test_to_command_remembers_last_speed_if_none_specified(self):
         gcode_setup = "G1 X1.0 Y1.0 F6000 E12"
@@ -121,7 +121,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         command_reader.to_command(gcode_setup)
         actual = command_reader.to_command(gcode_test)
         
-        self.assertCommandsEqual(expected, actual)
+        self.assertCommandEqual(expected, actual)
         
     def test_to_command_throws_exception_if_speed_never_specified(self):
         gcode_test = "G1 X1.0 Y1.0 E12"
@@ -141,7 +141,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         verify = command_reader.to_command(gcode_test)
         
         self.assertEqual([], setup)
-        self.assertCommandsEqual(expected_verify, verify)
+        self.assertCommandEqual(expected_verify, verify)
 
     def test_to_command_creates_move_if_E_is_0(self):
         gcode_test = "G0 X1.0 Y1.0 F6000 E0.0"
@@ -150,7 +150,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
 
         actual = command_reader.to_command(gcode_test)
         
-        self.assertCommandsEqual(expected, actual)
+        self.assertCommandEqual(expected, actual)
 
     def test_to_command_creates_move_if_E_not_specified(self):
         gcode_test = "G0 X1.0 Y1.0 F6000"
@@ -159,7 +159,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
 
         actual = command_reader.to_command(gcode_test)
         
-        self.assertCommandsEqual(expected, actual)
+        self.assertCommandEqual(expected, actual)
 
     def test_to_command_handles_vertical_movement(self):
         gcode_test = "G0 Z1.0 F6000 E0"
@@ -168,7 +168,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
 
         actual = command_reader.to_command(gcode_test)
         
-        self.assertCommandsEqual(expected, actual)
+        self.assertCommandEqual(expected, actual)
 
     def test_to_command_does_not_permit_handles_vertical_down_movement(self):
         gcode_setup = "G0 Z1.0 F6000 E0"
@@ -183,19 +183,18 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
     def test_to_command_allows_vertical_write_provide_layer_increment_specified(self):
         gcode_setup1 = "G0 Z0.1 F6000 E0"
         gcode_setup2 = "G0 Z0.2 F6000 E0"
-        gcode_setup3 = "G0 X0.0 Y0.0 F6000"
+        gcode_setup3 = "G0 X0.5 Y0.5 F6000"
         gcode_test = "G0 Z0.5 F6000 E1"
         command_reader = GCodeCommandReader()
         expected = [ 
-            LateralDraw(0.0,0.0,100.0),
             VerticalMove(0.3,100.0), 
-            LateralDraw(0.0,0.0,100.0),
+            LateralDraw(0.5,0.5,100.0),
             VerticalMove(0.4,100.0), 
-            LateralDraw(0.0,0.0,100.0),
+            LateralDraw(0.5,0.5,100.0),
             VerticalMove(0.5,100.0), 
-            LateralDraw(0.0,0.0,100.0),
+            LateralDraw(0.5,0.5,100.0),
             ]
-        
+
         command_reader.to_command(gcode_setup1)
         command_reader.to_command(gcode_setup2)
         command_reader.to_command(gcode_setup3)
