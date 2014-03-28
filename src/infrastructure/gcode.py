@@ -1,3 +1,4 @@
+import collections
 from domain.commands import *
 
 class GCodeReader(object):
@@ -21,15 +22,18 @@ class ConsoleLog(object):
         if self.on:
             print(message)
 
+
 class GCodeToLayerGenerator(ConsoleLog):
     def __init__(self, file_object, verbose = False):
         super(GCodeToLayerGenerator, self).__init__(on = verbose)
         self.errors = []
         self.warning = []
-        self.file_object = file_object
-        self.line_number = 0
-        self.current_z = 0.0
-        self.gcode_command_reader = GCodeCommandReader()
+        self._file_object = file_object
+        self._line_number = 0
+        self._current_z = 0.0
+        self._gcode_command_reader = GCodeCommandReader()
+        self._command_queue = collections.deque()
+        self._file_complete = False
 
     def __iter__(self):
         return self
@@ -39,33 +43,47 @@ class GCodeToLayerGenerator(ConsoleLog):
         return self.next()
 
     def next(self):
-        layer = Layer(self.current_z)
-        command = None
-        running = True
-        while running and type(command) != VerticalMove:
+        return self._get_layer(None)
+
+    def _populate_buffer(self):
+        try:
+            gcode_line = self._file_object.next()
+            self._line_number +=1
             try:
-                line = self.file_object.next()
-                self.line_number += 1
-                self.info("%d: Processing: %s" % (self.line_number, line))
-                try:
-                    commands = self.gcode_command_reader.to_command(line.strip())
-                    for command in commands:
-                        if command and type(command) !=  VerticalMove:
-                            self.info("Adding: %s to layer" % str(command))
-                            layer.commands.append(command)
-                        else:
-                            self.current_z = command.z
-                except Exception as ex:
-                    self.info("Error %s: %s" % (self.line_number, ex.message))
-                    self.errors.append("Error %s: %s" % (self.line_number, ex.message))
-            except StopIteration:
-                self.info("EOF: Finalizing")
-                running = False
-                if layer.commands == []:
-                    self.info("EOF: Stopping")
+                commands = self._gcode_command_reader.to_command(gcode_line.strip())
+                for command in commands:
+                    self._command_queue.append(command)
+            except Exception as ex:
+                self.info("Error %s: %s" % (self._line_number, ex.message))
+                self.errors.append("Error %s: %s" % (self._line_number, ex.message))
+        except StopIteration:
+            self._file_complete = True
+
+
+    def _get_layer(self, layer = None):
+        try:
+            command = self._command_queue.popleft()
+            if type(command) == VerticalMove:
+                if layer:
+                    self._command_queue.appendleft(command)
+                    return layer
+                else:
+                    return self._get_layer(Layer(command.z))
+            else:
+                if layer:
+                    layer.commands.append(command)
+                    return self._get_layer(layer)
+                else:
+                    return self._get_layer(Layer(0.0, [ command ]))
+        except IndexError:
+            if self._file_complete:
+                if layer:
+                    return layer
+                else:
                     raise StopIteration
-        self.info("Layer Complete" )
-        return layer
+            else:
+                self._populate_buffer()
+                return self._get_layer(layer)
 
 class GCodeCommandReader(ConsoleLog):
     def __init__(self, verbose = False):
@@ -175,5 +193,4 @@ class GCodeCommandReader(ConsoleLog):
     'M', # Miscilanious / Machine Specific
     'O', # Title
     'G90', # Absolute Posisitioning Currently assumed
-
     ] 

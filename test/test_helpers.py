@@ -51,7 +51,7 @@ class CommandTestHelpers(object):
     
     def assertLayersEquals(self,layers1,layers2):
         if len(layers1) != len(layers2):
-            self.fail("Count of Layers do not match\n%s\ndid not equal\n%s" % (layers1, layers2))
+            self.fail("Count of Layers do not match\n%s\ndid not equal\n%s" % (self._stringify(layers1), self._stringify(layers2)))
         for i in range(len(layers1)):
             self.assertLayerEquals(layers1[i],layers2[i])
 

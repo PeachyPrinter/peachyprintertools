@@ -64,13 +64,15 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                 self._add_frames(frames)
 
     def stop(self):
-        self._running = False
-        self.instream.stop_stream()
-        time.sleep(0.1) # Waiting for current op to compelete
-        self.instream.close()
-        self.join(10.0)
-        if self.is_alive():
-            print('WARNING: DripDetector failed to stop')
+        if self._running:
+            self._running = False
+            if self.instream:
+                self.instream.stop_stream()
+            time.sleep(0.1) # Waiting for current op to compelete
+            self.instream.close()
+            self.join(10.0)
+            if self.is_alive():
+                print('WARNING: DripDetector failed to stop')
 
     def _add_frames(self, frames):
         hold_samples_c = 250
