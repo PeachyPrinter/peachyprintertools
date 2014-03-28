@@ -11,12 +11,6 @@ class DripBasedZAxis(ZAxis, threading.Thread):
     MONO_WAVE_STRUCT = struct.Struct(MONO_WAVE_STRUCT_FMT)
     MAX_S16 = math.pow(2, 15)-1
 
-    _running = False
-    _num_drips = 0
-    _drips_per_mm = 1.0
-    _hold_samples = 0
-    _indrip = False
-
     def __init__(self, drips_per_mm = 1, initial_height = 0.0, sampling_frequency = 44100, threshold = 400, release_ms = 6, echo_drips = False):
         threading.Thread.__init__(self)
         self._drips_per_mm = drips_per_mm * 1.0
@@ -24,6 +18,12 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self._threshold = self.MAX_S16 - threshold
         self._release = self._sampling_frequency / 1000 * release_ms
         self._echo_drips = echo_drips
+        self._running = False
+        self._num_drips = 0
+        self._drips_per_mm = 1.0
+        self._hold_samples = 0
+        self._indrip = False
+        self.instream = None
 
         self.set_drips_per_mm(drips_per_mm)
 
@@ -64,15 +64,20 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                 self._add_frames(frames)
 
     def stop(self):
-        if self._running:
-            self._running = False
+        while self.is_alive():
+            if self._running:
+                self._running = False
             if self.instream:
-                self.instream.stop_stream()
-            time.sleep(0.1) # Waiting for current op to compelete
-            self.instream.close()
+                try:
+                    self.instream.stop_stream()
+                except Exception as ex:
+                    print(ex)
+                time.sleep(0.1) # Waiting for current op to compelete
+                try:
+                    self.instream.close()
+                except Exception as ex:
+                    print(ex)
             self.join(10.0)
-            if self.is_alive():
-                print('WARNING: DripDetector failed to stop')
 
     def _add_frames(self, frames):
         hold_samples_c = 250

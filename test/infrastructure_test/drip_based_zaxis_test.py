@@ -38,7 +38,6 @@ class MockPyAudioInputStream(object):
 
 class DripBasedZAxisTests(unittest.TestCase):
     test_file_path = os.path.join(os.path.dirname(__file__), 'test_data')
-    p = pyaudio.PyAudio()
     stream = None
 
     def wait_for_stream(self):
@@ -131,20 +130,6 @@ class DripBasedZAxisTests(unittest.TestCase):
         self.wait_for_stream()
         drip_zaxis.stop()
         self.assertEqual(drip_zaxis.current_z_location_mm(), 22)
-
-    @patch('pyaudio.PyAudio')
-    def test_drip_zaxis_should_run_in_its_own_thread(self, mock_pyaudio):
-        drips_per = 1
-        wave_file = os.path.join(self.test_file_path, '22_drips_speeding_up.wav')
-        self.stream = MockPyAudioInputStream(wave_file)
-
-        my_mock_pyaudio = mock_pyaudio.return_value
-        my_mock_pyaudio.open.return_value = self.stream
-
-        drip_zaxis = DripBasedZAxis(drips_per)
-        drip_zaxis.start()
-        drip_zaxis.stop()
-        self.assertTrue(drip_zaxis.current_z_location_mm() < 22)
 
     @patch('pyaudio.PyAudio')
     def test_drip_zaxis_should_report_2_drips_if_started_half_way_though_drip(self, mock_pyaudio):
