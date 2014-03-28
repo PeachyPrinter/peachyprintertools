@@ -13,7 +13,8 @@ class GCodeReader(object):
 
     def get_layers(self):
         return GCodeToLayerGenerator(self.file_object)
-    
+
+#TODO JT 2014-03-28 Find this a home.
 class ConsoleLog(object):
     def __init__(self,on):
         self.on = on
@@ -102,6 +103,7 @@ class GCodeCommandReader(ConsoleLog):
         commands = gcode.split(' ')
         if commands[0] in self._COMMAND_HANDLERS:
             return self._COMMAND_HANDLERS[commands[0]](self,gcode)
+        self.info('Unsupported Command: %s' % (gcode))
         raise Exception('Unsupported Command: %s' % (gcode))
 
     def _command_draw(self, line):
@@ -122,10 +124,7 @@ class GCodeCommandReader(ConsoleLog):
             elif detail_type == 'F':
                 self._mm_per_s = self._to_mm_per_second(float(detail[1:]))
             elif detail_type == 'E':
-                if float(detail[1:]) <=0:
-                    write = False
-                else:
-                    write = True
+                write = float(detail[1:]) > 0.0
             else:
                 self.info("Warning gcode subcode [%s] not supported in command: [%s]" % (detail_type, line))
 
@@ -168,6 +167,7 @@ class GCodeCommandReader(ConsoleLog):
 
     def _zaxis_change(self,z_mm):
         if self._current_z_pos and self._current_z_pos > z_mm:
+            self.info("Negitive Vertical Movement Unsupported")
             raise Exception("Negitive Vertical Movement Unsupported")
         else:
             self._update_layer_height(self._current_z_pos,z_mm)
