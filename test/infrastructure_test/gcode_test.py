@@ -244,6 +244,28 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         
         self.assertCommandsEqual(expected, actual)
 
+    def test_vertically_diagonal_writes_unsupported(self):
+        gcode_setup1 = "G0 Z0.1 F6000 E0"
+        gcode_setup2 = "G0 Z0.2 F6000 E0"
+        gcode_setup3 = "G0 X0.5 Y0.5 F6000"
+        gcode_test = "G0 X0.7 Y0.7 Z0.5 F6000 E1"
+        command_reader = GCodeCommandReader()
+        expected = [ 
+            VerticalMove(0.3,100.0), 
+            LateralDraw(0.5,0.5,100.0),
+            VerticalMove(0.4,100.0), 
+            LateralDraw(0.5,0.5,100.0),
+            VerticalMove(0.5,100.0), 
+            LateralDraw(0.5,0.5,100.0),
+            ]
+
+        command_reader.to_command(gcode_setup1)
+        command_reader.to_command(gcode_setup2)
+        command_reader.to_command(gcode_setup3)
+
+        with self.assertRaises(Exception):
+            command_reader.to_command(gcode_test)
+
     def test_to_command_handles_unknown_sub_command(self):
         pass
 

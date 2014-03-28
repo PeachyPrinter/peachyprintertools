@@ -131,6 +131,8 @@ class GCodeCommandReader(ConsoleLog):
         if not self._mm_per_s:
             raise Exception("Feed Rate Never Specified")
         if z_mm:
+            if x_mm or y_mm:
+                raise Exception("Vertically angled writes are not supported")
             self._zaxis_change(z_mm)
             if write:
                 distance_to_traverse = z_mm - self._current_z_pos
