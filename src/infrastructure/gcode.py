@@ -86,6 +86,7 @@ class GCodeToLayerGenerator(ConsoleLog):
                 return self._get_layer(layer)
 
 class GCodeCommandReader(ConsoleLog):
+    _INCHES2MM = 25.4
     def __init__(self, verbose = False):
         super(GCodeCommandReader, self).__init__(on = verbose)
         self._mm_per_s = None
@@ -93,6 +94,7 @@ class GCodeCommandReader(ConsoleLog):
         self._current_y_pos = 0.0
         self._current_z_pos = 0.0
         self._layer_height = None
+        self._units = 'mm'
 
     def to_command(self, gcode):
         if self._can_ignore(gcode):
@@ -100,24 +102,23 @@ class GCodeCommandReader(ConsoleLog):
         commands = gcode.split(' ')
         if commands[0] in self._COMMAND_HANDLERS:
             return self._COMMAND_HANDLERS[commands[0]](self,gcode)
-        raise Exception('Unreconized Command: %s' % (gcode))
+        raise Exception('Unsupported Command: %s' % (gcode))
 
     def _command_draw(self, line):
         command_details = line.split(' ')
         x_mm = None
         y_mm = None
         z_mm = None
-        mm_per_s = None
         write = False
-        layer_height = None
+
         for detail in command_details[1:]:
             detail_type = detail[0]
             if detail_type == 'X':
-                x_mm = float(detail[1:])
+                x_mm = self._to_mm(float(detail[1:]))
             elif detail_type == 'Y':
-                y_mm = float(detail[1:])
+                y_mm = self._to_mm(float(detail[1:]))
             elif detail_type == 'Z':
-                z_mm = float(detail[1:])
+                z_mm = self._to_mm(float(detail[1:]))
             elif detail_type == 'F':
                 self._mm_per_s = self._to_mm_per_second(float(detail[1:]))
             elif detail_type == 'E':
@@ -126,30 +127,36 @@ class GCodeCommandReader(ConsoleLog):
                 else:
                     write = True
             else:
-                return None
+                self.info("Warning gcode subcode [%s] not supported in command: [%s]" % (detail_type, line))
 
         if not self._mm_per_s:
+            self.info("Feed Rate Never Specified")
             raise Exception("Feed Rate Never Specified")
         if z_mm:
             if x_mm or y_mm:
-                raise Exception("Vertically angled writes are not supported")
-            self._zaxis_change(z_mm)
-            if write:
-                distance_to_traverse = z_mm - self._current_z_pos
-                layers = int(distance_to_traverse / self._layer_height)
-                commands = []
-                for layer in range(0, layers + 1):
-                    commands.append(VerticalMove(self._current_z_pos + self._layer_height * (layer + 1),self._mm_per_s))
-                    commands.append(LateralDraw(self._current_x_pos,self._current_y_pos,self._mm_per_s))
-                self._current_z_pos = z_mm
-                return commands
-            else:
-                self._current_z_pos = z_mm
-                return [ VerticalMove(z_mm,self._mm_per_s) ]
+                self.info("Vertically angled writes are not supported...yet")
+                raise Exception("Vertically angled writes are not supported...yet")
+            return self._get_vertical_movement(z_mm,write)
         elif x_mm and y_mm:
             return self._get_lateral_movement(x_mm,y_mm, write)
         else:
             return []
+
+    def _get_vertical_movement(self, z_mm, write):
+        self._zaxis_change(z_mm)
+        commands = [ ]
+        if write:
+            distance_to_traverse = z_mm - self._current_z_pos
+            layers = int(distance_to_traverse / self._layer_height)
+            commands = []
+            for layer in range(0, layers + 1):
+                commands.append(VerticalMove(self._current_z_pos + self._layer_height * (layer + 1),self._mm_per_s))
+                commands.append(LateralDraw(self._current_x_pos,self._current_y_pos,self._mm_per_s))
+        else:
+            commands.append(VerticalMove(z_mm,self._mm_per_s))
+        self._current_z_pos = z_mm
+        return commands
+
 
     def _get_lateral_movement(self, x_mm, y_mm, write):
         self._current_x_pos = x_mm
@@ -165,8 +172,18 @@ class GCodeCommandReader(ConsoleLog):
         else:
             self._update_layer_height(self._current_z_pos,z_mm)
     
-    def _to_mm_per_second(self,mm_per_minute):
-        return mm_per_minute / 60.0
+    def _to_mm_per_second(self,value_per_minute):
+        if self._units == 'inches':
+            return value_per_minute * self._INCHES2MM / 60.0
+        else:
+            return value_per_minute / 60.0
+
+    def _to_mm(self, value):
+        if self._units == 'inches':
+            return self._INCHES2MM * value
+        else:
+            return value
+
 
     def _update_layer_height(self, current_height, new_height):
         if current_height:
@@ -183,11 +200,19 @@ class GCodeCommandReader(ConsoleLog):
                 return True
         return False
 
+    def _units_mm(self, line):
+        self._units = 'mm'
+
+    def _units_inches(self, line):
+        self._units = 'inches'
+
     _COMMAND_HANDLERS = {
         'G01' : _command_draw,
         'G1'  : _command_draw,
         'G0'  : _command_draw,
         'G01' : _command_draw,
+        'G20' : _units_mm,
+        'G21' : _units_inches
     }
 
     _IGNORABLE_PREFIXES = [ 

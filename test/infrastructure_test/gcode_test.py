@@ -267,11 +267,30 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
             command_reader.to_command(gcode_test)
 
     def test_to_command_handles_unknown_sub_command(self):
-        pass
+        gcode_line = "G1 X1.0 Y1.0 F6000 E12 Q55"
+        command_reader = GCodeCommandReader()
+        expected = [ LateralDraw(1.0, 1.0, 100) ]
 
+        actual = command_reader.to_command(gcode_line)
+        
+        self.assertCommandsEqual(expected, actual)
+
+    def test_to_command_handles_units(self):
+        gcode_metric =  "G20"
+        gcode_metric_line = "G1 X1.0 Y1.0 F6000 E12"
+        gcode_feet = "G21"
+        gcode_feet_line = "G1 X1.0 Y1.0 F6000 E12"
+        command_reader = GCodeCommandReader()
+        expected_metric = [ LateralDraw(1.0,1.0,100.0) ]
+        expected_feet = [ LateralDraw(25.4,25.4,2540.0) ]
+        
+        command_reader.to_command(gcode_metric)
+        self.assertCommandsEqual(expected_metric, command_reader.to_command(gcode_metric_line))
+
+        command_reader.to_command(gcode_feet)
+        self.assertCommandsEqual(expected_feet, command_reader.to_command(gcode_feet_line))
 
 # units
-# down axis vertial travel
 
 if __name__ == '__main__':
     unittest.main()
