@@ -7,6 +7,7 @@ import os,sys
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 
 from laser_control import AudioModulationLaserControl
+from audiofiler import PathToAudio
 
 class SpikeWriter(object):
     MAX_S16 = (math.pow(2, 15) - 1.0) * 1.0
@@ -40,18 +41,19 @@ class SpikeWriter(object):
         self.outstream.stop_stream()
         self.outstream.close()
 
-class Goer(object):
+class SpikeController(object):
     def __init__(self):
         self.writer = SpikeWriter()
         self.modulator = AudioModulationLaserControl(48000, 12000, 8000)
+        self.path2audio = PathToAudio(self.modulator.actual_samples_per_second)
 
-    def line(self):
-        maxi = int(math.pi * 24000)
-        pre = [ (math.cos(n * 1.0 / 12000.0) + 1.0) / 2.0 for n in range(0,maxi) ]
-        for n in itertools.cycle(range(0, maxi)):
-            # print(pre[n])
-            yield (pre[n], pre[n])
-            yield 
+    def ProcessCommands(self, commands):
+        self.current_pos = (0.0,0.0)
+        for command in commands:
+            if type(command) == LaterialDraw:
+                path = self.path2audio.process(self.current_pos,(command.x, command.y))
+                modulated = self.modulator.modulate(path)
+                self.writer.write(modulated)
 
     def go(self):
         ln = self.line()
@@ -62,6 +64,6 @@ class Goer(object):
         self.writer.close()
 
 if __name__ == '__main__':
-    g = Goer()
+    g = Controller()
     g.go()
 

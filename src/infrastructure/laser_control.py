@@ -6,7 +6,6 @@ from domain.laser_control import LaserControl
 
 
 class AudioModulationLaserControl(LaserControl):
-    samples_per_second = None
     _MODULATION_AMPLITUDE_RATIO = 0.25
     _SOURCE_AMPLITUDE_RATIO = 1.0 - _MODULATION_AMPLITUDE_RATIO
 

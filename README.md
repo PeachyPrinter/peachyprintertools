@@ -1,2 +1,7 @@
 peachyprintertools
 ==================
+
+Development dependancies
+--------------------------
+
+numpy
