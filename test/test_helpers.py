@@ -9,6 +9,11 @@ class NumpyTestHelpers(object):
         if not equal:
             self.fail("\n%s\ndid not equal\n%s" % (str(array1),str(array2)))
 
+    def assertNumpyArrayClose(self,array1, array2):
+        equal = numpy.allclose(array1,array2)
+        if not equal:
+            self.fail("\n%s\ndid not equal\n%s" % (str(array1),str(array2)))
+
 class CommandTestHelpers(object):
 
     def assertLateralDrawEqual(self, command1, command2):
