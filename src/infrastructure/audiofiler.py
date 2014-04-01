@@ -18,6 +18,7 @@ class PathToAudio(object):
         y_points = numpy.linspace(start[1], end[1], num=points)
         return numpy.column_stack((x_points, y_points))
 
+    #TODO JT 2014-04-01 - This doesn't belong here should be in transformations
     def _to_deflection(self, (x ,y)):
         x_deflection = (x / (self.x_range_mm / 2) / 2 ) + 0.5
         y_deflection = (y / (self.y_range_mm / 2) / 2 ) + 0.5

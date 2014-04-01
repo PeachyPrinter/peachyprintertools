@@ -53,7 +53,6 @@ class SpikeController(object):
         self.modulator.set_laser_on()
         for command in commands:
             if type(command) == LateralDraw:
-                # print('From %s to %s ' % (self.current_pos, [command.x,command.y]))
                 path = self.path2audio.process(self.current_pos,(command.x, command.y),command.speed)
                 modulated = self.modulator.modulate(path)
                 self.writer.write(modulated)
