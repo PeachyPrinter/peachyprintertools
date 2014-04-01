@@ -25,6 +25,7 @@ class SpikeWriter(object):
 
     def write(self,inputstream):
         for values in inputstream:
+            print (values)
             frameset = self.to_frame(values)
             da_buffer = self.outstream.get_write_available()
             while da_buffer < len(frameset):
