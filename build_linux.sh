@@ -7,8 +7,8 @@ echo "------------------------------------"
 # TODO JT 2014-02-13 - Should clean the workspace
 rm -rf src/build
 rm -rf *.dmg
-rm src/VERSION.py
-rm version.properties 
+rm -f src/VERSION.py
+rm -f version.properties 
 
 echo "------------------------------------"
 echo "Extracting Git Revision Number"
