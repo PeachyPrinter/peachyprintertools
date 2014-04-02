@@ -9,11 +9,11 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 import test_helpers
 from mock import patch
 
-from infrastructure.gcode import GCodeReader, GCodeToLayerGenerator, GCodeCommandReader
+from infrastructure.gcode_layer_generator import GCodeReader, GCodeToLayerGenerator, GCodeCommandReader
 from domain.commands import * 
 
 class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
-    @patch('infrastructure.gcode.GCodeCommandReader')
+    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_check_should_report_error_on_non_gcode(self, mock_GCodeCommandReader):
         line = "Fake Gcode"
         mock_gcode_command_reader = mock_GCodeCommandReader.return_value
@@ -28,7 +28,7 @@ class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
 
 class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
-    @patch('infrastructure.gcode.GCodeCommandReader')
+    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_get_layers_returns_a_single_layer(self, mock_GCodeCommandReader):
         mock_gcode_command_reader = mock_GCodeCommandReader.return_value
         mock_gcode_command_reader.to_command.return_value = [ LateralDraw(0.0,0.0,100.0) ]
@@ -41,7 +41,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode.GCodeCommandReader')
+    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_get_layers_returns_a_single_layer_with_multipule_commands(self,mock_GCodeCommandReader):
         command1 = LateralDraw(0.0,0.0,100.0)
         command2 = LateralDraw(1.0,1.0,100.0)
@@ -60,7 +60,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode.GCodeCommandReader')
+    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_returns_a_single_commands(self,mock_GCodeCommandReader):
         command1 = LateralDraw(0.0,0.0,100.0)
         command2 = VerticalMove(0.1,100.0)
@@ -80,7 +80,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
         
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode.GCodeCommandReader')
+    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_when_single_command_yields_multipule_lines(self,mock_GCodeCommandReader):
         command1 = LateralDraw(0.0,0.0,100.0)
         command2 = VerticalMove(0.1,100.0)
@@ -100,7 +100,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
         
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode.GCodeCommandReader')
+    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_when_single_command_yields_multipule_vertical_moves(self,mock_GCodeCommandReader):
         command1 = VerticalMove(0.1,100.0)
         command2 = LateralDraw(1.0,1.0,100.0)

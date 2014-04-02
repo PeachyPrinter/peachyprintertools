@@ -45,7 +45,7 @@ cp version.properties src/VERSION.py
 
 echo "------------------------------------"
 echo "Running Tests"
-echo python2.7 --version
+echo `python2.7 --version`
 echo "------------------------------------"
 
 python2.7 test/test-all.py
