@@ -12,36 +12,6 @@ from audiofiler import PathToAudio
 from audio_writer import AudioWriter
 from domain.commands import *
 
-class SpikeWriter(object):
-    MAX_S16 = (math.pow(2, 15) - 1.0) * 1.0
-
-    def __init__(self):
-        pa = pyaudio.PyAudio()
-        self.outstream = pa.open(format=pa.get_format_from_width(2, unsigned=False),
-                 channels=2,
-                 rate=48000,
-                 output=True,
-                 frames_per_buffer=int(48000/8))
-        self.outstream.start_stream()
-
-    def write_chunk(self,inputstream):
-        for values in inputstream:
-            frameset = self.to_frame(values)
-            da_buffer = self.outstream.get_write_available()
-            while da_buffer < len(frameset):
-                time.sleep(0.1)
-                da_buffer = self.outstream.get_write_available()
-            self.outstream.write(frameset)
-
-    def to_frame(self, values):
-        values = numpy.rint( values * self.MAX_S16)
-        mod = values.astype(numpy.dtype('<i2'))
-        return mod.tostring()
-
-    def close(self):
-        self.outstream.stop_stream()
-        self.outstream.close()
-
 class SpikeController(object):
     def __init__(self):
         self.current_pos = [0.0,0.0]
@@ -54,7 +24,7 @@ class SpikeController(object):
         for command in commands:
             if type(command) == LateralDraw:
                 path = self.path2audio.process(self.current_pos,(command.x, command.y),command.speed)
-                modulated = self.modulator.modulate(path)
+                modulated = self.modulator.modulate(transformed_path)
                 self.writer.write_chunk(modulated)
                 self.current_pos = [command.x,command.y]
 
