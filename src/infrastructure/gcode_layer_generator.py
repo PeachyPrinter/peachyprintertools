@@ -1,5 +1,6 @@
 import collections
 from domain.commands import *
+from domain.layer_generator import LayerGenerator
 
 class GCodeReader(object):
     def __init__(self, file_object):
@@ -24,7 +25,7 @@ class ConsoleLog(object):
             print(message)
 
 
-class GCodeToLayerGenerator(ConsoleLog):
+class GCodeToLayerGenerator(ConsoleLog, LayerGenerator):
     def __init__(self, file_object, verbose = False):
         super(GCodeToLayerGenerator, self).__init__(on = verbose)
         self.errors = []

@@ -6,6 +6,7 @@ class LateralDraw(Command):
     def __init__(self,x,y,speed):
         self.x = x
         self.y = y
+        self.posisition=[x,y]
         self.speed = speed
 
     def __str__(self):
@@ -15,6 +16,7 @@ class LateralMove(Command):
     def __init__(self,x,y,speed):
         self.x = x
         self.y = y
+        self.posisition=[x,y]
         self.speed = speed
 
     def __str__(self):
@@ -37,7 +39,3 @@ class Layer(object):
 
     def __str__(self):
         return "Layer[Z:%f,Commands: %s]" % (self.z_posisition,[str(command) for command in self.commands])
-
-    def get_commands(self):
-        self.commands
-        # yields commands
