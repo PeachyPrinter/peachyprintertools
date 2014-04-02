@@ -9,6 +9,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 
 from laser_control import AudioModulationLaserControl
 from audiofiler import PathToAudio
+from audio_writer import AudioWriter
 from domain.commands import *
 
 class SpikeWriter(object):
@@ -23,9 +24,8 @@ class SpikeWriter(object):
                  frames_per_buffer=int(48000/8))
         self.outstream.start_stream()
 
-    def write(self,inputstream):
+    def write_chunk(self,inputstream):
         for values in inputstream:
-            print (values)
             frameset = self.to_frame(values)
             da_buffer = self.outstream.get_write_available()
             while da_buffer < len(frameset):
@@ -34,7 +34,6 @@ class SpikeWriter(object):
             self.outstream.write(frameset)
 
     def to_frame(self, values):
-        # print(values)
         values = numpy.rint( values * self.MAX_S16)
         mod = values.astype(numpy.dtype('<i2'))
         return mod.tostring()
@@ -46,9 +45,9 @@ class SpikeWriter(object):
 class SpikeController(object):
     def __init__(self):
         self.current_pos = [0.0,0.0]
-        self.writer = SpikeWriter()
+        self.writer = AudioWriter(48000,16)
         self.modulator = AudioModulationLaserControl(48000, 12000, 8000)
-        self.path2audio = PathToAudio(self.modulator.actual_samples_per_second, 2.0,2.0,0.5)
+        self.path2audio = PathToAudio(self.modulator.actual_samples_per_second, 4,4,0.5)
 
     def process(self, commands):
         self.modulator.set_laser_on()
@@ -56,13 +55,13 @@ class SpikeController(object):
             if type(command) == LateralDraw:
                 path = self.path2audio.process(self.current_pos,(command.x, command.y),command.speed)
                 modulated = self.modulator.modulate(path)
-                self.writer.write(modulated)
+                self.writer.write_chunk(modulated)
                 self.current_pos = [command.x,command.y]
 
     def go(self):
         square = [[-1.0,-1.0],[1.0,-1.0],[1.0,1.0],[-1.0,1.0]]
         zero = [[0.0,0.0]]
-        for points in itertools.cycle(zero):
+        for points in itertools.cycle(square):
             self.process([LateralDraw(points[0],points[1], 0.5)])
         self.writer.close()
 
