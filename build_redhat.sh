@@ -45,9 +45,10 @@ cp version.properties src/VERSION.py
 
 echo "------------------------------------"
 echo "Running Tests"
+echo python2.7 --version
 echo "------------------------------------"
 
-python test/test-all.py
+python2.7 test/test-all.py
 
 if [ $? != 0 ]; then
     echo "FAILED TESTS ABORTING"
@@ -59,7 +60,7 @@ echo "Create Peachy Tool Chain app"
 echo "------------------------------------"
 
 cd src
-python setup.py bdist_rpm
+python2.7 setup.py bdist_rpm
 if [ $? != 0 ]; then
     echo "Packaging Failed Aborting"
     exit 55
