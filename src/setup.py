@@ -8,7 +8,7 @@ import os
 shortcut_table = [
     ("PeachyPrinterTools",                  # Shortcut
      "DesktopFolder",                       # Directory_
-     "Peachy_Printer_Tools",                # Name
+     "Peachy Printer Tools",                # Name
      "TARGETDIR",                           # Component_
      "[TARGETDIR]PeachyPrinterTools.exe",   # Target
      None,                                  # Arguments
@@ -41,7 +41,7 @@ executables = [
 ]
 
 setup(
-      name='Peachy Printer Tools',
+      name='PeachyPrinterTools',
       version = version,
       description = 'Tool Set for calibrating the Peachy Printer and printing models',
       options =  { 'build_exe' : buildOptions,  "bdist_msi": bdist_msi_options, 'bdist_dmg' : bdist_dmg_options, 'bdist_mac' : bdist_mac_options },
