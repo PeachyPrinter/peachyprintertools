@@ -70,7 +70,7 @@ class GCodeToLayerGenerator(ConsoleLog, LayerGenerator):
                     self._command_queue.appendleft(command)
                     return layer
                 else:
-                    return self._get_layer(Layer(command.z))
+                    return self._get_layer(Layer(command.end))
             else:
                 if layer:
                     layer.commands.append(command)
@@ -92,8 +92,7 @@ class GCodeCommandReader(ConsoleLog):
     def __init__(self, verbose = False):
         super(GCodeCommandReader, self).__init__(on = verbose)
         self._mm_per_s = None
-        self._current_x_pos = 0.0
-        self._current_y_pos = 0.0
+        self._current_xy = [0.0,0.0]
         self._current_z_pos = 0.0
         self._layer_height = None
         self._units = 'mm'
@@ -138,7 +137,7 @@ class GCodeCommandReader(ConsoleLog):
                 raise Exception("Vertically angled writes are not supported...yet")
             return self._get_vertical_movement(z_mm,write)
         elif x_mm and y_mm:
-            return self._get_lateral_movement(x_mm,y_mm, write)
+            return self._get_lateral_movement([x_mm,y_mm], write)
         else:
             return []
 
@@ -150,21 +149,24 @@ class GCodeCommandReader(ConsoleLog):
             layers = int(distance_to_traverse / self._layer_height)
             commands = []
             for layer in range(0, layers + 1):
-                commands.append(VerticalMove(self._current_z_pos + self._layer_height * (layer + 1),self._mm_per_s))
-                commands.append(LateralDraw(self._current_x_pos,self._current_y_pos,self._mm_per_s))
+                next_layer_height = self._current_z_pos + self._layer_height
+                commands.append(VerticalMove(self._current_z_pos, next_layer_height ,self._mm_per_s))
+                commands.append(LateralDraw(self._current_xy,self._current_xy,self._mm_per_s))
+                self._current_z_pos = next_layer_height
         else:
-            commands.append(VerticalMove(z_mm,self._mm_per_s))
+            commands.append(VerticalMove(self._current_z_pos,z_mm,self._mm_per_s))
         self._current_z_pos = z_mm
         return commands
 
 
-    def _get_lateral_movement(self, x_mm, y_mm, write):
-        self._current_x_pos = x_mm
-        self._current_y_pos = y_mm
+    def _get_lateral_movement(self, xy_mm, write):
+        command = []
         if write:
-            return [ LateralDraw(x_mm,y_mm,self._mm_per_s) ]
+            command = [ LateralDraw(self._current_xy,xy_mm,self._mm_per_s) ]
         else:
-            return [ LateralMove(x_mm,y_mm,self._mm_per_s) ]
+            command = [ LateralMove(self._current_xy,xy_mm,self._mm_per_s) ]
+        self._current_xy = xy_mm
+        return command
 
     def _zaxis_change(self,z_mm):
         if self._current_z_pos and self._current_z_pos > z_mm:

@@ -3,31 +3,30 @@ class Command(object):
     pass
 
 class LateralDraw(Command):
-    def __init__(self,x,y,speed):
-        self.x = x
-        self.y = y
-        self.posisition=[x,y]
+    def __init__(self,start,end,speed):
+        self.start = start
+        self.end = end
         self.speed = speed
 
     def __str__(self):
-     return "DRAW[X:%f,Y:%f,Speed:%f]" % (self.x,self.y,self.speed)
+     return "DRAW[Start: %s,End:%s,Speed:%f]" % (self.start,self.end,self.speed)
 
 class LateralMove(Command):
-    def __init__(self,x,y,speed):
-        self.x = x
-        self.y = y
-        self.posisition=[x,y]
+    def __init__(self,start,end,speed):
+        self.start = start
+        self.end = end
         self.speed = speed
 
     def __str__(self):
-     return "MOVE[X:%f,Y:%f,Speed:%f]" % (self.x,self.y,self.speed)
+     return "MOVE[Start: %s,End:%s,Speed:%f]" % (self.start,self.end,self.speed)
 
 class VerticalMove(Command):
-    def __init__(self,z,speed):
-        self.z = z
+    def __init__(self,start,end,speed):
+        self.start = start
+        self.end = end
         self.speed = speed
     def __str__(self):
-        return "MOVEVERTICAL[Z:%f,Speed:%f]" % (self.z,self.speed)
+        return "MOVEVERTICAL[Start:%s,Stop:%s,Speed:%f]" % (self.start,self.end,self.speed)
 
 class Layer(object):
     def __init__(self, z_posisition , commands = None):

@@ -17,15 +17,15 @@ class NumpyTestHelpers(object):
 class CommandTestHelpers(object):
 
     def assertLateralDrawEqual(self, command1, command2):
-        if not (command1.x == command2.x and command1.y == command2.y and command1.speed == command2.speed):
+        if not (command1.start == command2.start and command1.end == command2.end and command1.speed == command2.speed):
             self.fail("Commands do not match\n%s\ndid not equal\n%s" % (command1, command2))
 
     def assertLateralMoveEqual(self, command1, command2):
-        if not (command1.x == command2.x and command1.y == command2.y and command1.speed == command2.speed):
+        if not (command1.start == command2.start and command1.end == command2.end and command1.speed == command2.speed):
             self.fail("Commands do not match\n%s\ndid not equal\n%s" % (command1, command2))
 
     def assertVerticleMoveEqual(self, command1, command2):
-        if not (self._equal(command1.z, command2.z) and self._equal(command1.speed, command2.speed)):
+        if not (self._equal(command1.start, command2.start) and self._equal(command1.end, command2.end) and self._equal(command1.speed, command2.speed)):
             self.fail("Commands do not match\n%s\ndid not equal\n%s" % (command1, command2))
 
     def assertCommandEqual(self, command1, command2):

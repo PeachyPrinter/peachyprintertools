@@ -31,11 +31,11 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_get_layers_returns_a_single_layer(self, mock_GCodeCommandReader):
         mock_gcode_command_reader = mock_GCodeCommandReader.return_value
-        mock_gcode_command_reader.to_command.return_value = [ LateralDraw(0.0,0.0,100.0) ]
+        mock_gcode_command_reader.to_command.return_value = [ LateralDraw([0.0,0.0],[0.0,0.0],100.0) ]
         gcode_line = "G01 X0.00 Y0.00 E1 F100.0\n"
         test_gcode = StringIO.StringIO(gcode_line)
         command_generator = GCodeToLayerGenerator(test_gcode)
-        expected =  [ Layer(0.0, [LateralDraw(0.00, 0.00, 100.0)]) ]
+        expected =  [ Layer(0.0, [ LateralDraw([0.0,0.0],[0.0,0.0],100.0) ]) ]
 
         actual = list(command_generator)
 
@@ -43,8 +43,8 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_get_layers_returns_a_single_layer_with_multipule_commands(self,mock_GCodeCommandReader):
-        command1 = LateralDraw(0.0,0.0,100.0)
-        command2 = LateralDraw(1.0,1.0,100.0)
+        command1 = LateralDraw([0.0,0.0],[0.0,0.0],100.0)
+        command2 = LateralDraw([0.0,0.0],[1.0,1.0],100.0)
         list_of_return_values= [ [command2], [command1] ]
         def side_effect(self):
             return list_of_return_values.pop()
@@ -62,9 +62,9 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_returns_a_single_commands(self,mock_GCodeCommandReader):
-        command1 = LateralDraw(0.0,0.0,100.0)
-        command2 = VerticalMove(0.1,100.0)
-        command3 = LateralDraw(1.0,1.0,100.0)
+        command1 = LateralDraw([0.0,0.0],[0.0,0.0],100.0)
+        command2 = VerticalMove(0.0,0.1,100.0)
+        command3 = LateralDraw([0.0,0.0],[1.0,1.0],100.0)
         list_of_return_values = [ [command3], [command2], [command1] ]
         def side_effect(self):
             return list_of_return_values.pop()
@@ -82,9 +82,9 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_when_single_command_yields_multipule_lines(self,mock_GCodeCommandReader):
-        command1 = LateralDraw(0.0,0.0,100.0)
-        command2 = VerticalMove(0.1,100.0)
-        command3 = LateralDraw(1.0,1.0,100.0)
+        command1 = LateralDraw([0.0,0.0],[0.0,0.0],100.0)
+        command2 = VerticalMove(0.0,0.1,100.0)
+        command3 = LateralDraw([0.0,0.0],[1.0,1.0],100.0)
         list_of_return_values = [ [command3], [command2], [command1] ]
         def side_effect(self):
             return list_of_return_values.pop()
@@ -102,10 +102,10 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_when_single_command_yields_multipule_vertical_moves(self,mock_GCodeCommandReader):
-        command1 = VerticalMove(0.1,100.0)
-        command2 = LateralDraw(1.0,1.0,100.0)
-        command3 = VerticalMove(0.2,100.0)
-        command4 = LateralDraw(1.0,1.0,100.0)
+        command1 = VerticalMove(0.0,0.1,100.0)
+        command2 = LateralDraw([0.0,0.0],[1.0,1.0],100.0)
+        command3 = VerticalMove(0.1,0.2,100.0)
+        command4 = LateralDraw([0.0,0.0],[1.0,1.0],100.0)
         list_of_return_values = [ [command1,command2,command3,command4] ]
         def side_effect(self):
             return list_of_return_values.pop()
@@ -147,7 +147,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
     def test_to_command_returns_a_LateralDraw_given_move_with_extrude(self):
         gcode_line = "G1 X1.0 Y1.0 F6000 E12"
         command_reader = GCodeCommandReader()
-        expected = [ LateralDraw(1.0, 1.0, 100) ]
+        expected = [ LateralDraw([0.0,0.0],[1.0,1.0],100.0) ]
 
         actual = command_reader.to_command(gcode_line)
         
@@ -157,7 +157,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         gcode_setup = "G1 X1.0 Y1.0 F6000 E12"
         gcode_test = "G1 X1.0 Y1.0 E12"
         command_reader = GCodeCommandReader()
-        expected = [ LateralDraw(1.0, 1.0, 100) ]
+        expected = [ LateralDraw([1.0,1.0],[1.0,1.0],100.0) ]
 
         command_reader.to_command(gcode_setup)
         actual = command_reader.to_command(gcode_test)
@@ -167,7 +167,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
     def test_to_command_throws_exception_if_speed_never_specified(self):
         gcode_test = "G1 X1.0 Y1.0 E12"
         command_reader = GCodeCommandReader()
-        expected = [ LateralDraw(1.0, 1.0, 100) ]
+        expected = [ LateralDraw([0.0,0.0],[1.0,1.0],100.0) ]
 
         with self.assertRaises(Exception):
             command_reader.to_command(gcode_test)
@@ -176,7 +176,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         gcode_setup = "G1 F6000"
         gcode_test = "G1 X1.0 Y1.0 E12"
         command_reader = GCodeCommandReader()
-        expected_verify  = [ LateralDraw(1.0, 1.0, 100) ]
+        expected_verify  = [ LateralDraw([0.0,0.0],[1.0,1.0],100.0) ]
 
         setup = command_reader.to_command(gcode_setup)
         verify = command_reader.to_command(gcode_test)
@@ -187,7 +187,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
     def test_to_command_creates_move_if_E_is_0(self):
         gcode_test = "G0 X1.0 Y1.0 F6000 E0.0"
         command_reader = GCodeCommandReader()
-        expected = [ LateralMove(1.0, 1.0, 100.0) ]
+        expected = [ LateralMove([0.0,0.0],[1.0, 1.0], 100.0) ]
 
         actual = command_reader.to_command(gcode_test)
         
@@ -196,7 +196,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
     def test_to_command_creates_move_if_E_not_specified(self):
         gcode_test = "G0 X1.0 Y1.0 F6000"
         command_reader = GCodeCommandReader()
-        expected = [ LateralMove(1.0, 1.0, 100.0) ]
+        expected = [ LateralMove([0.0,0.0],[1.0, 1.0], 100.0) ]
 
         actual = command_reader.to_command(gcode_test)
         
@@ -205,7 +205,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
     def test_to_command_handles_vertical_movement(self):
         gcode_test = "G0 Z1.0 F6000 E0"
         command_reader = GCodeCommandReader()
-        expected  = [ VerticalMove(1.0, 100.0) ]
+        expected  = [ VerticalMove(0.0,1.0, 100.0) ]
 
         actual = command_reader.to_command(gcode_test)
         
@@ -228,12 +228,12 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         gcode_test = "G0 Z0.5 F6000 E1"
         command_reader = GCodeCommandReader()
         expected = [ 
-            VerticalMove(0.3,100.0), 
-            LateralDraw(0.5,0.5,100.0),
-            VerticalMove(0.4,100.0), 
-            LateralDraw(0.5,0.5,100.0),
-            VerticalMove(0.5,100.0), 
-            LateralDraw(0.5,0.5,100.0),
+            VerticalMove(0.2,0.3,100.0), 
+            LateralDraw([0.5,0.5],[0.5,0.5],100.0),
+            VerticalMove(0.3,0.4,100.0), 
+            LateralDraw([0.5,0.5],[0.5,0.5],100.0),
+            VerticalMove(0.4,0.5,100.0), 
+            LateralDraw([0.5,0.5],[0.5,0.5],100.0),
             ]
 
         command_reader.to_command(gcode_setup1)
@@ -251,11 +251,11 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         gcode_test = "G0 X0.7 Y0.7 Z0.5 F6000 E1"
         command_reader = GCodeCommandReader()
         expected = [ 
-            VerticalMove(0.3,100.0), 
+            VerticalMove(0.0,0.3,100.0), 
             LateralDraw(0.5,0.5,100.0),
-            VerticalMove(0.4,100.0), 
+            VerticalMove(0.3,0.4,100.0), 
             LateralDraw(0.5,0.5,100.0),
-            VerticalMove(0.5,100.0), 
+            VerticalMove(0.4,0.5,100.0), 
             LateralDraw(0.5,0.5,100.0),
             ]
 
@@ -269,7 +269,7 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
     def test_to_command_handles_unknown_sub_command(self):
         gcode_line = "G1 X1.0 Y1.0 F6000 E12 Q55"
         command_reader = GCodeCommandReader()
-        expected = [ LateralDraw(1.0, 1.0, 100) ]
+        expected = [ LateralDraw([0.0,0.0],[1.0, 1.0], 100) ]
 
         actual = command_reader.to_command(gcode_line)
         
@@ -281,8 +281,8 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         gcode_feet = "G21"
         gcode_feet_line = "G1 X1.0 Y1.0 F6000 E12"
         command_reader = GCodeCommandReader()
-        expected_metric = [ LateralDraw(1.0,1.0,100.0) ]
-        expected_feet = [ LateralDraw(25.4,25.4,2540.0) ]
+        expected_metric = [ LateralDraw([0.0,0.0],[1.0,1.0],100.0) ]
+        expected_feet = [ LateralDraw([1.0,1.0],[25.4,25.4],2540.0) ]
         
         command_reader.to_command(gcode_metric)
         self.assertCommandsEqual(expected_metric, command_reader.to_command(gcode_metric_line))

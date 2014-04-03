@@ -38,7 +38,7 @@ class Controller(object):
                     self._move_lateral(command)
 
     def _move_lateral(self,command):
-        path = self._path_to_audio.process(self.state.cartesian_plane, command.posisition, command.speed)
+        path = self._path_to_audio.process(self.state.cartesian_plane, command.end, command.speed)
         modulated_path = self._laser_control.modulate(path)
         self._audio_writer.write_chunk(modulated_path)
-        self.state.set_state(command.posisition)
+        self.state.set_state(command.end)

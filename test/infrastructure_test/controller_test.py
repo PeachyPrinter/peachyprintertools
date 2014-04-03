@@ -22,7 +22,7 @@ class ControllerTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_zaxis = mock_ZAxis.return_value
         mock_audio_writer = mock_AudioWriter.return_value
-        test_layer = Layer(0.0,[ LateralDraw(2.0,2.0,2.0) ])
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
         stub_layer_generator = StubLayerGenerator([test_layer])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
@@ -38,7 +38,7 @@ class ControllerTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_zaxis = mock_ZAxis.return_value
         mock_audio_writer = mock_AudioWriter.return_value
-        test_layer = Layer(0.0,[ LateralMove(2.0,2.0,2.0) ])
+        test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[2.0,2.0],100.0) ])
         stub_layer_generator = StubLayerGenerator([test_layer])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
@@ -54,7 +54,7 @@ class ControllerTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_zaxis = mock_ZAxis.return_value
         mock_audio_writer = mock_AudioWriter.return_value
-        test_layer = Layer(0.0,[ LateralDraw(2.0,2.0,2.0) ])
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
         stub_layer_generator = StubLayerGenerator([test_layer])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
@@ -71,7 +71,7 @@ class ControllerTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_zaxis = mock_ZAxis.return_value
         mock_audio_writer = mock_AudioWriter.return_value
-        test_layer = Layer(0.0,[ LateralDraw(2.0,2.0,2.0), LateralDraw(-1.0,-1.0,2.0) ])
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
         stub_layer_generator = StubLayerGenerator([test_layer])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
@@ -86,8 +86,8 @@ class ControllerTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_zaxis = mock_ZAxis.return_value
         mock_audio_writer = mock_AudioWriter.return_value
-        test_layer1 = Layer(0.0, [ LateralDraw(2.0,2.0,2.0) ])
-        test_layer2 = Layer(1.0, [ LateralDraw(0.0,0.0,2.0) ])
+        test_layer1 = Layer(0.0, [ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+        test_layer2 = Layer(1.0, [ LateralDraw([0.0,0.0],[0.0,0.0],2.0) ])
         stub_layer_generator = StubLayerGenerator([test_layer1,test_layer2])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
