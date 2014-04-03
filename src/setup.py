@@ -47,6 +47,6 @@ setup(
       options =  { 'build_exe' : buildOptions,  "bdist_msi": bdist_msi_options, 'bdist_dmg' : bdist_dmg_options, 'bdist_mac' : bdist_mac_options },
       data_files=[],
       packages=['domain','infrastructure','api','ui'], 
-      py_modules=['VERSION'],
+      py_modules=['VERSION','peachyprintertools'],
       executables = executables
       )
