@@ -16,8 +16,8 @@ from domain.commands import *
 class SpikeController(object):
     def __init__(self):
         self.current_pos = [0.0,0.0]
-        self.writer = AudioWriter(48000,16)
-        self.modulator = AudioModulationLaserControl(48000, 12000, 8000)
+        self.writer = AudioWriter(44100,16)
+        self.modulator = AudioModulationLaserControl(44100, 11025, 2762)
         self.path2audio = PathToAudio(self.modulator.actual_samples_per_second, 4,4,0.5)
 
     def process(self, commands):
@@ -55,9 +55,9 @@ class SquareLayerGenerator(LayerGenerator):
 
 class SpikeRunner(object):
     bit_depth = 16
-    freq = 48000
-    onfreq = 12000
-    offreq = 8000
+    freq = 44100
+    onfreq = 11025
+    offreq = 7350
 
     def __init__(self):
         self.writer = AudioWriter(self.freq,self.bit_depth)

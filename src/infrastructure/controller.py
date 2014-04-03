@@ -1,20 +1,13 @@
 from domain.commands import *
 
 class MachineState(object):
-    def __init__(self,xy = [0.0,0.0], z = 0.0):
-        self.position = xy
-        self._z = z
+    def __init__(self,xy = [0.0,0.0], speed = 1.0):
+        self.xy = xy
+        self.speed = speed
 
-    def set_state(self, cordanates):
-        self.position = cordanates
-
-    @property
-    def z(self):
-        return 0.0
-
-    @property
-    def xy(self):
-        return self.position
+    def set_state(self, cordanates, speed):
+        self.xy = cordanates
+        self.speed = speed
 
 
 class Controller(object):
@@ -28,6 +21,10 @@ class Controller(object):
 
     def start(self):
         for layer in self._layer_generator:
+            if self._zaxis:
+                while self._zaxis.current_z_location_mm() < layer.z_posisition:
+                    self._laser_control.set_laser_off()
+                    self._move_lateral(self.state.xy, self.state.speed)
             for command in layer.commands:
                 if type(command) == LateralDraw:
                     if self.state.xy != command.start:
@@ -43,4 +40,4 @@ class Controller(object):
         path = self._path_to_audio.process(self.state.xy, to_xy, speed)
         modulated_path = self._laser_control.modulate(path)
         self._audio_writer.write_chunk(modulated_path)
-        self.state.set_state(to_xy)
+        self.state.set_state(to_xy,speed)
