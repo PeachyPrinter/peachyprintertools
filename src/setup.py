@@ -8,7 +8,7 @@ import os
 shortcut_table = [
     ("PeachyPrinterTools",                  # Shortcut
      "DesktopFolder",                       # Directory_
-     "Peachy Printer Tools",                # Name
+     "Peachy_Printer_Tools",                # Name
      "TARGETDIR",                           # Component_
      "[TARGETDIR]PeachyPrinterTools.exe",   # Target
      None,                                  # Arguments
