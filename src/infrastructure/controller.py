@@ -1,13 +1,12 @@
 from domain.commands import *
 
 class MachineState(object):
-    def __init__(self,x = 0.0,y = 0.0, z = 0.0):
-        self.x = x
-        self.y = y
+    def __init__(self,xy = [0.0,0.0], z = 0.0):
+        self.position = xy
         self._z = z
 
     def set_state(self, cordanates):
-        self.x,self.y = cordanates
+        self.position = cordanates
 
     @property
     def z(self):
@@ -15,7 +14,7 @@ class MachineState(object):
 
     @property
     def xy(self):
-        return [self.x,self.y]
+        return self.position
 
 
 class Controller(object):
@@ -29,16 +28,19 @@ class Controller(object):
 
     def start(self):
         for layer in self._layer_generator:
+            positional_refresh_required = True
             for command in layer.commands:
                 if type(command) == LateralDraw:
-                    if self.state.xy != command.start:
+                    if self.state.xy != command.start or positional_refresh_required:
                         self._laser_control.set_laser_off()
                         self._move_lateral(command.start,command.speed)
+                        positional_refresh_required = False
                     self._laser_control.set_laser_on()
                     self._move_lateral(command.end, command.speed )
                 elif type(command) == LateralMove:
                     self._laser_control.set_laser_off()
                     self._move_lateral(command.end, command.speed)
+                    positional_refresh_required = False
 
     def _move_lateral(self,to_xy,speed):
         path = self._path_to_audio.process(self.state.xy, to_xy, speed)

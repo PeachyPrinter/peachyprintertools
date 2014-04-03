@@ -31,7 +31,7 @@ class ControllerTests(unittest.TestCase):
         controller.start()
 
         self.assertEqual(1,mock_laser_control.set_laser_on.call_count)
-        self.assertEqual(0,mock_laser_control.set_laser_off.call_count)
+        self.assertEqual(1,mock_laser_control.set_laser_off.call_count)
 
     def test_start_should_turn_off_laser_for_move_commands(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -94,14 +94,13 @@ class ControllerTests(unittest.TestCase):
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
 
-
         controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
         controller.start()
 
         mock_laser_control.modulate.call_count = 3
         mock_path_to_audio.process.call_count = 3
         mock_laser_control.set_laser_off.assert_called_with()
-        self.assertEqual(([0.0,0.0],[2.0,2.0],2.0), mock_path_to_audio.process.call_args_list[1][0])
+        self.assertEqual(([0.0,0.0],[2.0,2.0],2.0), mock_path_to_audio.process.call_args_list[2][0])
 
     def test_start_if_move_command_start_and_current_pos_are_not_the_same_should_move_to_new_posisition(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -112,7 +111,6 @@ class ControllerTests(unittest.TestCase):
         stub_layer_generator = StubLayerGenerator([test_layer])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-
 
         controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
         controller.start()
@@ -136,8 +134,28 @@ class ControllerTests(unittest.TestCase):
         controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
         controller.start()
 
-        self.assertEqual(2,mock_path_to_audio.process.call_count)
+        self.assertEqual(4,mock_path_to_audio.process.call_count)
         mock_path_to_audio.process.assert_called_with([2.0,2.0],[0.0,0.0],2.0)
+
+    def test_should_always_move_to_start_xy_on_new_layer(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_zaxis = mock_ZAxis.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        test_layer1 = Layer(0.0, [ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+        test_layer2 = Layer(1.0, [ LateralDraw([2.0,2.0],[0.0,0.0],2.0) ])
+        stub_layer_generator = StubLayerGenerator([test_layer1,test_layer2])
+        mock_path_to_audio.process.return_value = "SomeAudio"
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+
+        controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
+        controller.start()
+        self.assertEqual(4,mock_path_to_audio.process.call_count)
+        self.assertEqual(([0.0,0.0],[2.0,2.0],2.0), mock_path_to_audio.process.call_args_list[1][0])
+
+
+
+
 
 if __name__ == '__main__':
     unittest.main()
