@@ -2,7 +2,7 @@ from cx_Freeze import setup, Executable
 from VERSION import version
 import sys
 import os
-import glob.glob
+from glob import glob
 
 # Dependencies are automatically detected, but it might need
 # fine tuning.
