@@ -14,7 +14,7 @@ class MachineState(object):
         return 0.0
 
     @property
-    def cartesian_plane(self):
+    def xy(self):
         return [self.x,self.y]
 
 
@@ -31,14 +31,17 @@ class Controller(object):
         for layer in self._layer_generator:
             for command in layer.commands:
                 if type(command) == LateralDraw:
+                    if self.state.xy != command.start:
+                        self._laser_control.set_laser_off()
+                        self._move_lateral(command.start,command.speed)
                     self._laser_control.set_laser_on()
-                    self._move_lateral(command)
+                    self._move_lateral(command.end, command.speed )
                 elif type(command) == LateralMove:
                     self._laser_control.set_laser_off()
-                    self._move_lateral(command)
+                    self._move_lateral(command.end, command.speed)
 
-    def _move_lateral(self,command):
-        path = self._path_to_audio.process(self.state.cartesian_plane, command.end, command.speed)
+    def _move_lateral(self,to_xy,speed):
+        path = self._path_to_audio.process(self.state.xy, to_xy, speed)
         modulated_path = self._laser_control.modulate(path)
         self._audio_writer.write_chunk(modulated_path)
-        self.state.set_state(command.end)
+        self.state.set_state(to_xy)
