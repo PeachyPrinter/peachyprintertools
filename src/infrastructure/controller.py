@@ -28,19 +28,16 @@ class Controller(object):
 
     def start(self):
         for layer in self._layer_generator:
-            positional_refresh_required = True
             for command in layer.commands:
                 if type(command) == LateralDraw:
-                    if self.state.xy != command.start or positional_refresh_required:
+                    if self.state.xy != command.start:
                         self._laser_control.set_laser_off()
                         self._move_lateral(command.start,command.speed)
-                        positional_refresh_required = False
                     self._laser_control.set_laser_on()
                     self._move_lateral(command.end, command.speed )
                 elif type(command) == LateralMove:
                     self._laser_control.set_laser_off()
                     self._move_lateral(command.end, command.speed)
-                    positional_refresh_required = False
 
     def _move_lateral(self,to_xy,speed):
         path = self._path_to_audio.process(self.state.xy, to_xy, speed)
