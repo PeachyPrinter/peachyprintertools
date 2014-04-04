@@ -6,16 +6,17 @@ import types
 class ConfigurationManager(object):
     PEACHY_PATH = '.peachyprintertools'
     REQUIRED_FIELDS = {
-        'name' : types.StringType,
-        'output_bit_depth': types.IntType ,
-        'output_sample_frequency' : types.IntType,
-        'on_modulation_frequency': types.IntType,
-        'off_modulation_frequency': types.IntType,
-        'input_bit_depth': types.IntType,
-        'input_sample_frequency': types.IntType,
-        'sublayer_height_mm':types.FloatType,
-        'configurationbounds_mm':types.ListType,
+        u'name' : types.UnicodeType ,
+        u'output_bit_depth': types.IntType ,
+        u'output_sample_frequency' : types.IntType ,
+        u'on_modulation_frequency': types.IntType ,
+        u'off_modulation_frequency': types.IntType ,
+        u'input_bit_depth': types.IntType ,
+        u'input_sample_frequency': types.IntType ,
+        u'sublayer_height_mm': types.FloatType,
+        u'configurationbounds_mm': types.ListType,
     }
+    CONFIGURATION_EXTENSION = '.cfg'
 
     def __init__(self):
         self._configuration_path = os.path.join(os.path.expanduser('~'), self.PEACHY_PATH)
@@ -24,63 +25,66 @@ class ConfigurationManager(object):
         printers = []
         if os.path.exists(self._configuration_path):
             for file_name in os.listdir(self._configuration_path):
-                file_handle = open(os.path.join(self._configuration_path, file_name), 'r')
-                data = json.loads(''.join(file_handle.readlines()))
-                printers.append(data[u'name'])
+                if file_name.endswith(self.CONFIGURATION_EXTENSION):
+                    configuration = self._load_configuration(file_name)
+                    if configuration:
+                        printers.append(configuration[u'name'])
         return printers
 
-    def load(self):
-        pass
+    def load(self, printer_name):
+        filename = self._get_file_name(printer_name)
+        if not os.path.exists(filename):
+            raise Exception("Printer file not found")
+        configuration = self._load_configuration(filename)
+        if configuration:
+            return configuration
+        else:
+            raise Exception("Printer file corrupt or damaged")
+
+    def _load_configuration(self, filename):
+        with open(filename, 'r') as file_handle:
+            configuration = json.loads(''.join(file_handle.read()))
+            if self._valid(configuration):
+                return configuration
+            else:
+                return None
 
     def save(self, configuration):
-        self._verify_data(configuration)
-        filename = self._get_file_name(configuration['name'])
-        filepath = os.path.join(self._path(), filename)
-        with open(filepath,'w') as out_file:
-            out_file.write(json.dumps(configuration))
+        if self._valid(configuration):
+            filename = self._get_file_name(configuration['name'])
+            with open(filename,'w') as file_handle:
+                file_handle.write(json.dumps(configuration))
+        else:
+            raise Exception("Configuration Specified is invalid")
 
     def new(self):
         return {
-            'name' : "Unnamed Printer",
-            'output_bit_depth' : 16,
-            'output_sample_frequency' : 48000,
-            'on_modulation_frequency' : 12000,
-            'off_modulation_frequency' : 8000,
-            'input_bit_depth' : 16,
-            'input_sample_frequency' : 48000,
-            'sublayer_height_mm' : 0.1,
-            'configurationbounds_mm' : [
+            u'name' : u"Unnamed Printer",
+            u'output_bit_depth' : 16,
+            u'output_sample_frequency' : 48000,
+            u'on_modulation_frequency' : 12000,
+            u'off_modulation_frequency' : 8000,
+            u'input_bit_depth' : 16,
+            u'input_sample_frequency' : 48000,
+            u'sublayer_height_mm' : 0.1,
+            u'configurationbounds_mm' : [
                     [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
                     [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
                 ],
             }
 
-    def _verify_data(self, data):
+    def _valid(self, configuration):
+        valid = True
         for (key, value) in self.REQUIRED_FIELDS.items():
-            if not (data.has_key(key) and type(data[key]) == value):
-                raise Exception("%s required and must be of type %s" % (key,value))
+            if not (configuration.has_key(key) and type(configuration[key]) == value):
+                valid = False
+        return valid
 
-    
     def _path(self):
         if not os.path.exists(self._configuration_path):
             os.makedirs(self._configuration_path)
         return self._configuration_path
 
-
     def _get_file_name(self, name):
-        return hashlib.md5(name).hexdigest() + '.cfg'
-
-# class Configuration(object):
-#     def __init__(self):
-#         self.name = "Unnamed Printer"
-#         self.output_bit_depth = 16
-#         self.output_sample_frequency = 48000
-#         self.on_modulation_frequency = 12000
-#         self.off_modulation_frequency = 8000
-#         self.input_bit_depth = 16
-#         self.input_sample_frequency = 48000
-#         self.sublayer_height_mm = 0.1
-#         self.configurationbounds_mm = [
-#                 [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
-#                 [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
-#             ]
+        filename = hashlib.md5(name).hexdigest() + self.CONFIGURATION_EXTENSION
+        return os.path.join(self._path(), filename)
