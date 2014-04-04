@@ -47,6 +47,7 @@ class ConfigurationManagerTests(unittest.TestCase):
             cm = ConfigurationManager()
             data = cm.new()
             data[u'name'] = printer_name
+            
             cm.save(data)
 
         self.assertFalse(mock_makedirs.called)
@@ -64,6 +65,7 @@ class ConfigurationManagerTests(unittest.TestCase):
             cm = ConfigurationManager()
             data = cm.new()
             data[u'name'] = u"Test1"
+
             cm.save(data)
 
         mock_makedirs.assert_called_with(expected_path)
@@ -105,7 +107,9 @@ class ConfigurationManagerTests(unittest.TestCase):
             manager = mock_open.return_value.__enter__.return_value
             manager.read.return_value = StringIO(json.dumps(self.default_config))
             cm = ConfigurationManager()
+
             actual = cm.list()
+
             self.assertEquals(expected, actual)
 
     @patch.object(os.path, 'exists')
@@ -118,7 +122,9 @@ class ConfigurationManagerTests(unittest.TestCase):
             manager = mock_open.return_value.__enter__.return_value
             manager.read.return_value = StringIO(json.dumps(self.default_config))
             cm = ConfigurationManager()
+
             actual = cm.list()
+
             self.assertEquals(expected, actual)
 
     @patch.object(os.path, 'exists')
@@ -133,7 +139,9 @@ class ConfigurationManagerTests(unittest.TestCase):
             manager = mock_open.return_value.__enter__.return_value
             manager.read.return_value = StringIO(json.dumps(bad_config))
             cm = ConfigurationManager()
+
             actual = cm.list()
+
             self.assertEquals(expected, actual)
 
     @patch.object(os.path, 'exists')
@@ -141,15 +149,28 @@ class ConfigurationManagerTests(unittest.TestCase):
     @patch.object(os, 'makedirs')
     def test_load_should_throw_exception_not_there(self, mock_makedirs, mock_listdir, mock_exists):
         mock_exists.return_value = False
-        expected = [ ]
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             cm = ConfigurationManager()
+
             with self.assertRaises(Exception):
                 cm.load(u"Not There")
 
     @patch.object(os.path, 'exists')
-    @patch.object(os, 'listdir')
-    def test_load_should_load_data(self,  mock_listdir, mock_exists):
+    def test_load_should_throw_exception_if_bad_data(self,  mock_exists):
+        mock_exists.return_value = True
+        with patch('infrastructure.configuration.open', create=True) as mock_open:
+            bad_config = self.default_config.copy()
+            del bad_config['output_bit_depth']
+            manager = mock_open.return_value.__enter__.return_value
+            manager.read.return_value = json.dumps(bad_config)
+            expected = self.default_config
+            cm = ConfigurationManager()
+
+            with self.assertRaises(Exception):
+                cm.load(u"Some Printer")
+
+    @patch.object(os.path, 'exists')
+    def test_load_should_load_data(self, mock_exists):
         mock_exists.return_value = True
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             manager = mock_open.return_value.__enter__.return_value
