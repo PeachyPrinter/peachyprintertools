@@ -10,7 +10,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 import test_helpers
-from infrastructure.audio_writer import AudioWriter
+from infrastructure.audio import AudioWriter
 
 
 class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):

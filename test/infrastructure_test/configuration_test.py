@@ -47,7 +47,6 @@ class ConfigurationManagerTests(unittest.TestCase):
             cm = ConfigurationManager()
             data = cm.new()
             data[u'name'] = printer_name
-            
             cm.save(data)
 
         self.assertFalse(mock_makedirs.called)
@@ -179,7 +178,7 @@ class ConfigurationManagerTests(unittest.TestCase):
             cm = ConfigurationManager()
             actual = cm.load(u"Some Printer")
             self.assertEquals(expected, actual)
-            
+
 
 if __name__ == '__main__':
     unittest.main()

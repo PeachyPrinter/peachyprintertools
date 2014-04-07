@@ -13,7 +13,7 @@ from infrastructure.layer_generators import StubLayerGenerator
 @patch('domain.laser_control.LaserControl')
 @patch('domain.zaxis.ZAxis')
 @patch('infrastructure.audiofiler.PathToAudio')
-@patch('infrastructure.audio_writer.AudioWriter')
+@patch('infrastructure.audio.AudioWriter')
 @patch('domain.layer_generator.LayerGenerator')
 class ControllerTests(unittest.TestCase):
 
