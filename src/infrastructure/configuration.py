@@ -3,7 +3,9 @@ import hashlib
 import json
 import types
 
-class ConfigurationManager(object):
+from domain.configuration_manager import ConfigurationManager
+
+class FileBasedConfigurationManager(ConfigurationManager):
     PEACHY_PATH = '.peachyprintertools'
     REQUIRED_FIELDS = {
         u'name' : types.UnicodeType ,
@@ -20,6 +22,20 @@ class ConfigurationManager(object):
 
     def __init__(self):
         self._configuration_path = os.path.join(os.path.expanduser('~'), self.PEACHY_PATH)
+        self._defaults = {
+            u'name' : u"Unnamed Printer",
+            u'output_bit_depth' : 16,
+            u'output_sample_frequency' : 48000,
+            u'on_modulation_frequency' : 12000,
+            u'off_modulation_frequency' : 8000,
+            u'input_bit_depth' : 16,
+            u'input_sample_frequency' : 48000,
+            u'sublayer_height_mm' : 0.1,
+            u'configurationbounds_mm' : [
+                    [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
+                    [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
+                ],
+            }
 
     def list(self):
         printers = []
@@ -57,21 +73,10 @@ class ConfigurationManager(object):
         else:
             raise Exception("Configuration Specified is invalid")
 
-    def new(self):
-        return {
-            u'name' : u"Unnamed Printer",
-            u'output_bit_depth' : 16,
-            u'output_sample_frequency' : 48000,
-            u'on_modulation_frequency' : 12000,
-            u'off_modulation_frequency' : 8000,
-            u'input_bit_depth' : 16,
-            u'input_sample_frequency' : 48000,
-            u'sublayer_height_mm' : 0.1,
-            u'configurationbounds_mm' : [
-                    [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
-                    [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
-                ],
-            }
+    def new(self, printer_name):
+        new_printer = self._defaults.copy()
+        new_printer[u'name'] = unicode(printer_name)
+        return new_printer
 
     def _valid(self, configuration):
         valid = True

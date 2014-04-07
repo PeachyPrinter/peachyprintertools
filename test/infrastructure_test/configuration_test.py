@@ -10,7 +10,7 @@ from mock import patch, MagicMock
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
-from infrastructure.configuration import ConfigurationManager
+from infrastructure.configuration import FileBasedConfigurationManager as ConfigurationManager
 
 class ConfigurationManagerTests(unittest.TestCase):
     default_config = {
@@ -27,10 +27,11 @@ class ConfigurationManagerTests(unittest.TestCase):
                     [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
                 ],
             }
+    maxDiff = None
     def test_new_creates_a_new_configution_dict_with_sane_values(self):
         cm = ConfigurationManager()
 
-        actual =  cm.new()
+        actual =  cm.new("Unnamed Printer")
         expected = self.default_config
         self.assertEquals(expected, actual)
 
@@ -45,8 +46,7 @@ class ConfigurationManagerTests(unittest.TestCase):
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=file)
             cm = ConfigurationManager()
-            data = cm.new()
-            data[u'name'] = printer_name
+            data = cm.new(printer_name)
             cm.save(data)
 
         self.assertFalse(mock_makedirs.called)
@@ -62,7 +62,7 @@ class ConfigurationManagerTests(unittest.TestCase):
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=file)
             cm = ConfigurationManager()
-            data = cm.new()
+            data = cm.new("Test1")
             data[u'name'] = u"Test1"
 
             cm.save(data)
@@ -74,8 +74,7 @@ class ConfigurationManagerTests(unittest.TestCase):
     def test_save_should_throw_exception_when_missing_fields(self,mock_makedirs,mock_exists):
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             cm = ConfigurationManager()
-            data = cm.new()
-            data[u'name'] = u"Test1"
+            data = cm.new("Test1")
             del data[u'output_bit_depth']
             with self.assertRaises(Exception): 
                 cm.save(data)
@@ -178,6 +177,16 @@ class ConfigurationManagerTests(unittest.TestCase):
             cm = ConfigurationManager()
             actual = cm.load(u"Some Printer")
             self.assertEquals(expected, actual)
+
+    def test_new_should_return_a_config_with_defaults_and_correct_name(self):
+        name = "Apple"
+        expected = self.default_config.copy()
+        expected[u'name'] = u'Apple'
+        cm = ConfigurationManager()
+        
+        actual = cm.new(name)
+
+        self.assertEquals(expected,actual)
 
 
 if __name__ == '__main__':

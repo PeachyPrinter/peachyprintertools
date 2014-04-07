@@ -15,11 +15,14 @@ class MainFrame(Tkinter.Frame):
         
         self.grid()
 
+        audio_setup_button = Tkinter.Button(self,text=u"Setup Audio", command=self.drip_calibration_button_click)
+        audio_setup_button.grid(column=1,row=0)
+
         drip_calibration_button = Tkinter.Button(self,text=u"Start Drip Calibration", command=self.drip_calibration_button_click)
-        drip_calibration_button.grid(column=1,row=0)
+        drip_calibration_button.grid(column=1,row=1)
 
         button = Tkinter.Button(self,text=u"Start Calibration", command=self.start_calibration_button_click)
-        button.grid(column=1,row=1)
+        button.grid(column=1,row=2)
 
         self.grid_columnconfigure(1,weight=1)
         self.update()

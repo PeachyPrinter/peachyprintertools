@@ -3,6 +3,20 @@ import numpy as np
 import math
 import time
 
+# class PyAudioAudioSetup(object):
+#     def __init__(self):
+#         pass
+
+#     def get_valid_input_devices(self):
+#         pass
+
+#     def get_valid_sample_rates(self, device):
+#         pass
+
+#     def get_valid
+
+
+
 class AudioWriter(object):
     def __init__(self, sample_rate, bit_depth):
         self._sample_rate = sample_rate
