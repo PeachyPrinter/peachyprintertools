@@ -65,5 +65,7 @@ class ConfigurationAPI(object):
         self.save()
 
     def set_audio_input_options(self,sample_frequency, bit_depth):
-        pass
+        self._current_config[u'input_bit_depth'] = bit_depth
+        self._current_config[u'input_sample_frequency'] = sample_frequency
+        self.save()
 

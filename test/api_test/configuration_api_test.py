@@ -176,6 +176,41 @@ class ConfigurationAPITest(unittest.TestCase):
         mock_save.assert_called_with(expected)
 
 
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_audio_input_options_should_update_when_44100(self, mock_save, mock_load):
+        printer_name = u'MegaPrint'
+        config =  { u'name':printer_name }
+        mock_load.return_value = config
+        capi = ConfigurationAPI(ConfigurationManager())
+        expected = config.copy()
+        expected[u'input_bit_depth'] = 8
+        expected[u'input_sample_frequency'] =  44100
+
+        capi.load_printer(printer_name)
+        
+        actual = capi.set_audio_input_options(44100,8)
+
+        mock_save.assert_called_with(expected)
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_audio_input_options_should_update_when_48000(self, mock_save, mock_load):
+        printer_name = u'MegaPrint'
+        config =  { u'name':printer_name }
+        mock_load.return_value = config
+        capi = ConfigurationAPI(ConfigurationManager())
+        expected = config.copy()
+        expected[u'input_bit_depth'] = 1
+        expected[u'input_sample_frequency'] =  48000
+
+        capi.load_printer(printer_name)
+        
+        actual = capi.set_audio_input_options(48000,1)
+
+        mock_save.assert_called_with(expected)
+
+
 
 if __name__ == '__main__':
     unittest.main()

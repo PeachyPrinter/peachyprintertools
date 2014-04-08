@@ -60,8 +60,6 @@ class SetupAudioUI(Frame):
         
         self._configuration_api.set_audio_input_options(input_option['sample_rate'],input_option['depth'])
         self._configuration_api.set_audio_output_options(output_option['sample_rate'],output_option['depth'])
-        print("IN : %s" % input_option)
-        print("OUT: %s" % output_option)
 
         self.parent.start_main_window()
 
