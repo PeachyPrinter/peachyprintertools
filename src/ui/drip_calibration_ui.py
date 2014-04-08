@@ -23,12 +23,11 @@ class FieldValidations(object):
 class DripCalibrationUI(Tkinter.Frame, FieldValidations):
     update_drips_job = None
 
-    def __init__(self,parent):
+    def __init__(self,parent, configuration_api):
         Tkinter.Frame.__init__(self, parent)
         self.parent = parent
-        self.__drip_detector = DripBasedZAxis(1)
-        self._drip_api = DripCalibrationAPI(self.__drip_detector)
-        self.__drip_detector.start()
+        self._configuration_api = configuration_api
+        self._configuration_api.start_counting_drips()
         self.drips = 0
         self.initialize()
         self.update_drips()
@@ -43,7 +42,7 @@ class DripCalibrationUI(Tkinter.Frame, FieldValidations):
         self.drip_count_label = Tkinter.StringVar()
         label = Tkinter.Label(self,textvariable=self.drip_count_label, anchor="w",fg="black",bg="white")
         label.grid(column=1,row=1,columnspan=2,sticky='EW')
-        self.drip_count_label.set(str(self._drip_api.get_drips()))
+        self.drip_count_label.set(str(self._configuration_api.get_drips()))
         
         reset_button = Tkinter.Button(self,text=u"Reset Counter", command=self.reset_button_clicked)
         reset_button.grid(column=2,row=1)   
@@ -75,7 +74,7 @@ class DripCalibrationUI(Tkinter.Frame, FieldValidations):
         if self.update_drips_job:
             self.after_cancel(self.update_drips_job)
             self.update_drips_job = None
-        self.drips = self._drip_api.get_drips()
+        self.drips = self._configuration_api.get_drips()
         self.drip_count_label.set("Drips: %d" % self.drips)
         self.update_drips_job=self.after(250, self.update_drips)
 
@@ -89,9 +88,9 @@ class DripCalibrationUI(Tkinter.Frame, FieldValidations):
 
     def mark_button_clicked(self):
         try:
-            self._drip_api.set_target_height(self.height_mm_entry.get())
-            self._drip_api.mark_drips_at_target()
-            self.drips_per_mm_field_text.set("%.2f" %self._drip_api.get_drips_per_mm())
+            self._configuration_api.set_target_height(self.height_mm_entry.get())
+            self._configuration_api.mark_drips_at_target()
+            self.drips_per_mm_field_text.set("%.2f" %self._configuration_api.get_drips_per_mm())
         except Exception as ex:
             tkMessageBox.showwarning(
             "Error",
@@ -99,5 +98,5 @@ class DripCalibrationUI(Tkinter.Frame, FieldValidations):
         )
 
     def close(self):
-        self.__drip_detector.stop()
+        self._configuration_api.stop_counting_drips()
         

@@ -1,6 +1,7 @@
 #TODO JT 2014-04-08 - Domain Audio Setup
 from infrastructure.audio import AudioSetup
 from infrastructure.audio import human_readable_depths
+from infrastructure.drip_based_zaxis import DripBasedZAxis
 
 class ConfigurationAPI(object):
     _BEST_AUDIO_OPTIONS = [
@@ -10,10 +11,12 @@ class ConfigurationAPI(object):
         '44100, 32 bit Floating Point', 
         '44100, 24 bit', 
         '44100, 16 bit']
+
     def __init__(self, configuration_manager):
         self._configuration_manager = configuration_manager
         self._current_config = None
-        self.audio_setup = AudioSetup()
+        self._audio_setup = AudioSetup()
+        self._drip_detector = None
     
     def current_printer(self):
         if self._current_config:
@@ -35,7 +38,7 @@ class ConfigurationAPI(object):
         self._configuration_manager.save(self._current_config)
 
     def get_available_audio_options(self):
-        options = self.audio_setup.get_valid_sampling_options()
+        options = self._audio_setup.get_valid_sampling_options()
         inputs = dict([ (self._audio_as_plain_text(option), option) for option in options['input']])
         inputs = self._audio_mark_recommend(inputs)
         outputs = dict([ (self._audio_as_plain_text(option), option) for option in options['output']])
@@ -69,3 +72,35 @@ class ConfigurationAPI(object):
         self._current_config[u'input_sample_frequency'] = sample_frequency
         self.save()
 
+    def get_drips(self):
+        return self._drip_detector.current_z_location_mm()
+
+    def mark_drips_at_target(self):
+        if self._target_height != None:
+            self._marked_drips = self.get_drips()
+        else:
+            raise Exception("Target height must be specified before marking end point")
+
+    def set_target_height(self,height_mm):
+        try:
+            if float(height_mm) > 0.0:
+                self._target_height = float(height_mm)
+            else:
+                raise Exception("Target height must be a positive numeric value")
+        except:
+            raise Exception("Target height must be a positive numeric value")
+
+    def reset_drips(self):
+        self._drip_detector.reset(0)
+
+    def get_drips_per_mm(self):
+        return self._marked_drips / self._target_height
+
+    def start_counting_drips(self):
+        self._drip_detector = DripBasedZAxis(1,sample_rate = self._current_config[u'input_sample_frequency'], bit_depth = self._current_config[u'input_bit_depth'])
+        self._drip_detector.start()
+
+    def stop_counting_drips(self):
+        if self._drip_detector:
+            self._drip_detector.stop()
+            self._drip_detector = None

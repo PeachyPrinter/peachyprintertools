@@ -11,12 +11,13 @@ class DripBasedZAxis(ZAxis, threading.Thread):
     MONO_WAVE_STRUCT = struct.Struct(MONO_WAVE_STRUCT_FMT)
     MAX_S16 = math.pow(2, 15)-1
 
-    def __init__(self, drips_per_mm = 1, initial_height = 0.0, sampling_frequency = 44100, threshold = 400, release_ms = 6, echo_drips = False):
+    #TODO JT 2014-04-08 respect bit_depth
+    def __init__(self, drips_per_mm = 1, initial_height = 0.0, sample_rate = 44100, bit_depth = pyaudio.paInt16, threshold = 400, release_ms = 6, echo_drips = False):
         threading.Thread.__init__(self)
         self._drips_per_mm = drips_per_mm * 1.0
-        self._sampling_frequency = sampling_frequency
+        self._sampling_rate = sample_rate
         self._threshold = self.MAX_S16 - threshold
-        self._release = self._sampling_frequency / 1000 * release_ms
+        self._release = self._sampling_rate / 1000 * release_ms
         self._echo_drips = echo_drips
         self._running = False
         self._num_drips = 0
@@ -41,7 +42,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
     def run(self):
         pa = pyaudio.PyAudio()
         if not pa.is_format_supported(
-            self._sampling_frequency, 
+            self._sampling_rate, 
             input_device = 0, 
             input_channels = 1, 
             input_format=pa.get_format_from_width(2, unsigned=False),
@@ -51,9 +52,9 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self.instream = pa.open(
                 format=pa.get_format_from_width(2, unsigned=False),
                  channels=1,
-                 rate=self._sampling_frequency,
+                 rate=self._sampling_rate,
                  input=True,
-                 frames_per_buffer=int(self._sampling_frequency/8)
+                 frames_per_buffer=int(self._sampling_rate/8)
                  )
         self.instream.start_stream()
         self._running = True

@@ -93,7 +93,7 @@ class PeachyPrinterTools(Tkinter.Tk):
  
     def start_drip_calibration(self):
         self.close_current()
-        self.current_frame = DripCalibrationUI(self)
+        self.current_frame = DripCalibrationUI(self,self._configuration_api)
         self.current_frame.pack()
 
     def start_add_printer(self):
