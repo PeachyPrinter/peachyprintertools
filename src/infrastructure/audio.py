@@ -3,7 +3,7 @@ import numpy as np
 import math
 import time
 
-supported_depths = {
+human_readable_depths = {
             pyaudio.paFloat32 : '32 bit Floating Point', 
             pyaudio.paInt32 : '32 bit',
             pyaudio.paInt24 : '24 bit',
@@ -14,17 +14,17 @@ supported_depths = {
 class AudioSetup(object):
     def __init__(self ):
         self._supported_rates = [ 44100, 48000, 96000, 192000]
-
+        self._supported_depths = [ pyaudio.paFloat32, pyaudio.paInt32, pyaudio.paInt24, pyaudio.paInt16, pyaudio.paInt8, ]
     def _get_depths_for_rate(self, pa, device_id, sample_rate, io_type):
         depths = []
-        for format, format_human in supported_depths.items():
+        for format in  self._supported_depths:
             try:
                 if io_type == 'input':
                     if pa.is_format_supported(sample_rate,input_device=device_id, input_channels=1, input_format = format):
-                        depths.append(format_human)
+                        depths.append(format)
                 else:
                     if pa.is_format_supported(sample_rate,output_device = device_id, output_channels=2, output_format= format):
-                        depths.append(format_human)
+                        depths.append(format)
             except ValueError:
                 pass
         return depths

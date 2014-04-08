@@ -7,6 +7,8 @@ from infrastructure.configuration import FileBasedConfigurationManager
 from api.configuration_api import ConfigurationAPI
 from ui.drip_calibration_ui import DripCalibrationUI
 from ui.add_printer_ui import AddPrinterUI
+from ui.configuration_ui import SetupAudioUI
+
 
 class MainFrame(Tkinter.Frame):
     def __init__(self,parent, configuration_api):
@@ -36,7 +38,7 @@ class MainFrame(Tkinter.Frame):
         add_printer_button = Tkinter.Button(self,text=u"Add Printer", command=self._add_printer)
         add_printer_button.grid(column=2,row=0)
 
-        audio_setup_button = Tkinter.Button(self,text=u"Setup Audio", command=self.drip_calibration_button_click)
+        audio_setup_button = Tkinter.Button(self,text=u"Setup Audio", command=self.setup_audio_button_click)
         audio_setup_button.grid(column=1,row=1)
 
         drip_calibration_button = Tkinter.Button(self,text=u"Start Drip Calibration", command=self.drip_calibration_button_click)
@@ -57,6 +59,9 @@ class MainFrame(Tkinter.Frame):
 
     def drip_calibration_button_click(self):
         self.parent.start_drip_calibration()
+
+    def setup_audio_button_click(self):
+        self.parent.start_audio_setup()
 
     def start_calibration_button_click(self):
         tkMessageBox.showwarning(
@@ -94,6 +99,11 @@ class PeachyPrinterTools(Tkinter.Tk):
     def start_add_printer(self):
         self.close_current()
         self.current_frame = AddPrinterUI(self, self._configuration_api)
+        self.current_frame.pack()
+
+    def start_audio_setup(self):
+        self.close_current()
+        self.current_frame = SetupAudioUI(self, self._configuration_api)
         self.current_frame.pack()
 
     def start_main_window(self):

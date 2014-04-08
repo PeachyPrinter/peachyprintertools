@@ -13,6 +13,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 from api.configuration_api import ConfigurationAPI
 from domain.configuration_manager import ConfigurationManager
 from infrastructure.audio import AudioSetup
+import pyaudio
 
 class ConfigurationAPITest(unittest.TestCase):
 
@@ -72,9 +73,14 @@ class ConfigurationAPITest(unittest.TestCase):
     def test_get_available_audio_options_should_get_list_of_data(self, mock_load, mock_get_valid_sampling_options):
         printer_name = u'MegaPrint'
         audio_options = { 
-            "input" : [{'sample_rate' : 48000, 'depth': '16 bit'}], 
-            "output": [{'sample_rate' : 48000, 'depth': '16 bit'}]
+            "input" : [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 }], 
+            "output": [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 }]
             }
+        expected = {
+                    "inputs" : { '48000, 16 bit' : {'sample_rate' : 48000, 'depth': pyaudio.paInt16 }}, 
+                    "outputs": { '48000, 16 bit' : {'sample_rate' : 48000, 'depth': pyaudio.paInt16 }}
+                   }
+
         mock_get_valid_sampling_options.return_value = audio_options
         mock_load.return_value = { u'name':printer_name }
         capi = ConfigurationAPI(ConfigurationManager())
@@ -82,8 +88,54 @@ class ConfigurationAPITest(unittest.TestCase):
         
         actual = capi.get_available_audio_options()
 
-        self.assertEqual(audio_options, actual)
+        self.assertEqual(expected,actual)
 
+
+    @patch.object(AudioSetup, 'get_valid_sampling_options' )
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_available_audio_options_should_get_list_of_data(self, mock_load, mock_get_valid_sampling_options):
+        self.maxDiff = None
+        printer_name = u'MegaPrint'
+        audio_options = { 
+            "input" : [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 }], 
+            "output": [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 }]
+            }
+        expected = {
+                    "inputs" : { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': pyaudio.paInt16 }}, 
+                    "outputs": { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': pyaudio.paInt16 }}
+                   }
+
+        mock_get_valid_sampling_options.return_value = audio_options
+        mock_load.return_value = { u'name':printer_name }
+        capi = ConfigurationAPI(ConfigurationManager())
+        capi.load_printer(printer_name)
+        
+        actual = capi.get_available_audio_options()
+
+        self.assertEqual(expected,actual)
+
+ 
+    @patch.object(AudioSetup, 'get_valid_sampling_options' )
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_available_audio_options_should_add_recommend_flag_to_one_option(self, mock_load, mock_get_valid_sampling_options):
+        self.maxDiff = None
+        printer_name = u'MegaPrint'
+        audio_options = { 
+            "input" : [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 },{'sample_rate' : 44100, 'depth': pyaudio.paInt16 }], 
+            "output": [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 },{'sample_rate' : 44100, 'depth': pyaudio.paInt16 } ]
+            }
+
+        mock_get_valid_sampling_options.return_value = audio_options
+        mock_load.return_value = { u'name':printer_name }
+        capi = ConfigurationAPI(ConfigurationManager())
+        capi.load_printer(printer_name)
+        
+        actual = capi.get_available_audio_options()
+
+        self.assertTrue(actual['inputs'].has_key('48000, 16 bit (Recommended)'))
+        self.assertTrue(actual['outputs'].has_key('48000, 16 bit (Recommended)'))
+        self.assertFalse(actual['inputs'].has_key('44100, 16 bit (Recommended)'))
+        self.assertFalse(actual['outputs'].has_key('44100, 16 bit (Recommended)'))
 
 
 if __name__ == '__main__':

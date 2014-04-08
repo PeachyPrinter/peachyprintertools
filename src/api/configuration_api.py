@@ -1,7 +1,15 @@
 #TODO JT 2014-04-08 - Domain Audio Setup
 from infrastructure.audio import AudioSetup
+from infrastructure.audio import human_readable_depths
 
 class ConfigurationAPI(object):
+    _BEST_AUDIO_OPTIONS = [
+        '48000, 32 bit Floating Point', 
+        '48000, 24 bit', 
+        '48000, 16 bit',
+        '44100, 32 bit Floating Point', 
+        '44100, 24 bit', 
+        '44100, 16 bit']
     def __init__(self, configuration_manager):
         self._configuration_manager = configuration_manager
         self._current_config = None
@@ -27,7 +35,23 @@ class ConfigurationAPI(object):
         self._configuration_manager.save(self._current_config)
 
     def get_available_audio_options(self):
-        return self.audio_setup.get_valid_sampling_options()
+        options = self.audio_setup.get_valid_sampling_options()
+        inputs = dict([ (self._audio_as_plain_text(option), option) for option in options['input']])
+        inputs = self._audio_mark_recommend(inputs)
+        outputs = dict([ (self._audio_as_plain_text(option), option) for option in options['output']])
+        outputs = self._audio_mark_recommend(outputs)
+        return { 'inputs': inputs ,'outputs' : outputs}
+
+    def _audio_as_plain_text(self, audio_option):
+        return "%s, %s" % (audio_option['sample_rate'],human_readable_depths[audio_option['depth']])
+
+    def _audio_mark_recommend(self, available_audio_settings):
+        for option in self._BEST_AUDIO_OPTIONS:
+            if available_audio_settings.has_key(option):
+                available_audio_settings["%s (Recommended)" % option] = available_audio_settings[option]
+                del available_audio_settings[option]
+                return available_audio_settings
+        return available_audio_settings
 
     def set_audio_output_options(self, sample_frequency,bit_depth):
         pass
