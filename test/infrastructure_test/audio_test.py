@@ -10,7 +10,57 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 import test_helpers
-from infrastructure.audio import AudioWriter
+from infrastructure.audio import AudioSetup, AudioWriter
+
+class PyAudioSetupTests(unittest.TestCase, test_helpers.TestHelpers):
+    maxDiff = None
+    input_info  = {'defaultSampleRate': 44100.0, 'defaultLowOutputLatency': 0.011609977324263039, 'defaultLowInputLatency': 0.011609977324263039, 'maxInputChannels': 32L, 'structVersion': 2L, 'hostApi': 0L, 'index': 13L, 'defaultHighOutputLatency': 0.046439909297052155, 'maxOutputChannels': 32L, 'name': u'default', 'defaultHighInputLatency': 0.046439909297052155}
+    output_info = {'defaultSampleRate': 44100.0, 'defaultLowOutputLatency': 0.011609977324263039, 'defaultLowInputLatency': 0.011609977324263039, 'maxInputChannels': 32L, 'structVersion': 2L, 'hostApi': 0L, 'index': 13L, 'defaultHighOutputLatency': 0.046439909297052155, 'maxOutputChannels': 32L, 'name': u'default', 'defaultHighInputLatency': 0.046439909297052155}
+
+    @patch('pyaudio.PyAudio')
+    def test_get_valid_sampling_options_should_list_options(self, mock_PyAudio):
+        mock_py_audio = mock_PyAudio.return_value
+        mock_py_audio.get_default_input_device_info.return_value = self.input_info
+        mock_py_audio.get_default_output_device_info.return_value = self.output_info
+        mock_py_audio.is_format_supported.return_value = True
+        all_options = [
+                { 'sample_rate' : 44100, 'depth': '8 bit' },
+                { 'sample_rate' : 44100, 'depth': '16 bit' },
+                { 'sample_rate' : 44100, 'depth': '24 bit' },
+                { 'sample_rate' : 44100, 'depth': '32 bit' },
+                { 'sample_rate' : 44100, 'depth': '32 bit Floating Point' },
+                { 'sample_rate' : 48000, 'depth': '8 bit' },
+                { 'sample_rate' : 48000, 'depth': '16 bit' },
+                { 'sample_rate' : 48000, 'depth': '24 bit' },
+                { 'sample_rate' : 48000, 'depth': '32 bit' },
+                { 'sample_rate' : 48000, 'depth': '32 bit Floating Point' },
+                { 'sample_rate' : 96000, 'depth': '8 bit' },
+                { 'sample_rate' : 96000, 'depth': '16 bit' },
+                { 'sample_rate' : 96000, 'depth': '24 bit' },
+                { 'sample_rate' : 96000, 'depth': '32 bit' },
+                { 'sample_rate' : 96000, 'depth': '32 bit Floating Point' },
+                { 'sample_rate' : 192000, 'depth': '8 bit' },
+                { 'sample_rate' : 192000, 'depth': '16 bit' },
+                { 'sample_rate' : 192000, 'depth': '24 bit' },
+                { 'sample_rate' : 192000, 'depth': '32 bit' },
+                { 'sample_rate' : 192000, 'depth': '32 bit Floating Point' },
+            ]
+        expected = {
+            'input' : all_options,
+            'output' : all_options
+            }
+
+        audio_setup = AudioSetup()
+
+        actual = audio_setup.get_valid_sampling_options()
+        self.assertListDict(expected['input'],actual['input'])
+        self.assertListDict(expected['output'],actual['output'])
+
+    def test_get_valid_sampling_options_should_return_none_if_channels(self):
+        pass
+
+    def test_get_valid_sampling_options_should_return_none_if_format_exception(self):
+        pass
 
 
 class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):

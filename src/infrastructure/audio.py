@@ -3,17 +3,50 @@ import numpy as np
 import math
 import time
 
-# class PyAudioAudioSetup(object):
-#     def __init__(self):
-#         pass
+class AudioSetup(object):
+    def __init__(self ):
+        self._supported_rates = [ 44100, 48000, 96000, 192000]
+        self.supported_depths = {
+            pyaudio.paFloat32 : '32 bit Floating Point', 
+            pyaudio.paInt32 : '32 bit',
+            pyaudio.paInt24 : '24 bit',
+            pyaudio.paInt16 : '16 bit',
+            pyaudio.paInt8 : '8 bit',
+            }
 
-#     def get_valid_input_devices(self):
-#         pass
+    def _get_depths_for_rate(self, pa, device_id, sample_rate, io_type):
+        supported_depths = []
+        for format, format_human in self.supported_depths.items():
+            if io_type == 'input':
+                if pa.is_format_supported(sample_rate,input_device=device_id, input_channels=1, input_format = format):
+                    supported_depths.append(format_human)
+            else:
+                if pa.is_format_supported(sample_rate,output_device = device_id, output_channels=2, output_format= format):
+                    supported_depths.append(format_human)
+        return supported_depths
 
-#     def get_valid_sample_rates(self, device):
-#         pass
 
-#     def get_valid
+
+    def get_valid_sampling_options(self):
+        pa = None
+        inputs = []
+        outputs =  []
+        try:
+            pa = pyaudio.PyAudio()
+            input_device_id = pa.get_default_input_device_info()['index']
+            output_device_id = pa.get_default_output_device_info()['index']
+            for sample_rate in self._supported_rates:
+                for depth in self._get_depths_for_rate(pa,input_device_id,sample_rate,'input'):
+                    inputs.append({'sample_rate': sample_rate, 'depth' : depth})
+                for depth in self._get_depths_for_rate(pa,input_device_id,sample_rate,'output'):
+                    outputs.append({'sample_rate': sample_rate, 'depth' : depth})
+        finally:
+            if pa:
+                pa.terminate()
+        return { 'input' : inputs, 'output' : outputs}
+
+
+
 
 
 

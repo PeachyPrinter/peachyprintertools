@@ -67,4 +67,8 @@ class CommandTestHelpers(object):
         return abs(a-b) <= (abs(a)+abs(b))/2 * tol
 
 class TestHelpers(NumpyTestHelpers,CommandTestHelpers):
-    pass
+    def assertListDict(self,expected,actual):
+        self.assertEquals(len(expected), len(actual))
+        for item in expected:
+            if not item in actual:
+                self.fail("%s\ndid not equal\n%s\non item\n%s" % (expected,actual, item))
