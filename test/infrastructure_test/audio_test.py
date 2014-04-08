@@ -56,11 +56,46 @@ class PyAudioSetupTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertListDict(expected['input'],actual['input'])
         self.assertListDict(expected['output'],actual['output'])
 
-    def test_get_valid_sampling_options_should_return_none_if_channels(self):
-        pass
+    @patch('pyaudio.PyAudio')
+    def test_get_valid_sampling_options_should_return_none_if_input_channels_not_1(self, mock_PyAudio):
+        no_channels = self.input_info.copy()
+        no_channels['maxInputChannels'] = 0
+        mock_py_audio = mock_PyAudio.return_value
+        mock_py_audio.get_default_input_device_info.return_value = no_channels
+        mock_py_audio.get_default_output_device_info.return_value = self.output_info
+        mock_py_audio.is_format_supported.return_value = True
 
-    def test_get_valid_sampling_options_should_return_none_if_format_exception(self):
-        pass
+        audio_setup = AudioSetup()
+
+        actual = audio_setup.get_valid_sampling_options()
+        self.assertEquals([], actual['input'])
+
+    @patch('pyaudio.PyAudio')
+    def test_get_valid_sampling_options_should_return_none_if_output_channels_not_2(self, mock_PyAudio):
+        no_channels = self.output_info.copy()
+        no_channels['maxOutputChannels'] = 1
+        mock_py_audio = mock_PyAudio.return_value
+        mock_py_audio.get_default_input_device_info.return_value = no_channels
+        mock_py_audio.get_default_output_device_info.return_value = self.output_info
+        mock_py_audio.is_format_supported.return_value = True
+
+        audio_setup = AudioSetup()
+
+        actual = audio_setup.get_valid_sampling_options()
+        self.assertEquals([], actual['output'])
+
+    @patch('pyaudio.PyAudio')
+    def test_get_valid_sampling_options_should_return_none_if_format_exception(self, mock_PyAudio):
+        mock_py_audio = mock_PyAudio.return_value
+        mock_py_audio.get_default_input_device_info.return_value = self.input_info
+        mock_py_audio.get_default_output_device_info.return_value = self.output_info
+        mock_py_audio.is_format_supported.side_effect = ValueError(-9997)
+
+        audio_setup = AudioSetup()
+
+        actual = audio_setup.get_valid_sampling_options()
+        self.assertEquals([], actual['output'])
+        self.assertEquals([], actual['input'])
 
 
 class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):

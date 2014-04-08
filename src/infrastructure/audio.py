@@ -3,10 +3,7 @@ import numpy as np
 import math
 import time
 
-class AudioSetup(object):
-    def __init__(self ):
-        self._supported_rates = [ 44100, 48000, 96000, 192000]
-        self.supported_depths = {
+supported_depths = {
             pyaudio.paFloat32 : '32 bit Floating Point', 
             pyaudio.paInt32 : '32 bit',
             pyaudio.paInt24 : '24 bit',
@@ -14,18 +11,23 @@ class AudioSetup(object):
             pyaudio.paInt8 : '8 bit',
             }
 
+class AudioSetup(object):
+    def __init__(self ):
+        self._supported_rates = [ 44100, 48000, 96000, 192000]
+
     def _get_depths_for_rate(self, pa, device_id, sample_rate, io_type):
-        supported_depths = []
-        for format, format_human in self.supported_depths.items():
-            if io_type == 'input':
-                if pa.is_format_supported(sample_rate,input_device=device_id, input_channels=1, input_format = format):
-                    supported_depths.append(format_human)
-            else:
-                if pa.is_format_supported(sample_rate,output_device = device_id, output_channels=2, output_format= format):
-                    supported_depths.append(format_human)
-        return supported_depths
-
-
+        depths = []
+        for format, format_human in supported_depths.items():
+            try:
+                if io_type == 'input':
+                    if pa.is_format_supported(sample_rate,input_device=device_id, input_channels=1, input_format = format):
+                        depths.append(format_human)
+                else:
+                    if pa.is_format_supported(sample_rate,output_device = device_id, output_channels=2, output_format= format):
+                        depths.append(format_human)
+            except ValueError:
+                pass
+        return depths
 
     def get_valid_sampling_options(self):
         pa = None
@@ -33,21 +35,21 @@ class AudioSetup(object):
         outputs =  []
         try:
             pa = pyaudio.PyAudio()
-            input_device_id = pa.get_default_input_device_info()['index']
-            output_device_id = pa.get_default_output_device_info()['index']
+            input_device = pa.get_default_input_device_info()
+            output_device = pa.get_default_output_device_info()
+            input_device_id = input_device['index']
+            output_device_id = output_device['index']
             for sample_rate in self._supported_rates:
-                for depth in self._get_depths_for_rate(pa,input_device_id,sample_rate,'input'):
-                    inputs.append({'sample_rate': sample_rate, 'depth' : depth})
-                for depth in self._get_depths_for_rate(pa,input_device_id,sample_rate,'output'):
-                    outputs.append({'sample_rate': sample_rate, 'depth' : depth})
+                if input_device['maxInputChannels'] >= 1:
+                    for depth in self._get_depths_for_rate(pa,input_device_id,sample_rate,'input'):
+                        inputs.append({'sample_rate': sample_rate, 'depth' : depth})
+                if input_device['maxOutputChannels'] >= 2:
+                    for depth in self._get_depths_for_rate(pa,output_device_id,sample_rate,'output'):
+                        outputs.append({'sample_rate': sample_rate, 'depth' : depth})
         finally:
             if pa:
                 pa.terminate()
         return { 'input' : inputs, 'output' : outputs}
-
-
-
-
 
 
 class AudioWriter(object):

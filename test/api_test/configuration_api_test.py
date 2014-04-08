@@ -12,6 +12,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 from api.configuration_api import ConfigurationAPI
 from domain.configuration_manager import ConfigurationManager
+from infrastructure.audio import AudioSetup
 
 class ConfigurationAPITest(unittest.TestCase):
 
@@ -63,17 +64,26 @@ class ConfigurationAPITest(unittest.TestCase):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_cannot_add_printer_that_already_exists(self, mock_load):
+        pass
+
+
+    @patch.object(AudioSetup, 'get_valid_sampling_options' )
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_available_audio_options_should_get_list_of_data(self, mock_load, mock_get_valid_sampling_options):
         printer_name = u'MegaPrint'
+        audio_options = { 
+            "input" : [{'sample_rate' : 48000, 'depth': '16 bit'}], 
+            "output": [{'sample_rate' : 48000, 'depth': '16 bit'}]
+            }
+        mock_get_valid_sampling_options.return_value = audio_options
         mock_load.return_value = { u'name':printer_name }
         capi = ConfigurationAPI(ConfigurationManager())
         capi.load_printer(printer_name)
         
-        actual = capi.current_printer()
+        actual = capi.get_available_audio_options()
 
-        self.assertEqual(printer_name, actual)
+        self.assertEqual(audio_options, actual)
 
-    def test_cannot_add_printer_that_already_exists(self):
-        pass
 
 
 if __name__ == '__main__':
