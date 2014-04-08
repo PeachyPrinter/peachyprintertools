@@ -39,13 +39,11 @@ class SetupAudioUI(Frame):
         output_audio_selection_menu = Tkinter.OptionMenu(
             self,
             self.output_audio_selection_current, 
-            *self.output_options)
+            *self.output_options.keys())
         output_audio_selection_menu.grid(column=1,row=1)
 
-        
         button = Button(self, text ="Submit", command = self._process)
         button.grid(column=2,row=2)
-
 
         self.grid_columnconfigure(1,weight=1)
         self.update()

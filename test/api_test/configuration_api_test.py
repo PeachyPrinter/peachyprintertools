@@ -137,6 +137,45 @@ class ConfigurationAPITest(unittest.TestCase):
         self.assertFalse(actual['inputs'].has_key('44100, 16 bit (Recommended)'))
         self.assertFalse(actual['outputs'].has_key('44100, 16 bit (Recommended)'))
 
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_audio_output_options_should_update_output_when_44100(self, mock_save, mock_load):
+        printer_name = u'MegaPrint'
+        config =  { u'name':printer_name }
+        mock_load.return_value = config
+        capi = ConfigurationAPI(ConfigurationManager())
+        expected = config.copy()
+        expected[u'on_modulation_frequency'] = 11025
+        expected[u'off_modulation_frequency'] = 3675
+        expected[u'output_bit_depth'] = 8
+        expected[u'output_sample_frequency'] =  44100
+
+        capi.load_printer(printer_name)
+        
+        actual = capi.set_audio_output_options(44100,8)
+
+        mock_save.assert_called_with(expected)
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_audio_output_options_should_update_output_when_48000(self, mock_save, mock_load):
+        printer_name = u'MegaPrint'
+        config =  { u'name':printer_name }
+        mock_load.return_value = config
+        capi = ConfigurationAPI(ConfigurationManager())
+        expected = config.copy()
+        expected[u'on_modulation_frequency'] = 12000
+        expected[u'off_modulation_frequency'] = 8000
+        expected[u'output_bit_depth'] = 1
+        expected[u'output_sample_frequency'] =  48000
+
+        capi.load_printer(printer_name)
+        
+        actual = capi.set_audio_output_options(48000,1)
+
+        mock_save.assert_called_with(expected)
+
+
 
 if __name__ == '__main__':
     unittest.main()

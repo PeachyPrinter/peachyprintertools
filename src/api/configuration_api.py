@@ -54,7 +54,15 @@ class ConfigurationAPI(object):
         return available_audio_settings
 
     def set_audio_output_options(self, sample_frequency,bit_depth):
-        pass
+        if sample_frequency == 44100:
+            self._current_config[u'on_modulation_frequency'] = 11025
+            self._current_config[u'off_modulation_frequency'] = 3675
+        else:
+            self._current_config[u'on_modulation_frequency'] = 12000
+            self._current_config[u'off_modulation_frequency'] = 8000
+        self._current_config[u'output_bit_depth'] = bit_depth
+        self._current_config[u'output_sample_frequency'] = sample_frequency
+        self.save()
 
     def set_audio_input_options(self,sample_frequency, bit_depth):
         pass
