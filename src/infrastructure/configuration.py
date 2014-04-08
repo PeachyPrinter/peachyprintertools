@@ -42,7 +42,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         if os.path.exists(self._configuration_path):
             for file_name in os.listdir(self._configuration_path):
                 if file_name.endswith(self.CONFIGURATION_EXTENSION):
-                    configuration = self._load_configuration(file_name)
+                    configuration = self._load_configuration(os.path.join(self._path(), file_name))
                     if configuration:
                         printers.append(configuration[u'name'])
         return printers
