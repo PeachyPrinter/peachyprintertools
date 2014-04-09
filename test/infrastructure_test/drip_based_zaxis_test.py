@@ -178,12 +178,12 @@ class DripBasedZAxisTests(unittest.TestCase):
         self.stream = MockPyAudioInputStream(wave_file)
         mock_open.return_value = self.stream
         mock_get_default_input_device_info.return_value = { 'index' : input_device}
-        
+
         drip_zaxis = DripBasedZAxis(1,sample_rate=sample_rate, bit_depth = u'16 bit')
         drip_zaxis.start()
         self.wait_for_stream()
         drip_zaxis.stop()
-        
+
         mock_is_format_supported.assert_called_with(sample_rate, input_device = input_device, input_channels = 1,input_format = expected_format)
         mock_open.assert_called_with(format = expected_format, input= True, frames_per_buffer = expected_buffer_size,channels =1, rate = sample_rate)
 
