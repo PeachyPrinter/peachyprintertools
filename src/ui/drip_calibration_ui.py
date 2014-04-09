@@ -64,7 +64,7 @@ class DripCalibrationUI(Tkinter.Frame, FieldValidations):
         mark_button = Tkinter.Button(self,text=u"Mark", command=self.mark_button_clicked)
         mark_button.grid(column=2,row=2) 
 
-        quit_button = Tkinter.Button(self,text=u"Save", command=self.save_button_clicked)
+        quit_button = Tkinter.Button(self,text=u"Done", command=self.done_button_clicked)
         quit_button.grid(column=3,row=4)    
        
         self.grid_columnconfigure(3,weight=1)
@@ -79,10 +79,10 @@ class DripCalibrationUI(Tkinter.Frame, FieldValidations):
         self.update_drips_job=self.after(250, self.update_drips)
 
     def reset_button_clicked(self):
-        self._drip_api.reset_drips()
+        self._configuration_api.reset_drips()
         self.update_drips()
 
-    def save_button_clicked(self):
+    def done_button_clicked(self):
         self.close()
         self.parent.start_main_window()
 

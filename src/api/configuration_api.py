@@ -1,6 +1,5 @@
 #TODO JT 2014-04-08 - Domain Audio Setup
 from infrastructure.audio import AudioSetup
-from infrastructure.audio import human_readable_depths
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 
 class ConfigurationAPI(object):
@@ -11,6 +10,7 @@ class ConfigurationAPI(object):
         '44100, 32 bit Floating Point', 
         '44100, 24 bit', 
         '44100, 16 bit']
+        
     _BEST_AUDIO_IN_OPTIONS = [ 
         '48000, 16 bit', 
         '44100, 16 bit'
@@ -50,7 +50,7 @@ class ConfigurationAPI(object):
         return { 'inputs': inputs ,'outputs' : outputs}
 
     def _audio_as_plain_text(self, audio_option):
-        return "%s, %s" % (audio_option['sample_rate'],human_readable_depths[audio_option['depth']])
+        return "%s, %s" % (audio_option['sample_rate'],audio_option['depth'])
 
     def _audio_mark_recommend(self, available_audio_settings, io_type):
         options = self._BEST_AUDIO_IN_OPTIONS if io_type == 'inputs' else self._BEST_AUDIO_OUT_OPTIONS
@@ -83,6 +83,7 @@ class ConfigurationAPI(object):
     def mark_drips_at_target(self):
         if self._target_height != None:
             self._marked_drips = self.get_drips()
+            self._current_config[u'drips_per_mm'] = self.get_drips_per_mm() 
         else:
             raise Exception("Target height must be specified before marking end point")
 

@@ -3,6 +3,7 @@ import pyaudio
 import math
 import struct
 import time
+from audio import audio_formats
 
 from domain.zaxis import ZAxis
 
@@ -11,13 +12,19 @@ class DripBasedZAxis(ZAxis, threading.Thread):
     MONO_WAVE_STRUCT = struct.Struct(MONO_WAVE_STRUCT_FMT)
     MAX_S16 = math.pow(2, 15)-1
 
-    #TODO JT 2014-04-08 respect bit_depthy
-    def __init__(self, drips_per_mm = 1, initial_height = 0.0, sample_rate = 44100, bit_depth = pyaudio.paInt16, threshold = 400, release_ms = 6, echo_drips = False):
+    def __init__(self, 
+                drips_per_mm = 1, 
+                initial_height = 0.0, 
+                sample_rate = 44100, 
+                bit_depth = u'16 bit', 
+                threshold_percent = 0.50,
+                release_ms = 6, 
+                echo_drips = False ):
+
         threading.Thread.__init__(self)
         self._drips_per_mm = drips_per_mm * 1.0
         self._sampling_rate = sample_rate
-        self._bit_depth = bit_depth
-        self._threshold = self.MAX_S16 - threshold
+        self._set_format_from_depth(bit_depth, threshold_percent)
         self._release = self._sampling_rate / 1000 * release_ms
         self._echo_drips = echo_drips
         self._running = False
@@ -28,6 +35,21 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self.instream = None
 
         self.set_drips_per_mm(drips_per_mm)
+
+    def _set_format_from_depth(self,depth, threshold):
+        self._format = audio_formats[depth]
+        if self._format ==  pyaudio.paInt8:
+            self._threshold = threshold * math.pow(2, 8 - 1) - 1.0 
+        elif self._format ==  pyaudio.paInt16:
+            self._threshold = threshold * math.pow(2, 16 - 1) - 1.0 
+        elif self._format ==  pyaudio.paInt24:
+            self._threshold = threshold * math.pow(2, 24 - 1) - 1.0 
+        elif self._format ==  pyaudio.paInt32:
+            self._threshold = threshold * math.pow(2, 32 - 1) - 1.0 
+        elif self._format ==  pyaudio.paFloat32:
+            self._threshold = 1.0
+        else:
+            raise Exception("Bit depth %s specified is not supported" % depth)
 
     def reset(self, z_height_mm = 0.0):
         self._num_drips = z_height_mm * self._drips_per_mm
@@ -48,12 +70,12 @@ class DripBasedZAxis(ZAxis, threading.Thread):
             self._sampling_rate, 
             input_device = input_device_id, 
             input_channels = 1, 
-            input_format=self._bit_depth,
+            input_format=self._format
             ):
             raise Exception("Unsupported Format for your audio card")
 
         self.instream = pa.open(
-                 format=self._bit_depth,
+                 format=self._format,
                  channels=1,
                  rate=self._sampling_rate,
                  input=True,

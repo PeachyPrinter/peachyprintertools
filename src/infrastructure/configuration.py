@@ -9,14 +9,15 @@ class FileBasedConfigurationManager(ConfigurationManager):
     PEACHY_PATH = '.peachyprintertools'
     REQUIRED_FIELDS = {
         u'name' : types.UnicodeType ,
-        u'output_bit_depth': types.IntType ,
+        u'output_bit_depth': types.UnicodeType ,
         u'output_sample_frequency' : types.IntType ,
         u'on_modulation_frequency': types.IntType ,
         u'off_modulation_frequency': types.IntType ,
-        u'input_bit_depth': types.IntType ,
+        u'input_bit_depth': types.UnicodeType ,
         u'input_sample_frequency': types.IntType ,
         u'sublayer_height_mm': types.FloatType,
         u'configurationbounds_mm': types.ListType,
+        u'drips_per_mm':types.FloatType
     }
     CONFIGURATION_EXTENSION = '.cfg'
 
@@ -24,13 +25,14 @@ class FileBasedConfigurationManager(ConfigurationManager):
         self._configuration_path = os.path.join(os.path.expanduser('~'), self.PEACHY_PATH)
         self._defaults = {
             u'name' : u"Unnamed Printer",
-            u'output_bit_depth' : 16,
+            u'output_bit_depth' : u'16 bit',
             u'output_sample_frequency' : 48000,
             u'on_modulation_frequency' : 12000,
             u'off_modulation_frequency' : 8000,
-            u'input_bit_depth' : 16,
+            u'input_bit_depth' : u'16 bit',
             u'input_sample_frequency' : 48000,
             u'sublayer_height_mm' : 0.1,
+            u'drips_per_mm' : 1.0,
             u'configurationbounds_mm' : [
                     [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
                     [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
@@ -71,7 +73,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
             with open(filename,'w') as file_handle:
                 file_handle.write(json.dumps(configuration))
         else:
-            raise Exception("Configuration Specified is invalid")
+            raise Exception("Configuration Specified is invalid\n%s" % configuration )
 
     def new(self, printer_name):
         new_printer = self._defaults.copy()

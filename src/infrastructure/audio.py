@@ -2,29 +2,32 @@ import pyaudio
 import numpy as np
 import math
 import time
+import types
 
-human_readable_depths = {
-            pyaudio.paFloat32 : '32 bit Floating Point', 
-            pyaudio.paInt32 : '32 bit',
-            pyaudio.paInt24 : '24 bit',
-            pyaudio.paInt16 : '16 bit',
-            pyaudio.paInt8 : '8 bit',
-            }
+audio_formats = {
+            u'32 bit Floating Point': pyaudio.paFloat32, 
+            u'32 bit': pyaudio.paInt32,
+            u'24 bit': pyaudio.paInt24,
+            u'16 bit': pyaudio.paInt16,
+            u'8 bit' : pyaudio.paInt8,
+}
 
 class AudioSetup(object):
     def __init__(self ):
         self._supported_rates = [ 44100, 48000, 96000, 192000]
-        self._supported_depths = [ pyaudio.paFloat32, pyaudio.paInt32, pyaudio.paInt24, pyaudio.paInt16, pyaudio.paInt8, ]
+        self._supported_depths = audio_formats.keys()
+
     def _get_depths_for_rate(self, pa, device_id, sample_rate, io_type):
         depths = []
-        for format in  self._supported_depths:
+        for depth in  self._supported_depths:
             try:
+                format = audio_formats[depth]
                 if io_type == 'input':
                     if pa.is_format_supported(sample_rate,input_device=device_id, input_channels=1, input_format = format):
-                        depths.append(format)
+                        depths.append(depth)
                 else:
                     if pa.is_format_supported(sample_rate,output_device = device_id, output_channels=2, output_format= format):
-                        depths.append(format)
+                        depths.append(depth)
             except ValueError:
                 pass
         return depths
@@ -57,7 +60,6 @@ class AudioWriter(object):
         self._sample_rate = sample_rate
         self._bit_depth = bit_depth
         self._set_format_from_depth(bit_depth)
-        self._max_bit_value = math.pow(2, bit_depth - 1) - 1.0
         self._pa = pyaudio.PyAudio()
         self._buffer_size = self._sample_rate / 8
 
@@ -79,17 +81,16 @@ class AudioWriter(object):
         return supported
 
     def _set_format_from_depth(self,depth):
-        if depth == 8:
-            self._format =  pyaudio.paInt8
-            self._max_bit_value = math.pow(2, depth - 1) - 1.0
-        elif depth == 16:
-            self._format =  pyaudio.paInt16
-            self._max_bit_value = math.pow(2, depth - 1) - 1.0
-        elif depth == 24:
-            self._format =  pyaudio.paInt24
-            self._max_bit_value = math.pow(2, depth - 1) - 1.0
-        elif depth == 32:
-            self._format =  pyaudio.paFloat32
+        self._format = audio_formats[depth]
+        if self._format ==  pyaudio.paInt8:
+            self._max_bit_value = math.pow(2, 8 - 1) - 1.0
+        elif self._format ==  pyaudio.paInt16:
+            self._max_bit_value = math.pow(2, 16 - 1) - 1.0
+        elif self._format ==  pyaudio.paInt24:
+            self._max_bit_value = math.pow(2, 24 - 1) - 1.0
+        elif self._format ==  pyaudio.paInt32:
+            self._max_bit_value = math.pow(2, 32 - 1) - 1.0
+        elif self._format ==  pyaudio.paFloat32:
             self._max_bit_value = 1.0
         else:
             raise Exception("Bit depth %s specified is not supported" % depth)

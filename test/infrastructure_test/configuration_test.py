@@ -15,13 +15,14 @@ from infrastructure.configuration import FileBasedConfigurationManager as Config
 class ConfigurationManagerTests(unittest.TestCase):
     default_config = {
             u'name' : u"Unnamed Printer",
-            u'output_bit_depth' : 16,
+            u'output_bit_depth' : u'16 bit',
             u'output_sample_frequency' : 48000,
             u'on_modulation_frequency' : 12000,
             u'off_modulation_frequency' : 8000,
-            u'input_bit_depth' : 16,
+            u'input_bit_depth' : u'16 bit',
             u'input_sample_frequency' : 48000,
             u'sublayer_height_mm' : 0.1,
+            u'drips_per_mm': 1.0,
             u'configurationbounds_mm' : [
                     [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
                     [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]

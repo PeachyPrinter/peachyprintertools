@@ -74,12 +74,12 @@ class ConfigurationAPITest(unittest.TestCase):
     def test_get_available_audio_options_should_get_list_of_data(self, mock_load, mock_get_valid_sampling_options):
         printer_name = u'MegaPrint'
         audio_options = { 
-            "input" : [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 }], 
-            "output": [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 }]
+            "input" : [{'sample_rate' : 48000, 'depth': '16 bit' }], 
+            "output": [{'sample_rate' : 48000, 'depth': '16 bit' }]
             }
         expected = {
-                    "inputs" : { '48000, 16 bit' : {'sample_rate' : 48000, 'depth': pyaudio.paInt16 }}, 
-                    "outputs": { '48000, 16 bit' : {'sample_rate' : 48000, 'depth': pyaudio.paInt16 }}
+                    "inputs" : { '48000, 16 bit' : {'sample_rate' : 48000, 'depth': '16 bit' }}, 
+                    "outputs": { '48000, 16 bit' : {'sample_rate' : 48000, 'depth': '16 bit' }}
                    }
 
         mock_get_valid_sampling_options.return_value = audio_options
@@ -98,12 +98,12 @@ class ConfigurationAPITest(unittest.TestCase):
         self.maxDiff = None
         printer_name = u'MegaPrint'
         audio_options = { 
-            "input" : [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 }], 
-            "output": [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 }]
+            "input" : [{'sample_rate' : 48000, 'depth': u'16 bit' }], 
+            "output": [{'sample_rate' : 48000, 'depth': u'16 bit' }]
             }
         expected = {
-                    "inputs" : { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': pyaudio.paInt16 }}, 
-                    "outputs": { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': pyaudio.paInt16 }}
+                    "inputs" : { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': u'16 bit' }}, 
+                    "outputs": { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': u'16 bit' }}
                    }
 
         mock_get_valid_sampling_options.return_value = audio_options
@@ -122,8 +122,8 @@ class ConfigurationAPITest(unittest.TestCase):
         self.maxDiff = None
         printer_name = u'MegaPrint'
         audio_options = { 
-            "input" : [{'sample_rate' : 48000, 'depth': pyaudio.paFloat32 },{'sample_rate' : 44100, 'depth': pyaudio.paInt16 }], 
-            "output": [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 },{'sample_rate' : 44100, 'depth': pyaudio.paInt16 } ]
+            "input" : [{'sample_rate' : 48000, 'depth': u'32 bit Floating Point' },{'sample_rate' : 44100, 'depth': u'16 bit' }], 
+            "output": [{'sample_rate' : 48000, 'depth': u'16 bit' },{'sample_rate' : 44100, 'depth': u'16 bit' } ]
             }
 
         mock_get_valid_sampling_options.return_value = audio_options
@@ -134,7 +134,7 @@ class ConfigurationAPITest(unittest.TestCase):
 
         self.assertTrue(actual['inputs'].has_key('44100, 16 bit (Recommended)'), actual['inputs'])
         self.assertTrue(actual['outputs'].has_key('48000, 16 bit (Recommended)'))
-        self.assertFalse(actual['inputs'].has_key('48000, 32 bit (Recommended)'))
+        self.assertFalse(actual['inputs'].has_key('48000, 32 bit Floating Point (Recommended)'))
         self.assertFalse(actual['outputs'].has_key('44100, 16 bit (Recommended)'))
 
     @patch.object(ConfigurationManager, 'load' )
@@ -147,12 +147,12 @@ class ConfigurationAPITest(unittest.TestCase):
         expected = config.copy()
         expected[u'on_modulation_frequency'] = 11025
         expected[u'off_modulation_frequency'] = 3675
-        expected[u'output_bit_depth'] = 8
+        expected[u'output_bit_depth'] = u'16 bit'
         expected[u'output_sample_frequency'] =  44100
 
         capi.load_printer(printer_name)
         
-        actual = capi.set_audio_output_options(44100,8)
+        actual = capi.set_audio_output_options(44100,u'16 bit')
 
         mock_save.assert_called_with(expected)
 
@@ -166,12 +166,12 @@ class ConfigurationAPITest(unittest.TestCase):
         expected = config.copy()
         expected[u'on_modulation_frequency'] = 12000
         expected[u'off_modulation_frequency'] = 8000
-        expected[u'output_bit_depth'] = 1
+        expected[u'output_bit_depth'] = u'32 bit Floating Point'
         expected[u'output_sample_frequency'] =  48000
 
         capi.load_printer(printer_name)
         
-        actual = capi.set_audio_output_options(48000,1)
+        actual = capi.set_audio_output_options(48000,u'32 bit Floating Point')
 
         mock_save.assert_called_with(expected)
 
@@ -184,12 +184,12 @@ class ConfigurationAPITest(unittest.TestCase):
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
         expected = config.copy()
-        expected[u'input_bit_depth'] = 8
+        expected[u'input_bit_depth'] = u'16 bit'
         expected[u'input_sample_frequency'] =  44100
 
         capi.load_printer(printer_name)
         
-        actual = capi.set_audio_input_options(44100,8)
+        actual = capi.set_audio_input_options(44100,u'16 bit')
 
         mock_save.assert_called_with(expected)
 
@@ -201,12 +201,12 @@ class ConfigurationAPITest(unittest.TestCase):
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
         expected = config.copy()
-        expected[u'input_bit_depth'] = 1
+        expected[u'input_bit_depth'] = u'32 bit Floating Point'
         expected[u'input_sample_frequency'] =  48000
 
         capi.load_printer(printer_name)
         
-        actual = capi.set_audio_input_options(48000,1)
+        actual = capi.set_audio_input_options(48000,u'32 bit Floating Point')
 
         mock_save.assert_called_with(expected)
 
@@ -217,7 +217,7 @@ class ConfigurationAPITest(unittest.TestCase):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = { u'name':'printer' }
         configuration_API.load_printer('printer')
-        configuration_API.set_audio_input_options(48000,8)
+        configuration_API.set_audio_input_options(48000,u'16 bit')
 
         configuration_API.start_counting_drips()
 
@@ -231,7 +231,7 @@ class ConfigurationAPITest(unittest.TestCase):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = { u'name':'printer' }
         configuration_API.load_printer('printer')
-        configuration_API.set_audio_input_options(48000,8)
+        configuration_API.set_audio_input_options(48000,u'16 bit')
         configuration_API.start_counting_drips()
 
         configuration_API.stop_counting_drips()
@@ -250,7 +250,7 @@ class ConfigurationAPITest(unittest.TestCase):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = { u'name':'printer' }
         configuration_API.load_printer('printer')
-        configuration_API.set_audio_input_options(48000,8)
+        configuration_API.set_audio_input_options(48000,'16 bit')
 
         configuration_API.start_counting_drips()
         result = configuration_API.get_drips()
@@ -265,7 +265,7 @@ class ConfigurationAPITest(unittest.TestCase):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = { u'name':'printer' }
         configuration_API.load_printer('printer')
-        configuration_API.set_audio_input_options(48000,8)
+        configuration_API.set_audio_input_options(48000,'16 bit')
 
         configuration_API.start_counting_drips()
         configuration_API.reset_drips()
@@ -312,7 +312,7 @@ class ConfigurationAPITest(unittest.TestCase):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = { u'name':'printer' }
         configuration_API.load_printer('printer')
-        configuration_API.set_audio_input_options(48000,8)
+        configuration_API.set_audio_input_options(48000,'16 bit')
         mock_current_z_location_mm.return_value = fake_drip_counter
         
         configuration_API.start_counting_drips()
@@ -329,11 +329,11 @@ class ConfigurationAPITest(unittest.TestCase):
         mock_load.return_value =  { u'name':'name' }
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
-        configuration_API.set_audio_input_options(48000,8)
+        configuration_API.set_audio_input_options(48000,'16 bit')
 
         configuration_API.start_counting_drips()
 
-        mock_DripBasedZAxis.assert_called_with(1, sample_rate=48000, bit_depth=8)
+        mock_DripBasedZAxis.assert_called_with(1, sample_rate=48000, bit_depth='16 bit')
 
 
 if __name__ == '__main__':

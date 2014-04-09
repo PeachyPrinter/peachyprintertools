@@ -24,26 +24,26 @@ class PyAudioSetupTests(unittest.TestCase, test_helpers.TestHelpers):
         mock_py_audio.get_default_output_device_info.return_value = self.output_info
         mock_py_audio.is_format_supported.return_value = True
         all_options = [
-                { 'sample_rate' : 44100, 'depth': pyaudio.paInt8 },
-                { 'sample_rate' : 44100, 'depth': pyaudio.paInt16 },
-                { 'sample_rate' : 44100, 'depth': pyaudio.paInt24 },
-                { 'sample_rate' : 44100, 'depth':  pyaudio.paInt32 },
-                { 'sample_rate' : 44100, 'depth': pyaudio.paFloat32 },
-                { 'sample_rate' : 48000, 'depth': pyaudio.paInt8},
-                { 'sample_rate' : 48000, 'depth': pyaudio.paInt16 },
-                { 'sample_rate' : 48000, 'depth': pyaudio.paInt24 },
-                { 'sample_rate' : 48000, 'depth':  pyaudio.paInt32 },
-                { 'sample_rate' : 48000, 'depth': pyaudio.paFloat32 },
-                { 'sample_rate' : 96000, 'depth': pyaudio.paInt8 },
-                { 'sample_rate' : 96000, 'depth': pyaudio.paInt16 },
-                { 'sample_rate' : 96000, 'depth': pyaudio.paInt24 },
-                { 'sample_rate' : 96000, 'depth':  pyaudio.paInt32 },
-                { 'sample_rate' : 96000, 'depth': pyaudio.paFloat32 },
-                { 'sample_rate' : 192000, 'depth': pyaudio.paInt8 },
-                { 'sample_rate' : 192000, 'depth': pyaudio.paInt16 },
-                { 'sample_rate' : 192000, 'depth': pyaudio.paInt24 },
-                { 'sample_rate' : 192000, 'depth':  pyaudio.paInt32 },
-                { 'sample_rate' : 192000, 'depth': pyaudio.paFloat32 },
+                { 'sample_rate' : 44100, 'depth': u'8 bit' },
+                { 'sample_rate' : 44100, 'depth': u'16 bit' },
+                { 'sample_rate' : 44100, 'depth': u'24 bit' },
+                { 'sample_rate' : 44100, 'depth': u'32 bit' },
+                { 'sample_rate' : 44100, 'depth': u'32 bit Floating Point' },
+                { 'sample_rate' : 48000, 'depth': u'8 bit'},
+                { 'sample_rate' : 48000, 'depth': u'16 bit' },
+                { 'sample_rate' : 48000, 'depth': u'24 bit' },
+                { 'sample_rate' : 48000, 'depth': u'32 bit' },
+                { 'sample_rate' : 48000, 'depth': u'32 bit Floating Point' },
+                { 'sample_rate' : 96000, 'depth': u'8 bit' },
+                { 'sample_rate' : 96000, 'depth': u'16 bit' },
+                { 'sample_rate' : 96000, 'depth': u'24 bit' },
+                { 'sample_rate' : 96000, 'depth': u'32 bit' },
+                { 'sample_rate' : 96000, 'depth': u'32 bit Floating Point' },
+                { 'sample_rate' : 192000, 'depth': u'8 bit' },
+                { 'sample_rate' : 192000, 'depth': u'16 bit' },
+                { 'sample_rate' : 192000, 'depth': u'24 bit' },
+                { 'sample_rate' : 192000, 'depth': u'32 bit' },
+                { 'sample_rate' : 192000, 'depth': u'32 bit Floating Point' },
             ]
         expected = {
             'input' : all_options,
@@ -104,7 +104,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_should_terminate_when_close_is_called(self, mock_PyAudio):
         mock_py_audio = mock_PyAudio.return_value
         
-        audio_writer = AudioWriter(48000,16)
+        audio_writer = AudioWriter(48000,u'16 bit')
         audio_writer.close()
         mock_py_audio.is_format_supported.return_value = True
         mock_py_audio.terminate.assert_called_with()
@@ -113,7 +113,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_should_open_a_stream_with_correct_data(self, mock_PyAudio):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
-        bit_depth = 16
+        bit_depth = u'16 bit'
         expected_format = pyaudio.paInt16
         expected_channels = 2
         expected_rate = 48000
@@ -133,7 +133,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_verifies_support_for_stream_settings(self, mock_PyAudio):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
-        bit_depth = 16
+        bit_depth = u'16 bit'
         sample_device_info = {
             'index': 0L, 'name': u'ALSA', 
             'defaultOutputDevice': 12L, 'type': 8L, 
@@ -157,7 +157,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_should_throw_exception_for_unpossible_bit_depth(self, mock_PyAudio):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
-        bit_depth = 7
+        bit_depth = '6 bit'
 
         with self.assertRaises(Exception):
             audio_writer = AudioWriter(sampling_frequency,bit_depth)
@@ -166,7 +166,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_should_throw_exception_when_settings_unsupported(self, mock_PyAudio):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
-        bit_depth = 16
+        bit_depth = u'16 bit'
         sample_device_info = {
             'index': 0L, 'name': u'ALSA', 
             'defaultOutputDevice': 12L, 'type': 8L, 
@@ -185,7 +185,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_stream_should_be_started(self, mock_PyAudio):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
-        bit_depth = 16
+        bit_depth = u'16 bit'
         sample_device_info = { 'defaultInputDevice': 12L, }
 
         mock_py_audio.get_default_host_api_info.return_value = sample_device_info
@@ -200,7 +200,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_stream_should_be_stopped_when_writer_stopped(self, mock_PyAudio):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
-        bit_depth = 16
+        bit_depth = u'16 bit'
         sample_device_info = { 'defaultInputDevice': 12L, }
 
         mock_py_audio.get_default_host_api_info.return_value = sample_device_info
@@ -216,7 +216,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_write_chunk_should_write_correct_frame_values(self, mock_PyAudio):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
-        bit_depth = 16
+        bit_depth = u'16 bit'
         sample_device_info = { 'defaultInputDevice': 12L, }
 
         mock_py_audio.get_default_host_api_info.return_value = sample_device_info
@@ -243,7 +243,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_write_chunk_should_write_correct_frame_values_for_32_floating_point(self, mock_PyAudio):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
-        bit_depth = 32
+        bit_depth = u'32 bit Floating Point'
         sample_device_info = { 'defaultInputDevice': 12L, }
 
         mock_py_audio.get_default_host_api_info.return_value = sample_device_info
