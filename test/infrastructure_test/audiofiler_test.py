@@ -8,10 +8,10 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 from test_helpers import TestHelpers
 from infrastructure.audiofiler import PathToAudio
-from infrastructure.transformer import OneToOneTransfomer
+from infrastructure.transformer import OneToOneTransformer
 
 class PathToAudioTests(unittest.TestCase, TestHelpers):
-    transformer = OneToOneTransfomer()
+    transformer = OneToOneTransformer()
 
     def test_given_an_x_movement_an_x_path_should_be_created(self):
         samples_per_second = 11

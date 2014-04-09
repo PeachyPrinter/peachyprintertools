@@ -1,12 +1,20 @@
 from domain.commands import *
 
 class MachineState(object):
-    def __init__(self,xy = [0.0,0.0], speed = 1.0):
-        self.xy = xy
+    def __init__(self,xyz = [0.0,0.0,0.0], speed = 1.0):
+        self.x, self.y, self.z = xyz
         self.speed = speed
 
+    @property
+    def xy(self):
+        return [self.x,self.y]
+
+    @property
+    def xyz(self):
+        return [self.x,self.y, self.z]
+
     def set_state(self, cordanates, speed):
-        self.xy = cordanates
+        self.x, self.y, self.z = cordanates
         self.speed = speed
 
 
@@ -24,20 +32,21 @@ class Controller(object):
             if self._zaxis:
                 while self._zaxis.current_z_location_mm() < layer.z_posisition:
                     self._laser_control.set_laser_off()
-                    self._move_lateral(self.state.xy, self.state.speed)
+                    self._move_lateral(self.state.xy, self.state.z,self.state.speed)
             for command in layer.commands:
                 if type(command) == LateralDraw:
                     if self.state.xy != command.start:
                         self._laser_control.set_laser_off()
-                        self._move_lateral(command.start,command.speed)
+                        self._move_lateral(command.start,layer.z_posisition,command.speed)
                     self._laser_control.set_laser_on()
-                    self._move_lateral(command.end, command.speed )
+                    self._move_lateral(command.end, layer.z_posisition, command.speed )
                 elif type(command) == LateralMove:
                     self._laser_control.set_laser_off()
-                    self._move_lateral(command.end, command.speed)
+                    self._move_lateral(command.end, layer.z_posisition, command.speed)
 
-    def _move_lateral(self,to_xy,speed):
-        path = self._path_to_audio.process(self.state.xy, to_xy, speed)
+    def _move_lateral(self,(to_x,to_y), to_z,speed):
+        to_xyz = [to_x,to_y,to_z]
+        path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
         modulated_path = self._laser_control.modulate(path)
         self._audio_writer.write_chunk(modulated_path)
-        self.state.set_state(to_xy,speed)
+        self.state.set_state(to_xyz,speed)
