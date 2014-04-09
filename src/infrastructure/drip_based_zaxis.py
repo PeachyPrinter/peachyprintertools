@@ -11,11 +11,12 @@ class DripBasedZAxis(ZAxis, threading.Thread):
     MONO_WAVE_STRUCT = struct.Struct(MONO_WAVE_STRUCT_FMT)
     MAX_S16 = math.pow(2, 15)-1
 
-    #TODO JT 2014-04-08 respect bit_depth
+    #TODO JT 2014-04-08 respect bit_depthy
     def __init__(self, drips_per_mm = 1, initial_height = 0.0, sample_rate = 44100, bit_depth = pyaudio.paInt16, threshold = 400, release_ms = 6, echo_drips = False):
         threading.Thread.__init__(self)
         self._drips_per_mm = drips_per_mm * 1.0
         self._sampling_rate = sample_rate
+        self._bit_depth = bit_depth
         self._threshold = self.MAX_S16 - threshold
         self._release = self._sampling_rate / 1000 * release_ms
         self._echo_drips = echo_drips
@@ -41,16 +42,18 @@ class DripBasedZAxis(ZAxis, threading.Thread):
 
     def run(self):
         pa = pyaudio.PyAudio()
+        input_device = pa.get_default_input_device_info()
+        input_device_id = input_device['index']
         if not pa.is_format_supported(
             self._sampling_rate, 
-            input_device = 0, 
+            input_device = input_device_id, 
             input_channels = 1, 
-            input_format=pa.get_format_from_width(2, unsigned=False),
+            input_format=self._bit_depth,
             ):
             raise Exception("Unsupported Format for your audio card")
 
         self.instream = pa.open(
-                format=pa.get_format_from_width(2, unsigned=False),
+                 format=self._bit_depth,
                  channels=1,
                  rate=self._sampling_rate,
                  input=True,

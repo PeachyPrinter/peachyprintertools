@@ -122,7 +122,7 @@ class ConfigurationAPITest(unittest.TestCase):
         self.maxDiff = None
         printer_name = u'MegaPrint'
         audio_options = { 
-            "input" : [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 },{'sample_rate' : 44100, 'depth': pyaudio.paInt16 }], 
+            "input" : [{'sample_rate' : 48000, 'depth': pyaudio.paFloat32 },{'sample_rate' : 44100, 'depth': pyaudio.paInt16 }], 
             "output": [{'sample_rate' : 48000, 'depth': pyaudio.paInt16 },{'sample_rate' : 44100, 'depth': pyaudio.paInt16 } ]
             }
 
@@ -130,12 +130,11 @@ class ConfigurationAPITest(unittest.TestCase):
         mock_load.return_value = { u'name':printer_name }
         capi = ConfigurationAPI(ConfigurationManager())
         capi.load_printer(printer_name)
-        
         actual = capi.get_available_audio_options()
 
-        self.assertTrue(actual['inputs'].has_key('48000, 16 bit (Recommended)'))
+        self.assertTrue(actual['inputs'].has_key('44100, 16 bit (Recommended)'), actual['inputs'])
         self.assertTrue(actual['outputs'].has_key('48000, 16 bit (Recommended)'))
-        self.assertFalse(actual['inputs'].has_key('44100, 16 bit (Recommended)'))
+        self.assertFalse(actual['inputs'].has_key('48000, 32 bit (Recommended)'))
         self.assertFalse(actual['outputs'].has_key('44100, 16 bit (Recommended)'))
 
     @patch.object(ConfigurationManager, 'load' )

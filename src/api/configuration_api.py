@@ -4,13 +4,17 @@ from infrastructure.audio import human_readable_depths
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 
 class ConfigurationAPI(object):
-    _BEST_AUDIO_OPTIONS = [
+    _BEST_AUDIO_OUT_OPTIONS = [
         '48000, 32 bit Floating Point', 
         '48000, 24 bit', 
         '48000, 16 bit',
         '44100, 32 bit Floating Point', 
         '44100, 24 bit', 
         '44100, 16 bit']
+    _BEST_AUDIO_IN_OPTIONS = [ 
+        '48000, 16 bit', 
+        '44100, 16 bit'
+        ]
 
     def __init__(self, configuration_manager):
         self._configuration_manager = configuration_manager
@@ -40,16 +44,17 @@ class ConfigurationAPI(object):
     def get_available_audio_options(self):
         options = self._audio_setup.get_valid_sampling_options()
         inputs = dict([ (self._audio_as_plain_text(option), option) for option in options['input']])
-        inputs = self._audio_mark_recommend(inputs)
+        inputs = self._audio_mark_recommend(inputs, 'inputs')
         outputs = dict([ (self._audio_as_plain_text(option), option) for option in options['output']])
-        outputs = self._audio_mark_recommend(outputs)
+        outputs = self._audio_mark_recommend(outputs, 'outputs')
         return { 'inputs': inputs ,'outputs' : outputs}
 
     def _audio_as_plain_text(self, audio_option):
         return "%s, %s" % (audio_option['sample_rate'],human_readable_depths[audio_option['depth']])
 
-    def _audio_mark_recommend(self, available_audio_settings):
-        for option in self._BEST_AUDIO_OPTIONS:
+    def _audio_mark_recommend(self, available_audio_settings, io_type):
+        options = self._BEST_AUDIO_IN_OPTIONS if io_type == 'inputs' else self._BEST_AUDIO_OUT_OPTIONS
+        for option in options:
             if available_audio_settings.has_key(option):
                 available_audio_settings["%s (Recommended)" % option] = available_audio_settings[option]
                 del available_audio_settings[option]
