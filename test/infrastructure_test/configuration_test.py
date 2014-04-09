@@ -1,7 +1,7 @@
 import unittest
 import os
 import sys
-import json
+import pickle
 import hashlib
 from StringIO import StringIO
 
@@ -14,16 +14,16 @@ from infrastructure.configuration import FileBasedConfigurationManager as Config
 
 class ConfigurationManagerTests(unittest.TestCase):
     default_config = {
-            u'name' : u"Unnamed Printer",
-            u'output_bit_depth' : u'16 bit',
-            u'output_sample_frequency' : 48000,
-            u'on_modulation_frequency' : 12000,
-            u'off_modulation_frequency' : 8000,
-            u'input_bit_depth' : u'16 bit',
-            u'input_sample_frequency' : 48000,
-            u'sublayer_height_mm' : 0.1,
-            u'drips_per_mm': 1.0,
-            u'configurationbounds_mm' : [
+            'name' : 'Unnamed Printer',
+            'output_bit_depth' : '16 bit',
+            'output_sample_frequency' : 48000,
+            'on_modulation_frequency' : 12000,
+            'off_modulation_frequency' : 8000,
+            'input_bit_depth' : '16 bit',
+            'input_sample_frequency' : 48000,
+            'sublayer_height_mm' : 0.1,
+            'drips_per_mm': 1.0,
+            'configurationbounds_mm' : [
                     [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
                     [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
                 ],
@@ -32,15 +32,16 @@ class ConfigurationManagerTests(unittest.TestCase):
     def test_new_creates_a_new_configution_dict_with_sane_values(self):
         cm = ConfigurationManager()
 
-        actual =  cm.new("Unnamed Printer")
+        actual =  cm.new('Unnamed Printer')
         expected = self.default_config
         self.assertEquals(expected, actual)
 
     @patch.object(os.path, 'exists')
     @patch.object(os, 'makedirs')
-    def test_save_printers_configuration_dictionary_to_peachyprintertools_folder_in_home(self,mock_makedirs,mock_exists):
+    @patch.object(pickle, 'dump')
+    def test_save_printers_configuration_dictionary_to_peachyprintertools_folder_in_home(self,mock_dump, mock_makedirs,mock_exists):
         mock_exists.return_value = True
-        printer_name = u"Test1"
+        printer_name = 'Test1'
         printer_name_hash = hashlib.md5(printer_name).hexdigest()
         expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools', printer_name_hash + '.cfg' )
 
@@ -53,7 +54,7 @@ class ConfigurationManagerTests(unittest.TestCase):
         self.assertFalse(mock_makedirs.called)
         mock_open.assert_called_with(expected_path, 'w')
         file_handle = mock_open.return_value.__enter__.return_value
-        file_handle.write.assert_called_with(json.dumps(data))
+        mock_dump.assert_called_with(data,file_handle)
 
     @patch.object(os.path, 'exists')
     @patch.object(os, 'makedirs')
@@ -63,8 +64,8 @@ class ConfigurationManagerTests(unittest.TestCase):
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=file)
             cm = ConfigurationManager()
-            data = cm.new("Test1")
-            data[u'name'] = u"Test1"
+            data = cm.new('Test1')
+            data['name'] = 'Test1'
 
             cm.save(data)
 
@@ -75,8 +76,8 @@ class ConfigurationManagerTests(unittest.TestCase):
     def test_save_should_throw_exception_when_missing_fields(self,mock_makedirs,mock_exists):
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             cm = ConfigurationManager()
-            data = cm.new("Test1")
-            del data[u'output_bit_depth']
+            data = cm.new('Test1')
+            del data['output_bit_depth']
             with self.assertRaises(Exception): 
                 cm.save(data)
 
@@ -98,13 +99,14 @@ class ConfigurationManagerTests(unittest.TestCase):
 
     @patch.object(os.path, 'exists')
     @patch.object(os, 'listdir')
-    def test_list_should_return_name_of_configurations(self, mock_listdir, mock_exists):
+    @patch.object(pickle,'load')
+    def test_list_should_return_name_of_configurations(self, mock_pickle, mock_listdir, mock_exists):
         mock_exists.return_value = True
         mock_listdir.return_value = [ 'blabla.cfg' ]
         expected = [ self.default_config['name'] ]
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             manager = mock_open.return_value.__enter__.return_value
-            manager.read.return_value = StringIO(json.dumps(self.default_config))
+            mock_pickle.return_value = self.default_config
             cm = ConfigurationManager()
 
             actual = cm.list()
@@ -119,7 +121,7 @@ class ConfigurationManagerTests(unittest.TestCase):
         expected = [ ]
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             manager = mock_open.return_value.__enter__.return_value
-            manager.read.return_value = StringIO(json.dumps(self.default_config))
+            manager.read.return_value = StringIO(pickle.dumps(self.default_config))
             cm = ConfigurationManager()
 
             actual = cm.list()
@@ -128,7 +130,8 @@ class ConfigurationManagerTests(unittest.TestCase):
 
     @patch.object(os.path, 'exists')
     @patch.object(os, 'listdir')
-    def test_list_should_only_process_list_valid_files(self, mock_listdir, mock_exists):
+    @patch.object(pickle,'load')
+    def test_list_should_only_process_list_valid_files(self, mock_pickle, mock_listdir, mock_exists):
         mock_exists.return_value = True
         mock_listdir.return_value = [ 'blabla.cfg' ]
         expected = [ ]
@@ -136,7 +139,7 @@ class ConfigurationManagerTests(unittest.TestCase):
             bad_config = self.default_config.copy()
             del bad_config['output_bit_depth']
             manager = mock_open.return_value.__enter__.return_value
-            manager.read.return_value = StringIO(json.dumps(bad_config))
+            mock_pickle.return_value = bad_config
             cm = ConfigurationManager()
 
             actual = cm.list()
@@ -161,7 +164,7 @@ class ConfigurationManagerTests(unittest.TestCase):
             bad_config = self.default_config.copy()
             del bad_config['output_bit_depth']
             manager = mock_open.return_value.__enter__.return_value
-            manager.read.return_value = json.dumps(bad_config)
+            manager.read.return_value = pickle.dumps(bad_config)
             expected = self.default_config
             cm = ConfigurationManager()
 
@@ -169,20 +172,21 @@ class ConfigurationManagerTests(unittest.TestCase):
                 cm.load(u"Some Printer")
 
     @patch.object(os.path, 'exists')
-    def test_load_should_load_data(self, mock_exists):
+    @patch.object(pickle, 'load')
+    def test_load_should_load_data(self, mock_load,mock_exists):
         mock_exists.return_value = True
         with patch('infrastructure.configuration.open', create=True) as mock_open:
             manager = mock_open.return_value.__enter__.return_value
-            manager.read.return_value = json.dumps(self.default_config)
+            mock_load.return_value = self.default_config
             expected = self.default_config
             cm = ConfigurationManager()
-            actual = cm.load(u"Some Printer")
+            actual = cm.load('Some Printer')
             self.assertEquals(expected, actual)
 
     def test_new_should_return_a_config_with_defaults_and_correct_name(self):
         name = "Apple"
         expected = self.default_config.copy()
-        expected[u'name'] = u'Apple'
+        expected['name'] = 'Apple'
         cm = ConfigurationManager()
         
         actual = cm.new(name)

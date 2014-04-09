@@ -16,7 +16,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                 drips_per_mm = 1, 
                 initial_height = 0.0, 
                 sample_rate = 44100, 
-                bit_depth = u'16 bit', 
+                bit_depth = '16 bit', 
                 threshold_percent = 0.50,
                 release_ms = 6, 
                 echo_drips = False ):

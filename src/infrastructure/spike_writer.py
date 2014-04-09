@@ -9,11 +9,13 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 
 from laser_control import AudioModulationLaserControl
 from audiofiler import PathToAudio
-from audio_writer import AudioWriter
+from audio import AudioWriter
 from controller import Controller
 from transformer import TuningTransformer
 from domain.commands import *
 from domain.layer_generator import LayerGenerator
+from configuration import FileBasedConfigurationManager
+
 
 class SquareLayerGenerator(LayerGenerator):
     def __init__(self, radius = 1.0,speed = 1.0):
@@ -30,16 +32,12 @@ class SquareLayerGenerator(LayerGenerator):
             self.last_xy = next_xy
         return layer
 
-
 class SpikeRunner(object):
-    bit_depth = 16
-    freq = 44100
-    onfreq = 11025
-    offreq = 7350
 
     def __init__(self):
-        self.writer = AudioWriter(self.freq,self.bit_depth)
-        self.laser_control = AudioModulationLaserControl(self.freq, self.onfreq, self.offreq)
+        config = FileBasedConfigurationManager().load('Test')
+        self.writer = AudioWriter(config['output_sample_frequency'],config['output_bit_depth'])
+        self.laser_control = AudioModulationLaserControl(config['output_sample_frequency'], config['on_modulation_frequency'], config['off_modulation_frequency'])
         self.transformer = TuningTransformer()
         self.path2audio = PathToAudio(self.laser_control.actual_samples_per_second, self.transformer,0.5)
         self.layer_generator = SquareLayerGenerator()

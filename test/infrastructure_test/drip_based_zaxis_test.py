@@ -179,7 +179,7 @@ class DripBasedZAxisTests(unittest.TestCase):
         mock_open.return_value = self.stream
         mock_get_default_input_device_info.return_value = { 'index' : input_device}
 
-        drip_zaxis = DripBasedZAxis(1,sample_rate=sample_rate, bit_depth = u'16 bit')
+        drip_zaxis = DripBasedZAxis(1,sample_rate=sample_rate, bit_depth = '16 bit')
         drip_zaxis.start()
         self.wait_for_stream()
         drip_zaxis.stop()

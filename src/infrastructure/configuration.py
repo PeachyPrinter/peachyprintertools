@@ -1,6 +1,6 @@
 import os
 import hashlib
-import json
+import pickle
 import types
 
 from domain.configuration_manager import ConfigurationManager
@@ -8,32 +8,32 @@ from domain.configuration_manager import ConfigurationManager
 class FileBasedConfigurationManager(ConfigurationManager):
     PEACHY_PATH = '.peachyprintertools'
     REQUIRED_FIELDS = {
-        u'name' : types.UnicodeType ,
-        u'output_bit_depth': types.UnicodeType ,
-        u'output_sample_frequency' : types.IntType ,
-        u'on_modulation_frequency': types.IntType ,
-        u'off_modulation_frequency': types.IntType ,
-        u'input_bit_depth': types.UnicodeType ,
-        u'input_sample_frequency': types.IntType ,
-        u'sublayer_height_mm': types.FloatType,
-        u'configurationbounds_mm': types.ListType,
-        u'drips_per_mm':types.FloatType
+        'name' : types.StringType ,
+        'output_bit_depth': types.StringType ,
+        'output_sample_frequency' : types.IntType ,
+        'on_modulation_frequency': types.IntType ,
+        'off_modulation_frequency': types.IntType ,
+        'input_bit_depth': types.StringType ,
+        'input_sample_frequency': types.IntType ,
+        'sublayer_height_mm': types.FloatType,
+        'configurationbounds_mm': types.ListType,
+        'drips_per_mm':types.FloatType
     }
     CONFIGURATION_EXTENSION = '.cfg'
 
     def __init__(self):
         self._configuration_path = os.path.join(os.path.expanduser('~'), self.PEACHY_PATH)
         self._defaults = {
-            u'name' : u"Unnamed Printer",
-            u'output_bit_depth' : u'16 bit',
-            u'output_sample_frequency' : 48000,
-            u'on_modulation_frequency' : 12000,
-            u'off_modulation_frequency' : 8000,
-            u'input_bit_depth' : u'16 bit',
-            u'input_sample_frequency' : 48000,
-            u'sublayer_height_mm' : 0.1,
-            u'drips_per_mm' : 1.0,
-            u'configurationbounds_mm' : [
+            'name' : "Unnamed Printer",
+            'output_bit_depth' : '16 bit',
+            'output_sample_frequency' : 48000,
+            'on_modulation_frequency' : 12000,
+            'off_modulation_frequency' : 8000,
+            'input_bit_depth' : '16 bit',
+            'input_sample_frequency' : 48000,
+            'sublayer_height_mm' : 0.1,
+            'drips_per_mm' : 1.0,
+            'configurationbounds_mm' : [
                     [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
                     [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
                 ],
@@ -46,7 +46,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
                 if file_name.endswith(self.CONFIGURATION_EXTENSION):
                     configuration = self._load_configuration(os.path.join(self._path(), file_name))
                     if configuration:
-                        printers.append(configuration[u'name'])
+                        printers.append(configuration['name'])
         return printers
 
     def load(self, printer_name):
@@ -61,7 +61,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
 
     def _load_configuration(self, filename):
         with open(filename, 'r') as file_handle:
-            configuration = json.loads(''.join(file_handle.read()))
+            configuration = pickle.load(file_handle)
             if self._valid(configuration):
                 return configuration
             else:
@@ -71,19 +71,20 @@ class FileBasedConfigurationManager(ConfigurationManager):
         if self._valid(configuration):
             filename = self._get_file_name(configuration['name'])
             with open(filename,'w') as file_handle:
-                file_handle.write(json.dumps(configuration))
+                pickle.dump(configuration, file_handle)
         else:
             raise Exception("Configuration Specified is invalid\n%s" % configuration )
 
     def new(self, printer_name):
         new_printer = self._defaults.copy()
-        new_printer[u'name'] = unicode(printer_name)
+        new_printer['name'] = printer_name
         return new_printer
 
     def _valid(self, configuration):
         valid = True
         for (key, value) in self.REQUIRED_FIELDS.items():
             if not (configuration.has_key(key) and type(configuration[key]) == value):
+                print("%s is missing or not %s" % (key, value))
                 valid = False
         return valid
 

@@ -1,8 +1,7 @@
 import Tkinter
 import tkMessageBox
 
-from infrastructure.drip_based_zaxis import DripBasedZAxis
-from api.drip_calibration import DripCalibrationAPI
+from api.configuration_api import ConfigurationAPI
 
 class FieldValidations(object):
     def validate_int_command(self):

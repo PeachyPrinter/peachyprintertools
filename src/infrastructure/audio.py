@@ -5,11 +5,11 @@ import time
 import types
 
 audio_formats = {
-            u'32 bit Floating Point': pyaudio.paFloat32, 
-            u'32 bit': pyaudio.paInt32,
-            u'24 bit': pyaudio.paInt24,
-            u'16 bit': pyaudio.paInt16,
-            u'8 bit' : pyaudio.paInt8,
+            '32 bit Floating Point': pyaudio.paFloat32, 
+            '32 bit': pyaudio.paInt32,
+            '24 bit': pyaudio.paInt24,
+            '16 bit': pyaudio.paInt16,
+            '8 bit' : pyaudio.paInt8,
 }
 
 class AudioSetup(object):
@@ -93,7 +93,7 @@ class AudioWriter(object):
         elif self._format ==  pyaudio.paFloat32:
             self._max_bit_value = 1.0
         else:
-            raise Exception("Bit depth %s specified is not supported" % depth)
+            raise Exception("Bit depth ![%s]! specified is not supported" % depth)
 
     def _wait_for_buffer(self,current_buffer_size):
         if current_buffer_size < self._buffer_size / 8.0:

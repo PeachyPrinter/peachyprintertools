@@ -24,7 +24,7 @@ class ConfigurationAPI(object):
     
     def current_printer(self):
         if self._current_config:
-            self._current_config[u'name']
+            self._current_config['name']
         else:
             return None
 
@@ -63,18 +63,18 @@ class ConfigurationAPI(object):
 
     def set_audio_output_options(self, sample_frequency,bit_depth):
         if sample_frequency == 44100:
-            self._current_config[u'on_modulation_frequency'] = 11025
-            self._current_config[u'off_modulation_frequency'] = 3675
+            self._current_config['on_modulation_frequency'] = 11025
+            self._current_config['off_modulation_frequency'] = 3675
         else:
-            self._current_config[u'on_modulation_frequency'] = 12000
-            self._current_config[u'off_modulation_frequency'] = 8000
-        self._current_config[u'output_bit_depth'] = bit_depth
-        self._current_config[u'output_sample_frequency'] = sample_frequency
+            self._current_config['on_modulation_frequency'] = 12000
+            self._current_config['off_modulation_frequency'] = 8000
+        self._current_config['output_bit_depth'] = bit_depth
+        self._current_config['output_sample_frequency'] = sample_frequency
         self.save()
 
     def set_audio_input_options(self,sample_frequency, bit_depth):
-        self._current_config[u'input_bit_depth'] = bit_depth
-        self._current_config[u'input_sample_frequency'] = sample_frequency
+        self._current_config['input_bit_depth'] = bit_depth
+        self._current_config['input_sample_frequency'] = sample_frequency
         self.save()
 
     def get_drips(self):
@@ -83,7 +83,7 @@ class ConfigurationAPI(object):
     def mark_drips_at_target(self):
         if self._target_height != None:
             self._marked_drips = self.get_drips()
-            self._current_config[u'drips_per_mm'] = self.get_drips_per_mm() 
+            self._current_config['drips_per_mm'] = self.get_drips_per_mm() 
         else:
             raise Exception("Target height must be specified before marking end point")
 
@@ -103,7 +103,7 @@ class ConfigurationAPI(object):
         return self._marked_drips / self._target_height
 
     def start_counting_drips(self):
-        self._drip_detector = DripBasedZAxis(1,sample_rate = self._current_config[u'input_sample_frequency'], bit_depth = self._current_config[u'input_bit_depth'])
+        self._drip_detector = DripBasedZAxis(1,sample_rate = self._current_config['input_sample_frequency'], bit_depth = self._current_config['input_bit_depth'])
         self._drip_detector.start()
 
     def stop_counting_drips(self):

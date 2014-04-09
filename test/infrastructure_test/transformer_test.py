@@ -42,13 +42,10 @@ class TuningTransformerTests(unittest.TestCase):
         tuning_transformer = TuningTransformer(scale = 1.0)
         with self.assertRaises(Exception):
             tuning_transformer.transform([1.1,1.0,1.0])
-
         with self.assertRaises(Exception):
             tuning_transformer.transform([-1.1,1.0,1.0])
-
         with self.assertRaises(Exception):
             tuning_transformer.transform([1.0,1.1,1.0])
-
         with self.assertRaises(Exception):
             tuning_transformer.transform([1.0,-1.1,1.0])
 

@@ -56,8 +56,8 @@ class ConfigurationAPITest(unittest.TestCase):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_load_printer_calls_load(self, mock_load):
-        printer_name = u'MegaPrint'
-        mock_load.return_value = { u'name':printer_name}
+        printer_name = 'MegaPrint'
+        mock_load.return_value = { 'name':printer_name}
         capi = ConfigurationAPI(ConfigurationManager())
         
         capi.load_printer(printer_name)
@@ -72,7 +72,7 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(AudioSetup, 'get_valid_sampling_options' )
     @patch.object(ConfigurationManager, 'load' )
     def test_get_available_audio_options_should_get_list_of_data(self, mock_load, mock_get_valid_sampling_options):
-        printer_name = u'MegaPrint'
+        printer_name = 'MegaPrint'
         audio_options = { 
             "input" : [{'sample_rate' : 48000, 'depth': '16 bit' }], 
             "output": [{'sample_rate' : 48000, 'depth': '16 bit' }]
@@ -83,7 +83,7 @@ class ConfigurationAPITest(unittest.TestCase):
                    }
 
         mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = { u'name':printer_name }
+        mock_load.return_value = { 'name':printer_name }
         capi = ConfigurationAPI(ConfigurationManager())
         capi.load_printer(printer_name)
         
@@ -96,18 +96,18 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(ConfigurationManager, 'load' )
     def test_get_available_audio_options_should_get_list_of_data(self, mock_load, mock_get_valid_sampling_options):
         self.maxDiff = None
-        printer_name = u'MegaPrint'
+        printer_name = 'MegaPrint'
         audio_options = { 
-            "input" : [{'sample_rate' : 48000, 'depth': u'16 bit' }], 
-            "output": [{'sample_rate' : 48000, 'depth': u'16 bit' }]
+            "input" : [{'sample_rate' : 48000, 'depth': '16 bit' }], 
+            "output": [{'sample_rate' : 48000, 'depth': '16 bit' }]
             }
         expected = {
-                    "inputs" : { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': u'16 bit' }}, 
-                    "outputs": { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': u'16 bit' }}
+                    "inputs" : { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': '16 bit' }}, 
+                    "outputs": { '48000, 16 bit (Recommended)' : {'sample_rate' : 48000, 'depth': '16 bit' }}
                    }
 
         mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = { u'name':printer_name }
+        mock_load.return_value = { 'name':printer_name }
         capi = ConfigurationAPI(ConfigurationManager())
         capi.load_printer(printer_name)
         
@@ -120,14 +120,14 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(ConfigurationManager, 'load' )
     def test_get_available_audio_options_should_add_recommend_flag_to_one_option(self, mock_load, mock_get_valid_sampling_options):
         self.maxDiff = None
-        printer_name = u'MegaPrint'
+        printer_name = 'MegaPrint'
         audio_options = { 
-            "input" : [{'sample_rate' : 48000, 'depth': u'32 bit Floating Point' },{'sample_rate' : 44100, 'depth': u'16 bit' }], 
-            "output": [{'sample_rate' : 48000, 'depth': u'16 bit' },{'sample_rate' : 44100, 'depth': u'16 bit' } ]
+            "input" : [{'sample_rate' : 48000, 'depth': '32 bit Floating Point' },{'sample_rate' : 44100, 'depth': '16 bit' }], 
+            "output": [{'sample_rate' : 48000, 'depth': '16 bit' },{'sample_rate' : 44100, 'depth': '16 bit' } ]
             }
 
         mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = { u'name':printer_name }
+        mock_load.return_value = { 'name':printer_name }
         capi = ConfigurationAPI(ConfigurationManager())
         capi.load_printer(printer_name)
         actual = capi.get_available_audio_options()
@@ -140,38 +140,38 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_audio_output_options_should_update_output_when_44100(self, mock_save, mock_load):
-        printer_name = u'MegaPrint'
-        config =  { u'name':printer_name }
+        printer_name = 'MegaPrint'
+        config =  { 'name':printer_name }
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
         expected = config.copy()
-        expected[u'on_modulation_frequency'] = 11025
-        expected[u'off_modulation_frequency'] = 3675
-        expected[u'output_bit_depth'] = u'16 bit'
-        expected[u'output_sample_frequency'] =  44100
+        expected['on_modulation_frequency'] = 11025
+        expected['off_modulation_frequency'] = 3675
+        expected['output_bit_depth'] = '16 bit'
+        expected['output_sample_frequency'] =  44100
 
         capi.load_printer(printer_name)
         
-        actual = capi.set_audio_output_options(44100,u'16 bit')
+        actual = capi.set_audio_output_options(44100,'16 bit')
 
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_audio_output_options_should_update_output_when_48000(self, mock_save, mock_load):
-        printer_name = u'MegaPrint'
-        config =  { u'name':printer_name }
+        printer_name = 'MegaPrint'
+        config =  { 'name':printer_name }
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
         expected = config.copy()
-        expected[u'on_modulation_frequency'] = 12000
-        expected[u'off_modulation_frequency'] = 8000
-        expected[u'output_bit_depth'] = u'32 bit Floating Point'
-        expected[u'output_sample_frequency'] =  48000
+        expected['on_modulation_frequency'] = 12000
+        expected['off_modulation_frequency'] = 8000
+        expected['output_bit_depth'] = '32 bit Floating Point'
+        expected['output_sample_frequency'] =  48000
 
         capi.load_printer(printer_name)
         
-        actual = capi.set_audio_output_options(48000,u'32 bit Floating Point')
+        actual = capi.set_audio_output_options(48000,'32 bit Floating Point')
 
         mock_save.assert_called_with(expected)
 
@@ -179,34 +179,34 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_audio_input_options_should_update_when_44100(self, mock_save, mock_load):
-        printer_name = u'MegaPrint'
-        config =  { u'name':printer_name }
+        printer_name = 'MegaPrint'
+        config =  { 'name':printer_name }
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
         expected = config.copy()
-        expected[u'input_bit_depth'] = u'16 bit'
-        expected[u'input_sample_frequency'] =  44100
+        expected['input_bit_depth'] = '16 bit'
+        expected['input_sample_frequency'] =  44100
 
         capi.load_printer(printer_name)
         
-        actual = capi.set_audio_input_options(44100,u'16 bit')
+        actual = capi.set_audio_input_options(44100,'16 bit')
 
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_audio_input_options_should_update_when_48000(self, mock_save, mock_load):
-        printer_name = u'MegaPrint'
-        config =  { u'name':printer_name }
+        printer_name = 'MegaPrint'
+        config =  { 'name':printer_name }
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
         expected = config.copy()
-        expected[u'input_bit_depth'] = u'32 bit Floating Point'
-        expected[u'input_sample_frequency'] =  48000
+        expected['input_bit_depth'] = '32 bit Floating Point'
+        expected['input_sample_frequency'] =  48000
 
         capi.load_printer(printer_name)
         
-        actual = capi.set_audio_input_options(48000,u'32 bit Floating Point')
+        actual = capi.set_audio_input_options(48000,'32 bit Floating Point')
 
         mock_save.assert_called_with(expected)
 
@@ -215,9 +215,9 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(DripBasedZAxis, 'start')
     def test_drip_calibration_should_start_getting_drips(self, mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = { u'name':'printer' }
+        mock_load.return_value = { 'name':'printer' }
         configuration_API.load_printer('printer')
-        configuration_API.set_audio_input_options(48000,u'16 bit')
+        configuration_API.set_audio_input_options(48000,'16 bit')
 
         configuration_API.start_counting_drips()
 
@@ -229,9 +229,9 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(DripBasedZAxis, 'stop')
     def test_drip_calibration_should_stop_getting_drips(self, mock_stop,mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = { u'name':'printer' }
+        mock_load.return_value = { 'name':'printer' }
         configuration_API.load_printer('printer')
-        configuration_API.set_audio_input_options(48000,u'16 bit')
+        configuration_API.set_audio_input_options(48000,'16 bit')
         configuration_API.start_counting_drips()
 
         configuration_API.stop_counting_drips()
@@ -248,7 +248,7 @@ class ConfigurationAPITest(unittest.TestCase):
         mock_current_z_location_mm.return_value = fake_drip_counter 
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = { u'name':'printer' }
+        mock_load.return_value = { 'name':'printer' }
         configuration_API.load_printer('printer')
         configuration_API.set_audio_input_options(48000,'16 bit')
 
@@ -263,7 +263,7 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(DripBasedZAxis, 'reset')
     def test_drip_calibration_should_call_reset_when_reset_requested(self, mock_reset,mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = { u'name':'printer' }
+        mock_load.return_value = { 'name':'printer' }
         configuration_API.load_printer('printer')
         configuration_API.set_audio_input_options(48000,'16 bit')
 
@@ -310,7 +310,7 @@ class ConfigurationAPITest(unittest.TestCase):
         expected_drips_per_mm = fake_drip_counter / target_height
         
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = { u'name':'printer' }
+        mock_load.return_value = { 'name':'printer' }
         configuration_API.load_printer('printer')
         configuration_API.set_audio_input_options(48000,'16 bit')
         mock_current_z_location_mm.return_value = fake_drip_counter
@@ -326,7 +326,7 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(ConfigurationManager, 'load' )
     def test_drip_calibration_should_use_audio_input_settings(self, mock_load, mock_save, mock_DripBasedZAxis):
         mock_drip_based_zaxis = mock_DripBasedZAxis
-        mock_load.return_value =  { u'name':'name' }
+        mock_load.return_value =  { 'name':'name' }
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
         configuration_API.set_audio_input_options(48000,'16 bit')
