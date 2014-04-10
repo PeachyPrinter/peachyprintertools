@@ -187,3 +187,4 @@ class DripBasedZAxisTests(unittest.TestCase):
         mock_is_format_supported.assert_called_with(sample_rate, input_device = input_device, input_channels = 1,input_format = expected_format)
         mock_open.assert_called_with(format = expected_format, input= True, frames_per_buffer = expected_buffer_size,channels =1, rate = sample_rate)
 
+# TODO JT 2014-04-09 - initial_height

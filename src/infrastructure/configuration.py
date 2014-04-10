@@ -24,22 +24,6 @@ class FileBasedConfigurationManager(ConfigurationManager):
 
     def __init__(self):
         self._configuration_path = os.path.join(os.path.expanduser('~'), self.PEACHY_PATH)
-        self._defaults = {
-            'name' : "Unnamed Printer",
-            'output_bit_depth' : '16 bit',
-            'output_sample_frequency' : 48000,
-            'on_modulation_frequency' : 12000,
-            'off_modulation_frequency' : 8000,
-            'input_bit_depth' : '16 bit',
-            'input_sample_frequency' : 48000,
-            'sublayer_height_mm' : 0.1,
-            'drips_per_mm' : 1.0,
-            'laser_thickness_mm' : 0.5,
-            'configurationbounds_mm' : [
-                    [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
-                    [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
-                ],
-            }
 
     def list(self):
         printers = []
@@ -78,7 +62,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
             raise Exception("Configuration Specified is invalid\n%s" % configuration )
 
     def new(self, printer_name):
-        new_printer = self._defaults.copy()
+        new_printer = self.DEFAULTS.copy()
         new_printer['name'] = printer_name
         return new_printer
 
