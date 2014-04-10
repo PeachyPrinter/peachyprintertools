@@ -2,6 +2,7 @@
 from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 
+
 class ConfigurationAPI(object):
     _BEST_AUDIO_OUT_OPTIONS = [
         '48000, 32 bit Floating Point', 
@@ -41,6 +42,8 @@ class ConfigurationAPI(object):
     def save(self):
         self._configuration_manager.save(self._current_config)
 
+    # ----------------------------------- Audio Setup ------------------------------------------
+
     def get_available_audio_options(self):
         options = self._audio_setup.get_valid_sampling_options()
         inputs = dict([ (self._audio_as_plain_text(option), option) for option in options['input']])
@@ -77,6 +80,8 @@ class ConfigurationAPI(object):
         self._current_config['input_sample_frequency'] = sample_frequency
         self.save()
 
+    # ------------------------------- Drip Setup --------------------------------------
+
     def get_drips(self):
         return self._drip_detector.current_z_location_mm()
 
@@ -110,3 +115,8 @@ class ConfigurationAPI(object):
         if self._drip_detector:
             self._drip_detector.stop()
             self._drip_detector = None
+
+    # ----------------------------- Calibration Setup ----------------------------------
+
+    # ----------------------------- Cure Test Setup ------------------------------------
+    
