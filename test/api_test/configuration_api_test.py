@@ -68,6 +68,7 @@ class ConfigurationAPITest(unittest.TestCase):
     def test_cannot_add_printer_that_already_exists(self, mock_load):
         pass
 
+# ----------------------------------- Audio Setup ------------------------------------------
 
     @patch.object(AudioSetup, 'get_valid_sampling_options' )
     @patch.object(ConfigurationManager, 'load' )
@@ -210,6 +211,8 @@ class ConfigurationAPITest(unittest.TestCase):
 
         mock_save.assert_called_with(expected)
 
+    # ------------------------------- Drip Setup --------------------------------------
+
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
     @patch.object(DripBasedZAxis, 'start')
@@ -334,6 +337,97 @@ class ConfigurationAPITest(unittest.TestCase):
         configuration_API.start_counting_drips()
 
         mock_DripBasedZAxis.assert_called_with(1, sample_rate=48000, bit_depth='16 bit')
+
+    # ----------------------------- Calibration Setup ----------------------------------
+
+    # ----------------------------- Cure Test Setup ------------------------------------
+
+    # ----------------------------- General Setup --------------------------------------
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_laser_thickness_mm_returns_thickness(self, mock_load):
+        expected = 7.0
+        mock_load.return_value =  { 'name':'name', 'laser_thickness_mm': expected }
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_laser_thickness_mm())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_laser_thickness_mm_returns_thickness(self, mock_save, mock_load):
+        expected_thickness = 7.0
+        config =  { 'name':'test' }
+        expected = config.copy()
+        expected['laser_thickness_mm'] = expected_thickness
+        mock_load.return_value =  config.copy() 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_laser_thickness_mm(expected_thickness)
+
+        self.assertEquals(expected_thickness,configuration_API.get_laser_thickness_mm())
+        mock_save.assert_called_with(expected)
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_laser_thickness_mm_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
+        mock_load.return_value =   {'name':'test' }
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.set_laser_thickness_mm('a')
+        with self.assertRaises(Exception):
+            configuration_API.set_laser_thickness_mm(-1.0)
+        with self.assertRaises(Exception):
+            configuration_API.set_laser_thickness_mm({'a':'b'})
+        with self.assertRaises(Exception):
+            configuration_API.set_laser_thickness_mm(0)
+        with self.assertRaises(Exception):
+            configuration_API.set_laser_thickness_mm(1)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_sublayer_height_mm_returns_theight(self, mock_load):
+        expected = 7.0
+        mock_load.return_value =  { 'name':'name', 'sublayer_height_mm': expected }
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_sublayer_height_mm())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_sublayer_height_mm_returns_height(self, mock_save, mock_load):
+        expected_height = 7.0
+        config =  { 'name':'test' }
+        expected = config.copy()
+        expected['sublayer_height_mm'] = expected_height
+        mock_load.return_value =  config.copy() 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_sublayer_height_mm(expected_height)
+
+        self.assertEquals(expected_height,configuration_API.get_sublayer_height_mm())
+        mock_save.assert_called_with(expected)
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_sublayer_height_mm_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
+        mock_load.return_value =   {'name':'test' }
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.set_sublayer_height_mm('a')
+        with self.assertRaises(Exception):
+            configuration_API.set_sublayer_height_mm(-1.0)
+        with self.assertRaises(Exception):
+            configuration_API.set_sublayer_height_mm({'a':'b'})
+        with self.assertRaises(Exception):
+            configuration_API.set_sublayer_height_mm(0)
+        with self.assertRaises(Exception):
+            configuration_API.set_sublayer_height_mm(1)
 
 
 if __name__ == '__main__':

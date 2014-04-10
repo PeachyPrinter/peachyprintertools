@@ -22,6 +22,7 @@ class ConfigurationManagerTests(unittest.TestCase):
             'input_bit_depth' : '16 bit',
             'input_sample_frequency' : 48000,
             'sublayer_height_mm' : 0.1,
+            'laser_thickness_mm' : 0.5,
             'drips_per_mm': 1.0,
             'configurationbounds_mm' : [
                     [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],

@@ -16,6 +16,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         'input_bit_depth': types.StringType ,
         'input_sample_frequency': types.IntType ,
         'sublayer_height_mm': types.FloatType,
+        'laser_thickness_mm' : types.FloatType,
         'configurationbounds_mm': types.ListType,
         'drips_per_mm':types.FloatType
     }
@@ -33,6 +34,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
             'input_sample_frequency' : 48000,
             'sublayer_height_mm' : 0.1,
             'drips_per_mm' : 1.0,
+            'laser_thickness_mm' : 0.5,
             'configurationbounds_mm' : [
                     [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
                     [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]

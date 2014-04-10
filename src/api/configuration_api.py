@@ -1,6 +1,9 @@
 #TODO JT 2014-04-08 - Domain Audio Setup
+
+import types
 from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import DripBasedZAxis
+
 
 
 class ConfigurationAPI(object):
@@ -120,3 +123,24 @@ class ConfigurationAPI(object):
 
     # ----------------------------- Cure Test Setup ------------------------------------
     
+    # ----------------------------- General Setup --------------------------------------
+
+    def get_laser_thickness_mm(self):
+        return self._current_config['laser_thickness_mm']
+
+    def set_laser_thickness_mm(self, thickness_mm):
+        if (type(thickness_mm) == types.FloatType  and thickness_mm > 0.0):
+            self._current_config['laser_thickness_mm'] = thickness_mm
+            self.save()
+        else:
+            raise Exception("Laser thickness must be a positive floating point number")
+
+    def get_sublayer_height_mm(self):
+        return self._current_config['sublayer_height_mm']
+
+    def set_sublayer_height_mm(self, thickness_mm):
+        if (type(thickness_mm) == types.FloatType  and thickness_mm > 0.0):
+            self._current_config['sublayer_height_mm'] = thickness_mm
+            self.save()
+        else:
+            raise Exception("Sublayer height must be a positive floating point number")
