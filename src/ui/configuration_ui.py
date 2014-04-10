@@ -29,14 +29,17 @@ class SetupUI(PeachyFrame):
         audio_setup_button = Button(self,text=u"Setup Audio", command=self.setup_audio_button_click)
         audio_setup_button.grid(column=1,row=1)
 
+        options_setup_button = Button(self,text=u"Setup Options", command=self._setup_options_button_click)
+        options_setup_button.grid(column=1,row=2)
+
         drip_calibration_button = Button(self,text=u"Start Drip Calibration", command=self.drip_calibration_button_click)
-        drip_calibration_button.grid(column=1,row=2)
+        drip_calibration_button.grid(column=1,row=3)
 
         button = Button(self,text=u"Start Calibration", command=self.start_calibration_button_click)
-        button.grid(column=1,row=3)
+        button.grid(column=1,row=4)
 
         button = Button(self,text=u"Back", command=self._back_button_click)
-        button.grid(column=3,row=4)
+        button.grid(column=3,row=5)
 
         self.grid_columnconfigure(1,weight=1)
         self.update()
@@ -46,6 +49,9 @@ class SetupUI(PeachyFrame):
 
     def _add_printer(self):
         self.navigate(AddPrinterUI)
+
+    def _setup_options_button_click(self):
+        self.navigate(SetupOptionsUI)
 
     def drip_calibration_button_click(self):
         self.navigate(DripCalibrationUI)
@@ -68,9 +74,7 @@ class SetupUI(PeachyFrame):
 class AddPrinterUI(PeachyFrame):
     def initialize(self):
         self.grid()
-        label_text = StringVar()
-        label_text.set("Enter a name for your printer")
-        label = Label(self, textvariable = label_text )
+        label = Label(self, text = "Enter a name for your printer" )
         label.grid(column=0,row=0)
         self.entry = Entry(self)
         self.entry.grid(column=1, row=0)
@@ -82,6 +86,38 @@ class AddPrinterUI(PeachyFrame):
     def _process(self):
         printer_name = self.entry.get()
         self._configuration_api.add_printer(printer_name)
+        self.navigate(SetupUI)
+
+    def close(self):
+        pass
+
+class SetupOptionsUI(PeachyFrame):
+    def initialize(self):
+        self.grid()
+        laser_thickness_label = Label(self, text = "Laser Thickness (mm)" )
+        laser_thickness_label.grid(column=0,row=0)
+        self.laser_thickness_entry_text = StringVar()
+        self.laser_thickness_entry_text.set(self._configuration_api.get_laser_thickness_mm())
+        self.laser_thickness_entry = Entry(self, textvariable = self.laser_thickness_entry_text)
+        self.laser_thickness_entry.grid(column=1, row=0)
+
+        sublayer_height_label = Label(self, text = "Laser Thickness (mm)" )
+        sublayer_height_label.grid(column=0,row=1)
+        self.sublayer_height_entry_text = StringVar()
+        self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
+        self.sublayer_height_entry = Entry(self, textvariable = self.sublayer_height_entry_text)
+        self.sublayer_height_entry.grid(column=1, row=1)
+
+        button = Button(self, text ="Save", command = self._process)
+        button.grid(column=2,row=2)
+        self.grid_columnconfigure(1,weight=1)
+        self.update()
+
+    def _process(self):
+        laser_thickness = self.laser_thickness_entry_text.get()
+        sublayer_height = self.sublayer_height_entry_text.get()
+        self._configuration_api.set_laser_thickness_mm(float(laser_thickness))
+        self._configuration_api.set_sublayer_height_mm(float(sublayer_height))
         self.navigate(SetupUI)
 
     def close(self):
