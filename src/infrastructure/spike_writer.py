@@ -15,7 +15,7 @@ from transformer import TuningTransformer
 from domain.commands import *
 from domain.layer_generator import LayerGenerator
 from configuration import FileBasedConfigurationManager
-from layer_generators import SinglePointGenerator
+from layer_generators import SinglePointGenerator, CalibrationLineGenerator
 
 
 class SquareLayerGenerator(LayerGenerator):
@@ -41,7 +41,7 @@ class SpikeRunner(object):
         self.laser_control = AudioModulationLaserControl(config['output_sample_frequency'], config['on_modulation_frequency'], config['off_modulation_frequency'])
         self.transformer = TuningTransformer()
         self.path2audio = PathToAudio(self.laser_control.actual_samples_per_second, self.transformer,0.5)
-        self.layer_generator = SinglePointGenerator()
+        self.layer_generator = CalibrationLineGenerator()
         self.controller = Controller(self.laser_control, self.path2audio, self.writer,self.layer_generator)
 
     def go(self):

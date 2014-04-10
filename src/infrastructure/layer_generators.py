@@ -23,3 +23,10 @@ class SinglePointGenerator(LayerGenerator):
         layer = Layer(0.0)
         layer.commands.append(LateralDraw(self.xy,self.xy,self.speed))
         return layer
+
+class CalibrationLineGenerator(LayerGenerator):
+    def __init__(self):
+        pass
+
+    def next(self):
+        return Layer(0.0, commands = [LateralDraw([-1.0,0.0],[1.0,0.0],1),LateralDraw([1.0,0.0],[-1.0,0.0],1)])
