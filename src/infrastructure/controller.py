@@ -21,17 +21,31 @@ class MachineState(object):
         self.speed = speed
 
 class MachineStatus(object):
-    def __init__(self):
-        self.drips = 0
-        self.z_posisition = 0.0
+    def __init__(self, zaxis = None):
+        self._zaxis = zaxis
         self.current_layer = 0
         self.laser_state = False
         self.waiting_for_drips = True
         self.errors = []
         self.start_time = datetime.datetime.now()
+        self.complete = False
 
     def add_layer(self):
         self.current_layer += 1
+
+    @property
+    def drips(self):
+        if self._zaxis:
+            return self._zaxis.get_drips()
+        else:
+            return "Not Counting Drips"
+
+    @property
+    def z_posisition(self):
+        if self._zaxis:
+            return self._zaxis.current_z_location_mm()
+        else:
+            return "Not Counting Drips"
 
     @property
     def elapsed_time(self):
@@ -53,7 +67,7 @@ class Controller(threading.Thread,):
         self._layer_generator = layer_generator
         self._zaxis = zaxis
         self.state = MachineState()
-        self.status = MachineStatus()
+        self.status = MachineStatus(self._zaxis)
 
     def _process_layers(self):
         for layer in self._layer_generator:
@@ -81,8 +95,11 @@ class Controller(threading.Thread,):
 
     def run(self):
         self.running = True
+        if self._zaxis:
+            self._zaxis.start()
         self.starting = False
         self._process_layers()
+        self.status.complete = True
         self._terminate()
 
     def _terminate(self):
@@ -93,7 +110,7 @@ class Controller(threading.Thread,):
             except Exception as ex:
                 print(ex)
         try:
-            self._audio_writer.stop()
+            self._audio_writer.close()
         except Exception as ex:
             print(ex)
         self.running = False

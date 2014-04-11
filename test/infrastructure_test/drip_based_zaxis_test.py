@@ -43,6 +43,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     def wait_for_stream(self):
         if self.stream:
             while self.stream.get_read_available() > 0:
+                # print("waiting: %s " % self.stream.get_read_available())
                 time.sleep(0.01)
 
     def tearDown(self):
@@ -70,6 +71,7 @@ class DripBasedZAxisTests(unittest.TestCase):
         self.wait_for_stream()
         drip_zaxis.stop()
         self.assertEqual(1, drip_zaxis.current_z_location_mm())
+        self.assertEqual(1, drip_zaxis.get_drips())
 
     @patch('pyaudio.PyAudio')
     def test_drip_zaxis_should_not_round_up_drips(self, mock_pyaudio):

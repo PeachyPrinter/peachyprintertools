@@ -3,6 +3,7 @@ import pyaudio
 import math
 import struct
 import time
+import datetime
 from audio import audio_formats
 
 from domain.zaxis import ZAxis
@@ -24,9 +25,9 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         threading.Thread.__init__(self)
         self.deamon = True
         self._drips_per_mm = drips_per_mm * 1.0
-        self._sampling_rate = sample_rate
+        self._sample_rate = sample_rate
         self._set_format_from_depth(bit_depth, threshold_percent)
-        self._release = self._sampling_rate / 1000 * release_ms
+        self._release = self._sample_rate / 1000 * release_ms
         self._echo_drips = echo_drips
         self._running = False
         self._num_drips = 0
@@ -34,8 +35,13 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self._hold_samples = 0
         self._indrip = False
         self.instream = None
+        self._buffer_size =  int(self._sample_rate/8)
+        self._buffer_wait_time = self._buffer_size * 1.0 / self._sample_rate * 1.0 / 8.0
 
         self.set_drips_per_mm(drips_per_mm)
+
+    def get_drips(self):
+        return self._num_drips
 
     def _set_format_from_depth(self,depth, threshold):
         self._format = audio_formats[depth]
@@ -68,7 +74,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         input_device = pa.get_default_input_device_info()
         input_device_id = input_device['index']
         if not pa.is_format_supported(
-            self._sampling_rate, 
+            self._sample_rate, 
             input_device = input_device_id, 
             input_channels = 1, 
             input_format=self._format
@@ -78,22 +84,26 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self.instream = pa.open(
                  format=self._format,
                  channels=1,
-                 rate=self._sampling_rate,
+                 rate=self._sample_rate,
                  input=True,
-                 frames_per_buffer=int(self._sampling_rate/8)
+                 frames_per_buffer=self._buffer_size
                  )
         self.instream.start_stream()
         self._running = True
         while(self._running):
-            buffer_frames_available = self.instream.get_read_available()
-            if buffer_frames_available:
-                frames = self.instream.read(buffer_frames_available)
-                self._add_frames(frames)
+            self._wait_for_buffer(self.instream.get_read_available())
+            frames = self.instream.read(self.instream.get_read_available())
+            self._add_frames(frames)
+
+    def _wait_for_buffer(self,current_buffer_size):
+        if current_buffer_size > self._buffer_size / 8.0:
+            time.sleep(self._buffer_size * 1.0 / self._sample_rate * 1.0 / 8.0)
 
     def stop(self):
         while self.is_alive():
             if self._running:
                 self._running = False
+            time.sleep(0.1)
             if self.instream:
                 try:
                     self.instream.stop_stream()

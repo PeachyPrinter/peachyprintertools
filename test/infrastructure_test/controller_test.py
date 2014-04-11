@@ -4,7 +4,8 @@ import sys
 import time
 import datetime
 import itertools
-from mock import patch
+from mock import patch, PropertyMock
+import infrastructure.drip_based_zaxis
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
@@ -12,6 +13,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 from infrastructure.controller import Controller, MachineStatus
 from domain.commands import *
 from infrastructure.layer_generators import StubLayerGenerator
+from infrastructure.drip_based_zaxis import DripBasedZAxis
 
 @patch('domain.laser_control.LaserControl')
 @patch('domain.zaxis.ZAxis')
@@ -191,6 +193,7 @@ class ControllerTests(unittest.TestCase):
 
         self.wait_for_controller()
 
+        mock_zaxis.start.assert_called_with()
         self.assertEqual(4, mock_path_to_audio.process.call_count)
         self.assertEqual(2, mock_laser_control.set_laser_off.call_count)
         self.assertEqual(([2.0,2.0,0.0],[2.0,2.0,0.0],2.0), mock_path_to_audio.process.call_args_list[1][0])
@@ -213,7 +216,7 @@ class ControllerTests(unittest.TestCase):
         self.controller.stop()
 
         mock_zaxis.stop.assert_called_with()
-        mock_audio_writer.stop.assert_called_with()
+        mock_audio_writer.close.assert_called_with()
 
     def test_stop_should_close_all_processes_cleanly_while_waiting_for_z(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -235,7 +238,7 @@ class ControllerTests(unittest.TestCase):
         self.wait_for_controller()
 
         mock_zaxis.stop.assert_called_with()
-        mock_audio_writer.stop.assert_called_with()
+        mock_audio_writer.close.assert_called_with()
 
     def test_set_waiting_while_wating_for_z(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -294,6 +297,7 @@ class ControllerTests(unittest.TestCase):
         self.wait_for_controller()
 
         self.assertEquals(1, self.controller.status.current_layer)
+        self.assertTrue(self.controller.status.complete)
 
     def test_sublayers(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         #Expand
@@ -327,11 +331,16 @@ class MachineStatusTests(unittest.TestCase):
 
         self.assertEqual(1,status.current_layer)
 
-    # def test_add_layer_adds_a_layer(self):
-    #     status = MachineStatus()
-    #     status.add_layer()
+    @patch.object(infrastructure.drip_based_zaxis.DripBasedZAxis, 'current_z_location_mm')
+    @patch.object(infrastructure.drip_based_zaxis.DripBasedZAxis, 'get_drips')
+    def test_add_layer_adds_a_layer(self, mock_drips, mock_z_location_mm):
+        mock_drips.return_value = 67
+        mock_z_location_mm.return_value = 12
+        
+        status = MachineStatus(DripBasedZAxis())
+        self.assertEqual(12, status.z_posisition)
+        self.assertEqual(67, status.drips)
 
-    #     self.assertEqual(1,status.current_layer)
 
 
 if __name__ == '__main__':

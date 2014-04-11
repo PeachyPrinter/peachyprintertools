@@ -114,7 +114,6 @@ class AudioWriter(object):
             values = np.rint( values * self._max_bit_value)
             return  values.astype(np.dtype('<i2')).tostring()
 
-    #TODO JT 2014-04-01 - Ctrl-C hook
     def close(self):
         self._outstream.stop_stream()
         self._pa.terminate()
