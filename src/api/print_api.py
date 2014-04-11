@@ -42,6 +42,7 @@ class PrintAPI(object):
             self._audio_writer,
             self._layer_generator,
             self._zaxis)
+        self._controller.setDeamon(True)
         self._controller.start()
 
     def print_status(self):
@@ -52,4 +53,4 @@ class PrintAPI(object):
         pass
 
     def stop(self):
-        pass
+        self._controller.stop()

@@ -21,8 +21,6 @@ class MainUI(PeachyFrame):
         self.navigate(SetupUI)
 
     def _print(self):
-        tkMessageBox.showwarning(
-            "Coming Soon",
-            "Peachy Printer Printing Coming Soon"
-        )
+        from ui.print_ui import PrintUI
+        self.navigate(PrintUI)
         # self.navigate(PrintUI)

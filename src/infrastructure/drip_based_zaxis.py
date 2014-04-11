@@ -22,6 +22,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                 echo_drips = False ):
 
         threading.Thread.__init__(self)
+        self.deamon = True
         self._drips_per_mm = drips_per_mm * 1.0
         self._sampling_rate = sample_rate
         self._set_format_from_depth(bit_depth, threshold_percent)
@@ -103,7 +104,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                     self.instream.close()
                 except Exception as ex:
                     print(ex)
-            self.join(10.0)
+
 
     def _add_frames(self, frames):
         hold_samples_c = 250

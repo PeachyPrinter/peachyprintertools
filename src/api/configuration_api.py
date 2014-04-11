@@ -32,6 +32,9 @@ class ConfigurationAPI(object):
         else:
             return None
 
+    def get_current_config(self):
+        return self._current_config
+
     def get_available_printers(self):
         return self._configuration_manager.list()
 

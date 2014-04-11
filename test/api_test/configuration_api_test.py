@@ -67,6 +67,18 @@ class ConfigurationAPITest(unittest.TestCase):
     @patch.object(ConfigurationManager, 'load' )
     def test_cannot_add_printer_that_already_exists(self, mock_load):
         pass
+    
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_config_returns_current_config(self, mock_load):
+        expected = { 'name':'MegaPrint' }
+        mock_load.return_value = expected
+        capi = ConfigurationAPI(ConfigurationManager())
+        capi.load_printer('printer')
+
+        actual = capi.get_current_config()
+        
+        self.assertEquals(expected, actual)
+
 
 # ----------------------------------- Audio Setup ------------------------------------------
 
