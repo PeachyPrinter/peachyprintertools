@@ -1,4 +1,5 @@
 import threading
+import datetime
 
 from domain.commands import *
 
@@ -19,25 +20,45 @@ class MachineState(object):
         self.x, self.y, self.z = cordanates
         self.speed = speed
 
+class MachineStatus(object):
+    def __init__(self):
+        self.drips = 0
+        self.z_posisition = 0.0
+        self.layers_processed = 0
+        self.errors = []
+        self.start_time = datetime.datetime.now()
 
-class Controller(threading.Thread):
+
+    @property
+    def elapsed_time(self):
+        return datetime.datetime.now() - self.start_time
+
+
+class Controller(threading.Thread,):
     def __init__(self, laser_control, path_to_audio,audio_writer,layer_generator,zaxis = None):
         threading.Thread.__init__(self)
         self.deamon = True
+
+        self._shutting_down = False
+        self.running = False
+        self.starting = True
+        
         self._laser_control = laser_control
         self._path_to_audio = path_to_audio
         self._audio_writer = audio_writer
         self._layer_generator = layer_generator
         self._zaxis = zaxis
         self.state = MachineState()
-        self._shutting_down = False
+        self.status = MachineStatus()
 
-    def run(self):
+    def _process_layers(self):
         for layer in self._layer_generator:
             if self._shutting_down:
-                break
+                return
             if self._zaxis:
                 while self._zaxis.current_z_location_mm() < layer.z_posisition:
+                    if self._shutting_down:
+                        return
                     self._laser_control.set_laser_off()
                     self._move_lateral(self.state.xy, self.state.z,self.state.speed)
             for command in layer.commands:
@@ -50,11 +71,12 @@ class Controller(threading.Thread):
                 elif type(command) == LateralMove:
                     self._laser_control.set_laser_off()
                     self._move_lateral(command.end, layer.z_posisition, command.speed)
-        self._terminate()
 
-    @property
-    def running(self):
-        return not self._shutting_down
+    def run(self):
+        self.running = True
+        self.starting = False
+        self._process_layers()
+        self._terminate()
 
     def _terminate(self):
         self._shutting_down = True
@@ -67,6 +89,7 @@ class Controller(threading.Thread):
             self._audio_writer.stop()
         except Exception as ex:
             print(ex)
+        self.running = False
 
     def stop(self):
         self._shutting_down = True

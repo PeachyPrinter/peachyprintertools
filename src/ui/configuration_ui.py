@@ -140,9 +140,9 @@ class FieldValidations(object):
             return False
 
 class DripCalibrationUI(PeachyFrame, FieldValidations):
-    update_drips_job = None
-
+    
     def initialize(self):
+        self.update_drips_job = None
         self._configuration_api.start_counting_drips()
         self.drips = 0
         self.drip_count_label = StringVar()

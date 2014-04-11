@@ -1,6 +1,7 @@
 import collections
 from domain.commands import *
 from domain.layer_generator import LayerGenerator
+from util import ConsoleLog
 
 class GCodeReader(object):
     def __init__(self, file_object):
@@ -14,16 +15,6 @@ class GCodeReader(object):
 
     def get_layers(self):
         return GCodeToLayerGenerator(self.file_object)
-
-#TODO JT 2014-03-28 Find this a home.
-class ConsoleLog(object):
-    def __init__(self,on):
-        self.on = on
-
-    def info(self, message):
-        if self.on:
-            print(message)
-
 
 class GCodeToLayerGenerator(ConsoleLog, LayerGenerator):
     def __init__(self, file_object, verbose = False):

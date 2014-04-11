@@ -42,11 +42,10 @@ class PrintAPI(object):
             self._audio_writer,
             self._layer_generator,
             self._zaxis)
-        self._controller.setDeamon(True)
         self._controller.start()
 
-    def print_status(self):
-        return {'line': 1, 'last_message' : 'some message', 'etc': 'etc'}
+    def get_status(self):
+        return self._controller.status
 
     def verify_gcode(self, g_code_file_like_object):
         # returns list/first errors and line numbers

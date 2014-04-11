@@ -47,6 +47,7 @@ class PrintAPITests(unittest.TestCase):
 
         api = PrintAPI(self.test_config)
         api.print_gcode(gcode_path)
+        
         api.stop()
 
         mock_DripBasedZAxis.assert_called_with(

@@ -2,12 +2,14 @@ import unittest
 import os
 import sys
 import time
+import datetime
+import itertools
 from mock import patch
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
-from infrastructure.controller import Controller 
+from infrastructure.controller import Controller, MachineStatus
 from domain.commands import *
 from infrastructure.layer_generators import StubLayerGenerator
 
@@ -20,7 +22,7 @@ class ControllerTests(unittest.TestCase):
     controller = None
 
     def wait_for_controller(self):
-        while self.controller.running:
+        while self.controller.starting or self.controller.running:
             time.sleep(0.1)
 
     def tearDown(self):
@@ -194,7 +196,7 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(([2.0,2.0,0.0],[2.0,2.0,0.0],2.0), mock_path_to_audio.process.call_args_list[1][0])
         self.assertEqual(([2.0,2.0,0.0],[2.0,2.0,0.0],2.0), mock_path_to_audio.process.call_args_list[2][0])
 
-    def test_stop_should_all_processes_cleanly(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+    def test_stop_should_close_all_processes_cleanly(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
@@ -212,6 +214,28 @@ class ControllerTests(unittest.TestCase):
 
         mock_zaxis.stop.assert_called_with()
         mock_audio_writer.stop.assert_called_with()
+
+    def test_stop_should_close_all_processes_cleanly_while_waiting_for_z(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_zaxis = mock_ZAxis.return_value
+        mock_zaxis.current_z_location_mm.return_value = 0.0
+        mock_layer_generator = mock_LayerGenerator.return_value
+        mock_layer_generator.__iter__.return_value =  itertools.cycle([ Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])])
+        mock_path_to_audio.process.return_value = "SomeAudio"
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
+        self.controller.start()
+
+        time.sleep(0.1)
+
+        self.controller.stop()
+
+        self.wait_for_controller()
+
+        mock_zaxis.stop.assert_called_with()
+        mock_audio_writer.stop.assert_called_with()
         
 
     def test_sublayers(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
@@ -221,6 +245,27 @@ class ControllerTests(unittest.TestCase):
 
     #TODO JT
     #Skip layers if z at next layer
+
+
+class MachineStatusTests(unittest.TestCase):
+    real_datetime = datetime.datetime
+    real_timedelta = datetime.timedelta
+
+    @patch.object(datetime, 'datetime')
+    def test_elapsed_time_gives_elapsed_time_in_seconds(self, mock_datetime):
+        expected = self.real_timedelta(seconds = 10)
+        values = [self.real_datetime(2012,1,1,8,0,0), self.real_datetime(2012,1,1,8,0,10)]
+        def next_values():
+            return values.pop(0)
+        mock_datetime.now.side_effect = next_values
+
+        status = MachineStatus()
+        actual = status.elapsed_time
+
+        self.assertEqual(expected,actual)
+
+        
+
 
 if __name__ == '__main__':
     unittest.main()
