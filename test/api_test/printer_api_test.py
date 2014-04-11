@@ -47,8 +47,6 @@ class PrintAPITests(unittest.TestCase):
 
         api = PrintAPI(self.test_config)
         api.print_gcode(gcode_path)
-        
-        api.stop()
 
         mock_DripBasedZAxis.assert_called_with(
             drips_per_mm = self.test_config['drips_per_mm'],
@@ -82,6 +80,5 @@ class PrintAPITests(unittest.TestCase):
 
 
         mock_controller.start.assert_called_with()
-        mock_controller.stop.assert_called_with()
 if __name__ == '__main__':
     unittest.main()

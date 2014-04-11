@@ -64,16 +64,46 @@ class PrintStatusUI(PeachyFrame):
         self.status = self._print_api.get_status()
 
         self.elapsed_time = StringVar()
+        self.current_layer = StringVar()
+        self.current_height = StringVar()
+        self.current_drips = StringVar()
+        self.laser_state = StringVar()
+        self.waiting_for_drips = StringVar()
+
         self._update_status()
 
         label = Label(self, text = "Elapsed Time" )
         label.grid(column=0,row=0)
         label = Label(self, textvariable = self.elapsed_time )
-        label.grid(column=2,row=0)
+        label.grid(column=1,row=0)
 
+        label = Label(self, text = "Layer" )
+        label.grid(column=0,row=1)
+        label = Label(self, textvariable = self.current_layer )
+        label.grid(column=1,row=1)
+
+        label = Label(self, text = "Height" )
+        label.grid(column=0,row=2)
+        label = Label(self, textvariable = self.current_height )
+        label.grid(column=1,row=2)
+
+        label = Label(self, text = "Drips" )
+        label.grid(column=0,row=3)
+        label = Label(self, textvariable = self.current_drips )
+        label.grid(column=1,row=3)
+
+        label = Label(self, text = "Laser" )
+        label.grid(column=0,row=4)
+        label = Label(self, textvariable = self.laser_state )
+        label.grid(column=1,row=4)
+
+        label = Label(self, text = "Waiting for drips" )
+        label.grid(column=0,row=4)
+        label = Label(self, textvariable = self.waiting_for_drips )
+        label.grid(column=1,row=4)
 
         button = Button(self,text=u"Stop", command=self._stop_button_click)
-        button.grid(column=3,row=5)
+        button.grid(column=2,row=5)
 
         self.grid_columnconfigure(1,weight=1)
         self.update()
@@ -87,8 +117,12 @@ class PrintStatusUI(PeachyFrame):
             self.after_cancel(self._update_status_job)
             self._update_status_job = None
         self.elapsed_time.set(self.status.elapsed_time)
-
+        self.current_layer.set(self.status.current_layer)
+        self.current_height.set(self.status.z_posisition)
+        self.current_drips.set(self.status.drips)
+        self.laser_state.set("On" if self.status.laser_state else "Off")
+        self.waiting_for_drips.set("Yes" if self.status.waiting_for_drips else "No")
         self._update_status_job=self.after(1000, self._update_status)
 
     def close(self):
-        pass
+        self._print_api.stop()
