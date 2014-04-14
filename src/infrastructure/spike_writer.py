@@ -36,12 +36,12 @@ class SquareLayerGenerator(LayerGenerator):
 class SpikeRunner(object):
 
     def __init__(self):
-        config = FileBasedConfigurationManager().load('Test')
+        config = FileBasedConfigurationManager().new('Beer')
         self.writer = AudioWriter(config['output_sample_frequency'],config['output_bit_depth'])
         self.laser_control = AudioModulationLaserControl(config['output_sample_frequency'], config['on_modulation_frequency'], config['off_modulation_frequency'])
         self.transformer = TuningTransformer()
         self.path2audio = PathToAudio(self.laser_control.actual_samples_per_second, self.transformer,0.5)
-        self.layer_generator = CalibrationLineGenerator()
+        self.layer_generator = SquareLayerGenerator(radius = 0.1)
         self.controller = Controller(self.laser_control, self.path2audio, self.writer,self.layer_generator)
 
     def go(self):

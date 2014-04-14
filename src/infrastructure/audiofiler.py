@@ -1,3 +1,4 @@
+import logging
 import numpy
 from scipy.spatial import distance_matrix
 
@@ -6,6 +7,7 @@ class PathToAudio(object):
         self.samples_per_second = samples_per_second
         self._transformer = transformer
         self.laser_size = laser_size
+        logging.info("Audio Converter Starting up with samples: %s, laser_size: %s" % (self.samples_per_second, self.laser_size))
 
     def _distance(self, a, b): 
         return distance_matrix([a],[b])[0][0]

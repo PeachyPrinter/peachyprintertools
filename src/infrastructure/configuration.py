@@ -2,6 +2,7 @@ import os
 import hashlib
 import pickle
 import types
+import logging
 
 from domain.configuration_manager import ConfigurationManager
 
@@ -36,6 +37,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         return printers
 
     def load(self, printer_name):
+        logging.info("Loading configutation for %s" % printer_name)
         filename = self._get_file_name(printer_name)
         if not os.path.exists(filename):
             raise Exception("Printer file not found")
@@ -59,6 +61,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
             with open(filename,'w') as file_handle:
                 pickle.dump(configuration, file_handle)
         else:
+            logging.error("Saving, Configuration Specified is invalid\n%s" % configuration)
             raise Exception("Configuration Specified is invalid\n%s" % configuration )
 
     def new(self, printer_name):

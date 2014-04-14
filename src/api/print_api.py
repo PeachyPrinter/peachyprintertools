@@ -1,3 +1,5 @@
+import logging
+
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
@@ -10,6 +12,7 @@ from infrastructure.transformer import OneToOneTransformer
 '''This is just a referance at this time'''
 class PrintAPI(object):
     def __init__(self, configuration):
+        logging.info("Print API Startup")
         self._configuration = configuration
 
     def print_gcode(self, file_like_object):

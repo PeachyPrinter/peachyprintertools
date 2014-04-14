@@ -1,5 +1,6 @@
 import threading
 import datetime
+import logging
 
 from domain.commands import *
 
@@ -68,13 +69,16 @@ class Controller(threading.Thread,):
         self._zaxis = zaxis
         self.state = MachineState()
         self.status = MachineStatus(self._zaxis)
+        logging.info("Starting print")
 
     def _process_layers(self):
         for layer in self._layer_generator:
+            logging.info("Layer started")
             if self._shutting_down:
                 return
             if self._zaxis:
                 while self._zaxis.current_z_location_mm() < layer.z_posisition:
+                    logging.info("Waiting for drips")
                     self.status.waiting_for_drips = True
                     if self._shutting_down:
                         return
@@ -116,6 +120,7 @@ class Controller(threading.Thread,):
         self.running = False
 
     def stop(self):
+        logging.warning("Shutdown requested")
         self._shutting_down = True
 
     def _move_lateral(self,(to_x,to_y), to_z,speed):

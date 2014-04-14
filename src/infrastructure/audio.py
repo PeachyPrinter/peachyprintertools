@@ -1,3 +1,4 @@
+import logging
 import pyaudio
 import numpy as np
 import math
@@ -63,7 +64,9 @@ class AudioWriter(object):
         self._pa = pyaudio.PyAudio()
         self._buffer_size = self._sample_rate / 8
 
+        logging.info("Audio Writer started with sample rate: %s, bit depth %s" % (self._sample_rate, self._bit_depth))
         if not self._configuration_supported(self._sample_rate,self._format):
+            logging.error("Audio configuration not supported; Sample Rate: %s; Sample Bits: %s " % (self._sample_rate, self._bit_depth))
             raise Exception("Audio configuration not supported; Sample Rate: %s; Sample Bits: %s " % (self._sample_rate, self._bit_depth) )
         self._outstream = self._pa.open(
             format=self._format,
@@ -93,6 +96,7 @@ class AudioWriter(object):
         elif self._format ==  pyaudio.paFloat32:
             self._max_bit_value = 1.0
         else:
+            logging.error("Bit depth ![%s]! specified is not supported" % depth)
             raise Exception("Bit depth ![%s]! specified is not supported" % depth)
 
     def _wait_for_buffer(self,current_buffer_size):
@@ -115,5 +119,6 @@ class AudioWriter(object):
             return  values.astype(np.dtype('<i2')).tostring()
 
     def close(self):
+        logging.info("Shutting down audio stream")
         self._outstream.stop_stream()
         self._pa.terminate()

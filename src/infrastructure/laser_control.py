@@ -1,5 +1,6 @@
 import math
 import numpy
+import logging
 from fractions import gcd
 
 from domain.laser_control import LaserControl
@@ -22,6 +23,7 @@ class AudioModulationLaserControl(LaserControl):
 
         self.off_laser_wave = numpy.array(self._get_cos_wave(off_laser_steps, lcm / off_laser_steps))
         self.on_laser_wave = numpy.array(self._get_cos_wave(on_laser_steps, lcm / on_laser_steps))
+        logging.info("Started audio modulation with On Frequency: %s and Off Frequency: %s" % (on_frequency,off_frequency))
 
     def _lcm(self, numbers):
         return reduce(lambda x, y: (x*y)/gcd(x,y), numbers, 1)

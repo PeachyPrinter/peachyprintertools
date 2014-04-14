@@ -4,8 +4,9 @@ import math
 import struct
 import time
 import datetime
-from audio import audio_formats
+import logging
 
+from audio import audio_formats
 from domain.zaxis import ZAxis
 
 class DripBasedZAxis(ZAxis, threading.Thread):
@@ -39,6 +40,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self._buffer_wait_time = self._buffer_size * 1.0 / self._sample_rate * 1.0 / 8.0
 
         self.set_drips_per_mm(drips_per_mm)
+        logging.info("Drip Listening initialized using: samplerate: %s, bit depth %s, drips per mm: %s" %(self._sample_rate,bit_depth,self._drips_per_mm))
 
     def get_drips(self):
         return self._num_drips
@@ -56,6 +58,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         elif self._format ==  pyaudio.paFloat32:
             self._threshold = 1.0
         else:
+            logger.error("Bit depth %s specified is not supported" % depth)
             raise Exception("Bit depth %s specified is not supported" % depth)
 
     def reset(self, z_height_mm = 0.0):
@@ -70,6 +73,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         return (self._num_drips * 1.0) / self._drips_per_mm
 
     def run(self):
+        logging.info("Starting to listen to drips")
         pa = pyaudio.PyAudio()
         input_device = pa.get_default_input_device_info()
         input_device_id = input_device['index']

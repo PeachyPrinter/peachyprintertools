@@ -1,7 +1,7 @@
 import collections
 from domain.commands import *
 from domain.layer_generator import LayerGenerator
-from util import ConsoleLog
+import logging
 
 class GCodeReader(object):
     def __init__(self, file_object):
@@ -16,9 +16,9 @@ class GCodeReader(object):
     def get_layers(self):
         return GCodeToLayerGenerator(self.file_object)
 
-class GCodeToLayerGenerator(ConsoleLog, LayerGenerator):
-    def __init__(self, file_object, verbose = False):
-        super(GCodeToLayerGenerator, self).__init__(on = verbose)
+class GCodeToLayerGenerator(LayerGenerator):
+    def __init__(self, file_object):
+        super(GCodeToLayerGenerator, self).__init__()
         self.errors = []
         self.warning = []
         self._file_object = file_object
@@ -47,7 +47,7 @@ class GCodeToLayerGenerator(ConsoleLog, LayerGenerator):
                 for command in commands:
                     self._command_queue.append(command)
             except Exception as ex:
-                self.info("Error %s: %s" % (self._line_number, ex.message))
+                logging.error("Error %s: %s" % (self._line_number, ex.message))
                 self.errors.append("Error %s: %s" % (self._line_number, ex.message))
         except StopIteration:
             self._file_complete = True
@@ -78,10 +78,10 @@ class GCodeToLayerGenerator(ConsoleLog, LayerGenerator):
                 self._populate_buffer()
                 return self._get_layer(layer)
 
-class GCodeCommandReader(ConsoleLog):
+class GCodeCommandReader(object):
     _INCHES2MM = 25.4
     def __init__(self, verbose = False):
-        super(GCodeCommandReader, self).__init__(on = verbose)
+        super(GCodeCommandReader, self).__init__()
         self._mm_per_s = None
         self._current_xy = [0.0,0.0]
         self._current_z_pos = 0.0
@@ -94,7 +94,7 @@ class GCodeCommandReader(ConsoleLog):
         commands = gcode.split(' ')
         if commands[0] in self._COMMAND_HANDLERS:
             return self._COMMAND_HANDLERS[commands[0]](self,gcode)
-        self.info('Unsupported Command: %s' % (gcode))
+        logging.error('Unsupported Command: %s' % (gcode))
         raise Exception('Unsupported Command: %s' % (gcode))
 
     def _command_draw(self, line):
@@ -117,14 +117,14 @@ class GCodeCommandReader(ConsoleLog):
             elif detail_type == 'E':
                 write = float(detail[1:]) > 0.0
             else:
-                self.info("Warning gcode subcode [%s] not supported in command: [%s]" % (detail_type, line))
+                logging.error("Warning gcode subcode [%s] not supported in command: [%s]" % (detail_type, line))
 
         if not self._mm_per_s:
-            self.info("Feed Rate Never Specified")
+            logging.error("Feed Rate Never Specified")
             raise Exception("Feed Rate Never Specified")
         if z_mm:
             if x_mm or y_mm:
-                self.info("Vertically angled writes are not supported...yet")
+                logging.error("Vertically angled writes are not supported...yet")
                 raise Exception("Vertically angled writes are not supported...yet")
             return self._get_vertical_movement(z_mm,write)
         elif x_mm and y_mm:
@@ -161,7 +161,7 @@ class GCodeCommandReader(ConsoleLog):
 
     def _zaxis_change(self,z_mm):
         if self._current_z_pos and self._current_z_pos > z_mm:
-            self.info("Negitive Vertical Movement Unsupported")
+            logging.error("Negitive Vertical Movement Unsupported")
             raise Exception("Negitive Vertical Movement Unsupported")
         else:
             self._update_layer_height(self._current_z_pos,z_mm)
