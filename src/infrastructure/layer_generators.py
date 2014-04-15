@@ -50,6 +50,7 @@ class SubLayerGenerator(LayerGenerator):
                 if  distance_to_next_layer / 2.0 >= self._sub_layer_height - self._tollerance:
                     current_z = self._current_layer.z
                     self._current_layer.z = current_z + self._sub_layer_height
+                    self._current_layer = self._shuffle(self._current_layer)
                 else:
                     self._current_layer = self._next
                     self._load_layer()
@@ -59,6 +60,11 @@ class SubLayerGenerator(LayerGenerator):
             return self._current_layer
         else:
             raise StopIteration
+
+    def _shuffle(self, layer):
+        commands = layer.commands[1:] + layer.commands[:1]
+        layer.commands = commands
+        return layer
        
 
     def _load_layer(self):
