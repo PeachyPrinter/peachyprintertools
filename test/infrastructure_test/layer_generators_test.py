@@ -1,6 +1,7 @@
 import unittest
 import os
 import sys
+import logging
 from mock import patch
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
@@ -80,5 +81,23 @@ class SublayerGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertLayerEquals(expected_sublayer,sublayer_generator.next())
         self.assertLayerEquals(layer2,sublayer_generator.next())
 
+    def test_if_sublayer_height_pt1_and_layer_height_1_create_extra_layers(self):
+        layer1 = Layer(0.0,[ LateralDraw([0.0,0.0],[0.0,0.0],100.0) ])
+        layer2 = Layer(1.0,[ LateralDraw([0.0,0.0],[0.0,0.0],100.0) ])
+        layer3 = Layer(2.0,[ LateralDraw([0.0,0.0],[0.0,0.0],100.0) ])
+
+        inital_generator = StubLayerGenerator([layer1,layer2,layer3])
+
+        expected_sublayers = [ Layer(x / 10.0 ,[ LateralDraw([0.0,0.0],[0.0,0.0],100.0) ]) for x in range(0,21) ]
+        sublayer_generator = SubLayerGenerator(inital_generator,0.1)
+
+        for expected_layer in expected_sublayers:
+            self.assertLayerEquals(expected_layer,sublayer_generator.next())
+
+        with self.assertRaises(StopIteration):
+            sublayer_generator.next()
+        
+
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
     unittest.main()

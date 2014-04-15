@@ -50,8 +50,8 @@ class CommandTestHelpers(object):
                 self.fail("Commands do not match\n%s\ndid not equal\n%s\nDetail: %s" % (self._stringify(commands1), self._stringify(commands2), ex.message))
 
     def assertLayerEquals(self,layer1,layer2):
-        if layer1.z != layer2.z:
-            self.fail("Z_posisition do not match %s did not equal %s" % (layer1.z, layer2.z))
+        if self.assertAlmostEqual(layer1.z, layer2.z):
+            self.fail("z do not match %s did not equal %s" % (layer1.z, layer2.z))
         self.assertCommandsEqual(layer1.commands,layer2.commands)
     
     def assertLayersEquals(self,layers1,layers2):

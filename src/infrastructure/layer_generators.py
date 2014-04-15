@@ -1,3 +1,4 @@
+import logging
 
 from domain.commands import *
 from domain.layer_generator import LayerGenerator
@@ -32,8 +33,9 @@ class CalibrationLineGenerator(LayerGenerator):
         return Layer(0.0, commands = [LateralDraw([-1.0,0.0],[1.0,0.0],1),LateralDraw([1.0,0.0],[-1.0,0.0],1)])
 
 class SubLayerGenerator(LayerGenerator):
-    def __init__(self,layer_generator,sub_layer_height):
+    def __init__(self,layer_generator,sub_layer_height, tollerance = 0.001):
         self._layer_generator = layer_generator
+        self._tollerance = tollerance
         self._sub_layer_height = sub_layer_height
         self._running = True
         self._load_layer()
@@ -44,7 +46,8 @@ class SubLayerGenerator(LayerGenerator):
         if self._running:
             if self._current_layer:
                 distance_to_next_layer = self._next.z - self._current_layer.z
-                if  distance_to_next_layer / 2.0 >= self._sub_layer_height:
+                logging.debug('%f8' % distance_to_next_layer)
+                if  distance_to_next_layer / 2.0 >= self._sub_layer_height - self._tollerance:
                     current_z = self._current_layer.z
                     self._current_layer.z = current_z + self._sub_layer_height
                 else:
