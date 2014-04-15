@@ -5,11 +5,11 @@ import time
 import datetime
 import itertools
 from mock import patch, PropertyMock
-import infrastructure.drip_based_zaxis
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
+import infrastructure
 from infrastructure.controller import Controller, MachineStatus
 from domain.commands import *
 from infrastructure.layer_generators import StubLayerGenerator
@@ -298,11 +298,6 @@ class ControllerTests(unittest.TestCase):
 
         self.assertEquals(1, self.controller.status.current_layer)
         self.assertTrue(self.controller.status.complete)
-
-    def test_sublayers(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
-        #Expand
-        pass
-
 
     #TODO JT
     #Skip layers if z at next layer

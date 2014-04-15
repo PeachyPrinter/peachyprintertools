@@ -30,3 +30,36 @@ class CalibrationLineGenerator(LayerGenerator):
 
     def next(self):
         return Layer(0.0, commands = [LateralDraw([-1.0,0.0],[1.0,0.0],1),LateralDraw([1.0,0.0],[-1.0,0.0],1)])
+
+class SubLayerGenerator(LayerGenerator):
+    def __init__(self,layer_generator,sub_layer_height):
+        self._layer_generator = layer_generator
+        self._sub_layer_height = sub_layer_height
+        self._running = True
+        self._load_layer()
+        self._current_layer = None
+
+
+    def next(self):
+        if self._running:
+            if self._current_layer:
+                distance_to_next_layer = self._next.z_posisition - self._current_layer.z_posisition
+                if  distance_to_next_layer / 2.0 >= self._sub_layer_height:
+                    current_z = self._current_layer.z_posisition
+                    self._current_layer.z_posisition = current_z + self._sub_layer_height
+                else:
+                    self._current_layer = self._next
+                    self._load_layer()
+            else:
+                self._current_layer = self._next
+                self._load_layer()
+            return self._current_layer
+        else:
+            raise StopIteration
+       
+
+    def _load_layer(self):
+        try:
+            self._next = self._layer_generator.next()
+        except StopIteration:
+            self._running = False
