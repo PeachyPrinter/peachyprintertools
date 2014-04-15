@@ -78,7 +78,7 @@ class Controller(threading.Thread,):
                 return
             if self._zaxis:
                 while self._zaxis.current_z_location_mm() < layer.z:
-                    logging.info("Waiting for drips")
+                    logging.info("Controller: Waiting for drips")
                     self.status.waiting_for_drips = True
                     if self._shutting_down:
                         return
@@ -86,8 +86,10 @@ class Controller(threading.Thread,):
                     self._move_lateral(self.state.xy, self.state.z,self.state.speed)
             self.status.waiting_for_drips = False
             for command in layer.commands:
+                logging.debug("Controller: command: %s" % command )
                 if type(command) == LateralDraw:
                     if self.state.xy != command.start:
+                        logging.debug("Controller: moving to start point: %s , %s" % (self.state.xy, command.start))
                         self._laser_control.set_laser_off()
                         self._move_lateral(command.start,layer.z,command.speed)
                     self._laser_control.set_laser_on()
@@ -125,6 +127,7 @@ class Controller(threading.Thread,):
 
     def _move_lateral(self,(to_x,to_y), to_z,speed):
         to_xyz = [to_x,to_y,to_z]
+        logging.debug("from: %s,to: %s " %(self.state.xyz, to_xyz))
         path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
         modulated_path = self._laser_control.modulate(path)
         self._audio_writer.write_chunk(modulated_path)

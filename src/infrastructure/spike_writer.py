@@ -4,6 +4,8 @@ import numpy
 import math
 import itertools
 import os,sys
+import logging
+from decimal import *
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 
@@ -41,14 +43,34 @@ class SpikeRunner(object):
         self.laser_control = AudioModulationLaserControl(config['output_sample_frequency'], config['on_modulation_frequency'], config['off_modulation_frequency'])
         self.transformer = TuningTransformer()
         self.path2audio = PathToAudio(self.laser_control.actual_samples_per_second, self.transformer,0.5)
-        self.layer_generator = SquareLayerGenerator(radius = 0.1)
+        self.layer_generator = SinglePointGenerator([1.00,0.0])
         self.controller = Controller(self.laser_control, self.path2audio, self.writer,self.layer_generator)
 
     def go(self):
         self.controller.start()
 
+    def stop(self):
+        self.controller.stop()
+
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='WARNING')
     g = SpikeRunner()
+    x = -1.0
+    g.layer_generator.xy = [x, 0.0]
     g.go()
+    try:
+        while x <= 0.99999999:
+                k=raw_input()
+                x = x + 0.05
+                if x > 1.0:
+                    x = 1.0
+                print("X: %s " % x)
+                g.layer_generator.xy = [x, 0.0]
+    except KeyboardInterrupt:
+        g.stop()
+    g.stop()
+    exit()
+    
+
 
