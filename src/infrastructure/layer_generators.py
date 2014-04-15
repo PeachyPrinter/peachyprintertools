@@ -43,10 +43,10 @@ class SubLayerGenerator(LayerGenerator):
     def next(self):
         if self._running:
             if self._current_layer:
-                distance_to_next_layer = self._next.z_posisition - self._current_layer.z_posisition
+                distance_to_next_layer = self._next.z - self._current_layer.z
                 if  distance_to_next_layer / 2.0 >= self._sub_layer_height:
-                    current_z = self._current_layer.z_posisition
-                    self._current_layer.z_posisition = current_z + self._sub_layer_height
+                    current_z = self._current_layer.z
+                    self._current_layer.z = current_z + self._sub_layer_height
                 else:
                     self._current_layer = self._next
                     self._load_layer()

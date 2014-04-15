@@ -29,12 +29,12 @@ class VerticalMove(Command):
         return "MOVEVERTICAL[Start:%s,Stop:%s,Speed:%f]" % (self.start,self.end,self.speed)
 
 class Layer(object):
-    def __init__(self, z_posisition , commands = None):
+    def __init__(self, z , commands = None):
         if commands:
             self.commands = commands
         else:
             self.commands = [ ]
-        self.z_posisition = z_posisition
+        self.z = z
 
     def __str__(self):
-        return "Layer[Z:%f,Commands: %s]" % (self.z_posisition,[str(command) for command in self.commands])
+        return "Layer[Z:%f,Commands: %s]" % (self.z,[str(command) for command in self.commands])

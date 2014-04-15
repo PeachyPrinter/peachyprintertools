@@ -77,7 +77,7 @@ class Controller(threading.Thread,):
             if self._shutting_down:
                 return
             if self._zaxis:
-                while self._zaxis.current_z_location_mm() < layer.z_posisition:
+                while self._zaxis.current_z_location_mm() < layer.z:
                     logging.info("Waiting for drips")
                     self.status.waiting_for_drips = True
                     if self._shutting_down:
@@ -89,12 +89,12 @@ class Controller(threading.Thread,):
                 if type(command) == LateralDraw:
                     if self.state.xy != command.start:
                         self._laser_control.set_laser_off()
-                        self._move_lateral(command.start,layer.z_posisition,command.speed)
+                        self._move_lateral(command.start,layer.z,command.speed)
                     self._laser_control.set_laser_on()
-                    self._move_lateral(command.end, layer.z_posisition, command.speed )
+                    self._move_lateral(command.end, layer.z, command.speed )
                 elif type(command) == LateralMove:
                     self._laser_control.set_laser_off()
-                    self._move_lateral(command.end, layer.z_posisition, command.speed)
+                    self._move_lateral(command.end, layer.z, command.speed)
             self.status.add_layer()
 
     def run(self):
