@@ -43,7 +43,8 @@ class SpikeRunner(object):
         self.laser_control = AudioModulationLaserControl(config['output_sample_frequency'], config['on_modulation_frequency'], config['off_modulation_frequency'])
         self.transformer = TuningTransformer(scale = 0.75)
         self.path2audio = PathToAudio(self.laser_control.actual_samples_per_second, self.transformer,0.5)
-        self.layer_generator = SinglePointGenerator([1.00,0.0])
+        # self.layer_generator = SinglePointGenerator([1.00,0.0])
+        self.layer_generator = SquareLayerGenerator()
         self.controller = Controller(self.laser_control, self.path2audio, self.writer,self.layer_generator)
 
     def go(self):
