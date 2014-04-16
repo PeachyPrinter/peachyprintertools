@@ -15,7 +15,7 @@ class StubLayerGenerator(LayerGenerator):
 class SinglePointGenerator(LayerGenerator):
     def __init__(self, starting_xy = [0.0,0.0]):
         self.xy = starting_xy
-        self.speed = 1.0
+        self.speed = 100.0
 
     def set(self,xy):
         self.xy = xy

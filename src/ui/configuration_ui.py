@@ -2,6 +2,7 @@ from Tkinter import *
 import tkMessageBox
 from ui.ui_tools import *
 from ui.main_ui import MainUI
+from ui.calibration_ui import *
 
 class SetupUI(PeachyFrame):
 
@@ -35,8 +36,8 @@ class SetupUI(PeachyFrame):
         drip_calibration_button = Button(self,text=u"Start Drip Calibration", command=self.drip_calibration_button_click)
         drip_calibration_button.grid(column=1,row=3)
 
-        button = Button(self,text=u"Start Calibration", command=self.start_calibration_button_click)
-        button.grid(column=1,row=4)
+        calibration_button = Button(self,text=u"Start Calibration", command=self.start_calibration_button_click)
+        calibration_button.grid(column=1,row=4)
 
         button = Button(self,text=u"Back", command=self._back_button_click)
         button.grid(column=3,row=5)
@@ -63,10 +64,7 @@ class SetupUI(PeachyFrame):
         self.navigate(SetupAudioUI)
 
     def start_calibration_button_click(self):
-        tkMessageBox.showwarning(
-            "Coming Soon",
-            "Peachy Printer Calibration Coming Soon"
-        )
+        self.navigate(CalibrationUI)
 
     def close(self):
         pass
