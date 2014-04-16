@@ -71,6 +71,9 @@ class Controller(threading.Thread,):
         self.status = MachineStatus(self._zaxis)
         logging.info("Starting print")
 
+    def change_generator(self, layer_generator):
+        raise NotImplementedException("Test me first")
+
     def _process_layers(self):
         for layer in self._layer_generator:
             logging.info("Layer started")
