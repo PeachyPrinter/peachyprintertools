@@ -41,7 +41,6 @@ class SubLayerGenerator(LayerGenerator):
         self._load_layer()
         self._current_layer = None
 
-
     def next(self):
         if self._running:
             if self._current_layer:

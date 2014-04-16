@@ -72,35 +72,40 @@ class Controller(threading.Thread,):
         logging.info("Starting print")
 
     def change_generator(self, layer_generator):
-        raise NotImplementedException("Test me first")
+        self._layer_generator = layer_generator
 
     def _process_layers(self):
-        for layer in self._layer_generator:
-            logging.info("Layer started")
-            if self._shutting_down:
-                return
-            if self._zaxis:
-                while self._zaxis.current_z_location_mm() < layer.z:
-                    logging.info("Controller: Waiting for drips")
-                    self.status.waiting_for_drips = True
-                    if self._shutting_down:
-                        return
-                    self._laser_control.set_laser_off()
-                    self._move_lateral(self.state.xy, self.state.z,self.state.speed)
-            self.status.waiting_for_drips = False
-            for command in layer.commands:
-                logging.debug("Controller: command: %s" % command )
-                if type(command) == LateralDraw:
-                    if self.state.xy != command.start:
-                        logging.debug("Controller: moving to start point: %s , %s" % (self.state.xy, command.start))
+        going = True
+        while going:
+            try:
+                layer = self._layer_generator.next()
+                logging.info("Layer started")
+                if self._shutting_down:
+                    return
+                if self._zaxis:
+                    while self._zaxis.current_z_location_mm() < layer.z:
+                        logging.info("Controller: Waiting for drips")
+                        self.status.waiting_for_drips = True
+                        if self._shutting_down:
+                            return
                         self._laser_control.set_laser_off()
-                        self._move_lateral(command.start,layer.z,command.speed)
-                    self._laser_control.set_laser_on()
-                    self._move_lateral(command.end, layer.z, command.speed )
-                elif type(command) == LateralMove:
-                    self._laser_control.set_laser_off()
-                    self._move_lateral(command.end, layer.z, command.speed)
-            self.status.add_layer()
+                        self._move_lateral(self.state.xy, self.state.z,self.state.speed)
+                self.status.waiting_for_drips = False
+                for command in layer.commands:
+                    logging.debug("Controller: command: %s" % command )
+                    if type(command) == LateralDraw:
+                        if self.state.xy != command.start:
+                            logging.debug("Controller: moving to start point: %s , %s" % (self.state.xy, command.start))
+                            self._laser_control.set_laser_off()
+                            self._move_lateral(command.start,layer.z,command.speed)
+                        self._laser_control.set_laser_on()
+                        self._move_lateral(command.end, layer.z, command.speed )
+                    elif type(command) == LateralMove:
+                        self._laser_control.set_laser_off()
+                        self._move_lateral(command.end, layer.z, command.speed)
+                self.status.add_layer()
+            except StopIteration:
+                going = False
 
     def run(self):
         self.running = True

@@ -4,6 +4,7 @@ import sys
 import time
 import datetime
 import itertools
+import logging
 from mock import patch, PropertyMock
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
@@ -12,7 +13,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 import infrastructure
 from infrastructure.controller import Controller, MachineStatus
 from domain.commands import *
-from infrastructure.layer_generators import StubLayerGenerator
+from infrastructure.layer_generators import StubLayerGenerator, SinglePointGenerator
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 
 @patch('domain.laser_control.LaserControl')
@@ -215,6 +216,8 @@ class ControllerTests(unittest.TestCase):
 
         self.controller.stop()
 
+        time.sleep(0.1)
+
         mock_zaxis.stop.assert_called_with()
         mock_audio_writer.close.assert_called_with()
 
@@ -225,7 +228,7 @@ class ControllerTests(unittest.TestCase):
         mock_zaxis = mock_ZAxis.return_value
         mock_zaxis.current_z_location_mm.return_value = 0.0
         mock_layer_generator = mock_LayerGenerator.return_value
-        mock_layer_generator.__iter__.return_value =  itertools.cycle([ Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])])
+        mock_layer_generator.next.return_value =   Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
         self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
@@ -247,7 +250,7 @@ class ControllerTests(unittest.TestCase):
         mock_zaxis = mock_ZAxis.return_value
         mock_zaxis.current_z_location_mm.return_value = 0.0
         mock_layer_generator = mock_LayerGenerator.return_value
-        mock_layer_generator.__iter__.return_value =  itertools.cycle([ Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])])
+        mock_layer_generator.next.return_value = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
         self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
@@ -268,7 +271,7 @@ class ControllerTests(unittest.TestCase):
         mock_zaxis = mock_ZAxis.return_value
         mock_zaxis.current_z_location_mm.return_value = 1.0
         mock_layer_generator = mock_LayerGenerator.return_value
-        mock_layer_generator.__iter__.return_value =  itertools.cycle([ Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])])
+        mock_layer_generator.next.return_value =  Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
         self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
@@ -298,6 +301,28 @@ class ControllerTests(unittest.TestCase):
 
         self.assertEquals(1, self.controller.status.current_layer)
         self.assertTrue(self.controller.status.complete)
+
+    def test_should_change_layer_generator(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+
+        generator1 = SinglePointGenerator([1.0,1.0])
+        generator2 = SinglePointGenerator([0.0,0.0])
+
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,generator1)
+        self.controller.start()
+        time.sleep(0.1)
+        pre_switch = mock_path_to_audio.process.call_args
+        self.controller.change_generator(generator2)
+        time.sleep(0.1)
+        post_switch = mock_path_to_audio.process.call_args
+        self.controller.stop()
+        self.wait_for_controller()
+
+        self.assertEquals( ([1.0,1.0,0.0],[1.0,1.0,0.0],100.0), pre_switch[0] )
+        self.assertEquals( ([0.0,0.0,0.0],[0.0,0.0,0.0],100.0), post_switch[0] )
+
 
     #TODO JT
     #Skip layers if z at next layer
@@ -339,4 +364,5 @@ class MachineStatusTests(unittest.TestCase):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
     unittest.main()

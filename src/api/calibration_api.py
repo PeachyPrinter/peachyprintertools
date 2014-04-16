@@ -13,8 +13,8 @@ class CalibrationAPI(object):
         logging.info("Print API Startup")
         self._configuration = configuration
         self._patterns = { 
-            "Single Point" : SinglePointGenerator(), 
-            "Grid Alignment Line" :  CalibrationLineGenerator()
+            'Single Point' : SinglePointGenerator(), 
+            'Grid Alignment Line' :  CalibrationLineGenerator()
             }
         self._layer_generator = self._patterns["Single Point"]
         self._laser_control = AudioModulationLaserControl(
@@ -56,8 +56,8 @@ class CalibrationAPI(object):
         if pattern in self._patterns.keys():
             self._controller.change_generator(self._patterns[pattern])
         else:
-            logging.error("Pattern: %s does not exist" % pattern)
-            raise Exception("Pattern: %s does not exist" % pattern)
+            logging.error('Pattern: %s does not exist' % pattern)
+            raise Exception('Pattern: %s does not exist' % pattern)
 
     def record_real(self,xyz_real):
         pass
@@ -72,4 +72,4 @@ class CalibrationAPI(object):
         if self._controller:
             self._controller.stop()
         else:
-            raise Exception("Controller not running")
+            raise Exception('Controller not running')
