@@ -100,8 +100,8 @@ class DripBasedZAxis(ZAxis, threading.Thread):
             self._add_frames(frames)
 
     def _wait_for_buffer(self,current_buffer_size):
-        if current_buffer_size > self._buffer_size / 8.0:
-            time.sleep(self._buffer_size * 1.0 / self._sample_rate * 1.0 / 8.0)
+        if current_buffer_size < self._buffer_size / 8.0:
+            time.sleep(self._buffer_wait_time)
 
     def stop(self):
         while self.is_alive():

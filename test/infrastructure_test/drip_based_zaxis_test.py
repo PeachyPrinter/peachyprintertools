@@ -43,7 +43,6 @@ class DripBasedZAxisTests(unittest.TestCase):
     def wait_for_stream(self):
         if self.stream:
             while self.stream.get_read_available() > 0:
-                # print("waiting: %s " % self.stream.get_read_available())
                 time.sleep(0.01)
 
     def tearDown(self):
