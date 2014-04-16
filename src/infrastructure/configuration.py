@@ -19,7 +19,8 @@ class FileBasedConfigurationManager(ConfigurationManager):
         'sublayer_height_mm': types.FloatType,
         'laser_thickness_mm' : types.FloatType,
         'configurationbounds_mm': types.ListType,
-        'drips_per_mm':types.FloatType
+        'drips_per_mm':types.FloatType,
+        'max_deflection' :types.FloatType,
     }
     CONFIGURATION_EXTENSION = '.cfg'
 

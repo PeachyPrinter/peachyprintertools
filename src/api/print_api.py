@@ -9,7 +9,7 @@ from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import OneToOneTransformer
 
 
-'''This is just a referance at this time'''
+'''TODO'''
 class PrintAPI(object):
     def __init__(self, configuration):
         logging.info("Print API Startup")

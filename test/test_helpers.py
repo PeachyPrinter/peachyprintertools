@@ -66,7 +66,26 @@ class CommandTestHelpers(object):
     def _equal(self,a,b, tol = 0.0001):
         return abs(a-b) <= (abs(a)+abs(b))/2 * tol
 
-class TestHelpers(NumpyTestHelpers,CommandTestHelpers):
+class DefaultsHelpers(object):
+    DEFAULT_CONFIG = {
+            'name' : 'Unnamed Printer',
+            'output_bit_depth' : '16 bit',
+            'output_sample_frequency' : 48000,
+            'on_modulation_frequency' : 12000,
+            'off_modulation_frequency' : 8000,
+            'input_bit_depth' : '16 bit',
+            'input_sample_frequency' : 48000,
+            'sublayer_height_mm' : 0.1,
+            'laser_thickness_mm' : 0.5,
+            'drips_per_mm': 1.0,
+            'max_deflection': 0.75,
+            'configurationbounds_mm' : [
+                    [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
+                    [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
+                ],
+            }
+
+class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):
     def assertListDict(self,expected,actual):
         self.assertEquals(len(expected), len(actual))
         for item in expected:
