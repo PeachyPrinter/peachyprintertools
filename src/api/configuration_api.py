@@ -76,7 +76,7 @@ class ConfigurationAPI(object):
             self._current_config['off_modulation_frequency'] = 3675
         else:
             self._current_config['on_modulation_frequency'] = 12000
-            self._current_config['off_modulation_frequency'] = 8000
+            self._current_config['off_modulation_frequency'] = 4000
         self._current_config['output_bit_depth'] = bit_depth
         self._current_config['output_sample_frequency'] = sample_frequency
         self.save()

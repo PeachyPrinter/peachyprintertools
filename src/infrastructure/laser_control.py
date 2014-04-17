@@ -11,6 +11,8 @@ class AudioModulationLaserControl(LaserControl):
     _SOURCE_AMPLITUDE_RATIO = 1.0 - _MODULATION_AMPLITUDE_RATIO
 
     def __init__(self, sampling_rate, on_frequency, off_frequency):
+        logging.info("Laser Control: Modulation On: %s" % on_frequency )
+        logging.info("Laser Control: Modulation Off: %s" % off_frequency )
         if sampling_rate % on_frequency != 0:
             raise Exception("The on_frequency must divide evenly into sampling_rate")
         if sampling_rate % off_frequency != 0:
@@ -38,7 +40,13 @@ class AudioModulationLaserControl(LaserControl):
         return wave
 
     def modulate(self, data):
-        pattern = self.on_laser_wave if self._laser_on else self.off_laser_wave
+        if self._laser_on:
+            pattern = self.on_laser_wave
+            logging.debug("Modulating On")
+        else:
+            pattern = self.off_laser_wave
+            logging.debug("Modulating Off")
+
         for (left,right) in data:
             l = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + (left  * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
             r = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + (right * self._SOURCE_AMPLITUDE_RATIO)] , pattern)

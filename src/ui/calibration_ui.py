@@ -32,10 +32,11 @@ class CalibrationPoint(object):
 class CalibrationUI(PeachyFrame, FieldValidations):
 
     def initialize(self):
-        self._calibrationAPI = None
+        self._calibrationAPI = CalibrationAPI(self._configuration_api.get_current_config())
+
         self._index = 0
         self._points = [[1.0,1.0],[1.0,-1.0],[-1.0,-1.0],[-1.0,1.0]]
-        self._patterns = [ 'Grid Alignment Line' ]
+        self._patterns = self._calibrationAPI.get_patterns()
         self.data_points = []
         self.parent.geometry("%dx%d" % (500,700))
         self.grid()
@@ -128,7 +129,6 @@ class CalibrationUI(PeachyFrame, FieldValidations):
     def _upper_z_change(self,field):
         if self.upper_z.get() > 0.0:
             for point in self.data_points:
-                print(point)
                 if point.ref_z.get() > 0.0:
                     point.ref_z.set(self.upper_z.get())
                     point.actual_z.set(self.upper_z.get())
@@ -178,8 +178,6 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         config = []
         for point in self.data_points:
             config.append({'in': point.ref_xyz_float, 'out': point.actual_xyz_float})
-        print(config)
-
 
     def _back_button_click(self):
         from ui.configuration_ui import SetupUI

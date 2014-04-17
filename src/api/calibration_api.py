@@ -5,7 +5,7 @@ from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.transformer import TuningTransformer
-from infrastructure.layer_generators import SinglePointGenerator, CalibrationLineGenerator
+from infrastructure.layer_generators import SinglePointGenerator, CalibrationLineGenerator, HilbertGenerator
 
 '''TODO'''
 class CalibrationAPI(object):
@@ -14,7 +14,8 @@ class CalibrationAPI(object):
         self._configuration = configuration
         self._patterns = { 
             'Single Point' : SinglePointGenerator(), 
-            'Grid Alignment Line' :  CalibrationLineGenerator()
+            'Grid Alignment Line' :  CalibrationLineGenerator(),
+            'Hilbert Space filling' : HilbertGenerator(),
             }
         self._layer_generator = self._patterns["Single Point"]
         self._laser_control = AudioModulationLaserControl(
@@ -59,13 +60,16 @@ class CalibrationAPI(object):
             logging.error('Pattern: %s does not exist' % pattern)
             raise Exception('Pattern: %s does not exist' % pattern)
 
-    def record_real(self,xyz_real):
-        pass
-
     def change_scale(self,scale):
         pass
 
-    def save(self):
+    def get_calibration_points(self):
+        return self._configuration['calibration_data']
+
+    def get_calibration_scale(self):
+        return self._configuration['calibration_scale']
+
+    def save(self, points):
         pass
 
     def stop(self):

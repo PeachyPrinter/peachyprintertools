@@ -20,8 +20,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                 sample_rate = 44100, 
                 bit_depth = '16 bit', 
                 threshold_percent = 0.50,
-                release_ms = 6, 
-                echo_drips = False ):
+                release_ms = 6):
 
         threading.Thread.__init__(self)
         self.deamon = True
@@ -29,7 +28,6 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self._sample_rate = sample_rate
         self._set_format_from_depth(bit_depth, threshold_percent)
         self._release = self._sample_rate / 1000 * release_ms
-        self._echo_drips = echo_drips
         self._running = False
         self._num_drips = 0
         self._drips_per_mm = 1.0
@@ -112,12 +110,12 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                 try:
                     self.instream.stop_stream()
                 except Exception as ex:
-                    print(ex)
+                    logging.error(ex)
                 time.sleep(0.1) # Waiting for current op to compelete
                 try:
                     self.instream.close()
                 except Exception as ex:
-                    print(ex)
+                    logging.error(ex)
 
 
     def _add_frames(self, frames):
@@ -134,7 +132,6 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                 else:
                     if (self._indrip == True ):
                         self._num_drips += 1
-                        if (self._echo_drips):
-                            print("Drips: %d" % self._num_drips)
+                        logging.debug("Drips: %d" % self._num_drips)
                         self._indrip = False
                         self._hold_samples = self._release

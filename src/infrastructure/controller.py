@@ -79,7 +79,7 @@ class Controller(threading.Thread,):
         while going:
             try:
                 layer = self._layer_generator.next()
-                logging.info("Layer started")
+                logging.debug("Layer started")
                 if self._shutting_down:
                     return
                 if self._zaxis:
@@ -122,11 +122,11 @@ class Controller(threading.Thread,):
             try:
                 self._zaxis.stop()
             except Exception as ex:
-                print(ex)
+                logging.error(ex)
         try:
             self._audio_writer.close()
         except Exception as ex:
-            print(ex)
+            logging.error(ex)
         self.running = False
 
     def stop(self):

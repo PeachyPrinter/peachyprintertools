@@ -11,10 +11,8 @@ class ConfigurationManager(object):
             'drips_per_mm' : 1.0,
             'laser_thickness_mm' : 0.5,
             'max_deflection': 0.75,
-            'configurationbounds_mm' : [
-                    [1.0,1.0,0.0],[1.0,-1.0,0.0],[-1.0,-1.0,0.0],[-1.0,1.0,0.0],
-                    [1.0,1.0,1.0],[1.0,-1.0,1.0],[-1.0,-1.0,1.0],[-1.0,1.0,1.0]
-                ],
+            'calibration_data' : [],
+            'calibration_scale' : 1.0,
             }
 
     def list(self):

@@ -91,7 +91,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         patterns = calibration_api.get_patterns()
 
-        self.assertEquals(["Single Point","Grid Alignment Line"],patterns)
+        self.assertEquals(['Hilbert Space filling','Single Point','Grid Alignment Line'],patterns)
 
     def test_change_pattern_should_raise_exception_when_test_patterns_unavailable(self,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_layer_generator = mock_SinglePointGenerator.return_value
@@ -109,6 +109,21 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         calibration_api.start()
         calibration_api.change_pattern("Grid Alignment Line")
         mock_controller.change_generator.assert_called_with(expected_generator)
+
+    def test_get_calibration_points_returns_the_existing_configuration(self,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        calibration_api = CalibrationAPI(self.DEFAULT_CONFIG)
+
+        self.assertEquals(calibration_api.get_calibration_points(), [])
+
+    def test_get_calibration_scale_returns_the_existing_scale_used_for_calibration(self,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        calibration_api = CalibrationAPI(self.DEFAULT_CONFIG)
+
+        self.assertEquals(calibration_api.get_calibration_scale(), 1.0)
+
+    # def test_get_calibration_points_returns_pattern_if_the_existing_configuration_empty(self,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    #     calibration_api = CalibrationAPI(self.DEFAULT_CONFIG)
+    #     expected
+    #     self.assertEquals(calibration_api.get_calibration_points(), [])
 
 
 if __name__ == '__main__':

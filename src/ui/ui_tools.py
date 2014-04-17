@@ -42,7 +42,6 @@ class FieldValidations(object):
         return (self.register(self.validate_float), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
 
     def validate_float(self, action, index, value_if_allowed, prior_value, text, validation_type, trigger_type, widget_name):
-        logging.warning("Validating Float: %s" % text)
         if value_if_allowed == '' or value_if_allowed == None:
             return True
         elif text in '-.0123456789':
