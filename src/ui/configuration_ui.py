@@ -99,7 +99,7 @@ class SetupOptionsUI(PeachyFrame):
         self.laser_thickness_entry = Entry(self, textvariable = self.laser_thickness_entry_text)
         self.laser_thickness_entry.grid(column=1, row=0)
 
-        sublayer_height_label = Label(self, text = "Laser Thickness (mm)" )
+        sublayer_height_label = Label(self, text = "Sub Layer Height (mm)" )
         sublayer_height_label.grid(column=0,row=1)
         self.sublayer_height_entry_text = StringVar()
         self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
@@ -120,22 +120,6 @@ class SetupOptionsUI(PeachyFrame):
 
     def close(self):
         pass
-
-class FieldValidations(object):
-    def validate_int_command(self):
-        return (self.register(self.validate_int), '%d', '%i', '%P', '%s', '%S', '%v', '%V', '%W')
-
-    def validate_int(self, action, index, value_if_allowed, prior_value, text, validation_type, trigger_type, widget_name):
-        if value_if_allowed == '' or value_if_allowed == None:
-            return True
-        elif text in '0123456789':
-            try:
-                int(value_if_allowed)
-                return True
-            except ValueError:
-                return False
-        else:
-            return False
 
 class DripCalibrationUI(PeachyFrame, FieldValidations):
     
@@ -175,7 +159,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         mark_button = Button(self,text=u"Mark", command=self.mark_button_clicked)
         mark_button.grid(column=2,row=2) 
 
-        quit_button = Button(self,text=u"Done", command=self.done_button_clicked)
+        quit_button = Button(self,text=u"Back", command=self._back_button_clicked)
         quit_button.grid(column=3,row=4)    
        
         self.grid_columnconfigure(3,weight=1)
@@ -193,7 +177,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._configuration_api.reset_drips()
         self.update_drips()
 
-    def done_button_clicked(self):
+    def _back_button_clicked(self):
         self.navigate(SetupUI)
 
     def mark_button_clicked(self):
