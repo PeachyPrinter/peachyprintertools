@@ -5,6 +5,7 @@ class PeachyFrame(Frame):
         Frame.__init__(self, parent)
         self.parent = parent
         self.kwargs = kwargs
+        self.parent.protocol("WM_DELETE_WINDOW", self.quit)
         self._configuration_api = configuration_api
         self.initialize()
 
@@ -15,3 +16,7 @@ class PeachyFrame(Frame):
 
     def close(self):
         pass
+
+    def quit(self):
+        self.close()
+        exit(0)
