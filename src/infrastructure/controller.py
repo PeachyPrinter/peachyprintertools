@@ -69,10 +69,12 @@ class Controller(threading.Thread,):
         self._zaxis = zaxis
         self.state = MachineState()
         self.status = MachineStatus(self._zaxis)
+        self._abort_current_command = False
         logging.info("Starting print")
 
     def change_generator(self, layer_generator):
         self._layer_generator = layer_generator
+        self._abort_current_command = True
 
     def _process_layers(self):
         going = True
@@ -92,6 +94,11 @@ class Controller(threading.Thread,):
                         self._move_lateral(self.state.xy, self.state.z,self.state.speed)
                 self.status.waiting_for_drips = False
                 for command in layer.commands:
+                    if self._shutting_down:
+                        return
+                    if self._abort_current_command:
+                        self._abort_current_command = False
+                        break
                     logging.debug("Controller: command: %s" % command )
                     if type(command) == LateralDraw:
                         if self.state.xy != command.start:

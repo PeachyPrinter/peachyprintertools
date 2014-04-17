@@ -72,26 +72,27 @@ class SubLayerGenerator(LayerGenerator):
         except StopIteration:
             self._running = False
 
-class HilbertGenerator(LayerGenerator):
-    def __init__(self, order = 3, speed = 5.0):
-        self._pattern = [] 
-        self._get_pattern(order)
-        self._last_xy = [0.0,0.0]
-        self._speed = speed
-
-    def _get_pattern(self, order):
+class HilbertCurve(object):
+    def _get_hilbert(self, order):
         return self._hilbert(-1.0,-1.0,2.0,0.0,0.0,2.0, order)
 
     def _hilbert(self,x0, y0, xi, xj, yi, yj, n, points = []) :
         if n <= 0:
             X = x0 + (xi + yi)/2
             Y = y0 + (xj + yj)/2
-            self._pattern.append([X,Y])
+            points.append([X,Y])
         else:
-            self._hilbert(x0,               y0,               yi/2, yj/2, xi/2, xj/2, n - 1)
-            self._hilbert(x0 + xi/2,        y0 + xj/2,        xi/2, xj/2, yi/2, yj/2, n - 1)
-            self._hilbert(x0 + xi/2 + yi/2, y0 + xj/2 + yj/2, xi/2, xj/2, yi/2, yj/2, n - 1)
-            self._hilbert(x0 + xi/2 + yi,   y0 + xj/2 + yj,  -yi/2,-yj/2,-xi/2,-xj/2, n - 1)
+            self._hilbert(x0,               y0,               yi/2, yj/2, xi/2, xj/2, n - 1, points)
+            self._hilbert(x0 + xi/2,        y0 + xj/2,        xi/2, xj/2, yi/2, yj/2, n - 1, points)
+            self._hilbert(x0 + xi/2 + yi/2, y0 + xj/2 + yj/2, xi/2, xj/2, yi/2, yj/2, n - 1, points)
+            self._hilbert(x0 + xi/2 + yi,   y0 + xj/2 + yj,  -yi/2,-yj/2,-xi/2,-xj/2, n - 1, points)
+        return points
+
+class HilbertGenerator(LayerGenerator, HilbertCurve):
+    def __init__(self, order = 4, speed = 3.0):
+        self._pattern = self._get_hilbert(order)
+        self._last_xy = [0.0,0.0]
+        self._speed = speed
 
     def next(self):
         layer = Layer(0.0)

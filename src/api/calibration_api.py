@@ -9,9 +9,10 @@ from infrastructure.layer_generators import SinglePointGenerator, CalibrationLin
 
 '''TODO'''
 class CalibrationAPI(object):
-    def __init__(self, configuration):
+    def __init__(self, configuration_manager):
         logging.info("Print API Startup")
-        self._configuration = configuration
+        self._configuration_manager = configuration_manager
+        self._configuration = self._configuration_manager.get_current_config()
         self._patterns = { 
             'Single Point' : SinglePointGenerator(), 
             'Grid Alignment Line' :  CalibrationLineGenerator(),
@@ -63,14 +64,15 @@ class CalibrationAPI(object):
     def change_scale(self,scale):
         pass
 
-    def get_calibration_points(self):
+    def load_points(self):
         return self._configuration['calibration_data']
 
     def get_calibration_scale(self):
         return self._configuration['calibration_scale']
 
-    def save(self, points):
-        pass
+    def save_points(self, points):
+        self._configuration['calibration_data'] = points
+        self._configuration_manager.save(self._configuration)
 
     def stop(self):
         if self._controller:

@@ -76,7 +76,6 @@ class FileBasedConfigurationManager(ConfigurationManager):
         valid = True
         for (key, value) in self.REQUIRED_FIELDS.items():
             if not (configuration.has_key(key) and type(configuration[key]) == value):
-                print("%s is missing or not %s" % (key, value))
                 valid = False
         return valid
 
