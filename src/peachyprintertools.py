@@ -3,6 +3,7 @@
 
 import logging
 import argparse
+import os
 from Tkinter import *
 from infrastructure.configuration import FileBasedConfigurationManager
 from api.configuration_api import ConfigurationAPI
@@ -12,6 +13,9 @@ class PeachyPrinterTools(Tk):
     def __init__(self,parent):
         Tk.__init__(self,parent)
         self.geometry("640x480")
+        self.title('Peachy Printer Tools')
+        img = PhotoImage(file=os.path.join(os.path.dirname(__file__),'resources','peachy.gif'))
+        self.tk.call('wm', 'iconphoto', self._w, img)
         self.parent = parent
         configuration_manager = FileBasedConfigurationManager()
         self._configuration_manager = configuration_manager

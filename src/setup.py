@@ -25,7 +25,7 @@ shortcut_table = [
 buildOptions = { 
         'packages' : ['domain','infrastructure','api','ui'], 
         'excludes' : [],
-        'icon' : os.path.join('resources', 'peach.ico'),
+        'icon' : os.path.join('resources', 'peachy.ico'),
         }
 
 bdist_dmg_options = { }
