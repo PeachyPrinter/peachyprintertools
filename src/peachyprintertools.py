@@ -4,6 +4,7 @@
 import logging
 import argparse
 import os
+import sys
 from Tkinter import *
 from infrastructure.configuration import FileBasedConfigurationManager
 from api.configuration_api import ConfigurationAPI
@@ -14,7 +15,8 @@ class PeachyPrinterTools(Tk):
         Tk.__init__(self,parent)
         self.geometry("640x480")
         self.title('Peachy Printer Tools')
-        img = PhotoImage(file=os.path.join(os.path.curdir,'resources','peachy.gif'))
+        img_file = self.find_data_file(os.path.join('resources','peachy.gif'))
+        img = PhotoImage(file=img_file)
         self.tk.call('wm', 'iconphoto', self._w, img)
         self.parent = parent
         configuration_manager = FileBasedConfigurationManager()
@@ -24,10 +26,15 @@ class PeachyPrinterTools(Tk):
 
         self.protocol("WM_DELETE_WINDOW", self.close)
 
-
     def start_main_window(self):
         MainUI(self, self._configuration_manager)
 
+    def find_data_file(self, filename):
+        if getattr(sys, 'frozen', False):
+            datadir = os.path.dirname(sys.executable)
+        else:
+            datadir = os.path.dirname(__file__)
+        return os.path.join(datadir, filename)
 
     def close(self):
         self.destroy()
