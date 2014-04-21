@@ -1,6 +1,6 @@
-class Transformer(object):
-    def transform(self, xyz):
-        raise NotImplementedException
+import numpy as np
+
+from domain.transformer import Transformer
 
 class OneToOneTransformer(Transformer):
     def transform(self, xyz):
@@ -25,3 +25,12 @@ class TuningTransformer(Transformer):
 
     def _transform(self, axis):
         return ((axis * self._scale) + 1.0) / 2.0
+
+class HomogenousTransformer(Transformer):
+    def __init__(self, scale, parameters):
+        self._scale = scale
+        self._parameters = parameters
+
+
+    def transform(self, axis):
+        return np.array(axis) * self._scale

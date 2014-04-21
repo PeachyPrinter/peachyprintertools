@@ -11,7 +11,7 @@ from ui.main_ui import MainUI
 class PeachyPrinterTools(Tk):
     def __init__(self,parent):
         Tk.__init__(self,parent)
-        self.geometry("500x250")
+        self.geometry("640x480")
         self.parent = parent
         configuration_manager = FileBasedConfigurationManager()
         self._configuration_manager = configuration_manager
