@@ -9,10 +9,11 @@ from infrastructure.layer_generators import SinglePointGenerator, CalibrationLin
 
 '''TODO'''
 class CalibrationAPI(object):
-    def __init__(self, configuration_manager):
-        logging.info("Print API Startup")
+    def __init__(self, configuration_manager, printer):
+        logging.info("Calibartion API Startup")
         self._configuration_manager = configuration_manager
-        self._configuration = self._configuration_manager.get_current_config()
+        self._printer = printer
+        self._configuration = self._configuration_manager.load(self._printer)
         self._patterns = { 
             'Single Point' : SinglePointGenerator(), 
             'Grid Alignment Line' :  CalibrationLineGenerator(),

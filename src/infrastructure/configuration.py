@@ -40,7 +40,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         return printers
 
     def load(self, printer_name):
-        logging.info("Loading configutation for %s" % printer_name)
+        logging.info('Loading configutation for "%s"' % printer_name)
         filename = self._get_file_name(printer_name)
         if not os.path.exists(filename):
             raise Exception("Printer file not found")

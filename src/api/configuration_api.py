@@ -1,6 +1,6 @@
-#TODO JT 2014-04-08 - Domain Audio Setup
-
 import types
+import logging
+
 from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 
@@ -28,8 +28,9 @@ class ConfigurationAPI(object):
     
     def current_printer(self):
         if self._current_config:
-            self._current_config['name']
+            return self._current_config['name']
         else:
+            logging.debug('Current config missing')
             return None
 
     def get_current_config(self):
@@ -44,6 +45,7 @@ class ConfigurationAPI(object):
 
     def load_printer(self, name):
         self._current_config = self._configuration_manager.load(name)
+        logging.debug("Loaded config:\n%s" % self._current_config)
     
     def save(self):
         self._configuration_manager.save(self._current_config)

@@ -32,7 +32,8 @@ class CalibrationPoint(object):
 class CalibrationUI(PeachyFrame, FieldValidations):
 
     def initialize(self):
-        self._calibrationAPI = CalibrationAPI(self._configuration_api.get_current_config())
+        self._printer = self.kwargs['printer']
+        self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._printer )
 
         self._index = 0
         self._points = [[1.0,1.0],[1.0,-1.0],[-1.0,-1.0],[-1.0,1.0]]
@@ -46,7 +47,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
 
         self._current_selection = IntVar()
         Radiobutton(self, command = self._option_changed, text="Center Point", variable=self._current_selection, value=0).grid(column = 1, row = 1, sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Pattern", variable=self._current_selection, value=1).grid(column = 1, row = 2, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Raw Pattern", variable=self._current_selection, value=1).grid(column = 1, row = 2, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value=2).grid(column = 1, row = 3, sticky=W)
 
         self._current_pattern = StringVar()
@@ -59,7 +60,6 @@ class CalibrationUI(PeachyFrame, FieldValidations):
 
         Button(self,text=u"Back", command=self._back_button_click).grid(column=1,row=50)
 
-        self._calibrationAPI = CalibrationAPI(self._configuration_api.get_current_config())
         self._calibrationAPI.start()
         self._option_changed()
         self.update()
@@ -178,11 +178,12 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         config = []
         for point in self.data_points:
             config.append({'in': point.ref_xyz_float, 'out': point.actual_xyz_float})
+        self._calibrationAPI.save_points(config)
 
     def _back_button_click(self):
         from ui.configuration_ui import SetupUI
         self.navigate(SetupUI)
 
     def close(self):
-        if self._calibrationAPI:
+        if hasattr(self, '_calibrationAPI') and self._calibrationAPI:
             self._calibrationAPI.stop()

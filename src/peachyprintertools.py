@@ -14,7 +14,7 @@ class PeachyPrinterTools(Tk):
         self.geometry("500x250")
         self.parent = parent
         configuration_manager = FileBasedConfigurationManager()
-        self._configuration_api = ConfigurationAPI(configuration_manager)
+        self._configuration_manager = configuration_manager
 
         self.start_main_window()
 
@@ -22,7 +22,7 @@ class PeachyPrinterTools(Tk):
 
 
     def start_main_window(self):
-        MainUI(self, self._configuration_api)
+        MainUI(self, self._configuration_manager)
 
 
     def close(self):
@@ -36,7 +36,7 @@ if __name__ == "__main__":
     numeric_level = getattr(logging, args.loglevel.upper(), "INFO")
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % args.loglevel)
-    logging.basicConfig(format='%(asctime)s %(message)s', level=numeric_level)
+    logging.basicConfig(format='%(levelname)s: %(asctime)s %(module)s - %(message)s', level=numeric_level)
     app = PeachyPrinterTools(None)
     app.title('Peachy Printer Tools')
     app.mainloop()

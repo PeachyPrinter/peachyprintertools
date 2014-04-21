@@ -47,12 +47,17 @@ class ConfigurationAPITest(unittest.TestCase):
 
         self.assertEqual(None, actual)
 
-    def test_current_printer_returns_printer_name(self):
+
+    @patch.object(ConfigurationManager, 'save' )
+    @patch.object(ConfigurationManager, 'new' )
+    def test_current_printer_returns_printer_name(self, mock_new, mock_save):
         capi = ConfigurationAPI(ConfigurationManager())
-        
+        mock_new.return_value = { 'name' : 'Spam' }
+        capi.add_printer('Spam')
+
         actual = capi.current_printer()
 
-        self.assertEqual(None, actual)
+        self.assertEqual('Spam', actual)
 
     @patch.object(ConfigurationManager, 'load' )
     def test_load_printer_calls_load(self, mock_load):

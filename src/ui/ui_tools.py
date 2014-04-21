@@ -2,18 +2,19 @@ from Tkinter import *
 import logging
 
 class PeachyFrame(Frame):
-    def __init__(self, parent, configuration_api, **kwargs):
+    def __init__(self, parent, configuration_manager, **kwargs):
+        logging.info("Peachy Frame kwargs: %s" % kwargs)
         Frame.__init__(self, parent)
         self.parent = parent
         self.kwargs = kwargs
         self.parent.protocol("WM_DELETE_WINDOW", self.quit)
-        self._configuration_api = configuration_api
+        self._configuration_manager = configuration_manager
         self.initialize()
 
     def navigate(self, next_frame , **kwargs):
         self.close()
         self.destroy()
-        self.parent.current_frame = next_frame(self.parent, self._configuration_api, **kwargs) 
+        self.parent.current_frame = next_frame(self.parent, self._configuration_manager, **kwargs) 
 
     def close(self):
         pass

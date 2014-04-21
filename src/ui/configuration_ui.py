@@ -3,11 +3,12 @@ import tkMessageBox
 from ui.ui_tools import *
 from ui.main_ui import MainUI
 from ui.calibration_ui import *
+from api.configuration_api import ConfigurationAPI
 
 class SetupUI(PeachyFrame):
 
     def initialize(self):
-        
+        self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self.grid()
         printer_selection_current = StringVar()
         
@@ -47,24 +48,25 @@ class SetupUI(PeachyFrame):
 
     def _printer_selected(self, selection):
         self._configuration_api.load_printer(selection)
+        self._current_printer = selection
 
     def _add_printer(self):
         self.navigate(AddPrinterUI)
 
     def _setup_options_button_click(self):
-        self.navigate(SetupOptionsUI)
+        self.navigate(SetupOptionsUI, self._current_printer)
 
     def drip_calibration_button_click(self):
-        self.navigate(DripCalibrationUI)
+        self.navigate(DripCalibrationUI, printer = self._current_printer)
 
     def _back_button_click(self):
-        self.navigate(MainUI)
+        self.navigate(MainUI, printer = self._current_printer)
 
     def setup_audio_button_click(self):
-        self.navigate(SetupAudioUI)
+        self.navigate(SetupAudioUI, printer = self._current_printer)
 
     def start_calibration_button_click(self):
-        self.navigate(CalibrationUI)
+        self.navigate(CalibrationUI, printer = self._current_printer)
 
     def close(self):
         pass
@@ -72,6 +74,7 @@ class SetupUI(PeachyFrame):
 class AddPrinterUI(PeachyFrame):
     def initialize(self):
         self.grid()
+        self._configuration_api = ConfigurationAPI(self._configuration_manager)
         label = Label(self, text = "Enter a name for your printer" )
         label.grid(column=0,row=0)
         self.entry = Entry(self)
@@ -92,22 +95,27 @@ class AddPrinterUI(PeachyFrame):
 class SetupOptionsUI(PeachyFrame):
     def initialize(self):
         self.grid()
+        self._configuration_api = ConfigurationAPI(self._configuration_manager)
+
+        Label(self, text = 'Printer: ').grid(column=0,row=10)
+        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
+
         laser_thickness_label = Label(self, text = "Laser Thickness (mm)" )
-        laser_thickness_label.grid(column=0,row=0)
+        laser_thickness_label.grid(column=0,row=20)
         self.laser_thickness_entry_text = StringVar()
         self.laser_thickness_entry_text.set(self._configuration_api.get_laser_thickness_mm())
         self.laser_thickness_entry = Entry(self, textvariable = self.laser_thickness_entry_text)
-        self.laser_thickness_entry.grid(column=1, row=0)
+        self.laser_thickness_entry.grid(column=1, row=20)
 
         sublayer_height_label = Label(self, text = "Sub Layer Height (mm)" )
-        sublayer_height_label.grid(column=0,row=1)
+        sublayer_height_label.grid(column=0,row=30)
         self.sublayer_height_entry_text = StringVar()
         self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
         self.sublayer_height_entry = Entry(self, textvariable = self.sublayer_height_entry_text)
-        self.sublayer_height_entry.grid(column=1, row=1)
+        self.sublayer_height_entry.grid(column=1, row=30)
 
         button = Button(self, text ="Save", command = self._process)
-        button.grid(column=2,row=2)
+        button.grid(column=2,row=30)
         self.grid_columnconfigure(1,weight=1)
         self.update()
 
@@ -124,43 +132,47 @@ class SetupOptionsUI(PeachyFrame):
 class DripCalibrationUI(PeachyFrame, FieldValidations):
     
     def initialize(self):
+        self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self.update_drips_job = None
         self._configuration_api.start_counting_drips()
         self.drips = 0
         self.drip_count_label = StringVar()
         self.update_drips()
         self.grid()
+
+        Label(self, text = 'Printer: ').grid(column=0,row=0)
+        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
         
         self.instructions = u"Some much better text and instructions go here"
         instructions_label = Label(self,text=self.instructions, anchor="w",fg="pink",bg="green")
-        instructions_label.grid(column=0,row=0,columnspan=4,sticky='EW')
+        instructions_label.grid(column=0,row=10,columnspan=4,sticky='EW')
 
         label = Label(self,textvariable=self.drip_count_label, anchor="w",fg="black",bg="white")
-        label.grid(column=1,row=1,columnspan=2,sticky='EW')
+        label.grid(column=1,row=20,columnspan=2,sticky='EW')
         
         
         reset_button = Button(self,text=u"Reset Counter", command=self.reset_button_clicked)
-        reset_button.grid(column=2,row=1)   
+        reset_button.grid(column=2,row=20)   
 
         height_mm_label = Label(self,text="End Height in Millimeters", anchor="w",fg="black",bg="white", justify="right")
-        height_mm_label.grid(column=0,row=2,columnspan=1,sticky='EW')
+        height_mm_label.grid(column=0,row=30,columnspan=1,sticky='EW')
 
         self.height_mm_entry = Entry(self, width=20, justify="left", text=str(10), validate = 'key', validatecommand=self.validate_int_command())
-        self.height_mm_entry.grid(column=1,row=2)
+        self.height_mm_entry.grid(column=1,row=30)
 
         drips_per_mm_label = Label(self,text="Drips per mm", anchor="w",fg="black",bg="white", justify="right")
-        drips_per_mm_label.grid(column=0,row=3,columnspan=1,sticky='EW')
+        drips_per_mm_label.grid(column=0,row=40,columnspan=1,sticky='EW')
 
         self.drips_per_mm_field_text = StringVar()
         drips_per_mm_field = Label(self,textvariable=self.drips_per_mm_field_text, anchor="w",fg="black",bg="white")
-        drips_per_mm_field.grid(column=1,row=3,columnspan=1,sticky='EW')
+        drips_per_mm_field.grid(column=1,row=40,columnspan=1,sticky='EW')
         self.drips_per_mm_field_text.set("")
 
         mark_button = Button(self,text=u"Mark", command=self.mark_button_clicked)
-        mark_button.grid(column=2,row=2) 
+        mark_button.grid(column=2,row=40) 
 
         quit_button = Button(self,text=u"Back", command=self._back_button_clicked)
-        quit_button.grid(column=3,row=4)    
+        quit_button.grid(column=3,row=50)    
        
         self.grid_columnconfigure(3,weight=1)
         self.update()
@@ -198,12 +210,20 @@ class SetupAudioUI(PeachyFrame):
 
     def initialize(self):
         self.grid()
-        audio_options = self._configuration_api.get_available_audio_options()
+        self._current_printer = self.kwargs['printer']
+        self._configuration_api = ConfigurationAPI(self._configuration_manager)
+        self._configuration_api.load_printer(self._current_printer)
 
+        audio_options = self._configuration_api.get_available_audio_options()
+        
+        Label(self, text = 'Printer: ').grid(column=0,row=0)
+        logging.debug('printer_name %s' % self._configuration_api.current_printer())
+        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
+        
         input_label_text = StringVar()
         input_label_text.set("Audio Input Settings")
         input_label = Label(self, textvariable = input_label_text )
-        input_label.grid(column=0,row=0)
+        input_label.grid(column=0,row=1)
 
 
         self.input_options = audio_options['inputs']
@@ -214,12 +234,12 @@ class SetupAudioUI(PeachyFrame):
             self,
             self.input_audio_selection_current, 
             *self.input_options.keys())
-        input_audio_selection_menu.grid(column=1,row=0)
+        input_audio_selection_menu.grid(column=1,row=1)
 
         output_label_text = StringVar()
         output_label_text.set("Audio Output Settings")
         output_label = Label(self, textvariable = output_label_text )
-        output_label.grid(column=0,row=1)
+        output_label.grid(column=0,row=2)
 
         self.output_options = audio_options['outputs']
         self.output_audio_selection_current = StringVar()
@@ -228,10 +248,10 @@ class SetupAudioUI(PeachyFrame):
             self,
             self.output_audio_selection_current, 
             *self.output_options.keys())
-        output_audio_selection_menu.grid(column=1,row=1)
+        output_audio_selection_menu.grid(column=1,row=2)
 
         button = Button(self, text ="Submit", command = self._process)
-        button.grid(column=2,row=2)
+        button.grid(column=2,row=3)
 
         self.grid_columnconfigure(1,weight=1)
         self.update()

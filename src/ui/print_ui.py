@@ -4,6 +4,7 @@ import tkFileDialog
 from ui.ui_tools import *
 from ui.main_ui import MainUI
 from api.print_api import PrintAPI
+from api.configuration_api import ConfigurationAPI
 
 class PrintUI(PeachyFrame):
 
@@ -16,6 +17,7 @@ class PrintUI(PeachyFrame):
         options['parent'] = self
         options['title'] = 'Select file to print'
 
+        self._configuration_api = ConfigurationAPI(self._configuration_manager)
         printer_selection_current = StringVar()
         if not self._configuration_api.get_available_printers():
             self._configuration_api.add_printer("Peachy Printer")
