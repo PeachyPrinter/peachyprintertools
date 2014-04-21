@@ -24,7 +24,7 @@ shortcut_table = [
 
 buildOptions = { 
         'packages' : ['domain','infrastructure','api','ui'], 
-        'include_files' : [('resources',glob('resources/*'))],
+        'include_files' : [ (files,files) for files in glob('resources/*') ],
         'excludes' : [],
         'icon' : os.path.join('resources', 'peachy.ico'),
         }
