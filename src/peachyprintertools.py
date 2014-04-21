@@ -15,9 +15,10 @@ class PeachyPrinterTools(Tk):
         Tk.__init__(self,parent)
         self.geometry("640x480")
         self.title('Peachy Printer Tools')
-        img_file = self.find_data_file(os.path.join('resources','peachy.gif'))
-        img = PhotoImage(file=img_file)
-        self.tk.call('wm', 'iconphoto', self._w, img)
+
+        if sys.platform != 'darwin':
+            self.setup_icon()
+            
         self.parent = parent
         configuration_manager = FileBasedConfigurationManager()
         self._configuration_manager = configuration_manager
@@ -29,12 +30,10 @@ class PeachyPrinterTools(Tk):
     def start_main_window(self):
         MainUI(self, self._configuration_manager)
 
-    def find_data_file(self, filename):
-        if getattr(sys, 'frozen', False):
-            datadir = os.path.dirname(sys.executable)
-        else:
-            datadir = os.path.dirname(__file__)
-        return os.path.join(datadir, filename)
+    def setup_icon(self):
+        img_file = os.path.join('resources','peachy.gif')
+        img = PhotoImage(file=img_file)
+        self.tk.call('wm', 'iconphoto', self._w, img)
 
     def close(self):
         self.destroy()
