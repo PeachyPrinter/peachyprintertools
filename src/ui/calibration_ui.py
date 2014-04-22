@@ -6,7 +6,7 @@ from api.calibration_api import CalibrationAPI
 import numpy as np
 
 class CalibrationPoint(object):
-    def __init__(self,ref_x,ref_y,ref_z):
+    def __init__(self,ref_x,ref_y,ref_z,actual_x,actual_y,actual_z):
         self.ref_x = DoubleVar()
         self.ref_x.set(ref_x)
         self.ref_y = DoubleVar()
@@ -15,11 +15,11 @@ class CalibrationPoint(object):
         self.ref_z.set(ref_z)
 
         self.actual_x = DoubleVar()
-        self.actual_x.set(0.0)
+        self.actual_x.set(actual_x)
         self.actual_y = DoubleVar()
-        self.actual_y.set(0.0)
+        self.actual_y.set(actual_y)
         self.actual_z = DoubleVar()
-        self.actual_z.set(ref_z)
+        self.actual_z.set(actual_z)
 
     @property
     def ref_xyz_float(self):
@@ -36,7 +36,6 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._printer )
 
         self._index = 0
-        self._points = [[1.0,1.0],[1.0,-1.0],[-1.0,-1.0],[-1.0,1.0]]
         self._patterns = self._calibrationAPI.get_patterns()
         self.data_points = []
         self.parent.geometry("%dx%d" % (500,700))
@@ -48,7 +47,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         self._current_selection = IntVar()
         Radiobutton(self, command = self._option_changed, text="Center Point", variable=self._current_selection, value=0).grid(column = 1, row = 1, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Alignment", variable=self._current_selection, value=1).grid(column = 1, row = 2, sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Calibrte",  variable=self._current_selection, value=2).grid(column = 1, row = 3, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value=2).grid(column = 1, row = 3, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Calibrated Patterns", variable=self._current_selection, value=3).grid(column = 1, row = 4, sticky=W)
 
 
@@ -68,14 +67,19 @@ class CalibrationUI(PeachyFrame, FieldValidations):
 
     def _setup_calibration_grid(self):
         options = {'borderwidth':2 }
-        default_upper_z = 50.0;
-        for z in [default_upper_z, 0.0]:
-            for x,y in self._points:
-                self.data_points.append(CalibrationPoint(x,y,z))
+        data = self._calibrationAPI.load()
+        
+        for ((rx,ry),(ax,ay)) in data['upper_points'].items():
+            self.data_points.append(CalibrationPoint(rx,ry,data['height'],ax,ay,data['height']))
+        for ((rx,ry),(ax,ay)) in data['lower_points'].items():
+            self.data_points.append(CalibrationPoint(rx,ry,0.0,ax,ay,0.0))
+
+
+
 
         self.calibration_fields = {}
         self.upper_z = DoubleVar()
-        self.upper_z.set(default_upper_z)
+        self.upper_z.set(data['height'])
 
         self.calibration_fields['r_z_h'] = Label(self,text="Upper Calibration Height (mm)" ,**options )
         self.calibration_fields['r_z_h'].grid(column=1,row=50,columnspan=2)
@@ -157,7 +161,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         self._calibrationAPI.apply_calibration()
 
     def _unapply_calibration(self):
-        pass
+        self._calibrationAPI.unapply_calibration()
 
     def _pattern_changed(self, pattern):
             self._calibrationAPI.change_pattern(pattern)
@@ -171,7 +175,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
             self._calibrationAPI.move_to([0.0,0.0,0.0])
         elif self._current_selection.get() == 1:
             self._hide_calibration()
-            self._show_patterns()
+            self._hide_patterns()
             self._unapply_calibration()
             self._pattern_changed('Grid Alignment Line')
         elif self._current_selection.get() == 2:
@@ -184,17 +188,23 @@ class CalibrationUI(PeachyFrame, FieldValidations):
             self._show_patterns()
             self._hide_calibration()
             self._apply_calibration()
-            self._calibrationAPI.change_pattern('Single Point')
-            self._calibrationAPI.move_to([0.0,0.0,0.0])
+            self._pattern_changed('Grid Alignment Line')
+
         else:
             raise Exception("Programmer Error")
 
 
     def _save_click(self):
-        config = []
-        for point in self.data_points:
-            config.append({'in': point.ref_xyz_float, 'out': point.actual_xyz_float})
-        self._calibrationAPI.save_points(config)
+        config = {}
+        config['height'] = self.upper_z.get()
+        lower_points = [ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == 0.0 ]
+        upper_points = [ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == self.upper_z.get() ]
+        print(lower_points)
+        print(upper_points)
+        config['lower_points'] = dict(lower_points)
+        config['upper_points'] = dict(upper_points)
+
+        self._calibrationAPI.save(config)
 
     def _back_button_click(self):
         from ui.configuration_ui import SetupUI
@@ -202,4 +212,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
 
     def close(self):
         if hasattr(self, '_calibrationAPI') and self._calibrationAPI:
-            self._calibrationAPI.stop()
+            try:
+                self._calibrationAPI.stop()
+            except:
+                pass

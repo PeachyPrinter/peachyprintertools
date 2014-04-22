@@ -1,4 +1,5 @@
 import logging
+import types
 
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
@@ -71,15 +72,40 @@ class CalibrationAPI(object):
     def change_scale(self,scale):
         pass
 
-    def load_points(self):
+    def load(self):
         return self._configuration['calibration_data']
 
     def get_calibration_scale(self):
         return self._configuration['calibration_scale']
 
-    def save_points(self, points):
-        self._configuration['calibration_data'] = points
+    def save(self, data):
+        if not self.validate_data(data):
+            raise Exception('Bad Calibration %s ' % data)
+        self._configuration['calibration_data'] = data
+        logging.debug("Saving calibration: %s" % data)
         self._configuration_manager.save(self._configuration)
+
+    def validate_data(self, data):
+        if not 'height' in data:
+            return False
+        if not 'upper_points' in data:
+            return False
+        if not 'lower_points' in data:
+            return False
+        if (type(data['height']) != types.FloatType):
+            return False
+        if (data['height'] <= 0.0):
+            return False
+        if not self._validate_points(data['upper_points']):
+            return False
+        if not self._validate_points(data['lower_points']):
+            return False
+        return True
+    
+    def _validate_points(self,points):
+        if (len(points) != 4):
+            return False
+        return True
 
     def stop(self):
         if self._controller:

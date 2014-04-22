@@ -79,7 +79,11 @@ class DefaultsHelpers(object):
             'laser_thickness_mm' : 0.5,
             'drips_per_mm': 1.0,
             'max_deflection': 0.75,
-            'calibration_data' : [],
+            'calibration_data' : { 
+                'height': 1, 
+                'lower_points':{(1,1):(1,1),(1,0):(1,0),(0,0):(0,0),(0,1):(0,1),},
+                'upper_points':{(1,1):(1,1),(1,0):(1,0),(0,0):(0,0),(0,1):(0,1),},
+                },
             'calibration_scale' : 1.0,
             }
 

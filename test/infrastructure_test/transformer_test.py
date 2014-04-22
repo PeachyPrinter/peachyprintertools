@@ -1,6 +1,7 @@
 import unittest
 import os
 import sys
+import logging
 import numpy as np
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
@@ -50,68 +51,73 @@ class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
             tuning_transformer.transform([1.0,-1.1,1.0])
 
 class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
-    pass
-    # def test_given_an_one_to_one_mapping_yields_expected_results(self):
-    #     perfect_data = [
-    #         {'in': [1.0,  1.0,0.0], 'out': [1.0,  1.0,0.0]},
-    #         {'in': [1.0, -1.0,0.0], 'out': [1.0, -1.0,0.0]},
-    #         {'in': [-1.0,-1.0,0.0], 'out': [-1.0,-1.0,0.0]},
-    #         {'in': [-1.0, 1.0,0.0], 'out': [-1.0, 1.0,0.0]},
-    #         {'in': [1.0,  1.0,1.0], 'out': [1.0,  1.0,1.0]},
-    #         {'in': [1.0, -1.0,1.0], 'out': [1.0, -1.0,1.0]},
-    #         {'in': [-1.0,-1.0,1.0], 'out': [-1.0,-1.0,1.0]},
-    #         {'in': [-1.0, 1.0,1.0], 'out': [-1.0, 1.0,1.0]},
-    #         ]
-    #     scale = 1.0
-    #     transformer = HomogenousTransformer(scale, perfect_data)
+    def test_given_a_basic_mapping_yields_expected_results(self):
+        perfect_data = {
+            'height': 1.0 , 
+            'lower_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                },
+            'upper_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
+        }
+        scale = 1.0
+        transformer = HomogenousTransformer(perfect_data, scale)
 
-    #     test_points = [ [0,0,0] , [0.5,0.5,0.5],[-0.5,-0.5,0.5],[1.0,  1.0,0.0],[1.0, -1.0,0.0],[-1.0,-1.0,0.0],[-1.0, 1.0,0.0],[1.0,  1.0,1.0],[1.0, -1.0,1.0],[-1.0,-1.0,1.0],[-1.0, 1.0,1.0]]
+        test_points = [ 
+            [1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0],
+            [1.0,1.0,2.5],[-1.0,-1.0,2.5],[0.0,0.0,2.5],[0.5,0.5,2.5],
+            [1.0,1.0,5.0],[-1.0,-1.0,5.0],[0.0,0.0,5.0],[0.5,0.5,5.0]
+        ]
 
-    #     for point in test_points:
-    #         self.assertNumpyArrayEquals(point, transformer.transform(point))
+        expected_points = [((x + 1.0) / 2.0,(y + 1.0) / 2.0) for (x,y,z) in test_points ]
+        actual_points   = [ transformer.transform ( point) for point in test_points ]
+        
+        self.assertEquals(expected_points, actual_points)
 
-    # def test_given_an_one_to_one_mapping_and_scale_yields_expected_results(self):
-    #     perfect_data = [
-    #         {'in': [1.0,  1.0,0.0], 'out': [1.0,  1.0,0.0]},
-    #         {'in': [1.0, -1.0,0.0], 'out': [1.0, -1.0,0.0]},
-    #         {'in': [-1.0,-1.0,0.0], 'out': [-1.0,-1.0,0.0]},
-    #         {'in': [-1.0, 1.0,0.0], 'out': [-1.0, 1.0,0.0]},
-    #         {'in': [1.0,  1.0,1.0], 'out': [1.0,  1.0,1.0]},
-    #         {'in': [1.0, -1.0,1.0], 'out': [1.0, -1.0,1.0]},
-    #         {'in': [-1.0,-1.0,1.0], 'out': [-1.0,-1.0,1.0]},
-    #         {'in': [-1.0, 1.0,1.0], 'out': [-1.0, 1.0,1.0]},
-    #         ]
-    #     scale = 0.5
-    #     transformer = HomogenousTransformer(scale, perfect_data)
+    def test_given_a_basic_mapping_yields_expected_results(self):
+        perfect_data = {
+            'height': 5.0 , 
+            'lower_points': { 
+                (1.0, 1.0):( 4.0,  4.0),
+                (0.0, 1.0):(-4.0,  4.0),
+                (1.0, 0.0):( 4.0, -4.0),
+                (0.0, 0.0):(-4.0, -4.0)
+                },
+            'upper_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
+        }
+        scale = 1.0
+        transformer = HomogenousTransformer(perfect_data, scale)
 
-    #     test_points = [ [0,0,0] , [0.5,0.5,0.5],[-0.5,-0.5,0.5],[1.0,  1.0,0.0],[1.0, -1.0,0.0],[-1.0,-1.0,0.0],[-1.0, 1.0,0.0],[1.0,  1.0,1.0],[1.0, -1.0,1.0],[-1.0,-1.0,1.0],[-1.0, 1.0,1.0]]
-    #     expected_points = [ [ x * scale, y * scale, z * scale] for [x,y,z] in test_points ]
+        test_points = [ 
+            [1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0],
+            # [1.0,1.0,2.5],[-1.0,-1.0,2.5],[0.0,0.0,2.5],[0.5,0.5,2.5],
+            [1.0,1.0,5.0],[-1.0,-1.0,5.0],[0.0,0.0,5.0],[0.5,0.5,5.0]
+        ]
 
-    #     for index in range(0, len(test_points)):
-    #         self.assertNumpyArrayEquals(expected_points[index], transformer.transform(test_points[index]))
+        expected_points = [ 
+            ( 0.6250, 0.6250),( 0.3750, 0.3750),( 0.5000, 0.5000),( 0.5625, 0.5625),
+            # ( 0.6667, 0.6667),( 0.3333, 0.3333),( 0.5000, 0.5000),( 0.5833, 0.5833),
+            ( 1.0000, 1.0000),( 0.0000, 0.0000),( 0.5000, 0.5000),( 0.7500, 0.7500)
+        ]
 
-    # def test_given_a_non_to_one_mapping_and_scale_yields_expected_results(self):
-    #     perfect_data = [
-    #         {'in': [1.0,  1.0,0.0], 'out': [2.0,  1.0,0.0]},
-    #         {'in': [1.0, -1.0,0.0], 'out': [2.0, -1.0,0.0]},
-    #         {'in': [-1.0,-1.0,0.0], 'out': [-2.0,-1.0,0.0]},
-    #         {'in': [-1.0, 1.0,0.0], 'out': [-2.0, 1.0,0.0]},
-    #         {'in': [1.0,  1.0,1.0], 'out': [2.0,  1.0,1.0]},
-    #         {'in': [1.0, -1.0,1.0], 'out': [2.0, -1.0,1.0]},
-    #         {'in': [-1.0,-1.0,1.0], 'out': [-2.0,-1.0,1.0]},
-    #         {'in': [-1.0, 1.0,1.0], 'out': [-2.0, 1.0,1.0]},
-    #         ]
-    #     scale = 1.0
-    #     transformer = HomogenousTransformer(scale, perfect_data)
+        actual_points   = [ transformer.transform ( point) for point in test_points ]
+        
+        self.assertEquals(expected_points, actual_points)
 
-    #     test_points = [ [0,0,0] , [0.5,0.5,0.5],[-0.5,-0.5,0.5],[1.0,  1.0,0.0],[1.0, -1.0,0.0],[-1.0,-1.0,0.0],[-1.0, 1.0,0.0],[1.0,  1.0,1.0],[1.0, -1.0,1.0],[-1.0,-1.0,1.0],[-1.0, 1.0,1.0]]
-    #     expected_points = [ [ x * 2.0, y, z] for [x,y,z] in test_points ]
-
-    #     for index in range(0, len(test_points)):
-    #         self.assertNumpyArrayEquals(expected_points[index], transformer.transform(test_points[index]))
-
-    #Bounds check
-
+   
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
     unittest.main()

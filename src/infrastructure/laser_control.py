@@ -42,10 +42,8 @@ class AudioModulationLaserControl(LaserControl):
     def modulate(self, data):
         if self._laser_on:
             pattern = self.on_laser_wave
-            logging.debug("Modulating On")
         else:
             pattern = self.off_laser_wave
-            logging.debug("Modulating Off")
 
         for (left,right) in data:
             l = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + (left  * self._SOURCE_AMPLITUDE_RATIO)] , pattern)

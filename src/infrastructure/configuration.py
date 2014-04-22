@@ -20,7 +20,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         'laser_thickness_mm' : types.FloatType,
         'drips_per_mm':types.FloatType,
         'max_deflection' :types.FloatType,
-        'calibration_data': types.ListType,
+        'calibration_data': types.DictType,
         'calibration_scale': types.FloatType,
 
     }
@@ -76,6 +76,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         valid = True
         for (key, value) in self.REQUIRED_FIELDS.items():
             if not (configuration.has_key(key) and type(configuration[key]) == value):
+                logging.warn('%s missing or invalid' % key)
                 valid = False
         return valid
 

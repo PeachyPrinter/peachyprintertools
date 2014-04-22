@@ -81,7 +81,6 @@ class Controller(threading.Thread,):
         while going:
             try:
                 layer = self._layer_generator.next()
-                logging.debug("Layer started")
                 if self._shutting_down:
                     return
                 if self._zaxis:
@@ -99,10 +98,8 @@ class Controller(threading.Thread,):
                     if self._abort_current_command:
                         self._abort_current_command = False
                         break
-                    logging.debug("Controller: command: %s" % command )
                     if type(command) == LateralDraw:
                         if self.state.xy != command.start:
-                            logging.debug("Controller: moving to start point: %s , %s" % (self.state.xy, command.start))
                             self._laser_control.set_laser_off()
                             self._move_lateral(command.start,layer.z,command.speed)
                         self._laser_control.set_laser_on()
@@ -142,7 +139,6 @@ class Controller(threading.Thread,):
 
     def _move_lateral(self,(to_x,to_y), to_z,speed):
         to_xyz = [to_x,to_y,to_z]
-        logging.debug("from: %s,to: %s " %(self.state.xyz, to_xyz))
         path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
         modulated_path = self._laser_control.modulate(path)
         self._audio_writer.write_chunk(modulated_path)

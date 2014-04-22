@@ -137,12 +137,12 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         calibration_api.change_pattern("Grid Alignment Line")
         mock_controller.change_generator.assert_called_with(expected_generator)
 
-    def test_load_points_returns_the_existing_configuration(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    def test_load_returns_the_existing_configuration(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
 
-        self.assertEquals(calibration_api.load_points(), [])
+        self.assertEquals(calibration_api.load(), self.DEFAULT_CONFIG['calibration_data'])
 
     def test_get_calibration_scale_returns_the_existing_scale_used_for_calibration(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
@@ -157,15 +157,106 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         mock_configuration_manager.load.return_value = dict(self.DEFAULT_CONFIG)
         expected_config = dict(self.DEFAULT_CONFIG)
-        points = [{'in':[1.0,1.0,0.0], 'out': [50.0,50.0,50.0]}]
-        expected_config['calibration_data'] = points
+        data = {
+            'height': 1.0 , 
+            'lower_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                },
+            'upper_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
+        }
+        expected_config['calibration_data'] = data
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
         
-        calibration_api.save_points(points)
-        actual = calibration_api.load_points()
+        calibration_api.save(data)
+        actual = calibration_api.load()
 
-        self.assertEquals(points,actual)
+        self.assertEquals(data,actual)
         mock_configuration_manager.save.assert_called_with(expected_config)
+
+    def test_save_should_except_if_invalid_data(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+
+        mock_configuration_manager.load.return_value = dict(self.DEFAULT_CONFIG)
+        expected_config = dict(self.DEFAULT_CONFIG)
+        bad_points = [{'in':[1.0,1.0,0.0], 'out': [50.0,50.0,50.0]}]
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        with self.assertRaises(Exception):
+            calibration_api.save(bad_points)
+
+    def test_save_should_except_if_no_height(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+
+        mock_configuration_manager.load.return_value = dict(self.DEFAULT_CONFIG)
+        expected_config = dict(self.DEFAULT_CONFIG)
+        bad_data = {
+            'lower_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                },
+            'upper_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
+        }
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        with self.assertRaises(Exception):
+            calibration_api.save(bad_data)
+
+    def test_save_should_except_if_not_enough_points(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+
+        mock_configuration_manager.load.return_value = dict(self.DEFAULT_CONFIG)
+        expected_config = dict(self.DEFAULT_CONFIG)
+        bad_data = {
+            'height': 1.0 , 
+            'lower_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                },
+            'upper_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
+        }
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        with self.assertRaises(Exception):
+            calibration_api.save(bad_data)
+
+    def test_save_should_except_if_missing_upper(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+
+        mock_configuration_manager.load.return_value = dict(self.DEFAULT_CONFIG)
+        expected_config = dict(self.DEFAULT_CONFIG)
+        bad_data = {
+            'height': 1.0 , 
+            'lower_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                },
+        }
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        with self.assertRaises(Exception):
+            calibration_api.save(bad_data)
 
     @patch('api.calibration_api.HomogenousTransformer')
     def test_apply_calibration_should_replace_controllers_transformer(self, mock_HomogenousTransformer, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
