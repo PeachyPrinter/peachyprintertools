@@ -27,3 +27,6 @@ class PathToAudio(object):
         samples = self.samples_per_second * seconds
 
         return self._get_points(start,end,samples)
+
+    def set_transformer(self,transformer):
+        self._transformer = transformer

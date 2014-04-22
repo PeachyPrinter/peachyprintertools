@@ -4,7 +4,7 @@ from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
 from infrastructure.laser_control import AudioModulationLaserControl
-from infrastructure.transformer import TuningTransformer
+from infrastructure.transformer import TuningTransformer, HomogenousTransformer
 from infrastructure.layer_generators import SinglePointGenerator, CalibrationLineGenerator, HilbertGenerator
 
 '''TODO'''
@@ -25,10 +25,10 @@ class CalibrationAPI(object):
             self._configuration['on_modulation_frequency'],
             self._configuration['off_modulation_frequency']
             )
-        self._transformer = TuningTransformer(scale = self._configuration["max_deflection"])
+        transformer = TuningTransformer(scale = self._configuration["max_deflection"])
         self._path_to_audio= PathToAudio(
             self._laser_control.actual_samples_per_second,
-            self._transformer,
+            transformer,
             self._configuration["laser_thickness_mm"]
             )
         self._audio_writer = None
@@ -61,6 +61,12 @@ class CalibrationAPI(object):
         else:
             logging.error('Pattern: %s does not exist' % pattern)
             raise Exception('Pattern: %s does not exist' % pattern)
+
+    def apply_calibration(self):
+        self._path_to_audio.set_transformer(HomogenousTransformer(self._configuration['calibration_data'], scale = self._configuration["max_deflection"]))
+
+    def unapply_calibration(self):
+        self._path_to_audio.set_transformer(TuningTransformer(scale = self._configuration["max_deflection"]))
 
     def change_scale(self,scale):
         pass

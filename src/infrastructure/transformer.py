@@ -27,10 +27,15 @@ class TuningTransformer(Transformer):
         return ((axis * self._scale) + 1.0) / 2.0
 
 class HomogenousTransformer(Transformer):
-    def __init__(self, scale, parameters):
+    def __init__(self, parameters, scale = 1.0):
         self._scale = scale
         self._parameters = parameters
 
+    def transform(self, xyz):
+        x,y,z = xyz
+        x = self._transform(x)
+        y = self._transform(y)
+        return [x,y]
 
-    def transform(self, axis):
-        return np.array(axis) * self._scale
+    def _transform(self, axis):
+        return ((axis * self._scale) + 1.0) / 2.0

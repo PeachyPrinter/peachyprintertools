@@ -8,7 +8,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 from test_helpers import TestHelpers
 from infrastructure.audiofiler import PathToAudio
-from infrastructure.transformer import OneToOneTransformer
+from infrastructure.transformer import OneToOneTransformer, TuningTransformer
 
 class PathToAudioTests(unittest.TestCase, TestHelpers):
     transformer = OneToOneTransformer()
@@ -57,6 +57,17 @@ class PathToAudioTests(unittest.TestCase, TestHelpers):
 
         actual = path2audio.process([0.0,0.0,1.0],[0.0,0.0,1.0], 1.0)
         self.assertNumpyArrayClose(expected, actual)
+
+    def test_can_change_transformer(self):
+        samples_per_second = 4
+        laser_size = 0.5
+        path2audio = PathToAudio(samples_per_second, self.transformer, laser_size)
+        path2audio.set_transformer(TuningTransformer())
+        expected = numpy.array([[1.0,1.0],[1.0,1.0]])
+
+        actual = path2audio.process([1.0,1.0,1.0],[1.0,1.0,1.0], 1.0)
+        self.assertNumpyArrayClose(expected, actual)
+
 
 if __name__ == '__main__':
     unittest.main()
