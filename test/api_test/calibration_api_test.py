@@ -21,7 +21,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def setUp(self):
         pass
 
-    def test_start_creates_a_controller_with_correct_config(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    def test_init_creates_a_controller_with_correct_config(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         actual_samples = 7
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
@@ -51,8 +51,6 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.DEFAULT_CONFIG['laser_thickness_mm']
             )
 
-        calibration_api.start()
-
         mock_AudioWriter.assert_called_with(
             self.DEFAULT_CONFIG['output_sample_frequency'],
             self.DEFAULT_CONFIG['output_bit_depth']
@@ -64,19 +62,16 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_layer_generator
             )
 
-    def test_stop_should_throw_exception_when_controller_not_running(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    def test_stop_should_call_stop_on_controller(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
+        mock_controller = mock_Controller.return_value
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-        with self.assertRaises(Exception):
-            calibration_api.stop()
 
-    def test_stop_should_not_throw_exception_when_controller_running(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
-        mock_configuration_manager = mock_ConfigurationManager.return_value
-        mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
-        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-        calibration_api.start()
         calibration_api.stop()
+
+        mock_controller.stop.assert_called_with()
+
         
     def test_should_load_the_correct_printer(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
@@ -85,72 +80,90 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         mock_configuration_manager.load.assert_called_with('Spam')
 
-    def test_move_to_should_set_coordanates_on_Single_Point_Generator(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    def test_show_point_should_set_coordanates_on_Single_Point_Generator(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
         mock_layer_generator = mock_SinglePointGenerator.return_value
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-        x,y,z = 1.0,1.0,1.0
+        x,y,z = 1.0,0.2,1.0
 
-        calibration_api.move_to([x,y,z])
+        calibration_api.show_point([x,y,z])
 
         self.assertEquals([x,y],mock_layer_generator.xy)
 
-    def test_move_to_should_set_coordanates_on_Single_Point_Generator(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    def test_show_point_should_set_coordanates_on_Single_Point_Generator(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
         mock_layer_generator = mock_SinglePointGenerator.return_value
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-        x,y,z = 1.0,1.0,1.0
+        x,y,z = 0.1,1.0,1.0
 
-        calibration_api.move_to([x,y,z])
+        calibration_api.show_point([x,y,z])
 
         self.assertEquals([x,y],mock_layer_generator.xy)
+
+    def test_show_point_should_use_Single_Point_Generator(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
+        mock_layer_generator = mock_SinglePointGenerator.return_value
+        mock_controller = mock_Controller.return_value
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+        x,y,z = 1.0,0.2,1.0
+
+        calibration_api.show_line()
+        calibration_api.show_point([x,y,z])
+
+        mock_controller.change_generator.assert_called_with(mock_layer_generator)
+
+    @patch('api.calibration_api.CalibrationLineGenerator')
+    def test_show_line_should_use_CalibrationLineGenerator(self, mock_CalibrationLineGenerator,mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
+        mock_layer_generator = mock_CalibrationLineGenerator.return_value
+        mock_controller = mock_Controller.return_value
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+        x,y,z = 1.0,0.2,1.0
+
+        calibration_api.show_line()
+
+        mock_controller.change_generator.assert_called_with(mock_layer_generator)
 
     def test_get_patterns_should_return_available_test_patterns(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
 
-        patterns = calibration_api.get_patterns()
+        patterns = calibration_api.get_test_patterns()
 
-        self.assertEquals(['Hilbert Space filling','Single Point','Grid Alignment Line'],patterns)
+        self.assertEquals(['Hilbert Space Filling Curve'],patterns)
 
     def test_change_pattern_should_raise_exception_when_test_patterns_unavailable(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
         mock_layer_generator = mock_SinglePointGenerator.return_value
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-        calibration_api.start()
 
         with self.assertRaises(Exception):
-            calibration_api.change_pattern("Shrubberies")
+            calibration_api.show_test_pattern("Shrubberies")
 
-    @patch('api.calibration_api.CalibrationLineGenerator')
-    def test_change_pattern_should_change_pattern_on_controller(self, mock_CalibrationLineGenerator,mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    @patch('api.calibration_api.HilbertGenerator')
+    def test_change_pattern_should_change_pattern_on_controller(self, mock_HilbertGenerator,mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
         mock_controller = mock_Controller.return_value
-        expected_generator = mock_CalibrationLineGenerator.return_value
+        expected_generator = mock_HilbertGenerator.return_value
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-        calibration_api.start()
-        calibration_api.change_pattern("Grid Alignment Line")
+        calibration_api.show_test_pattern("Hilbert Space Filling Curve")
         mock_controller.change_generator.assert_called_with(expected_generator)
 
-    def test_load_returns_the_existing_configuration(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    def test_current_calibration_returns_the_existing_configuration(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
 
-        self.assertEquals(calibration_api.load(), self.DEFAULT_CONFIG['calibration_data'])
-
-    def test_get_calibration_scale_returns_the_existing_scale_used_for_calibration(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
-        mock_configuration_manager = mock_ConfigurationManager.return_value
-        mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
-
-        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-
-        self.assertEquals(calibration_api.get_calibration_scale(), 1.0)
+        self.assertEquals(calibration_api.current_calibration(), self.DEFAULT_CONFIG['calibration_data'])
 
     def test_save_should_save_points(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
@@ -176,7 +189,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
         
         calibration_api.save(data)
-        actual = calibration_api.load()
+        actual = calibration_api.current_calibration()
 
         self.assertEquals(data,actual)
         mock_configuration_manager.save.assert_called_with(expected_config)
@@ -259,7 +272,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             calibration_api.save(bad_data)
 
     @patch('api.calibration_api.HomogenousTransformer')
-    def test_apply_calibration_should_replace_controllers_transformer(self, mock_HomogenousTransformer, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    def test_show_test_pattern_should_apply_calibration_should_replace_controllers_transformer(self, mock_HomogenousTransformer, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
         mock_pathtoaudio = mock_PathToAudio.return_value
@@ -267,23 +280,39 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_homogenous_transformer = mock_HomogenousTransformer.return_value
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
 
-
-        calibration_api.apply_calibration()
+        calibration_api.show_test_pattern('Hilbert Space Filling Curve')
 
         mock_HomogenousTransformer.assert_called_with(self.DEFAULT_CONFIG['calibration_data'], scale = self.DEFAULT_CONFIG['max_deflection'])
         mock_pathtoaudio.set_transformer.assert_called_with(mock_homogenous_transformer)
 
-    def test_apply_calibration_should_replace_controllers_transformer(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    def test_show_line_should_replace_controllers_transformer(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
         mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
         mock_pathtoaudio = mock_PathToAudio.return_value
         mock_controller = mock_Controller.return_value
         
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-        calibration_api.apply_calibration()
 
         mock_transformer = mock_Transformer.return_value
-        calibration_api.unapply_calibration()
+
+        calibration_api.show_test_pattern('Hilbert Space Filling Curve')
+        calibration_api.show_line()
+
+        mock_Transformer.assert_called_with(scale = self.DEFAULT_CONFIG['max_deflection'])
+        mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)
+
+    def test_show_point_should_replace_controllers_transformer(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
+        mock_pathtoaudio = mock_PathToAudio.return_value
+        mock_controller = mock_Controller.return_value
+        
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        mock_transformer = mock_Transformer.return_value
+
+        calibration_api.show_test_pattern('Hilbert Space Filling Curve')
+        calibration_api.show_point()
 
         mock_Transformer.assert_called_with(scale = self.DEFAULT_CONFIG['max_deflection'])
         mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)

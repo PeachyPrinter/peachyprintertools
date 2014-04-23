@@ -8,19 +8,22 @@ from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.transformer import TuningTransformer, HomogenousTransformer
 from infrastructure.layer_generators import SinglePointGenerator, CalibrationLineGenerator, HilbertGenerator
 
-'''TODO'''
+'''The calibration API proivides the tools required to setup a Peacy Printer'''
 class CalibrationAPI(object):
     def __init__(self, configuration_manager, printer):
         logging.info("Calibartion API Startup")
         self._configuration_manager = configuration_manager
         self._printer = printer
         self._configuration = self._configuration_manager.load(self._printer)
-        self._patterns = { 
-            'Single Point' : SinglePointGenerator(), 
-            'Grid Alignment Line' :  CalibrationLineGenerator(),
-            'Hilbert Space filling' : HilbertGenerator(),
+
+        self._point_generator = SinglePointGenerator()
+        self._alignment_generator = CalibrationLineGenerator()
+
+        self._test_patterns = { 
+            'Hilbert Space Filling Curve' : HilbertGenerator(),
             }
-        self._layer_generator = self._patterns["Single Point"]
+        self._current_generator = self._point_generator
+
         self._laser_control = AudioModulationLaserControl(
             self._configuration['output_sample_frequency'],
             self._configuration['on_modulation_frequency'],
@@ -34,73 +37,91 @@ class CalibrationAPI(object):
             )
         self._audio_writer = None
         self._controller = None
-
-    def start(self):
         self._audio_writer = AudioWriter(
             self._configuration['output_sample_frequency'], 
             self._configuration['output_bit_depth'],
             )
+
+        self._current_generator = self._point_generator
         self._controller = Controller(
             self._laser_control,
             self._path_to_audio,
             self._audio_writer,
-            self._layer_generator,
+            self._current_generator,
             )
 
         self._controller.start()
 
-    def move_to(self,xyz_computer):
-        x,y,z = xyz_computer
-        self._layer_generator.xy = [x,y]
+    '''Used to show a single point with no calibration applied'''
+    def show_point(self,xyz = [0.5,0.5,0.5]):
+        x,y,z = xyz
+        self._point_generator.xy = [x,y]
+        if (self._current_generator != self._point_generator):
+            self._unapply_calibration()
+            self._update_generator(self._point_generator)
 
-    def get_patterns(self):
-        return self._patterns.keys()
 
-    def change_pattern(self, pattern):
-        if pattern in self._patterns.keys():
-            self._controller.change_generator(self._patterns[pattern])
+    '''Used to show a single line on one axis used to line up calibration grid'''
+    def show_line(self):
+        self._unapply_calibration()
+        self._update_generator(self._alignment_generator)
+
+    '''Used to show a test pattern with calibration applied'''
+    def show_test_pattern(self,pattern):
+        if pattern in self._test_patterns.keys():
+            self._apply_calibration()
+            self._update_generator(self._test_patterns[pattern])
         else:
             logging.error('Pattern: %s does not exist' % pattern)
             raise Exception('Pattern: %s does not exist' % pattern)
 
-    def apply_calibration(self):
-        self._path_to_audio.set_transformer(HomogenousTransformer(self._configuration['calibration_data'], scale = self._configuration["max_deflection"]))
+    '''returns a list of test patterns'''
+    def get_test_patterns(self):
+        return self._test_patterns.keys()
 
-    def unapply_calibration(self):
-        self._path_to_audio.set_transformer(TuningTransformer(scale = self._configuration["max_deflection"]))
-
-    def change_scale(self,scale):
-        pass
-
-    def load(self):
+    '''Returns the current calibration for the printer'''
+    def current_calibration(self):
         return self._configuration['calibration_data']
 
-    def get_calibration_scale(self):
-        return self._configuration['calibration_scale']
-
-    def save(self, data):
-        if not self.validate_data(data):
-            raise Exception('Bad Calibration %s ' % data)
-        self._configuration['calibration_data'] = data
-        logging.debug("Saving calibration: %s" % data)
+    '''Saves the suppliled calibration'''
+    def save(self, calibration):
+        if not self.validate(calibration):
+            raise Exception('Bad Calibration %s ' % calibration)
+        self._configuration['calibration_data'] = calibration
+        logging.debug("Saving calibration: %s" % calibration)
         self._configuration_manager.save(self._configuration)
 
-    def validate_data(self, data):
-        if not 'height' in data:
+    '''Validates a calibration'''
+    def validate(self, calibration):
+        if not 'height' in calibration:
             return False
-        if not 'upper_points' in data:
+        if not 'upper_points' in calibration:
             return False
-        if not 'lower_points' in data:
+        if not 'lower_points' in calibration:
             return False
-        if (type(data['height']) != types.FloatType):
+        if (type(calibration['height']) != types.FloatType):
             return False
-        if (data['height'] <= 0.0):
+        if (calibration['height'] <= 0.0):
             return False
-        if not self._validate_points(data['upper_points']):
+        if not self._validate_points(calibration['upper_points']):
             return False
-        if not self._validate_points(data['lower_points']):
+        if not self._validate_points(calibration['lower_points']):
             return False
         return True
+
+    '''Must be called before shutting down applications'''
+    def stop(self):
+        self._controller.stop()
+
+    def _update_generator(self, generator):
+        self._current_generator = generator
+        self._controller.change_generator(self._current_generator)
+
+    def _apply_calibration(self):
+        self._path_to_audio.set_transformer(HomogenousTransformer(self._configuration['calibration_data'], scale = self._configuration["max_deflection"]))
+
+    def _unapply_calibration(self):
+        self._path_to_audio.set_transformer(TuningTransformer(scale = self._configuration["max_deflection"]))
     
     def _validate_points(self,points):
         if (len(points) != 4):
@@ -108,7 +129,4 @@ class CalibrationAPI(object):
         return True
 
     def stop(self):
-        if self._controller:
             self._controller.stop()
-        else:
-            raise Exception('Controller not running')
