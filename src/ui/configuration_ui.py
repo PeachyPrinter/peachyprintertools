@@ -41,7 +41,7 @@ class SetupUI(PeachyFrame):
         calibration_button.grid(column=1,row=4)
 
         button = Button(self,text=u"Back", command=self._back_button_click)
-        button.grid(column=3,row=5)
+        button.grid(column=0,row=5)
 
         self.grid_columnconfigure(1,weight=1)
         self.update()
@@ -54,7 +54,7 @@ class SetupUI(PeachyFrame):
         self.navigate(AddPrinterUI)
 
     def _setup_options_button_click(self):
-        self.navigate(SetupOptionsUI, self._current_printer)
+        self.navigate(SetupOptionsUI, printer = self._current_printer)
 
     def drip_calibration_button_click(self):
         self.navigate(DripCalibrationUI, printer = self._current_printer)
@@ -95,7 +95,9 @@ class AddPrinterUI(PeachyFrame):
 class SetupOptionsUI(PeachyFrame):
     def initialize(self):
         self.grid()
+        self._current_printer = self.kwargs['printer']
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
+        self._configuration_api.load_printer(self._current_printer)
 
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
@@ -114,10 +116,14 @@ class SetupOptionsUI(PeachyFrame):
         self.sublayer_height_entry = Entry(self, textvariable = self.sublayer_height_entry_text)
         self.sublayer_height_entry.grid(column=1, row=30)
 
+        button = Button(self, text ="Back", command = self._process)
+        button.grid(column=0,row=40)
         button = Button(self, text ="Save", command = self._process)
-        button.grid(column=2,row=30)
-        self.grid_columnconfigure(1,weight=1)
+        button.grid(column=2,row=40)
         self.update()
+
+    def _back(self):
+        self.navigate(SetupUI)
 
     def _process(self):
         laser_thickness = self.laser_thickness_entry_text.get()
@@ -132,7 +138,10 @@ class SetupOptionsUI(PeachyFrame):
 class DripCalibrationUI(PeachyFrame, FieldValidations):
     
     def initialize(self):
+        self._current_printer = self.kwargs['printer']
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
+        self._configuration_api.load_printer(self._current_printer)
+
         self.update_drips_job = None
         self._configuration_api.start_counting_drips()
         self.drips = 0
@@ -172,7 +181,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         mark_button.grid(column=2,row=40) 
 
         quit_button = Button(self,text=u"Back", command=self._back_button_clicked)
-        quit_button.grid(column=3,row=50)    
+        quit_button.grid(column=0,row=50)    
        
         self.grid_columnconfigure(3,weight=1)
         self.update()
@@ -250,10 +259,11 @@ class SetupAudioUI(PeachyFrame):
             *self.output_options.keys())
         output_audio_selection_menu.grid(column=1,row=2)
 
-        button = Button(self, text ="Submit", command = self._process)
-        button.grid(column=2,row=3)
+        button = Button(self, text ="Back", command = self._back)
+        button.grid(column=0,row=3)
+        button = Button(self, text ="Save", command = self._process)
+        button.grid(column=1,row=3)
 
-        self.grid_columnconfigure(1,weight=1)
         self.update()
 
     def _get_recommend_audio_index(self, options):
@@ -261,6 +271,9 @@ class SetupAudioUI(PeachyFrame):
             if options[i].endswith('(Recommended)'):
                 return i
         return 0
+
+    def _back(self):
+        self.navigate(SetupUI)
 
     def _process(self):
         input_option = self.input_options[self.input_audio_selection_current.get()]

@@ -31,7 +31,8 @@ class PeachyPrinterTools(Tk):
         MainUI(self, self._configuration_manager)
 
     def setup_icon(self):
-        img_file = os.path.join('resources','peachy.gif')
+        working_dir = os.path.dirname(os.path.realpath(__file__))
+        img_file = os.path.join(working_dir,'resources','peachy.gif')
         img = PhotoImage(file=img_file)
         self.tk.call('wm', 'iconphoto', self._w, img)
 

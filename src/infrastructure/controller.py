@@ -68,7 +68,7 @@ class Controller(threading.Thread,):
         self._layer_generator = layer_generator
         self._zaxis = zaxis
         self.state = MachineState()
-        self.status = MachineStatus(self._zaxis)
+        self._status = MachineStatus(self._zaxis)
         self._abort_current_command = False
         logging.info("Starting print")
 
@@ -87,12 +87,12 @@ class Controller(threading.Thread,):
                 if self._zaxis:
                     while self._zaxis.current_z_location_mm() < layer.z:
                         logging.info("Controller: Waiting for drips")
-                        self.status.waiting_for_drips = True
+                        self._status.waiting_for_drips = True
                         if self._shutting_down:
                             return
                         self._laser_control.set_laser_off()
                         self._move_lateral(self.state.xy, self.state.z,self.state.speed)
-                self.status.waiting_for_drips = False
+                self._status.waiting_for_drips = False
                 for command in layer.commands:
                     if self._shutting_down:
                         return
@@ -110,7 +110,7 @@ class Controller(threading.Thread,):
                         logging.debug('Lateral Move: %s' % command)
                         self._laser_control.set_laser_off()
                         self._move_lateral(command.end, layer.z, command.speed)
-                self.status.add_layer()
+                self._status.add_layer()
             except StopIteration:
                 going = False
 
@@ -120,7 +120,7 @@ class Controller(threading.Thread,):
             self._zaxis.start()
         self.starting = False
         self._process_layers()
-        self.status.complete = True
+        self._status.complete = True
         self._terminate()
 
     def _terminate(self):
@@ -135,6 +135,9 @@ class Controller(threading.Thread,):
         except Exception as ex:
             logging.error(ex)
         self.running = False
+
+    def get_status(self):
+        return self._status
 
     def stop(self):
         logging.warning("Shutdown requested")

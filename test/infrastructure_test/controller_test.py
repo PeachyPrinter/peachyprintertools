@@ -278,7 +278,7 @@ class ControllerTests(unittest.TestCase):
         self.controller.start()
 
         time.sleep(0.1)
-        actual = self.controller.status.waiting_for_drips
+        actual = self.controller.get_status().waiting_for_drips
         self.controller.stop()
 
         self.wait_for_controller()
@@ -299,7 +299,7 @@ class ControllerTests(unittest.TestCase):
         self.controller.start()
 
         time.sleep(0.1)
-        actual = self.controller.status.waiting_for_drips
+        actual = self.controller.get_status().waiting_for_drips
         self.controller.stop()
 
         self.wait_for_controller()
@@ -320,8 +320,8 @@ class ControllerTests(unittest.TestCase):
 
         self.wait_for_controller()
 
-        self.assertEquals(1, self.controller.status.current_layer)
-        self.assertTrue(self.controller.status.complete)
+        self.assertEquals(1, self.controller.get_status().current_layer)
+        self.assertTrue(self.controller.get_status().complete)
 
     def test_should_change_layer_generator(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value

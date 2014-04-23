@@ -36,8 +36,8 @@ class PrintUI(PeachyFrame):
         audio_setup_button = Button(self,text=u"Print From G Code", command=self.print_g_code_click)
         audio_setup_button.grid(column=1,row=1)
 
-        button = Button(self,text=u"Back", command=self._back_button_click)
-        button.grid(column=3,row=5)
+        button = Button(self,text=u"Back", command=self._back)
+        button.grid(column=0,row=5)
 
         self.grid_columnconfigure(1,weight=1)
         self.update()
@@ -47,9 +47,9 @@ class PrintUI(PeachyFrame):
 
     def print_g_code_click(self):
         filename = tkFileDialog.askopenfile(**self.file_opt)
-        self.navigate(PrintStatusUI, filename = filename)
+        self.navigate(PrintStatusUI, filename = filename, config = self._configuration_api.get_current_config())
 
-    def _back_button_click(self):
+    def _back(self):
         self.navigate(MainUI)
 
     def close(self):
@@ -60,7 +60,7 @@ class PrintStatusUI(PeachyFrame):
     def initialize(self):
         self.grid()
         self._update_status_job = None
-        self._print_api = PrintAPI(self._configuration_api.get_current_config())
+        self._print_api = PrintAPI(self.kwargs['config'])
         file_to_print = self.kwargs['filename']
         self._print_api.print_gcode(file_to_print)
         self.status = self._print_api.get_status()

@@ -76,8 +76,6 @@ class CalibrationUI(PeachyFrame, FieldValidations):
             self.data_points.append(CalibrationPoint(rx,ry,0.0,ax,ay,0.0))
 
 
-
-
         self.calibration_fields = {}
         self.upper_z = DoubleVar()
         self.upper_z.set(data['height'])
@@ -189,7 +187,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
             self._show_patterns()
             self._hide_calibration()
             self._apply_calibration()
-            self._pattern_changed('Grid Alignment Line')
+            self._pattern_changed(self._current_pattern.get())
 
         else:
             raise Exception("Programmer Error")

@@ -6,7 +6,7 @@ from infrastructure.controller import Controller
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.gcode_layer_generator import GCodeReader
-from infrastructure.transformer import OneToOneTransformer
+from infrastructure.transformer import HomogenousTransformer
 
 
 '''TODO'''
@@ -14,6 +14,7 @@ class PrintAPI(object):
     def __init__(self, configuration):
         logging.info("Print API Startup")
         self._configuration = configuration
+        self._controller = None
 
     def print_gcode(self, file_like_object):
         self.laser_control = AudioModulationLaserControl(
@@ -21,7 +22,7 @@ class PrintAPI(object):
             self._configuration['on_modulation_frequency'],
             self._configuration['off_modulation_frequency']
             )
-        self.transformer = OneToOneTransformer()
+        self.transformer = HomogenousTransformer(self._configuration['calibration_data'], scale = self._configuration["max_deflection"])
         self._path_to_audio = PathToAudio(
             self.laser_control.actual_samples_per_second,
             self.transformer, 
@@ -48,11 +49,14 @@ class PrintAPI(object):
         self._controller.start()
 
     def get_status(self):
-        return self._controller.status
+        return self._controller.get_status()
 
     def verify_gcode(self, g_code_file_like_object):
         # returns list/first errors and line numbers
         pass
 
     def stop(self):
-        self._controller.stop()
+        if self._controller:
+            self._controller.stop()
+        else:
+            logging.warning('Stopped before printing')
