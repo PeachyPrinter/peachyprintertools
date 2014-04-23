@@ -46,7 +46,8 @@ if __name__ == "__main__":
     numeric_level = getattr(logging, args.loglevel.upper(), "INFO")
     if not isinstance(numeric_level, int):
         raise ValueError('Invalid log level: %s' % args.loglevel)
-    logging.basicConfig(format='%(levelname)s: %(asctime)s %(module)s - %(message)s', level=numeric_level)
+
+    logging.basicConfig(stream = sys.stdout,format='%(levelname)s: %(asctime)s %(module)s - %(message)s', level=numeric_level)
     app = PeachyPrinterTools(None)
     app.title('Peachy Printer Tools')
     app.mainloop()

@@ -169,15 +169,15 @@ class CalibrationUI(PeachyFrame, FieldValidations):
 
     def _option_changed(self):
         if self._current_selection.get() == 0:
+            self._unapply_calibration()
             self._hide_patterns()
             self._hide_calibration()
-            self._unapply_calibration()
             self._calibrationAPI.change_pattern('Single Point')
             self._calibrationAPI.move_to(self._zero)
         elif self._current_selection.get() == 1:
+            self._unapply_calibration()
             self._hide_calibration()
             self._hide_patterns()
-            self._unapply_calibration()
             self._pattern_changed('Grid Alignment Line')
         elif self._current_selection.get() == 2:
             self._hide_patterns()

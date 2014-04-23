@@ -4,7 +4,7 @@ class ConfigurationManager(object):
             'output_bit_depth' : '16 bit',
             'output_sample_frequency' : 48000,
             'on_modulation_frequency' : 12000,
-            'off_modulation_frequency' : 8000,
+            'off_modulation_frequency' : 4000,
             'input_bit_depth' : '16 bit',
             'input_sample_frequency' : 48000,
             'sublayer_height_mm' : 0.1,

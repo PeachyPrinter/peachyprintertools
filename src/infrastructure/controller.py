@@ -80,6 +80,7 @@ class Controller(threading.Thread,):
         going = True
         while going:
             try:
+                logging.debug("New Layer")
                 layer = self._layer_generator.next()
                 if self._shutting_down:
                     return
@@ -99,12 +100,14 @@ class Controller(threading.Thread,):
                         self._abort_current_command = False
                         break
                     if type(command) == LateralDraw:
+                        logging.debug('Lateral Draw: %s' % command)
                         if self.state.xy != command.start:
                             self._laser_control.set_laser_off()
                             self._move_lateral(command.start,layer.z,command.speed)
                         self._laser_control.set_laser_on()
                         self._move_lateral(command.end, layer.z, command.speed )
                     elif type(command) == LateralMove:
+                        logging.debug('Lateral Move: %s' % command)
                         self._laser_control.set_laser_off()
                         self._move_lateral(command.end, layer.z, command.speed)
                 self.status.add_layer()

@@ -72,29 +72,15 @@ class SubLayerGenerator(LayerGenerator):
         except StopIteration:
             self._running = False
 
-class HilbertCurve(object):
-    def _get_hilbert(self, order):
-        return self._hilbert(-1.0,-1.0,2.0,0.0,0.0,2.0, order)
-
-    def _hilbert(self,x0, y0, xi, xj, yi, yj, n, points = []) :
-        if n <= 0:
-            X = x0 + (xi + yi)/2
-            Y = y0 + (xj + yj)/2
-            points.append([X,Y])
-        else:
-            self._hilbert(x0,               y0,               yi/2, yj/2, xi/2, xj/2, n - 1, points)
-            self._hilbert(x0 + xi/2,        y0 + xj/2,        xi/2, xj/2, yi/2, yj/2, n - 1, points)
-            self._hilbert(x0 + xi/2 + yi/2, y0 + xj/2 + yj/2, xi/2, xj/2, yi/2, yj/2, n - 1, points)
-            self._hilbert(x0 + xi/2 + yi,   y0 + xj/2 + yj,  -yi/2,-yj/2,-xi/2,-xj/2, n - 1, points)
-        return points
-
-class HilbertGenerator(LayerGenerator, HilbertCurve):
-    def __init__(self, order = 4, speed = 3.0):
-        self._pattern = self._get_hilbert(order)
+class HilbertGenerator(LayerGenerator):
+    def __init__(self, order = 4, speed = 100.0):
+        self._order = order
         self._last_xy = [0.0,0.0]
         self._speed = speed
 
     def next(self):
+        self._pattern = self._get_hilbert(self._order, [-50.0,-50.0], [50.0,50.0])
+        logging.debug('Pattern: %s' % self._pattern)
         layer = Layer(0.0)
         layer.commands.append(LateralMove(self._last_xy, self._pattern[0], self._speed))
         self._last_xy = self._pattern[0]
@@ -103,3 +89,22 @@ class HilbertGenerator(LayerGenerator, HilbertCurve):
             layer.commands.append(LateralDraw(self._last_xy,next_xy,self._speed))
             self._last_xy = next_xy
         return layer
+
+    def _get_hilbert(self, order, lower_bounds, upper_bounds):
+        [x0,y0] = lower_bounds
+        [x1,y1] = upper_bounds
+        [xi,yj] = [abs(x1-x0),abs(y1-y0)]
+        self._points = []
+        self._hilbert(x0,y0,xi,0.0,0.0,yj, order)
+        return self._points
+
+    def _hilbert(self,x0, y0, xi, xj, yi, yj, n, points = []) :
+        if n <= 0:
+            X = x0 + (xi + yi)/2
+            Y = y0 + (xj + yj)/2
+            self._points.append([X,Y])
+        else:
+            self._hilbert(x0,               y0,               yi/2, yj/2, xi/2, xj/2, n - 1)
+            self._hilbert(x0 + xi/2,        y0 + xj/2,        xi/2, xj/2, yi/2, yj/2, n - 1)
+            self._hilbert(x0 + xi/2 + yi/2, y0 + xj/2 + yj/2, xi/2, xj/2, yi/2, yj/2, n - 1)
+            self._hilbert(x0 + xi/2 + yi,   y0 + xj/2 + yj,  -yi/2,-yj/2,-xi/2,-xj/2, n - 1)
