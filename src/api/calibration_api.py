@@ -6,7 +6,7 @@ from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.transformer import TuningTransformer, HomogenousTransformer
-from infrastructure.layer_generators import SinglePointGenerator, CalibrationLineGenerator, HilbertGenerator
+from infrastructure.layer_generators import *
 
 '''The calibration API proivides the tools required to setup a Peacy Printer'''
 class CalibrationAPI(object):
@@ -21,6 +21,8 @@ class CalibrationAPI(object):
 
         self._test_patterns = { 
             'Hilbert Space Filling Curve' : HilbertGenerator(),
+            'Square' : SquareGenerator(),
+            'Circle' : CircleGenerator()
             }
         self._current_generator = self._point_generator
 

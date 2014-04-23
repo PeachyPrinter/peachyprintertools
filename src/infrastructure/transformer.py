@@ -13,15 +13,23 @@ class TuningTransformer(Transformer):
         if scale > 0.0 and scale <= 1.0:
             self._scale = scale
         else:
-            raise Exception("Scale must be between 0.0 and 1.0")
+            logging.error('Scale must be between 0.0 and 1.0') 
+            raise Exception('Scale must be between 0.0 and 1.0')
 
     def transform(self, xyz):
-        x,y,z = xyz
-        if x > 1.0 or y > 1.0 or x < 0.0 or y < 0.0:
-            raise Exception("Points out of bounds")
+        x,y,z = [ self._check_and_adjust(value) for value in xyz ]
         x = self._transform(x)
         y = self._transform(y)
         return [x,y]
+
+    def _check_and_adjust(self, value):
+        if value > 1.0:
+            value = 1.0
+            logging.info("Adjusting Values")
+        if value < 0.0:
+            value = 0.0
+            logging.info("Adjusting Values")
+        return value
  
     def _transform(self, axis):
         return ((axis - 0.5) * self._scale) + 0.5

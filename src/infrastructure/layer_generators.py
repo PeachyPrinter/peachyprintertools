@@ -109,3 +109,39 @@ class HilbertGenerator(TestLayerGenerator):
             self._hilbert(x0 + xi/2,        y0 + xj/2,        xi/2, xj/2, yi/2, yj/2, n - 1)
             self._hilbert(x0 + xi/2 + yi/2, y0 + xj/2 + yj/2, xi/2, xj/2, yi/2, yj/2, n - 1)
             self._hilbert(x0 + xi/2 + yi,   y0 + xj/2 + yj,  -yi/2,-yj/2,-xi/2,-xj/2, n - 1)
+
+class SquareGenerator(TestLayerGenerator):
+    def __init__(self, speed = 100.0, radius = 20.0):
+        self.set_speed(speed)
+        self.set_radius(radius)
+
+    def next(self):
+        layer = Layer(0.0)
+        layer.commands.append(LateralDraw([-self._radius, self._radius],[ self._radius, self._radius], self._speed))
+        layer.commands.append(LateralDraw([ self._radius, self._radius],[ self._radius,-self._radius], self._speed))
+        layer.commands.append(LateralDraw([ self._radius,-self._radius],[-self._radius,-self._radius], self._speed))
+        layer.commands.append(LateralDraw([-self._radius,-self._radius],[-self._radius, self._radius], self._speed))
+        return layer
+
+import math
+class CircleGenerator(TestLayerGenerator):
+    def __init__(self, speed = 100.0, radius = 20.0, steps = 100):
+        self.set_speed(speed)
+        self.set_radius(radius)
+        self._steps = steps
+        self.last_xy = [0.0,0.0]
+
+    def next(self):
+        layer = Layer(0.0)
+        for point in self.points():
+            layer.commands.append(LateralDraw(self.last_xy,point, self._speed))
+            self.last_xy = point
+        return layer
+
+    def points(self):
+        angle_step =  (2 * math.pi / self._steps)
+        for i in range(0,self._steps):
+            theta =  angle_step * i
+            x = math.sin(theta) * self._radius
+            y = math.cos(theta) * self._radius
+            yield [x,y]

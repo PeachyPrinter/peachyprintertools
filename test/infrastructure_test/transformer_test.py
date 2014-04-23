@@ -39,16 +39,12 @@ class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             TuningTransformer(scale = 0.0)
 
-    def test_should_kaboom_if_request_points_out_of_bounds(self):
+    def test_should_adjust_if_request_points_out_of_bounds(self):
         tuning_transformer = TuningTransformer(scale = 1.0)
-        with self.assertRaises(Exception):
-            tuning_transformer.transform([1.1,1.0,1.0])
-        with self.assertRaises(Exception):
-            tuning_transformer.transform([-0.1,1.0,1.0])
-        with self.assertRaises(Exception):
-            tuning_transformer.transform([1.0,1.1,1.0])
-        with self.assertRaises(Exception):
-            tuning_transformer.transform([1.0,-0.1,1.0])
+        self.assertEquals([1.0, 1.0 ], tuning_transformer.transform([1.1,1.0,1.0]))
+        self.assertEquals([0.0, 1.0 ], tuning_transformer.transform([-0.1,1.0,1.0]))
+        self.assertEquals([1.0, 1.0 ], tuning_transformer.transform([1.0,1.1,1.0]))
+        self.assertEquals([1.0, 0.0 ], tuning_transformer.transform([1.0,-0.1,1.0]))
 
 class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_given_a_basic_mapping_yields_expected_results(self):

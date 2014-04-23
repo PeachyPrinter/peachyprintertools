@@ -37,7 +37,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._printer )
 
         self._index = 0
-        self._patterns = self._calibrationAPI.get_patterns()
+        self._test_patterns = self._calibrationAPI.get_test_patterns()
         self.data_points = []
         self.parent.geometry("%dx%d" % (500,700))
         self.grid()
@@ -53,22 +53,21 @@ class CalibrationUI(PeachyFrame, FieldValidations):
 
 
         self._current_pattern = StringVar()
-        self._current_pattern.set(self._patterns[0])
+        self._current_pattern.set(self._test_patterns[0])
         
-        self.pattern_options = OptionMenu(self, self._current_pattern, *self._patterns, command = self._pattern_changed)
+        self.pattern_options = OptionMenu(self, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
         self.pattern_options.grid(column=2,row=4,sticky=W)
         
         self._setup_calibration_grid()
 
         Button(self,text=u"Back", command=self._back_button_click).grid(column=1,row=100)
 
-        self._calibrationAPI.start()
         self._option_changed()
         self.update()
 
     def _setup_calibration_grid(self):
         options = {'borderwidth':2 }
-        data = self._calibrationAPI.load()
+        data = self._calibrationAPI.current_calibration()
         
         for ((rx,ry),(ax,ay)) in data['upper_points'].items():
             self.data_points.append(CalibrationPoint(rx,ry,data['height'],ax,ay,data['height']))
@@ -124,7 +123,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         self.save_button.grid(column=4,row=(start_row + len(self.data_points) + 1))
 
     def _point_change(self,data):
-        self._calibrationAPI.move_to(data.ref_xyz_float)
+        self._calibrationAPI.show_point(data.ref_xyz_float)
 
     def _hide_calibration(self):
         for (key,value) in self.calibration_fields.items():
@@ -156,37 +155,25 @@ class CalibrationUI(PeachyFrame, FieldValidations):
     def _show_patterns(self):
         self.pattern_options.grid()
 
-    def _apply_calibration(self):
-        self._calibrationAPI.apply_calibration()
-
-    def _unapply_calibration(self):
-        self._calibrationAPI.unapply_calibration()
-
     def _pattern_changed(self, pattern):
-            self._calibrationAPI.change_pattern(pattern)
+        self._calibrationAPI.show_test_pattern(pattern)
 
     def _option_changed(self):
         if self._current_selection.get() == 0:
-            self._unapply_calibration()
             self._hide_patterns()
             self._hide_calibration()
-            self._calibrationAPI.change_pattern('Single Point')
-            self._calibrationAPI.move_to(self._zero)
+            self._calibrationAPI.show_point(self._zero)
         elif self._current_selection.get() == 1:
-            self._unapply_calibration()
             self._hide_calibration()
             self._hide_patterns()
-            self._pattern_changed('Grid Alignment Line')
+            self._calibrationAPI.show_line()
         elif self._current_selection.get() == 2:
             self._hide_patterns()
             self._show_calibration()
-            self._unapply_calibration()
-            self._calibrationAPI.change_pattern('Single Point')
-            self._calibrationAPI.move_to(self._zero)
+            self._calibrationAPI.show_point(self._zero)
         elif self._current_selection.get() == 3:
             self._show_patterns()
             self._hide_calibration()
-            self._apply_calibration()
             self._pattern_changed(self._current_pattern.get())
 
         else:
@@ -198,8 +185,6 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         config['height'] = self.upper_z.get()
         lower_points = [ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == 0.0 ]
         upper_points = [ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == self.upper_z.get() ]
-        print(lower_points)
-        print(upper_points)
         config['lower_points'] = dict(lower_points)
         config['upper_points'] = dict(upper_points)
 
