@@ -7,9 +7,11 @@ from mock import patch
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
-from infrastructure.layer_generators import SinglePointGenerator, CalibrationLineGenerator, StubLayerGenerator, SubLayerGenerator
+from infrastructure.layer_generators import SinglePointGenerator, CalibrationLineGenerator, StubLayerGenerator, SubLayerGenerator, HilbertGenerator
 from domain.commands import *
 import test_helpers
+
+# ----------------- Calibration Generators -----------------------------
 
 class SinglePointGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_can_call_next_and_get_specified_command(self):
@@ -27,19 +29,63 @@ class SinglePointGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertLayerEquals(expected,actual)
 
 class CalibrationLineGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
-    def test_can_call_next_and_get_specified_command(self):
+    def test_next_returns__specified_command(self):
         layer_generator = CalibrationLineGenerator()
         expected = Layer(0.0, commands = [LateralDraw([0.0,0.5],[1.0,0.5],10.0),LateralDraw([1.0,0.5],[0.0,0.5],10.0)], )
         actual = layer_generator.next()
         self.assertLayerEquals(expected,actual)
 
+# --------------  Test Generators  ----------------------------------------
+
+
 class HilbertGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_can_call_next_and_get_specified_command(self):
-        layer_generator = HilbertGenerator(order = 1)
-        expected = Layer(0.0, commands = [LateralDraw([0.0,0.5],[1.0,0.5],10.0),LateralDraw([1.0,0.5],[0.0,0.5],10.0)], )
+        layer_generator = HilbertGenerator(order = 1, speed = 100.0)
+        expected_commands = [
+            LateralMove([0.0, 0.0],[-25.0, -25.0],100.0),
+            LateralDraw([-25.0, -25.0],[25.0, -25.0],100.0),
+            LateralDraw([25.0, -25.0],[25.0, 25.0],100.0),
+            LateralDraw([25.0, 25.0],[-25.0, 25.0],100.0)
+            ]
+        expected = Layer(0.0, commands = expected_commands )
         actual = layer_generator.next()
         self.assertLayerEquals(expected,actual)
 
+    def test_set_speed_changes_speed(self):
+        speed = 34.8
+        layer_generator = HilbertGenerator(order = 1)
+        expected_commands = [
+            LateralMove([0.0, 0.0],[-25.0, -25.0],speed),
+            LateralDraw([-25.0, -25.0],[25.0, -25.0],speed),
+            LateralDraw([25.0, -25.0],[25.0, 25.0],speed),
+            LateralDraw([25.0, 25.0],[-25.0, 25.0],speed)
+            ]
+        expected = Layer(0.0, commands = expected_commands )
+
+        layer_generator.set_speed(speed)
+        actual = layer_generator.next()
+
+        self.assertLayerEquals(expected,actual)
+        
+    def test_set_radius_changes_radius(self):
+        radius = 20
+        layer_generator = HilbertGenerator(order = 1, radius = 50)
+        expected_commands = [
+            LateralMove([0.0, 0.0],[-10.0, -10.0],100.0),
+            LateralDraw([-10.0, -10.0],[10.0, -10.0],100.0),
+            LateralDraw([10.0, -10.0],[10.0, 10.0],100.0),
+            LateralDraw([10.0, 10.0],[-10.0, 10.0],100.0)
+            ]
+        expected = Layer(0.0, commands = expected_commands )
+
+        layer_generator.set_radius(radius)
+        actual = layer_generator.next()
+        
+        self.assertLayerEquals(expected,actual)
+
+
+
+#---------------- Production Generators  -------------------------------------
 
 class SublayerGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     

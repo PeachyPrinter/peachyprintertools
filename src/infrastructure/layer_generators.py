@@ -1,7 +1,7 @@
 import logging
 
 from domain.commands import *
-from domain.layer_generator import LayerGenerator
+from domain.layer_generator import LayerGenerator, TestLayerGenerator
 
 class StubLayerGenerator(LayerGenerator):
     def __init__(self, layers):
@@ -27,10 +27,10 @@ class SinglePointGenerator(LayerGenerator):
 
 class CalibrationLineGenerator(LayerGenerator):
     def __init__(self, speed = 10.0):
-        self.speed = speed
+        self._speed = speed
 
     def next(self):
-        return Layer(0.0, commands = [LateralDraw([0.0,0.5],[1.0,0.5],self.speed),LateralDraw([1.0,0.5],[0.0,0.5],self.speed)])
+        return Layer(0.0, commands = [LateralDraw([0.0,0.5],[1.0,0.5],self._speed),LateralDraw([1.0,0.5],[0.0,0.5],self._speed)])
 
 class SubLayerGenerator(LayerGenerator):
     def __init__(self,layer_generator,sub_layer_height, tollerance = 0.001):
@@ -72,14 +72,15 @@ class SubLayerGenerator(LayerGenerator):
         except StopIteration:
             self._running = False
 
-class HilbertGenerator(LayerGenerator):
-    def __init__(self, order = 4, speed = 100.0):
+class HilbertGenerator(TestLayerGenerator):
+    def __init__(self, order = 4, speed = 100.0, radius = 50.0):
         self._order = order
         self._last_xy = [0.0,0.0]
-        self._speed = speed
+        self.set_speed(speed)
+        self.set_radius(radius)
 
     def next(self):
-        self._pattern = self._get_hilbert(self._order, [-50.0,-50.0], [50.0,50.0])
+        self._pattern = self._get_hilbert(self._order, [-self._radius,-self._radius], [self._radius,self._radius])
         logging.debug('Pattern: %s' % self._pattern)
         layer = Layer(0.0)
         layer.commands.append(LateralMove(self._last_xy, self._pattern[0], self._speed))
