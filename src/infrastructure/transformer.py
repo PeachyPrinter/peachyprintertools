@@ -17,14 +17,14 @@ class TuningTransformer(Transformer):
 
     def transform(self, xyz):
         x,y,z = xyz
-        if abs(x) > 1.0 or abs(y) > 1.0:
+        if x > 1.0 or y > 1.0 or x < 0.0 or y < 0.0:
             raise Exception("Points out of bounds")
         x = self._transform(x)
         y = self._transform(y)
         return [x,y]
  
     def _transform(self, axis):
-        return ((axis * self._scale) + 1.0) / 2.0
+        return ((axis - 0.5) * self._scale) + 0.5
 
 class HomogenousTransformer(Transformer):
     def __init__(self, config, scale = 1.0):

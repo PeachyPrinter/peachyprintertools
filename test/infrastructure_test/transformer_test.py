@@ -22,14 +22,14 @@ class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_works_on_xyz(self):
         tuning_transformer = TuningTransformer()
         self.assertEquals([1.0,1.0], tuning_transformer.transform([1.0,1.0,1.0]))
-        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.0,0.0,1.0]))
-        self.assertEquals([0.0,0.0], tuning_transformer.transform([-1.0,-1.0,1.0]))
+        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
+        self.assertEquals([0.0,0.0], tuning_transformer.transform([0.0,0.0,1.0]))
 
     def test_works_on_xyz_with_scale(self):
         tuning_transformer = TuningTransformer(scale = 0.5)
         self.assertEquals([0.75,0.75], tuning_transformer.transform([1.0,1.0,1.0]))
-        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.0,0.0,1.0]))
-        self.assertEquals([0.25,0.25], tuning_transformer.transform([-1.0,-1.0,1.0]))
+        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
+        self.assertEquals([0.25,0.25], tuning_transformer.transform([0.0,0.0,1.0]))
 
     def test_should_kaboom_if_scale_greater_then_1(self):
         with self.assertRaises(Exception):
@@ -44,11 +44,11 @@ class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             tuning_transformer.transform([1.1,1.0,1.0])
         with self.assertRaises(Exception):
-            tuning_transformer.transform([-1.1,1.0,1.0])
+            tuning_transformer.transform([-0.1,1.0,1.0])
         with self.assertRaises(Exception):
             tuning_transformer.transform([1.0,1.1,1.0])
         with self.assertRaises(Exception):
-            tuning_transformer.transform([1.0,-1.1,1.0])
+            tuning_transformer.transform([1.0,-0.1,1.0])
 
 class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_given_a_basic_mapping_yields_expected_results(self):

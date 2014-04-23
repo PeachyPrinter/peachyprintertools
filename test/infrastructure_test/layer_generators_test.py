@@ -29,7 +29,7 @@ class SinglePointGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
 class CalibrationLineGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_can_call_next_and_get_specified_command(self):
         layer_generator = CalibrationLineGenerator()
-        expected = Layer(0.0, commands = [LateralDraw([-1.0,0.0],[1.0,0.0],10.0),LateralDraw([1.0,0.0],[-1.0,0.0],10.0)], )
+        expected = Layer(0.0, commands = [LateralDraw([0.0,0.5],[1.0,0.5],10.0),LateralDraw([1.0,0.5],[0.0,0.5],10.0)], )
         actual = layer_generator.next()
         self.assertLayerEquals(expected,actual)
 

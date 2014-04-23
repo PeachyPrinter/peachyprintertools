@@ -33,6 +33,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
 
     def initialize(self):
         self._printer = self.kwargs['printer']
+        self._zero = [0.5,0.5,0.0]
         self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._printer )
 
         self._index = 0
@@ -172,7 +173,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
             self._hide_calibration()
             self._unapply_calibration()
             self._calibrationAPI.change_pattern('Single Point')
-            self._calibrationAPI.move_to([0.0,0.0,0.0])
+            self._calibrationAPI.move_to(self._zero)
         elif self._current_selection.get() == 1:
             self._hide_calibration()
             self._hide_patterns()
@@ -183,7 +184,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
             self._show_calibration()
             self._unapply_calibration()
             self._calibrationAPI.change_pattern('Single Point')
-            self._calibrationAPI.move_to([0.0,0.0,0.0])
+            self._calibrationAPI.move_to(self._zero)
         elif self._current_selection.get() == 3:
             self._show_patterns()
             self._hide_calibration()

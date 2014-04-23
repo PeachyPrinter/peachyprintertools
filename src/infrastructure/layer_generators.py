@@ -30,7 +30,7 @@ class CalibrationLineGenerator(LayerGenerator):
         self.speed = speed
 
     def next(self):
-        return Layer(0.0, commands = [LateralDraw([-1.0,0.0],[1.0,0.0],self.speed),LateralDraw([1.0,0.0],[-1.0,0.0],self.speed)])
+        return Layer(0.0, commands = [LateralDraw([0.0,0.5],[1.0,0.5],self.speed),LateralDraw([1.0,0.5],[0.0,0.5],self.speed)])
 
 class SubLayerGenerator(LayerGenerator):
     def __init__(self,layer_generator,sub_layer_height, tollerance = 0.001):
