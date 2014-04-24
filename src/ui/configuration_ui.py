@@ -143,33 +143,36 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._update_drips()
         self.grid()
 
-        self.drips_per_mm_field_text = StringVar()
-        self.drips_per_mm_field_text.set("")
+        self.drips_per_mm_field_text = DoubleVar()
+        self.drips_per_mm_field_text.set(0.0)
+
+        self._height_mm_entry = IntVar()
+        self._height_mm_entry.set(10)
 
         Label(self, text = 'Printer: ').grid(column=0,row=0)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
         
         self.instructions = u"Some much better text and instructions go here"
         Label(self,text=self.instructions, anchor="w",fg="pink",bg="green").grid(column=0,row=10,columnspan=4)
+
         Label(self).grid(column=1,row=15)
+
         Label(self,text='Drips', anchor="w",fg="black",bg="white").grid(column=0,row=20,sticky=N+S+E+W)
         Label(self,textvariable=self._drip_count,  anchor="w",fg="black",bg="white").grid(column=1,row=20,sticky=N+S+E+W)
         Button(self,text=u"Reset Counter", command=self._reset).grid(column=2,row=20,sticky=N+S+E+W)
 
         Label(self,text="End Height in Millimeters", anchor="w",fg="black",bg="white", justify="right").grid(column=0,row=30,sticky=N+S+E+W)
-
-        self.height_mm_entry = Entry(self, width=20, justify="left", text=str(10), validate = 'key', validatecommand=self.validate_int_command())
-        self.height_mm_entry.grid(column=1,row=30,sticky=N+S+E+W)
+        Entry(self, width=20, justify="left", textvariable=self._height_mm_entry, validate = 'key', validatecommand=self.validate_int_command()).grid(column=1,row=30,sticky=N+S+E+W)
 
         Label(self,text="Drips per mm", anchor="w",fg="black",bg="white", justify="right").grid(column=0,row=40,sticky=N+S+E+W)
-
         Label(self,textvariable=self.drips_per_mm_field_text, anchor="w",fg="black",bg="white").grid(column=1,row=40,sticky=N+S+E+W)
         Button(self,text=u"Mark", command=self._mark).grid(column=2,row=40,sticky=N+S+E+W)
+
         Label(self).grid(column=1,row=45)
+
         Button(self,text=u"Save", command=self._back).grid(column=2,row=50,sticky=N+S+E+W) 
         Button(self,text=u"Back", command=self._back).grid(column=0,row=50,sticky=N+S+E+W)
-       
-        self.grid_rowconfigure(50,weight=1)
+
         self.update()
 
     def _update_drips(self):
@@ -189,9 +192,9 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
     def _mark(self):
         try:
-            self._configuration_api.set_target_height(self.height_mm_entry.get())
+            self._configuration_api.set_target_height(self._height_mm_entry.get())
             self._configuration_api.mark_drips_at_target()
-            self.drips_per_mm_field_text.set("%.2f" %self._configuration_api.get_drips_per_mm())
+            self.drips_per_mm_field_text.set(self._configuration_api.get_drips_per_mm())
         except Exception as ex:
             tkMessageBox.showwarning(
             "Error",
