@@ -7,13 +7,8 @@ class MainUI(PeachyFrame):
     def initialize(self):
         self.grid()
         
-        add_printer_button = Button(self,text=u"Setup Printers", command=self._setup_printers)
-        add_printer_button.grid(column=1,row=0)
-
-        audio_setup_button = Button(self,text=u"Print", command=self._print)
-        audio_setup_button.grid(column=1,row=1)
-
-        self.grid_columnconfigure(1,weight=1)
+        Button(self,text=u"Setup Printers", command=self._setup_printers).grid(column=1,row=0,sticky=NSEW)
+        Button(self,text=u"Print", command=self._print).grid(column=1,row=1,sticky=NSEW)
         self.update()
 
     def _setup_printers(self):

@@ -23,14 +23,16 @@ class SetupUI(PeachyFrame):
             printer_selection_current, 
             *available_printers,
             command = self._printer_selected)
-        printer_selection_menu.grid(column=1,row=10)
+        printer_selection_menu.grid(column=1,row=10,sticky=NSEW)
 
-        Button(self,text=u"Add Printer", command=self._add_printer).grid(column=2,row=10)
-        Button(self,text=u"Setup Audio", command=self._setup_audio).grid(column=1,row=20)
-        Button(self,text=u"Setup Options", command=self._setup_options).grid(column=1,row=30)
-        Button(self,text=u"Setup Drip Calibration", command=self._drip_calibration).grid(column=1,row=40)
-        Button(self,text=u"Setup Calibration", command=self._calibration).grid(column=1,row=50)
-        Button(self,text=u"Run Cure Test", command=self._cure_test).grid(column=1,row=60)
+        Button(self,text=u"Add Printer", command=self._add_printer).grid(column=2,row=10,sticky=NSEW)
+        Label(self).grid(column=0,row=15)
+        Button(self,text=u"Setup Audio", command=self._setup_audio).grid(column=1,row=20,sticky=NSEW)
+        Button(self,text=u"Setup Options", command=self._setup_options).grid(column=1,row=30,sticky=NSEW)
+        Button(self,text=u"Setup Drip Calibration", command=self._drip_calibration).grid(column=1,row=40,sticky=NSEW)
+        Button(self,text=u"Setup Calibration", command=self._calibration).grid(column=1,row=50,sticky=NSEW)
+        Button(self,text=u"Run Cure Test", command=self._cure_test).grid(column=1,row=60,sticky=NSEW)
+        Label(self).grid(column=0,row=70)
         Button(self,text=u"Back", command=self._back).grid(column=0,row=100)
 
         self.grid_columnconfigure(1,weight=1)
@@ -71,17 +73,20 @@ class AddPrinterUI(PeachyFrame):
     def initialize(self):
         self.grid()
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
-        label = Label(self, text = "Enter a name for your printer" )
-        label.grid(column=0,row=0)
-        self.entry = Entry(self)
-        self.entry.grid(column=1, row=0)
-        button = Button(self, text ="Submit", command = self._process)
-        button.grid(column=2,row=0)
-        self.grid_columnconfigure(1,weight=1)
+        
+        self._printer_name = StringVar()
+
+        Label(self, text = "Enter a name for your printer" ).grid(column=0,row=10)
+        Entry(self, textvariable = self._printer_name).grid(column=1, row=10)
+
+        Label(self).grid(column=1,row=20)
+
+        Button(self, text ="Save", command = self._save).grid(column=1,row=30, sticky=N+S+E)
+
         self.update()
 
-    def _process(self):
-        printer_name = self.entry.get()
+    def _save(self):
+        printer_name = self._printer_name.get()
         self._configuration_api.add_printer(printer_name)
         self.navigate(SetupUI)
 
@@ -95,25 +100,26 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._configuration_api.load_printer(self._current_printer)
 
+        self.laser_thickness_entry_text = StringVar()
+        self.laser_thickness_entry_text.set(self._configuration_api.get_laser_thickness_mm())
+        self.sublayer_height_entry_text = StringVar()
+        self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
+
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
 
-        laser_thickness_label = Label(self, text = "Laser Thickness (mm)" )
-        laser_thickness_label.grid(column=0,row=20)
-        self.laser_thickness_entry_text = StringVar()
-        self.laser_thickness_entry_text.set(self._configuration_api.get_laser_thickness_mm())
-        self.laser_thickness_entry = Entry(self, textvariable = self.laser_thickness_entry_text)
-        self.laser_thickness_entry.grid(column=1, row=20)
+        Label(self).grid(column=1,row=15)
 
-        sublayer_height_label = Label(self, text = "Sub Layer Height (mm)" )
-        sublayer_height_label.grid(column=0,row=30)
-        self.sublayer_height_entry_text = StringVar()
-        self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
-        self.sublayer_height_entry = Entry(self, textvariable = self.sublayer_height_entry_text)
-        self.sublayer_height_entry.grid(column=1, row=30)
+        Label(self, text = "Laser Thickness (mm)" ).grid(column=0,row=20)
+        Entry(self, textvariable = self.laser_thickness_entry_text).grid(column=1, row=20)
 
-        Button(self, text ="Back", command = self._back).grid(column=0,row=40)
-        Button(self, text ="Save", command = self._save).grid(column=2,row=40)
+        Label(self, text = "Sub Layer Height (mm)" ).grid(column=0,row=30)
+        Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=1, row=30)
+
+        Label(self).grid(column=1,row=35)
+
+        Button(self, text ="Back", command = self._back).grid(column=0,row=40,sticky=N+S+W)
+        Button(self, text ="Save", command = self._save).grid(column=2,row=40,sticky=N+S+E)
         self.update()
 
     def _back(self):
@@ -171,7 +177,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Label(self).grid(column=1,row=45)
 
         self._save_button = Button(self,text=u"Save", command=self._save, state=DISABLED)
-        self._save_button.grid(column=2,row=50,sticky=N+S+E+W) 
+        self._save_button.grid(column=2,row=50,sticky=NSEW) 
         Button(self,text=u"Back", command=self._back).grid(column=0,row=50,sticky=N+S+E+W)
 
         self.update()
@@ -219,45 +225,30 @@ class SetupAudioUI(PeachyFrame):
         self._configuration_api.load_printer(self._current_printer)
 
         audio_options = self._configuration_api.get_available_audio_options()
-        
-        Label(self, text = 'Printer: ').grid(column=0,row=0)
-        logging.debug('printer_name %s' % self._configuration_api.current_printer())
-        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
-        
-        input_label_text = StringVar()
-        input_label_text.set("Audio Input Settings")
-        input_label = Label(self, textvariable = input_label_text )
-        input_label.grid(column=0,row=1)
-
 
         self.input_options = audio_options['inputs']
         self.input_audio_selection_current = StringVar()
-
         self.input_audio_selection_current.set(self.input_options.keys()[self._get_recommend_audio_index(self.input_options.keys())])
-        input_audio_selection_menu = OptionMenu(
-            self,
-            self.input_audio_selection_current, 
-            *self.input_options.keys())
-        input_audio_selection_menu.grid(column=1,row=1)
-
-        output_label_text = StringVar()
-        output_label_text.set("Audio Output Settings")
-        output_label = Label(self, textvariable = output_label_text )
-        output_label.grid(column=0,row=2)
 
         self.output_options = audio_options['outputs']
         self.output_audio_selection_current = StringVar()
         self.output_audio_selection_current.set(self.output_options.keys()[self._get_recommend_audio_index(self.output_options.keys())])
-        output_audio_selection_menu = OptionMenu(
-            self,
-            self.output_audio_selection_current, 
-            *self.output_options.keys())
-        output_audio_selection_menu.grid(column=1,row=2)
+        
+        Label(self, text = 'Printer: ').grid(column=0,row=0)
+        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
 
-        button = Button(self, text ="Back", command = self._back)
-        button.grid(column=0,row=3)
-        button = Button(self, text ="Save", command = self._process)
-        button.grid(column=1,row=3)
+        Label(self).grid(column=0,row=20)
+        
+        Label(self, text = "Audio Input Settings" ).grid(column=0,row=30)
+        OptionMenu( self, self.input_audio_selection_current, *self.input_options.keys()).grid(column=1,row=30,sticky=NSEW)
+
+        Label(self, text = "Audio Output Settings" ).grid(column=0,row=40)
+        OptionMenu(self, self.output_audio_selection_current, *self.output_options.keys()).grid(column=1,row=40,sticky=NSEW)
+
+        Label(self).grid(column=0,row=50)
+
+        Button(self, text ="Back", command = self._back).grid(column=0,row=60,sticky=N+S+W)
+        Button(self, text ="Save", command = self._process).grid(column=1,row=60,sticky=N+S+E)
 
         self.update()
 

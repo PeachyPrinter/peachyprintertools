@@ -53,7 +53,7 @@ class CalibrationAPI(object):
             self._audio_writer,
             self._current_generator,
             )
-
+        self.make_pattern_fit()
         self._controller.start()
 
     '''Used to show a single point with no calibration applied'''
@@ -94,6 +94,14 @@ class CalibrationAPI(object):
         self._configuration['calibration_data'] = calibration
         logging.debug("Saving calibration: %s" % calibration)
         self._configuration_manager.save(self._configuration)
+        self.make_pattern_fit() #TODO make this better.
+
+    #deprecated
+    def make_pattern_fit(self):
+        for pattern in self._test_patterns.values():
+            pattern.set_radius(self.get_largest_object_radius())
+
+
 
     '''Validates a calibration'''
     def validate(self, calibration):
@@ -131,6 +139,16 @@ class CalibrationAPI(object):
         if (len(points) != 4):
             return False
         return True
+
+    '''Based on current calibrations_gets_maximum_size_of_object at the base layer'''
+    def get_largest_object_radius(self):
+        lowest = None
+        for (x,y) in self._configuration['calibration_data']['lower_points'].values():
+            if not lowest or abs(x) < lowest:
+                lowest = abs(x)
+            if abs(y) < lowest:
+                lowest = abs(y)
+        return lowest
 
     def stop(self):
             self._controller.stop()

@@ -39,28 +39,37 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         self._index = 0
         self._test_patterns = self._calibrationAPI.get_test_patterns()
         self.data_points = []
-        self.parent.geometry("%dx%d" % (500,700))
+        # self.parent.geometry("%dx%d" % (500,700))
         self.grid()
 
+        Label(self, text = 'Printer: ').grid(column=1,row=5)
+        Label(self, text = self._printer).grid(column=2,row=5)
+
+        Label(self).grid(column=1,row=7)
+
         instructions = '''Amazing Instructions'''
-        Label(self,text = instructions, background='snow').grid(column=1, row=0, columnspan=6 )
+        Label(self,text = instructions, background='snow').grid(column=1, row=10, columnspan=6 )
+
+        Label(self).grid(column=1,row=15)
 
         self._current_selection = IntVar()
-        Radiobutton(self, command = self._option_changed, text="Center Point", variable=self._current_selection, value=0).grid(column = 1, row = 1, sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Alignment", variable=self._current_selection, value=1).grid(column = 1, row = 2, sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value=2).grid(column = 1, row = 3, sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Calibrated Patterns", variable=self._current_selection, value=3).grid(column = 1, row = 4, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Center Point", variable=self._current_selection, value=0).grid(column = 1, row = 20, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Alignment", variable=self._current_selection, value=1).grid(column = 1, row = 30, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value=2).grid(column = 1, row = 40, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Calibrated Patterns", variable=self._current_selection, value=3).grid(column = 1, row = 50, sticky=W)
 
+        Label(self).grid(column=1,row=51)
 
         self._current_pattern = StringVar()
         self._current_pattern.set(self._test_patterns[0])
         
         self.pattern_options = OptionMenu(self, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
-        self.pattern_options.grid(column=2,row=4,sticky=W)
+        self.pattern_options.grid(column=2,row=50,sticky=W)
         
         self._setup_calibration_grid()
 
-        Button(self,text=u"Back", command=self._back_button_click).grid(column=1,row=100)
+        Label(self).grid(column=1,row=99)
+        Button(self,text=u"Back", command=self._back_button_click).grid(column=1,row=100, sticky=N+S+W)
 
         self._option_changed()
         self.update()
@@ -80,11 +89,11 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         self.upper_z.set(data['height'])
 
         self.calibration_fields['r_z_h'] = Label(self,text="Upper Calibration Height (mm)" ,**options )
-        self.calibration_fields['r_z_h'].grid(column=1,row=50,columnspan=2)
+        self.calibration_fields['r_z_h'].grid(column=1,row=55,columnspan=2)
         self.calibration_fields['a_z'] = Entry(self, 
                 validate = 'key', validatecommand=self.validate_float_command(), 
                 textvariable=self.upper_z, width=8 ,**options)
-        self.calibration_fields['a_z'].grid(column=3,row=50)
+        self.calibration_fields['a_z'].grid(column=3,row=55)
         self.calibration_fields['a_z'].bind('<FocusOut>', self._upper_z_change)
 
         self.calibration_fields['r_x_h'] = Label(self,text="Calibration Point" ,**options )
