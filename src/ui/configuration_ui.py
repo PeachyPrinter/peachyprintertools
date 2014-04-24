@@ -148,12 +148,17 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         self._height_mm_entry = IntVar()
         self._height_mm_entry.set(10)
+        self._threshold = IntVar()
+        self._threshold.set(98)
+
+        self._release = IntVar()
+        self._release.set(6)
 
         Label(self, text = 'Printer: ').grid(column=0,row=0)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
         
         self.instructions = u"Some much better text and instructions go here"
-        Label(self,text=self.instructions, anchor="w",fg="pink",bg="green").grid(column=0,row=10,columnspan=4)
+        Label(self,text=self.instructions, anchor="w",fg="black",bg="green").grid(column=0,row=10,columnspan=4)
 
         Label(self).grid(column=1,row=15)
 
@@ -161,8 +166,15 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Label(self,textvariable=self._drip_count,  anchor="w",fg="black",bg="white").grid(column=1,row=20,sticky=N+S+E+W)
         Button(self,text=u"Reset Counter", command=self._reset).grid(column=2,row=20,sticky=N+S+E+W)
 
+
+        Label(self,text = 'Threshold %',fg="black",bg="white", anchor="w",).grid(column=0, row=25,sticky=NSEW)
+        Scale(self,from_ = 0, to=100, orient=HORIZONTAL,variable=self._threshold, command=self._threshold_changed).grid(column=1,row=25,columnspan=2, rowspan=2,sticky=NSEW)
+
+        Label(self,text = 'Release (ms)',fg="black",bg="white", anchor="w",).grid(column=0, row=28,sticky=NSEW)
+        Scale(self,from_ = 0, to=100, orient=HORIZONTAL,variable=self._release, command=self._release_changed).grid(column=1,row=28,columnspan=2, rowspan=2,sticky=NSEW)
+
         Label(self,text="End Height in Millimeters", anchor="w",fg="black",bg="white", justify="right").grid(column=0,row=30,sticky=N+S+E+W)
-        Entry(self, width=20, justify="left", textvariable=self._height_mm_entry, validate = 'key', validatecommand=self.validate_int_command()).grid(column=1,row=30,sticky=N+S+E+W)
+        Entry(self, width=5, justify="left", textvariable=self._height_mm_entry, validate = 'key', validatecommand=self.validate_int_command()).grid(column=1,row=30,sticky=N+S+E+W)
 
         Label(self,text="Drips per mm", anchor="w",fg="black",bg="white", justify="right").grid(column=0,row=40,sticky=N+S+E+W)
         Label(self,textvariable=self.drips_per_mm_field_text, anchor="w",fg="black",bg="white").grid(column=1,row=40,sticky=N+S+E+W)
@@ -170,7 +182,8 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         Label(self).grid(column=1,row=45)
 
-        Button(self,text=u"Save", command=self._back).grid(column=2,row=50,sticky=N+S+E+W) 
+        self._save_button = Button(self,text=u"Save", command=self._save, state=DISABLED)
+        self._save_button.grid(column=2,row=50,sticky=N+S+E+W) 
         Button(self,text=u"Back", command=self._back).grid(column=0,row=50,sticky=N+S+E+W)
 
         self.update()
@@ -182,6 +195,14 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self.drips = self._configuration_api.get_drips()
         self._drip_count.set(self.drips)
         self.update_drips_job=self.after(250, self._update_drips)
+
+    def _threshold_changed(self,threshold):
+        logging.debug("Threshold changed: %s" % threshold)
+        pass
+
+    def _release_changed(self,release):
+        logging.debug("Release changed: %s" % release)
+        pass
 
     def _reset(self):
         self._configuration_api.reset_drips()
@@ -195,11 +216,16 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
             self._configuration_api.set_target_height(self._height_mm_entry.get())
             self._configuration_api.mark_drips_at_target()
             self.drips_per_mm_field_text.set(self._configuration_api.get_drips_per_mm())
+            self._save_button.config(state = NORMAL)
         except Exception as ex:
             tkMessageBox.showwarning(
             "Error",
             ex.message
         )
+
+    def _save(self):
+        self._configuration_api.save()
+        self.navigate(SetupUI)
 
     def close(self):
         self._configuration_api.stop_counting_drips()
