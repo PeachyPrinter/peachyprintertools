@@ -23,25 +23,15 @@ class SetupUI(PeachyFrame):
             printer_selection_current, 
             *available_printers,
             command = self._printer_selected)
-        printer_selection_menu.grid(column=1,row=0)
+        printer_selection_menu.grid(column=1,row=10)
 
-        add_printer_button = Button(self,text=u"Add Printer", command=self._add_printer)
-        add_printer_button.grid(column=2,row=0)
-
-        audio_setup_button = Button(self,text=u"Setup Audio", command=self.setup_audio_button_click)
-        audio_setup_button.grid(column=1,row=1)
-
-        options_setup_button = Button(self,text=u"Setup Options", command=self._setup_options_button_click)
-        options_setup_button.grid(column=1,row=2)
-
-        drip_calibration_button = Button(self,text=u"Start Drip Calibration", command=self.drip_calibration_button_click)
-        drip_calibration_button.grid(column=1,row=3)
-
-        calibration_button = Button(self,text=u"Start Calibration", command=self.start_calibration_button_click)
-        calibration_button.grid(column=1,row=4)
-
-        button = Button(self,text=u"Back", command=self._back_button_click)
-        button.grid(column=0,row=5)
+        Button(self,text=u"Add Printer", command=self._add_printer).grid(column=2,row=10)
+        Button(self,text=u"Setup Audio", command=self._setup_audio).grid(column=1,row=20)
+        Button(self,text=u"Setup Options", command=self._setup_options).grid(column=1,row=30)
+        Button(self,text=u"Setup Drip Calibration", command=self._drip_calibration).grid(column=1,row=40)
+        Button(self,text=u"Setup Calibration", command=self._calibration).grid(column=1,row=50)
+        Button(self,text=u"Run Cure Test", command=self._cure_test).grid(column=1,row=60)
+        Button(self,text=u"Back", command=self._back).grid(column=0,row=100)
 
         self.grid_columnconfigure(1,weight=1)
         self.update()
@@ -53,20 +43,26 @@ class SetupUI(PeachyFrame):
     def _add_printer(self):
         self.navigate(AddPrinterUI)
 
-    def _setup_options_button_click(self):
+    def _setup_options(self):
         self.navigate(SetupOptionsUI, printer = self._current_printer)
 
-    def drip_calibration_button_click(self):
+    def _drip_calibration(self):
         self.navigate(DripCalibrationUI, printer = self._current_printer)
 
-    def _back_button_click(self):
+    def _back(self):
         self.navigate(MainUI, printer = self._current_printer)
 
-    def setup_audio_button_click(self):
+    def _setup_audio(self):
         self.navigate(SetupAudioUI, printer = self._current_printer)
 
-    def start_calibration_button_click(self):
+    def _calibration(self):
         self.navigate(CalibrationUI, printer = self._current_printer)
+
+    def _cure_test(self):
+        tkMessageBox.showwarning(
+            "Coming Soon!",
+            "Printer Cure Rate Test Coming Soon",
+            )
 
     def close(self):
         pass
@@ -116,16 +112,14 @@ class SetupOptionsUI(PeachyFrame):
         self.sublayer_height_entry = Entry(self, textvariable = self.sublayer_height_entry_text)
         self.sublayer_height_entry.grid(column=1, row=30)
 
-        button = Button(self, text ="Back", command = self._process)
-        button.grid(column=0,row=40)
-        button = Button(self, text ="Save", command = self._process)
-        button.grid(column=2,row=40)
+        Button(self, text ="Back", command = self._back).grid(column=0,row=40)
+        Button(self, text ="Save", command = self._save).grid(column=2,row=40)
         self.update()
 
     def _back(self):
         self.navigate(SetupUI)
 
-    def _process(self):
+    def _save(self):
         laser_thickness = self.laser_thickness_entry_text.get()
         sublayer_height = self.sublayer_height_entry_text.get()
         self._configuration_api.set_laser_thickness_mm(float(laser_thickness))
@@ -145,63 +139,55 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self.update_drips_job = None
         self._configuration_api.start_counting_drips()
         self.drips = 0
-        self.drip_count_label = StringVar()
-        self.update_drips()
+        self._drip_count = IntVar()
+        self._update_drips()
         self.grid()
+
+        self.drips_per_mm_field_text = StringVar()
+        self.drips_per_mm_field_text.set("")
 
         Label(self, text = 'Printer: ').grid(column=0,row=0)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
         
         self.instructions = u"Some much better text and instructions go here"
-        instructions_label = Label(self,text=self.instructions, anchor="w",fg="pink",bg="green")
-        instructions_label.grid(column=0,row=10,columnspan=4,sticky='EW')
+        Label(self,text=self.instructions, anchor="w",fg="pink",bg="green").grid(column=0,row=10,columnspan=4)
+        Label(self).grid(column=1,row=15)
+        Label(self,text='Drips', anchor="w",fg="black",bg="white").grid(column=0,row=20,sticky=N+S+E+W)
+        Label(self,textvariable=self._drip_count,  anchor="w",fg="black",bg="white").grid(column=1,row=20,sticky=N+S+E+W)
+        Button(self,text=u"Reset Counter", command=self._reset).grid(column=2,row=20,sticky=N+S+E+W)
 
-        label = Label(self,textvariable=self.drip_count_label, anchor="w",fg="black",bg="white")
-        label.grid(column=1,row=20,columnspan=2,sticky='EW')
-        
-        
-        reset_button = Button(self,text=u"Reset Counter", command=self.reset_button_clicked)
-        reset_button.grid(column=2,row=20)   
-
-        height_mm_label = Label(self,text="End Height in Millimeters", anchor="w",fg="black",bg="white", justify="right")
-        height_mm_label.grid(column=0,row=30,columnspan=1,sticky='EW')
+        Label(self,text="End Height in Millimeters", anchor="w",fg="black",bg="white", justify="right").grid(column=0,row=30,sticky=N+S+E+W)
 
         self.height_mm_entry = Entry(self, width=20, justify="left", text=str(10), validate = 'key', validatecommand=self.validate_int_command())
-        self.height_mm_entry.grid(column=1,row=30)
+        self.height_mm_entry.grid(column=1,row=30,sticky=N+S+E+W)
 
-        drips_per_mm_label = Label(self,text="Drips per mm", anchor="w",fg="black",bg="white", justify="right")
-        drips_per_mm_label.grid(column=0,row=40,columnspan=1,sticky='EW')
+        Label(self,text="Drips per mm", anchor="w",fg="black",bg="white", justify="right").grid(column=0,row=40,sticky=N+S+E+W)
 
-        self.drips_per_mm_field_text = StringVar()
-        drips_per_mm_field = Label(self,textvariable=self.drips_per_mm_field_text, anchor="w",fg="black",bg="white")
-        drips_per_mm_field.grid(column=1,row=40,columnspan=1,sticky='EW')
-        self.drips_per_mm_field_text.set("")
-
-        mark_button = Button(self,text=u"Mark", command=self.mark_button_clicked)
-        mark_button.grid(column=2,row=40) 
-
-        quit_button = Button(self,text=u"Back", command=self._back_button_clicked)
-        quit_button.grid(column=0,row=50)    
+        Label(self,textvariable=self.drips_per_mm_field_text, anchor="w",fg="black",bg="white").grid(column=1,row=40,sticky=N+S+E+W)
+        Button(self,text=u"Mark", command=self._mark).grid(column=2,row=40,sticky=N+S+E+W)
+        Label(self).grid(column=1,row=45)
+        Button(self,text=u"Save", command=self._back).grid(column=2,row=50,sticky=N+S+E+W) 
+        Button(self,text=u"Back", command=self._back).grid(column=0,row=50,sticky=N+S+E+W)
        
-        self.grid_columnconfigure(3,weight=1)
+        self.grid_rowconfigure(50,weight=1)
         self.update()
 
-    def update_drips(self):
+    def _update_drips(self):
         if self.update_drips_job:
             self.after_cancel(self.update_drips_job)
             self.update_drips_job = None
         self.drips = self._configuration_api.get_drips()
-        self.drip_count_label.set("Drips: %d" % self.drips)
-        self.update_drips_job=self.after(250, self.update_drips)
+        self._drip_count.set(self.drips)
+        self.update_drips_job=self.after(250, self._update_drips)
 
-    def reset_button_clicked(self):
+    def _reset(self):
         self._configuration_api.reset_drips()
-        self.update_drips()
+        self._update_drips()
 
-    def _back_button_clicked(self):
+    def _back(self):
         self.navigate(SetupUI)
 
-    def mark_button_clicked(self):
+    def _mark(self):
         try:
             self._configuration_api.set_target_height(self.height_mm_entry.get())
             self._configuration_api.mark_drips_at_target()

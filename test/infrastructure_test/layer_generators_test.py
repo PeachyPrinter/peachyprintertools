@@ -40,7 +40,7 @@ class CalibrationLineGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
 
 class HilbertGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_can_call_next_and_get_specified_command(self):
-        layer_generator = HilbertGenerator(order = 1, speed = 100.0)
+        layer_generator = HilbertGenerator(order = 1, speed = 100.0, radius = 50.0)
         expected_commands = [
             LateralMove([0.0, 0.0],[-25.0, -25.0],100.0),
             LateralDraw([-25.0, -25.0],[25.0, -25.0],100.0),
@@ -53,7 +53,7 @@ class HilbertGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
 
     def test_set_speed_changes_speed(self):
         speed = 34.8
-        layer_generator = HilbertGenerator(order = 1)
+        layer_generator = HilbertGenerator(order = 1, radius = 50.0)
         expected_commands = [
             LateralMove([0.0, 0.0],[-25.0, -25.0],speed),
             LateralDraw([-25.0, -25.0],[25.0, -25.0],speed),
@@ -69,7 +69,7 @@ class HilbertGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         
     def test_set_radius_changes_radius(self):
         radius = 20
-        layer_generator = HilbertGenerator(order = 1, radius = 50)
+        layer_generator = HilbertGenerator(order = 1, radius = 50, speed = 100.0)
         expected_commands = [
             LateralMove([0.0, 0.0],[-10.0, -10.0],100.0),
             LateralDraw([-10.0, -10.0],[10.0, -10.0],100.0),
