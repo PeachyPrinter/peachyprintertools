@@ -26,7 +26,8 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self.deamon = True
         self._drips_per_mm = drips_per_mm * 1.0
         self._sample_rate = sample_rate
-        self._set_format_from_depth(bit_depth, threshold_percent)
+        self._set_format_from_depth(bit_depth)
+        self.set_threshold(threshold_percent)
         self._release = self._sample_rate / 1000 * release_ms
         self._running = False
         self._num_drips = 0
@@ -43,8 +44,14 @@ class DripBasedZAxis(ZAxis, threading.Thread):
     def get_drips(self):
         return self._num_drips
 
-    def _set_format_from_depth(self,depth, threshold):
-        self._format = audio_formats[depth]
+    def _set_format_from_depth(self,depth):
+        try:
+            self._format = audio_formats[depth]
+        except:
+            logger.error("Bit depth %s specified is not supported" % depth)
+            raise Exception("Bit depth %s specified is not supported" % depth)
+
+    def set_threshold(self,threshold):
         if self._format ==  pyaudio.paInt8:
             self._threshold = threshold * math.pow(2, 8 - 1) - 1.0 
         elif self._format ==  pyaudio.paInt16:
@@ -54,10 +61,8 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         elif self._format ==  pyaudio.paInt32:
             self._threshold = threshold * math.pow(2, 32 - 1) - 1.0 
         elif self._format ==  pyaudio.paFloat32:
-            self._threshold = 1.0
-        else:
-            logger.error("Bit depth %s specified is not supported" % depth)
-            raise Exception("Bit depth %s specified is not supported" % depth)
+            self._threshold = threshold
+
 
     def reset(self, z_height_mm = 0.0):
         self._num_drips = z_height_mm * self._drips_per_mm

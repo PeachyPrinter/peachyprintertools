@@ -148,11 +148,6 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         self._height_mm_entry = IntVar()
         self._height_mm_entry.set(10)
-        self._threshold = IntVar()
-        self._threshold.set(98)
-
-        self._release = IntVar()
-        self._release.set(6)
 
         Label(self, text = 'Printer: ').grid(column=0,row=0)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
@@ -165,13 +160,6 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Label(self,text='Drips', anchor="w",fg="black",bg="white").grid(column=0,row=20,sticky=N+S+E+W)
         Label(self,textvariable=self._drip_count,  anchor="w",fg="black",bg="white").grid(column=1,row=20,sticky=N+S+E+W)
         Button(self,text=u"Reset Counter", command=self._reset).grid(column=2,row=20,sticky=N+S+E+W)
-
-
-        Label(self,text = 'Threshold %',fg="black",bg="white", anchor="w",).grid(column=0, row=25,sticky=NSEW)
-        Scale(self,from_ = 0, to=100, orient=HORIZONTAL,variable=self._threshold, command=self._threshold_changed).grid(column=1,row=25,columnspan=2, rowspan=2,sticky=NSEW)
-
-        Label(self,text = 'Release (ms)',fg="black",bg="white", anchor="w",).grid(column=0, row=28,sticky=NSEW)
-        Scale(self,from_ = 0, to=100, orient=HORIZONTAL,variable=self._release, command=self._release_changed).grid(column=1,row=28,columnspan=2, rowspan=2,sticky=NSEW)
 
         Label(self,text="End Height in Millimeters", anchor="w",fg="black",bg="white", justify="right").grid(column=0,row=30,sticky=N+S+E+W)
         Entry(self, width=5, justify="left", textvariable=self._height_mm_entry, validate = 'key', validatecommand=self.validate_int_command()).grid(column=1,row=30,sticky=N+S+E+W)
@@ -195,14 +183,6 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self.drips = self._configuration_api.get_drips()
         self._drip_count.set(self.drips)
         self.update_drips_job=self.after(250, self._update_drips)
-
-    def _threshold_changed(self,threshold):
-        logging.debug("Threshold changed: %s" % threshold)
-        pass
-
-    def _release_changed(self,release):
-        logging.debug("Release changed: %s" % release)
-        pass
 
     def _reset(self):
         self._configuration_api.reset_drips()

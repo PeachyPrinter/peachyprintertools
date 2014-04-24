@@ -2,10 +2,14 @@ import unittest
 import sys
 import os
 from mock import patch, Mock
-from test_helpers import TestHelpers
 import wave
 import pyaudio 
 import time
+
+sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
+
+from test_helpers import TestHelpers
 
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 
@@ -188,4 +192,25 @@ class DripBasedZAxisTests(unittest.TestCase):
         mock_is_format_supported.assert_called_with(sample_rate, input_device = input_device, input_channels = 1,input_format = expected_format)
         mock_open.assert_called_with(format = expected_format, input= True, frames_per_buffer = expected_buffer_size,channels =1, rate = sample_rate)
 
+    @patch('pyaudio.PyAudio')
+    def test_set_threshold_should_change_threshold(self, mock_pyaudio):
+        drips_per = 1
+        wave_file = os.path.join(self.test_file_path, '14_drips.wav')
+        self.stream = MockPyAudioInputStream(wave_file)
+
+        my_mock_pyaudio = mock_pyaudio.return_value
+        my_mock_pyaudio.open.return_value = self.stream
+
+        drip_zaxis = DripBasedZAxis(drips_per)
+        drip_zaxis.set_threshold(0.1)
+        drip_zaxis.start()
+        self.wait_for_stream()
+        drip_zaxis.stop()
+        self.assertEqual(24, drip_zaxis.current_z_location_mm())
+
 # TODO JT 2014-04-09 - initial_height
+
+
+
+if __name__ == '__main__':
+    unittest.main()
