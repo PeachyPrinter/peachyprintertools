@@ -11,10 +11,11 @@ from infrastructure.transformer import HomogenousTransformer
 
 '''TODO'''
 class PrintAPI(object):
-    def __init__(self, configuration):
+    def __init__(self, configuration, status_call_back = None):
         logging.info("Print API Startup")
         self._configuration = configuration
         self._controller = None
+        self._status_call_back = status_call_back
 
     def print_gcode(self, file_like_object):
         self.laser_control = AudioModulationLaserControl(
@@ -45,7 +46,9 @@ class PrintAPI(object):
             self._path_to_audio,
             self._audio_writer,
             self._layer_generator,
-            self._zaxis)
+            zaxis = self._zaxis,
+            status_call_back = self._status_call_back
+            )
         self._controller.start()
 
     def get_status(self):

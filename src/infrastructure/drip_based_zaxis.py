@@ -43,6 +43,9 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self.set_drips_per_mm(drips_per_mm)
         logging.info("Drip Listening initialized using: samplerate: %s, bit depth %s, drips per mm: %s" %(self._sample_rate,bit_depth,self._drips_per_mm))
 
+    def set_drip_call_back(self, call_back):
+        self._drip_call_back = call_back
+
     def get_drips(self):
         return self._num_drips
 
@@ -55,13 +58,13 @@ class DripBasedZAxis(ZAxis, threading.Thread):
 
     def set_threshold(self,threshold):
         if self._format ==  pyaudio.paInt8:
-            self._threshold = threshold * math.pow(2, 8 - 1) - 1.0 
+            self._threshold = threshold * math.pow(2, 8 - 1) - 1.0
         elif self._format ==  pyaudio.paInt16:
-            self._threshold = threshold * math.pow(2, 16 - 1) - 1.0 
+            self._threshold = threshold * math.pow(2, 16 - 1) - 1.0
         elif self._format ==  pyaudio.paInt24:
-            self._threshold = threshold * math.pow(2, 24 - 1) - 1.0 
+            self._threshold = threshold * math.pow(2, 24 - 1) - 1.0
         elif self._format ==  pyaudio.paInt32:
-            self._threshold = threshold * math.pow(2, 32 - 1) - 1.0 
+            self._threshold = threshold * math.pow(2, 32 - 1) - 1.0
         elif self._format ==  pyaudio.paFloat32:
             self._threshold = threshold
 
@@ -69,7 +72,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
     def reset(self, z_height_mm = 0.0):
         self._num_drips = z_height_mm * self._drips_per_mm
         if self._drip_call_back:
-            self._drip_call_back(self._num_drips)
+            self._drip_call_back(self._num_drips, self.current_z_location_mm())
 
     def set_drips_per_mm(self,number_drips_per_mm):
         self._drips_per_mm = number_drips_per_mm
@@ -142,7 +145,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                     if (self._indrip == True ):
                         self._num_drips += 1
                         if self._drip_call_back:
-                            self._drip_call_back(self._num_drips)
+                            self._drip_call_back(self._num_drips, self.current_z_location_mm())
                         logging.debug("Drips: %d" % self._num_drips)
                         self._indrip = False
                         self._hold_samples = self._release

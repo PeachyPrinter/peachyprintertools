@@ -180,7 +180,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
         self.update()
 
-    def _drips_updated(self, drips):
+    def _drips_updated(self, drips, height):
         self._drip_count.set(drips)
 
     def _reset(self):

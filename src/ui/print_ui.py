@@ -25,21 +25,13 @@ class PrintUI(PeachyFrame):
 
         printer_selection_current.set(available_printers[0])
         self._printer_selected(available_printers[0])
-        printer_selection_menu = OptionMenu(
-            self,
-            printer_selection_current, 
-            *available_printers,
-            command = self._printer_selected)
-        printer_selection_menu.grid(column=1,row=0)
 
+        OptionMenu(self, printer_selection_current, *available_printers, command = self._printer_selected).grid(column=1,row=10,sticky=N+S+E+W)
+        Label(self).grid(column=1,row=20)
+        Button(self,text=u"Print From G Code", command=self.print_g_code_click).grid(column=1,row=30,sticky=N+S+E+W)
+        Label(self).grid(column=1,row=40)
+        Button(self,text=u"Back", command=self._back).grid(column=0,row=50)
 
-        audio_setup_button = Button(self,text=u"Print From G Code", command=self.print_g_code_click)
-        audio_setup_button.grid(column=1,row=1)
-
-        button = Button(self,text=u"Back", command=self._back)
-        button.grid(column=0,row=5)
-
-        self.grid_columnconfigure(1,weight=1)
         self.update()
 
     def _printer_selected(self, selection):
@@ -59,79 +51,61 @@ class PrintStatusUI(PeachyFrame):
 
     def initialize(self):
         self.grid()
-        self._update_status_job = None
-        self._print_api = PrintAPI(self.kwargs['config'])
+        
+        self._elapsed_time = StringVar()
+        self._current_layer = IntVar()
+        self._current_height = StringVar()
+        self._current_drips = IntVar()
+        self._waiting_for_drips = StringVar()
+        self._status = StringVar()
+        self._stop_button_text = StringVar()
+        self._stop_button_text.set("Abort Print")
+
+        self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
         file_to_print = self.kwargs['filename']
         self._print_api.print_gcode(file_to_print)
-        self.status = self._print_api.get_status()
 
-        self.elapsed_time = StringVar()
-        self.current_layer = StringVar()
-        self.current_height = StringVar()
-        self.current_drips = StringVar()
-        self.laser_state = StringVar()
-        self.waiting_for_drips = StringVar()
-        self.complete = StringVar()
+        Label(self, text = "Elapsed Time" ).grid(column=0,row=10)
+        Label(self, textvariable = self._elapsed_time ).grid(column=1,row=10)
 
-        self._update_status()
+        Label(self, text = "Layer" ).grid(column=0,row=20)
+        Label(self, textvariable = self._current_layer ).grid(column=1,row=20)
 
-        label = Label(self, text = "Elapsed Time" )
-        label.grid(column=0,row=0)
-        label = Label(self, textvariable = self.elapsed_time )
-        label.grid(column=1,row=0)
+        Label(self, text = "Height (mm)" ).grid(column=0,row=30)
+        Label(self, textvariable = self._current_height ).grid(column=1,row=30)
 
-        label = Label(self, text = "Layer" )
-        label.grid(column=0,row=1)
-        label = Label(self, textvariable = self.current_layer )
-        label.grid(column=1,row=1)
+        Label(self, text = "Drips" ).grid(column=0,row=40)
+        Label(self, textvariable = self._current_drips ).grid(column=1,row=40)
 
-        label = Label(self, text = "Height" )
-        label.grid(column=0,row=2)
-        label = Label(self, textvariable = self.current_height )
-        label.grid(column=1,row=2)
+        Label(self, text = "Waiting for drips" ).grid(column=0,row=50)
+        Label(self, textvariable = self._waiting_for_drips ).grid(column=1,row=50)
 
-        label = Label(self, text = "Drips" )
-        label.grid(column=0,row=3)
-        label = Label(self, textvariable = self.current_drips )
-        label.grid(column=1,row=3)
+        Label(self, text = "Status").grid(column=0,row=60)
+        Label(self, textvariable = self._status).grid(column=1,row=60)
 
-        label = Label(self, text = "Laser" )
-        label.grid(column=0,row=4)
-        label = Label(self, textvariable = self.laser_state )
-        label.grid(column=1,row=4)
-
-        label = Label(self, text = "Waiting for drips" )
-        label.grid(column=0,row=5)
-        label = Label(self, textvariable = self.waiting_for_drips )
-        label.grid(column=1,row=5)
-
-        label = Label(self, textvariable = self.complete )
-        label.grid(column=1,row=6)
-
-        button = Button(self,text=u"Stop", command=self._stop_button_click)
-        button.grid(column=2,row=7)
-
-        self.grid_columnconfigure(1,weight=1)
+        Label(self).grid(column=0,row=70)
+        
+        Button(self,textvariable=self._stop_button_text, command=self._stop_button_click).grid(column=2,row=80)
+        
         self.update()
 
     def _stop_button_click(self):
         self._print_api.stop()
         self.navigate(PrintUI)
 
-    def _update_status(self):
-        if not self.status.complete:
-            if self._update_status_job:
-                self.after_cancel(self._update_status_job)
-                self._update_status_job = None
-            self.elapsed_time.set(self.status.elapsed_time)
-            self.current_layer.set(self.status.current_layer)
-            self.current_height.set(self.status.z_posisition)
-            self.current_drips.set(self.status.drips)
-            self.laser_state.set("On" if self.status.laser_state else "Off")
-            self.waiting_for_drips.set("Yes" if self.status.waiting_for_drips else "No")
-            self._update_status_job=self.after(1000, self._update_status)
-        else:
-            self.complete.set("Done")
+    def status_call_back(self,status):
+        total_seconds = int(status['elapsed_time'].total_seconds())
+        hours, remainder = divmod(total_seconds,60*60)
+        minutes, seconds = divmod(remainder,60)
+
+        self._elapsed_time.set("%02d:%02d:%02d" % (hours,minutes,seconds))
+        self._current_layer.set(status['current_layer'])
+        self._current_height.set("%.2f" % status['height'])
+        self._current_drips.set(status['drips'])
+        self._waiting_for_drips.set("Yes" if status['waiting_for_drips'] else "No")
+        self._status.set(status['status'])
+        if (status['status'] == "Complete"):
+            self._stop_button_text.set("Finished")
 
     def close(self):
         self._print_api.stop()

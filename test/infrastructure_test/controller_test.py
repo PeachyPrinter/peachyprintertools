@@ -11,7 +11,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 import infrastructure
-from infrastructure.controller import Controller, MachineStatus
+from infrastructure.controller import Controller, MachineStatus, MachineError
 from domain.commands import *
 from infrastructure.layer_generators import StubLayerGenerator, SinglePointGenerator
 from infrastructure.drip_based_zaxis import DripBasedZAxis
@@ -31,6 +31,7 @@ class ControllerTests(unittest.TestCase):
     def tearDown(self):
         if self.controller and self.controller.is_alive():
             self.controller.stop()
+
 
     def test_should_turn_on_laser_for_draw_commands(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -278,7 +279,7 @@ class ControllerTests(unittest.TestCase):
         self.controller.start()
 
         time.sleep(0.1)
-        actual = self.controller.get_status().waiting_for_drips
+        actual = self.controller.get_status()['waiting_for_drips']
         self.controller.stop()
 
         self.wait_for_controller()
@@ -299,7 +300,7 @@ class ControllerTests(unittest.TestCase):
         self.controller.start()
 
         time.sleep(0.1)
-        actual = self.controller.get_status().waiting_for_drips
+        actual = self.controller.get_status()['waiting_for_drips']
         self.controller.stop()
 
         self.wait_for_controller()
@@ -320,8 +321,8 @@ class ControllerTests(unittest.TestCase):
 
         self.wait_for_controller()
 
-        self.assertEquals(1, self.controller.get_status().current_layer)
-        self.assertTrue(self.controller.get_status().complete)
+        self.assertEquals(1, self.controller.get_status()['current_layer'])
+        self.assertEquals('Complete',self.controller.get_status()['status'])
 
     def test_should_change_layer_generator(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -367,6 +368,16 @@ class ControllerTests(unittest.TestCase):
         self.wait_for_controller()
 
 
+    def test_init_should_set_call_back_on_zaxis(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_layer_generator = mock_LayerGenerator.return_value
+        mock_zaxis = mock_ZAxis.return_value
+        Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator, mock_zaxis)
+
+        self.assertTrue(mock_zaxis.set_drip_call_back.called)
+
     #TODO JT
     #Skip layers if z at next layer
 
@@ -375,8 +386,16 @@ class MachineStatusTests(unittest.TestCase):
     real_datetime = datetime.datetime
     real_timedelta = datetime.timedelta
 
+    call_count = 0
+
+    def call_back(self,status):
+        self.call_count += 1
+
+    def setup(self):
+        self.call_count = 0
+
     @patch.object(datetime, 'datetime')
-    def test_elapsed_time_gives_elapsed_time_in_seconds(self, mock_datetime):
+    def test_status_elapsed_time_gives_elapsed_time_in_seconds(self, mock_datetime):
         expected = self.real_timedelta(seconds = 10)
         values = [self.real_datetime(2012,1,1,8,0,0), self.real_datetime(2012,1,1,8,0,10)]
         def next_values():
@@ -384,27 +403,108 @@ class MachineStatusTests(unittest.TestCase):
         mock_datetime.now.side_effect = next_values
 
         status = MachineStatus()
-        actual = status.elapsed_time
+        actual = status.status()['elapsed_time']
 
         self.assertEqual(expected,actual)
+
+    @patch.object(datetime, 'datetime')
+    def test_status_start_time_gives_start_time(self, mock_datetime):
+        start_time = self.real_datetime(2012,1,1,8,0,0)
+        mock_datetime.now.return_value = start_time
+
+        status = MachineStatus()
+        actual = status.status()['start_time']
+
+        self.assertEqual(start_time,actual)
 
     def test_add_layer_adds_a_layer(self):
         status = MachineStatus()
         status.add_layer()
 
-        self.assertEqual(1,status.current_layer)
+        self.assertEqual(1,status.status()['current_layer'])
 
-    @patch.object(infrastructure.drip_based_zaxis.DripBasedZAxis, 'current_z_location_mm')
-    @patch.object(infrastructure.drip_based_zaxis.DripBasedZAxis, 'get_drips')
-    def test_add_layer_adds_a_layer(self, mock_drips, mock_z_location_mm):
-        mock_drips.return_value = 67
-        mock_z_location_mm.return_value = 12
-        
-        status = MachineStatus(DripBasedZAxis())
-        self.assertEqual(12, status.z_posisition)
-        self.assertEqual(67, status.drips)
+    def test_status_is_starting_before_first_drip(self):
+        status = MachineStatus()
+        self.assertEqual('Starting',status.status()['status'])
+
+    def test_status_is_running_after_first_drip(self):
+        status = MachineStatus()
+        status.drip_call_back(1,1)
+        self.assertEqual('Running',status.status()['status'])
+
+    def test_status_is_running_after_first_layer(self):
+        status = MachineStatus()
+        status.add_layer()
+        self.assertEqual('Running',status.status()['status'])
+
+    def test_set_complete_makes_status_complete(self):
+        status = MachineStatus()
+        status.set_complete()
+        self.assertEqual('Complete',status.status()['status'])
+
+    def test_once_complete_drips_or_layers_dont_change_status(self):
+        status = MachineStatus()
+        status.set_complete()
+        status.add_layer()
+        status.drip_call_back(45,10)
+        self.assertEqual('Complete',status.status()['status'])
+
+    def test_add_error_adds_an_error(self):
+        status = MachineStatus()
+        status.add_error(MachineError("Error", "Test Error"))
+
+        self.assertEqual(1,status.status()['errors'])
+
+    def test_waiting_for_drips_sets_waiting(self):
+        status = MachineStatus()
+        status.set_waiting_for_drips()
+
+        self.assertEqual(True,status.status()['waiting_for_drips'])
+
+    def test_not_waiting_for_drips_sets_waiting(self):
+        status = MachineStatus()
+        status.set_not_waiting_for_drips()
+
+        self.assertEqual(False,status.status()['waiting_for_drips'])
+
+    @patch.object(datetime, 'datetime')
+    def test_add_error_adds_an_error(self,mock_datetime):
+        mock_time = self.real_datetime(2012,1,1,8,0,0)
+        mock_datetime.now.return_value = mock_time
+        message = "Message"
+        expected = [{
+        'time': mock_time, 
+        'message': message,
+        }]
+
+        status = MachineStatus()
+        status.add_error(MachineError(message))
+
+        self.assertEqual(expected,status.status()['errors'])
 
 
+    def test_drip_call_back_updates_height(self):
+        status = MachineStatus()
+        status.drip_call_back(67,12)
+        self.assertEqual(12, status.status()['height'])
+        self.assertEqual(67, status.status()['drips'])
+
+
+    def test_any_change_should_call_call_back(self):
+        status = MachineStatus(status_call_back = self.call_back)
+        self.assertEquals(0,self.call_count)
+        status.set_not_waiting_for_drips()
+        self.assertEquals(1,self.call_count)
+        status.set_waiting_for_drips()
+        self.assertEquals(2,self.call_count)
+        status.drip_call_back(1,1)
+        self.assertEquals(3,self.call_count)
+        status.add_layer()
+        self.assertEquals(4,self.call_count)
+        status.add_error(MachineError("whooops"))
+        self.assertEquals(5,self.call_count)
+        status.set_complete()
+        self.assertEquals(6,self.call_count)
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')

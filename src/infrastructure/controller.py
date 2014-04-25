@@ -21,40 +21,87 @@ class MachineState(object):
         self.x, self.y, self.z = cordanates
         self.speed = speed
 
+class MachineError(object):
+    def __init__(self,message):
+        self.timestamp = datetime.datetime.now()
+        self.message = message
+
 class MachineStatus(object):
-    def __init__(self, zaxis = None):
-        self._zaxis = zaxis
-        self.current_layer = 0
-        self.laser_state = False
-        self.waiting_for_drips = True
-        self.errors = []
-        self.start_time = datetime.datetime.now()
-        self.complete = False
+    def __init__(self, status_call_back = None):
+        self._status_call_back = status_call_back
+        self._current_layer = 0
+        self._laser_state = False
+        self._waiting_for_drips = True
+        self._height = 0.0
+        self._errors = []
+        self._start_time = datetime.datetime.now()
+        self._stop_time = None
+        self._complete = False
+        self._drips = 0
+
+    def _update(self):
+        if self._status_call_back:
+            self._status_call_back(self.status())
+
+    def drip_call_back(self, drips, height):
+        self._height = height
+        self._drips = drips
+        self._update()
 
     def add_layer(self):
-        self.current_layer += 1
+        self._current_layer += 1
+        self._update()
 
-    @property
-    def drips(self):
-        if self._zaxis:
-            return self._zaxis.get_drips()
+    def add_error(self, error):
+        self._errors.append(error)
+        self._update()
+
+    def set_waiting_for_drips(self):
+        self._waiting_for_drips = True
+        self._update()
+
+    def set_not_waiting_for_drips(self):
+        self._waiting_for_drips = False
+        self._update()
+
+    def set_layers_ahead(self):
+        self._update()
+        pass
+
+    def set_complete(self):
+        self._complete = True
+        self._update()
+
+    def _elapsed_time(self):
+        return datetime.datetime.now() - self._start_time
+
+    def _status(self):
+        if self._complete:
+            return 'Complete'
+        if (self._drips == 0 and self._current_layer == 0):
+            return 'Starting'
         else:
-            return "Not Counting Drips"
+            return 'Running'
+    
+    def _formatted_errors(self):
+        return [ {'time': error.timestamp, 'message' : error.message} for error in self._errors ]
 
-    @property
-    def z_posisition(self):
-        if self._zaxis:
-            return self._zaxis.current_z_location_mm()
-        else:
-            return "Not Counting Drips"
+    def status(self): 
+        return { 
+            'start_time' : self._start_time,
+            'elapsed_time' : self._elapsed_time(),
+            'current_layer' : self._current_layer,
+            'status': self._status(),
+            'errors' : self._formatted_errors(),
+            'waiting_for_drips' : self._waiting_for_drips,
+            'height' : self._height,
+            'drips' : self._drips,
 
-    @property
-    def elapsed_time(self):
-        return datetime.datetime.now() - self.start_time
+        }
 
 
 class Controller(threading.Thread,):
-    def __init__(self, laser_control, path_to_audio,audio_writer,layer_generator,zaxis = None):
+    def __init__(self, laser_control, path_to_audio,audio_writer,layer_generator,zaxis = None,status_call_back = None):
         threading.Thread.__init__(self)
         self.deamon = True
 
@@ -66,9 +113,12 @@ class Controller(threading.Thread,):
         self._path_to_audio = path_to_audio
         self._audio_writer = audio_writer
         self._layer_generator = layer_generator
-        self._zaxis = zaxis
+        
         self.state = MachineState()
-        self._status = MachineStatus(self._zaxis)
+        self._status = MachineStatus(status_call_back)
+        self._zaxis = zaxis
+        if self._zaxis:
+            self._zaxis.set_drip_call_back(self._status.drip_call_back)
         self._abort_current_command = False
         logging.info("Starting print")
 
@@ -87,12 +137,12 @@ class Controller(threading.Thread,):
                 if self._zaxis:
                     while self._zaxis.current_z_location_mm() < layer.z:
                         logging.info("Controller: Waiting for drips")
-                        self._status.waiting_for_drips = True
+                        self._status.set_waiting_for_drips()
                         if self._shutting_down:
                             return
                         self._laser_control.set_laser_off()
                         self._move_lateral(self.state.xy, self.state.z,self.state.speed)
-                self._status.waiting_for_drips = False
+                self._status.set_not_waiting_for_drips()
                 for command in layer.commands:
                     if self._shutting_down:
                         return
@@ -120,7 +170,7 @@ class Controller(threading.Thread,):
             self._zaxis.start()
         self.starting = False
         self._process_layers()
-        self._status.complete = True
+        self._status.set_complete()
         self._terminate()
 
     def _terminate(self):
@@ -137,7 +187,7 @@ class Controller(threading.Thread,):
         self.running = False
 
     def get_status(self):
-        return self._status
+        return self._status.status()
 
     def stop(self):
         logging.warning("Shutdown requested")

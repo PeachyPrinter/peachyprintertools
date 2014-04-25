@@ -172,10 +172,12 @@ class DripBasedZAxisTests(unittest.TestCase):
         self.assertEqual(0, reset_result)
 
     calls = 0
-    value = 'Spam'
-    def call_back(self, new_value):
+    drips = 'Spam'
+    height = "Spam"
+    def call_back(self, drips, height):
         self.calls += 1
-        self.value = new_value
+        self.drips = drips
+        self.height = height
 
     @patch('pyaudio.PyAudio')
     def test_call_back_should_be_called_if_provided(self, mock_pyaudio):
@@ -190,7 +192,8 @@ class DripBasedZAxisTests(unittest.TestCase):
         drip_zaxis.stop()
 
         self.assertEqual(1, self.calls)
-        self.assertEqual(1, self.value)
+        self.assertEqual(1, self.drips)
+        self.assertEqual(1, self.height)
 
     @patch('pyaudio.PyAudio')
     def test_reset_should_call_call_back(self, mock_pyaudio):
@@ -206,7 +209,24 @@ class DripBasedZAxisTests(unittest.TestCase):
         drip_zaxis.stop()
 
         self.assertEqual(2, self.calls)
-        self.assertEqual(0, self.value)
+        self.assertEqual(0, self.drips)
+        self.assertEqual(0, self.height)
+
+
+    @patch('pyaudio.PyAudio')
+    def test_set_call_back_should_change_call_back(self, mock_pyaudio):
+        drips_per = 1
+        wave_file = os.path.join(self.test_file_path, '1_drip_fast.wav')
+        self.stream = MockPyAudioInputStream(wave_file)
+        my_mock_pyaudio = mock_pyaudio.return_value
+        my_mock_pyaudio.open.return_value = self.stream
+        drip_zaxis = DripBasedZAxis(drips_per)
+        drip_zaxis.set_drip_call_back(self.call_back)
+        drip_zaxis.start()
+        self.wait_for_stream()
+        drip_zaxis.stop()
+
+        self.assertEqual(1, self.calls)
 
     @patch.object(pyaudio.PyAudio, 'get_default_input_device_info')
     @patch.object(pyaudio.PyAudio, 'open')
