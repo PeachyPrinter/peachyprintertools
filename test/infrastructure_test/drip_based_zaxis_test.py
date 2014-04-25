@@ -212,7 +212,6 @@ class DripBasedZAxisTests(unittest.TestCase):
         self.assertEqual(0, self.drips)
         self.assertEqual(0, self.height)
 
-
     @patch('pyaudio.PyAudio')
     def test_set_call_back_should_change_call_back(self, mock_pyaudio):
         drips_per = 1

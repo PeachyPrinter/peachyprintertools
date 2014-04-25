@@ -76,7 +76,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_pathtoaudio,
             mock_audiowriter,
             fake_layers,
-            mock_dripbasedzaxis
+            zaxis = mock_dripbasedzaxis,
+            status_call_back = None
             )
 
     def test_print_can_be_stopped_before_started(self):
