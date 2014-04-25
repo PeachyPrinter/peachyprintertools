@@ -68,6 +68,8 @@ class DripBasedZAxis(ZAxis, threading.Thread):
 
     def reset(self, z_height_mm = 0.0):
         self._num_drips = z_height_mm * self._drips_per_mm
+        if self._drip_call_back:
+            self._drip_call_back(self._num_drips)
 
     def set_drips_per_mm(self,number_drips_per_mm):
         self._drips_per_mm = number_drips_per_mm

@@ -143,10 +143,8 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._configuration_api.load_printer(self._current_printer)
 
         self.update_drips_job = None
-        self._configuration_api.start_counting_drips()
         self.drips = 0
         self._drip_count = IntVar()
-        self._update_drips()
         self.grid()
 
         self.drips_per_mm_field_text = DoubleVar()
@@ -179,20 +177,14 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._save_button = Button(self,text=u"Save", command=self._save, state=DISABLED)
         self._save_button.grid(column=2,row=50,sticky=NSEW) 
         Button(self,text=u"Back", command=self._back).grid(column=0,row=50,sticky=N+S+E+W)
-
+        self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
         self.update()
 
-    def _update_drips(self):
-        if self.update_drips_job:
-            self.after_cancel(self.update_drips_job)
-            self.update_drips_job = None
-        self.drips = self._configuration_api.get_drips()
-        self._drip_count.set(self.drips)
-        self.update_drips_job=self.after(250, self._update_drips)
+    def _drips_updated(self, drips):
+        self._drip_count.set(drips)
 
     def _reset(self):
         self._configuration_api.reset_drips()
-        self._update_drips()
 
     def _back(self):
         self.navigate(SetupUI)

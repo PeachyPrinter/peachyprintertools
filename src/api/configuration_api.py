@@ -115,8 +115,13 @@ class ConfigurationAPI(object):
     def get_drips_per_mm(self):
         return self._marked_drips / self._target_height
 
-    def start_counting_drips(self):
-        self._drip_detector = DripBasedZAxis(1,sample_rate = self._current_config['input_sample_frequency'], bit_depth = self._current_config['input_bit_depth'])
+    def start_counting_drips(self, drip_call_back = None):
+        self._drip_detector = DripBasedZAxis(
+            1,
+            sample_rate = self._current_config['input_sample_frequency'], 
+            bit_depth = self._current_config['input_bit_depth'],
+            drip_call_back = drip_call_back
+            )
         self._drip_detector.start()
 
     def stop_counting_drips(self):

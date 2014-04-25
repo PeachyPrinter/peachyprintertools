@@ -247,6 +247,28 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
     @patch.object(DripBasedZAxis, 'start')
+    @patch('api.configuration_api.DripBasedZAxis')
+    def test_start_counting_drips_should_pass_call_back_function(self, mock_DripBasedZAxis, mock_start,mock_load,mock_save):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API.load_printer('printer')
+
+        def callback(bla):
+            pass
+
+        configuration_API.start_counting_drips(drip_call_back = callback)
+
+
+        mock_DripBasedZAxis.assert_called_with(
+            1,
+            sample_rate = self.DEFAULT_CONFIG['input_sample_frequency'], 
+            bit_depth = self.DEFAULT_CONFIG['input_bit_depth'],
+            drip_call_back = callback
+            )
+
+    @patch.object(ConfigurationManager, 'save')
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(DripBasedZAxis, 'start')
     @patch.object(DripBasedZAxis, 'stop')
     def test_stop_counting_drips_should_stop_getting_drips(self, mock_stop,mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
@@ -350,7 +372,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
         configuration_API.start_counting_drips()
 
-        mock_DripBasedZAxis.assert_called_with(1, sample_rate=48000, bit_depth='16 bit')
+        mock_DripBasedZAxis.assert_called_with(1, sample_rate=48000, bit_depth='16 bit',drip_call_back = None)
 
     # ----------------------------- Cure Test Setup ------------------------------------
 
