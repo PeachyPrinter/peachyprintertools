@@ -10,7 +10,7 @@ shortcut_table = [
     ("PeachyPrinterTools",                  # Shortcut
      "DesktopFolder",                       # Directory_
      "Peachy Printer Tools",                # Name
-     "TARGETDIR",                           # Component_
+     "[TARGETDIR]",                         # Component_
      "[TARGETDIR]PeachyPrinterTools.exe",   # Target
      None,                                  # Arguments
      None,                                  # Description
@@ -18,7 +18,7 @@ shortcut_table = [
      None,                                  # Icon
      None,                                  # IconIndex
      None,                                  # ShowCmd
-     'TARGETDIR'                            # WkDir
+     '[TARGETDIR]'                          # WkDir
      )
     ]
 
