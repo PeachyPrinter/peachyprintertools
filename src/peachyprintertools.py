@@ -16,8 +16,10 @@ class PeachyPrinterTools(Tk):
         self.geometry("640x480")
         self.title('Peachy Printer Tools')
 
-        if sys.platform != 'darwin':
+        try:
             self.setup_icon()
+        except Exception as ex:
+            logging.error('Error loading iconfile: %s' % ex.message)
             
         self.parent = parent
         configuration_manager = FileBasedConfigurationManager()
