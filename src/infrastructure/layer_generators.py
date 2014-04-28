@@ -200,3 +200,42 @@ class SpyroGraphGenerator(TestLayerGenerator):
                 x1 = math.sin(theta) * self._radius / 2 + x
                 y1 = math.cos(theta) * self._radius / 2 + y
                 yield [x1,y1]
+
+class CureTestGenerator(LayerGenerator):
+    def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height):
+        assert(total_height > base_height)
+        assert(start_speed < stop_speed)
+        base_height = float(base_height)
+        total_height = float(total_height)
+        start_speed = float(start_speed)
+        stop_speed = float(stop_speed)
+        self._sub_layer_height = float(sublayer_height)
+        assert(total_height > base_height)
+        assert(start_speed < stop_speed)
+        assert(total_height > 0)
+        assert(start_speed > 0)
+        assert(stop_speed > 0)
+
+        self._base_layers = base_height / self._sub_layer_height
+        self._number_of_layers = total_height / self._sub_layer_height
+        self._base_layer_speed = start_speed + ((stop_speed - start_speed) / 2.0) 
+        self._speed_per_layer = (stop_speed - start_speed) / (self._number_of_layers - self._base_layers)
+        self._current_layer = 0
+
+    def next(self):
+        if self._current_layer > self._number_of_layers:
+            raise StopIteration
+
+        if self._current_layer < self._base_layers:
+            current_speed = self._base_layer_speed
+        else:
+            current_speed = self._speed_per_layer * (self._current_layer - self._base_layers +1)
+
+        commands = [
+            LateralDraw([0,0],[1,0], current_speed),
+            LateralDraw([1,0],[1,1], current_speed),
+            LateralMove([1,1],[0,0], current_speed),
+        ]
+        layer = Layer(float(self._current_layer * self._sub_layer_height), commands = commands)
+        self._current_layer += 1
+        return layer

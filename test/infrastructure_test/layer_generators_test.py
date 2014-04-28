@@ -7,7 +7,7 @@ from mock import patch
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
-from infrastructure.layer_generators import SinglePointGenerator, CalibrationLineGenerator, StubLayerGenerator, SubLayerGenerator, HilbertGenerator
+from infrastructure.layer_generators import *
 from domain.commands import *
 import test_helpers
 
@@ -170,6 +170,94 @@ class SublayerGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(StopIteration):
             sublayer_generator.next()
 
+#---------------- Cure Test Generators  -------------------------------------
+
+class CureTestGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
+    def test_total_height_must_exceed_base_height(self):
+        with self.assertRaises(Exception):
+            CureTestGenerator(10,1,1,1,0.1)
+
+    def test_final_speed_exceeds_start_speed(self):
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,10,1,0.1)
+
+    def test_values_must_be_positive_non_0_numbers_for_all_but_base(self):
+        with self.assertRaises(Exception):
+            CureTestGenerator('a',10,10,1,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,'a',10,1,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,'a',1,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,10,'a',0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,10,1,'a')
+        with self.assertRaises(Exception):
+            CureTestGenerator(-1,10,10,1,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,-10,10,1,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,-1,1,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,10,-1,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,10,1,-1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,0,10,1,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,0,1,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,10,0,0.1)
+        with self.assertRaises(Exception):
+            CureTestGenerator(1,10,10,1,0)
+
+    def test_next_must_yield_correct_layer_at_correct_speed(self):
+        start_speed = 50
+        stop_speed = 100
+        genererator = CureTestGenerator(0,1,start_speed,stop_speed,1)
+        expected_layer1 = Layer(0.0, commands = [
+            LateralDraw([0,0],[1,0],start_speed),
+            LateralDraw([1,0],[1,1],start_speed),
+            LateralMove([1,1],[0,0], start_speed), 
+            ])
+        expected_layer2 = Layer(1.0, commands = [
+            LateralDraw([0,0],[1,0],stop_speed),
+            LateralDraw([1,0],[1,1],stop_speed),
+            LateralMove([1,1], [0,0], stop_speed), 
+            ])
+
+        self.assertLayerEquals(expected_layer1, genererator.next())
+        self.assertLayerEquals(expected_layer2, genererator.next())
+
+    def test_next_should_print_base_if_specified(self):
+        start_speed = 50
+        stop_speed = 100
+        genererator = CureTestGenerator(1,2,start_speed,stop_speed,1)
+        expected_base = Layer(0.0, commands = [
+            LateralDraw([0,0],[1,0],75),
+            LateralDraw([1,0],[1,1],75),
+            LateralMove([1,1],[0,0],75), 
+            ])
+        expected_layer1 = Layer(1.0, commands = [
+            LateralDraw([0,0],[1,0],start_speed),
+            LateralDraw([1,0],[1,1],start_speed),
+            LateralMove([1,1], [0,0], start_speed), 
+            ])
+
+        self.assertLayerEquals(expected_base, genererator.next())
+        self.assertLayerEquals(expected_layer1, genererator.next())
+
+    def test_should_have_the_right_number_of_layers(self):
+        start_speed = 50
+        stop_speed = 100
+        genererator = CureTestGenerator(3,6,start_speed,stop_speed,1)
+
+        for i in range(0,7):
+            genererator.next()
+
+        with self.assertRaises(StopIteration):
+            genererator.next()
+
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='ERROR')
     unittest.main()
