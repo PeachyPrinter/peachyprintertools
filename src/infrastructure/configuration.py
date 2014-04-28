@@ -22,6 +22,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         'max_deflection' :types.FloatType,
         'calibration_data': types.DictType,
         'calibration_scale': types.FloatType,
+        'draw_speed' : types.FloatType,
 
     }
     CONFIGURATION_EXTENSION = '.cfg'

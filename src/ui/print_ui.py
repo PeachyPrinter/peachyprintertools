@@ -18,15 +18,15 @@ class PrintUI(PeachyFrame):
         options['title'] = 'Select file to print'
 
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
-        printer_selection_current = StringVar()
+        self._printer_selection_current = StringVar()
         if not self._configuration_api.get_available_printers():
             self._configuration_api.add_printer("Peachy Printer")
         available_printers = self._configuration_api.get_available_printers() 
 
-        printer_selection_current.set(available_printers[0])
+        self._printer_selection_current.set(available_printers[0])
         self._printer_selected(available_printers[0])
 
-        OptionMenu(self, printer_selection_current, *available_printers, command = self._printer_selected).grid(column=1,row=10,sticky=N+S+E+W)
+        OptionMenu(self, self._printer_selection_current, *available_printers, command = self._printer_selected).grid(column=1,row=10,sticky=N+S+E+W)
         Label(self).grid(column=1,row=20)
         Button(self,text=u"Print From G Code", command=self.print_g_code_click).grid(column=1,row=30,sticky=N+S+E+W)
         Label(self).grid(column=1,row=40)
@@ -39,7 +39,7 @@ class PrintUI(PeachyFrame):
 
     def print_g_code_click(self):
         filename = tkFileDialog.askopenfile(**self.file_opt)
-        self.navigate(PrintStatusUI, filename = filename, config = self._configuration_api.get_current_config())
+        self.navigate(PrintStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
 
     def _back(self):
         self.navigate(MainUI)
@@ -62,8 +62,12 @@ class PrintStatusUI(PeachyFrame):
         self._stop_button_text.set("Abort Print")
 
         self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
-        file_to_print = self.kwargs['filename']
-        self._print_api.print_gcode(file_to_print)
+        if 'filename' in self.kwargs:
+            file_to_print = self.kwargs['filename']
+            self._print_api.print_gcode(file_to_print)
+        else:
+            self._print_api.print_layers(self.kwargs['layer_generator'])
+
 
         Label(self, text = "Elapsed Time" ).grid(column=0,row=10)
         Label(self, textvariable = self._elapsed_time ).grid(column=1,row=10)
@@ -91,7 +95,7 @@ class PrintStatusUI(PeachyFrame):
 
     def _stop_button_click(self):
         self._print_api.stop()
-        self.navigate(PrintUI)
+        self.navigate(self.kwargs['calling_class'], printer = self.kwargs['printer'])
 
     def status_call_back(self,status):
         total_seconds = int(status['elapsed_time'].total_seconds())

@@ -173,43 +173,6 @@ class SublayerGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
 #---------------- Cure Test Generators  -------------------------------------
 
 class CureTestGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
-    def test_total_height_must_exceed_base_height(self):
-        with self.assertRaises(Exception):
-            CureTestGenerator(10,1,1,1,0.1)
-
-    def test_final_speed_exceeds_start_speed(self):
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,10,1,0.1)
-
-    def test_values_must_be_positive_non_0_numbers_for_all_but_base(self):
-        with self.assertRaises(Exception):
-            CureTestGenerator('a',10,10,1,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,'a',10,1,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,'a',1,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,10,'a',0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,10,1,'a')
-        with self.assertRaises(Exception):
-            CureTestGenerator(-1,10,10,1,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,-10,10,1,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,-1,1,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,10,-1,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,10,1,-1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,0,10,1,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,0,1,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,10,0,0.1)
-        with self.assertRaises(Exception):
-            CureTestGenerator(1,10,10,1,0)
 
     def test_next_must_yield_correct_layer_at_correct_speed(self):
         start_speed = 50

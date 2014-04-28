@@ -85,6 +85,7 @@ class DefaultsHelpers(object):
                 'upper_points':{(1,1):(1,1),(1,0):(1,0),(0,0):(0,0),(0,1):(0,1),},
                 },
             'calibration_scale' : 1.0,
+            'draw_speed' : 200.0,
             }
 
 class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):

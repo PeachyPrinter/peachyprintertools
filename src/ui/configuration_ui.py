@@ -4,6 +4,7 @@ from ui.ui_tools import *
 from ui.main_ui import MainUI
 from ui.calibration_ui import *
 from api.configuration_api import ConfigurationAPI
+from print_ui import PrintStatusUI
 
 class SetupUI(PeachyFrame):
 
@@ -313,12 +314,12 @@ class CureTestUI(PeachyFrame):
         Label(self).grid(column=1,row=80)
 
         Label(self, text = "Best height above base (mm)" ).grid(column=0,row=90)
-        self._best_height_field = Entry(self, textvariable = self._best_height, state=DISABLED)
+        self._best_height_field = Entry(self, textvariable = self._best_height)
         self._best_height_field.grid(column=1, row=90)
         
         Label(self).grid(column=1,row=100)
 
-        self._save_button = Button(self, text ="Save", command = self._save, state=DISABLED)
+        self._save_button = Button(self, text ="Save", command = self._save)
         self._save_button.grid(column=0,row=110,sticky=N+S+W)
         Button(self, text ="Back", command = self._back).grid(column=0,row=110,sticky=N+S+W)
 
@@ -328,11 +329,23 @@ class CureTestUI(PeachyFrame):
         self.navigate(SetupUI)
 
     def _save(self):
+        
         pass
 
     def _start(self):
-        self._best_height_field.config(state=NORMAL)
-        self._save_button.config(state=NORMAL)
+        try:
+            cure_test = self._configuration_api.get_cure_test(
+                self._base_height.get(),
+                self._total_height.get(),
+                self._start_speed.get(),
+                self._stop_speed.get()
+                )
+            self.navigate(PrintStatusUI,layer_generator = cure_test, config = self._configuration_api.get_current_config(), calling_class = CureTestUI, printer = self._current_printer)
+        except Exception as ex:
+            tkMessageBox.showwarning(
+            "Error",
+            ex.message
+        )
 
     def close(self):
         pass

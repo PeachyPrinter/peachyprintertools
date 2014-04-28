@@ -3,6 +3,7 @@ import logging
 
 from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import DripBasedZAxis
+from infrastructure.layer_generators import CureTestGenerator
 
 
 '''TODO'''
@@ -132,7 +133,34 @@ class ConfigurationAPI(object):
     # ----------------------------- Calibration Setup ----------------------------------
 
     # ----------------------------- Cure Test Setup ------------------------------------
-    
+    def get_cure_test(self, base_height, total_height, start_speed, stop_speed):
+        if(total_height <= base_height):
+            logging.error('total_height must be greater then base_height')
+            raise Exception('total_height must be greater then base_height')
+        if(start_speed > stop_speed):
+            logging.error('start_speed must be less then stop speed')
+        if(total_height <= 0):
+            logging.error('total_height must be a positive number')
+            raise Exception('start_speed must be less then stop speed')
+        if(start_speed <= 0):
+            logging.error( 'start_speed must be positive')
+            raise Exception( 'start_speed must be positive')
+        if(stop_speed <= 0):
+            logging.error('stop_speed must be positive')
+            raise Exception('stop_speed must be positive')
+        if(stop_speed <= start_speed):
+            logging.error('stop_speed must faster the start_speed')
+            raise Exception('stop_speed must faster the start_speed')
+        if(base_height < 0):
+            logging.error('base_height cannot be negitive')
+            raise Exception('base_height cannot be negitive')
+
+        return CureTestGenerator(base_height, total_height, start_speed, stop_speed, self._current_config['sublayer_height_mm'])
+
+
+
+
+
     # ----------------------------- General Setup --------------------------------------
 
     def get_laser_thickness_mm(self):

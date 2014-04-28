@@ -463,6 +463,77 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             configuration_API.set_sublayer_height_mm(1)
 
+#-----------------------------------------Cure Test Setup Tests -----------------------------------
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_cure_test_total_height_must_exceed_base_height(self, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(10,1,1,2)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,1,1,2)
+
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_cure_test_final_speed_exceeds_start_speed(self, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,10,1)
+
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,1,1)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_cure_test_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test('a',10,10,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,'a',10,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,'a',1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,10,'a')
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,10,1,'a')
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(-1,10,10,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,-10,10,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,-1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,10,-1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,10,1,-1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,0,10,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,0,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,10,0)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1,10,10,1,0)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_cure_test_returns_a_layer_generator(self, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+        
+        cure_test = configuration_API.get_cure_test(0,1,1,2)
+        cure_test.next()
+
+
 
 if __name__ == '__main__':
     unittest.main()

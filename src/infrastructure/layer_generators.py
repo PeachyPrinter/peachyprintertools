@@ -203,18 +203,11 @@ class SpyroGraphGenerator(TestLayerGenerator):
 
 class CureTestGenerator(LayerGenerator):
     def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height):
-        assert(total_height > base_height)
-        assert(start_speed < stop_speed)
         base_height = float(base_height)
         total_height = float(total_height)
         start_speed = float(start_speed)
         stop_speed = float(stop_speed)
         self._sub_layer_height = float(sublayer_height)
-        assert(total_height > base_height)
-        assert(start_speed < stop_speed)
-        assert(total_height > 0)
-        assert(start_speed > 0)
-        assert(stop_speed > 0)
 
         self._base_layers = base_height / self._sub_layer_height
         self._number_of_layers = total_height / self._sub_layer_height
