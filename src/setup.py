@@ -10,7 +10,7 @@ shortcut_table = [
     ("PeachyPrinterTools",                  # Shortcut
      "DesktopFolder",                       # Directory_
      "Peachy Printer Tools",                # Name
-     "[TARGETDIR]",                         # Component_
+     "TARGETDIR",                           # Component_
      "[TARGETDIR]PeachyPrinterTools.exe",   # Target
      None,                                  # Arguments
      None,                                  # Description
@@ -18,7 +18,7 @@ shortcut_table = [
      None,                                  # Icon
      None,                                  # IconIndex
      None,                                  # ShowCmd
-     '[TARGETDIR]'                          # WkDir
+     'TARGETDIR'                            # WkDir
      )
     ]
 
@@ -33,13 +33,18 @@ bdist_dmg_options = { }
 bdist_mac_options = { 'iconfile': os.path.join('resources', 'peachy.icns') } 
 #Note to james use img2icns and iconutil first to iconset then to icns
 
-bdist_msi_options = { 'data': { 'Shortcut' : shortcut_table } }
+# bdist_msi_options = { 'data': { 'Shortcut' : shortcut_table } }
+bdist_msi_options = {}
 
 
 base = 'Win32GUI' if sys.platform=='win32' else None
 
 executables = [
-    Executable('peachyprintertools.py', base=base, targetName = 'PeachyPrinterTools.exe')
+    Executable(
+      'peachyprintertools.py', 
+      base=base, 
+      targetName = 'PeachyPrinterTools.exe'
+      )
 ]
 
 setup(
