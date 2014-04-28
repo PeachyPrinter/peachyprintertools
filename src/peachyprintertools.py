@@ -54,7 +54,10 @@ if __name__ == "__main__":
         if args.console:
             logging.basicConfig(stream = sys.stdout,format=logging_format, level=logging_level)
         else:
-            logging.basicConfig(filename = 'peachyprinter.log' ,format=logging_format, level=logging_level)
+            if sys.platform != 'darwin':
+                logging.basicConfig(filename = '/var/log/peachyprinter.log' ,format=logging_format, level=logging_level)
+            else:
+                logging.basicConfig(filename = 'peachyprinter.log' ,format=logging_format, level=logging_level)
         
 
         app = PeachyPrinterTools(None)
