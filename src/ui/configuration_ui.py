@@ -61,10 +61,7 @@ class SetupUI(PeachyFrame):
         self.navigate(CalibrationUI, printer = self._current_printer)
 
     def _cure_test(self):
-        tkMessageBox.showwarning(
-            "Coming Soon!",
-            "Printer Cure Rate Test Coming Soon",
-            )
+        self.navigate(CureTestUI, printer = self._current_printer)
 
     def close(self):
         pass
@@ -271,6 +268,71 @@ class SetupAudioUI(PeachyFrame):
         self._configuration_api.set_audio_output_options(output_option['sample_rate'],output_option['depth'])
 
         self.navigate(SetupUI)
+
+    def close(self):
+        pass
+
+class CureTestUI(PeachyFrame):
+    def initialize(self):
+        self.grid()
+        self._current_printer = self.kwargs['printer']
+        self._configuration_api = ConfigurationAPI(self._configuration_manager)
+        self._configuration_api.load_printer(self._current_printer)
+
+        self._base_height = IntVar()
+        self._base_height.set(3)
+        self._total_height = IntVar()
+        self._total_height.set(23)
+        self._start_speed = IntVar()
+        self._start_speed.set(50)
+        self._stop_speed = IntVar()
+        self._stop_speed.set(250)
+        self._best_height = IntVar()
+        self._best_height.set(0)
+
+        Label(self, text = 'Printer: ').grid(column=0,row=10)
+        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
+
+        Label(self).grid(column=1,row=15)
+
+        Label(self, text = "Base Height (mm)" ).grid(column=0,row=20)
+        Entry(self, textvariable = self._base_height).grid(column=1, row=20)
+
+        Label(self, text = "Total Height (mm)" ).grid(column=0,row=30)
+        Entry(self, textvariable = self._total_height).grid(column=1, row=30)
+
+        Label(self, text = "Start Speed (mm)" ).grid(column=0,row=40)
+        Entry(self, textvariable = self._start_speed).grid(column=1, row=40)
+
+        Label(self, text = "Finish Speed (mm)" ).grid(column=0,row=50)
+        Entry(self, textvariable = self._stop_speed).grid(column=1, row=50)
+        Label(self).grid(column=1,row=60)
+
+        Button(self, text ="Run Test", command = self._start).grid(column=2,row=70,sticky=N+S+E)
+
+        Label(self).grid(column=1,row=80)
+
+        Label(self, text = "Best height above base (mm)" ).grid(column=0,row=90)
+        self._best_height_field = Entry(self, textvariable = self._best_height, state=DISABLED)
+        self._best_height_field.grid(column=1, row=90)
+        
+        Label(self).grid(column=1,row=100)
+
+        self._save_button = Button(self, text ="Save", command = self._save, state=DISABLED)
+        self._save_button.grid(column=0,row=110,sticky=N+S+W)
+        Button(self, text ="Back", command = self._back).grid(column=0,row=110,sticky=N+S+W)
+
+        self.update()
+
+    def _back(self):
+        self.navigate(SetupUI)
+
+    def _save(self):
+        pass
+
+    def _start(self):
+        self._best_height_field.config(state=NORMAL)
+        self._save_button.config(state=NORMAL)
 
     def close(self):
         pass
