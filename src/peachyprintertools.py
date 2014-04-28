@@ -41,6 +41,8 @@ class PeachyPrinterTools(Tk):
         exit(0)
 
 if __name__ == "__main__":
+    PEACHY_PATH = '.peachyprintertools'
+    logfile = os.path.join(os.path.expanduser('~'), self.PEACHY_PATH,'peachyprinter.log' )
     try:
         parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
         parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
@@ -54,11 +56,7 @@ if __name__ == "__main__":
         if args.console:
             logging.basicConfig(stream = sys.stdout,format=logging_format, level=logging_level)
         else:
-            if sys.platform != 'darwin':
-                logging.basicConfig(filename = '/var/log/peachyprinter.log' ,format=logging_format, level=logging_level)
-            else:
-                logging.basicConfig(filename = 'peachyprinter.log' ,format=logging_format, level=logging_level)
-        
+            logging.basicConfig(filename = logfile ,format=logging_format, level=logging_level)
 
         app = PeachyPrinterTools(None)
         app.title('Peachy Printer Tools')
