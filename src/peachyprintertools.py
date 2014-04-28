@@ -41,14 +41,24 @@ class PeachyPrinterTools(Tk):
         exit(0)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
-    parser.add_argument("--log", dest='loglevel', action='store', required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
-    args = parser.parse_args()
-    numeric_level = getattr(logging, args.loglevel.upper(), "INFO")
-    if not isinstance(numeric_level, int):
-        raise ValueError('Invalid log level: %s' % args.loglevel)
+    try:
+        parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
+        parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
+        parser.add_argument('-c', '--console', dest='console',  action='store_true', required=False, help="Logs to console not file" )
+        args = parser.parse_args()
 
-    logging.basicConfig(stream = sys.stdout,format='%(levelname)s: %(asctime)s %(module)s - %(message)s', level=numeric_level)
-    app = PeachyPrinterTools(None)
-    app.title('Peachy Printer Tools')
-    app.mainloop()
+        logging_format = '%(levelname)s: %(asctime)s %(module)s - %(message)s'
+        logging_level = getattr(logging, args.loglevel.upper(), "WARNING")
+        if not isinstance(logging_level, int):
+            raise ValueError('Invalid log level: %s' % args.loglevel)
+        if args.console:
+            logging.basicConfig(stream = sys.stdout,format=logging_format, level=logging_level)
+        else:
+            logging.basicConfig(filename = 'peachyprinter.log' ,format=logging_format, level=logging_level)
+        
+
+        app = PeachyPrinterTools(None)
+        app.title('Peachy Printer Tools')
+        app.mainloop()
+    except Exception as ex:
+        logging.error("Error in application:\n%s" % ex)
