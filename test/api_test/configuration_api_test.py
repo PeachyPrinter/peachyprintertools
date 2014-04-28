@@ -533,7 +533,110 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         cure_test = configuration_API.get_cure_test(0,1,1,2)
         cure_test.next()
 
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_speed_at_height_must_exceed_base_height(self, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
 
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(10,1,1,2,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,1,1,2,1)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_speed_at_height_must_have_height_between_total_and_base(self, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(0,10,1,2,11)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(2,10,1,2,0)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_speed_at_height_final_speed_exceeds_start_speed(self, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,10,1,1)
+
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,1,1,1)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_speed_at_height_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height('a',10,10,1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,'a',10,1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,'a',1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,10,'a',1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,10,1,'a',1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(-1,10,10,1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,-10,10,1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,-1,1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,10,-1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,10,1,-1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,0,10,1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,0,1,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,10,0,1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1,10,10,1,0,1)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_speed_at_height_returns_a_correct_height(self, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+        
+        speed = configuration_API.get_speed_at_height(0,1,10,20,0.5)
+        self.assertEquals(15, speed)
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_speed(self, mock_save, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG.copy()
+        expected_config = self.DEFAULT_CONFIG.copy()
+        expected_config['draw_speed'] = 121.0
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+        
+        configuration_API.set_speed(121)
+        
+        mock_save.assert_called_with(expected_config)
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_speed_should_throw_exception_if_less_then_or_0(self, mock_save, mock_load):
+        mock_load.return_value = self.DEFAULT_CONFIG.copy()
+        expected_config = self.DEFAULT_CONFIG.copy()
+        expected_config['draw_speed'] = 121.0
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+        
+        with self.assertRaises(Exception):
+            configuration_API.set_speed(-1)
+        with self.assertRaises(Exception):
+            configuration_API.set_speed(0)
 
 if __name__ == '__main__':
     unittest.main()

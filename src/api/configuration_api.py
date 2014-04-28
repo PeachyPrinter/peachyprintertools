@@ -134,32 +134,57 @@ class ConfigurationAPI(object):
 
     # ----------------------------- Cure Test Setup ------------------------------------
     def get_cure_test(self, base_height, total_height, start_speed, stop_speed):
-        if(total_height <= base_height):
-            logging.error('total_height must be greater then base_height')
-            raise Exception('total_height must be greater then base_height')
-        if(start_speed > stop_speed):
-            logging.error('start_speed must be less then stop speed')
-        if(total_height <= 0):
-            logging.error('total_height must be a positive number')
-            raise Exception('start_speed must be less then stop speed')
-        if(start_speed <= 0):
-            logging.error( 'start_speed must be positive')
-            raise Exception( 'start_speed must be positive')
-        if(stop_speed <= 0):
-            logging.error('stop_speed must be positive')
-            raise Exception('stop_speed must be positive')
-        if(stop_speed <= start_speed):
-            logging.error('stop_speed must faster the start_speed')
-            raise Exception('stop_speed must faster the start_speed')
-        if(base_height < 0):
-            logging.error('base_height cannot be negitive')
-            raise Exception('base_height cannot be negitive')
-
+        self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed)
         return CureTestGenerator(base_height, total_height, start_speed, stop_speed, self._current_config['sublayer_height_mm'])
 
+    def get_speed_at_height(self, base_height, total_height, start_speed, stop_speed, height):
+        self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed)
+        if (height < base_height or height > total_height):
+            logging.warning('Height of ideal cure must be in range of cure test')
+            raise Exception('Height of ideal cure must be in range of cure test')
+        actual_height = total_height - base_height
+        desired_height = height - base_height
+        speed_delta = stop_speed -start_speed
+        return start_speed + (speed_delta / actual_height * desired_height)
 
+    def _verify_cure_test_settings(self,base_height, total_height, start_speed, stop_speed):
+        try:
+            float(base_height)
+            float(total_height)
+            float(start_speed)
+            float(stop_speed)
+        except ValueError:
+            logging.warning('Entries for cure test settings must be numeric')
+            raise Exception('Entries for cure test settings must be numeric')
+        if(total_height <= base_height):
+            logging.warning('total_height must be greater then base_height')
+            raise Exception('total_height must be greater then base_height')
+        if(start_speed > stop_speed):
+            logging.warning('start_speed must be less then stop speed')
+        if(total_height <= 0):
+            logging.warning('total_height must be a positive number')
+            raise Exception('start_speed must be less then stop speed')
+        if(start_speed <= 0):
+            logging.warning( 'start_speed must be positive')
+            raise Exception( 'start_speed must be positive')
+        if(stop_speed <= 0):
+            logging.warning('stop_speed must be positive')
+            raise Exception('stop_speed must be positive')
+        if(stop_speed <= start_speed):
+            logging.warning('stop_speed must faster the start_speed')
+            raise Exception('stop_speed must faster the start_speed')
+        if(base_height < 0):
+            logging.warning('base_height cannot be negitive')
+            raise Exception('base_height cannot be negitive')
 
-
+    '''Save the maximum speed in mm per second in the configuration file'''
+    def set_speed(self,mm_per_second):
+        if (float(mm_per_second) > 0.0):
+            self._current_config['draw_speed'] = float(mm_per_second)
+            self.save()
+        else:
+            logging.warning('Specified speed if less then or equal to 0')
+            raise Exception('Specified speed if less then or equal to 0')
 
     # ----------------------------- General Setup --------------------------------------
 

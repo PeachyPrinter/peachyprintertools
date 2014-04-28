@@ -319,8 +319,7 @@ class CureTestUI(PeachyFrame):
         
         Label(self).grid(column=1,row=100)
 
-        self._save_button = Button(self, text ="Save", command = self._save)
-        self._save_button.grid(column=0,row=110,sticky=N+S+W)
+        Button(self, text ="Save", command = self._save).grid(column=2,row=110,sticky=N+S+W)
         Button(self, text ="Back", command = self._back).grid(column=0,row=110,sticky=N+S+W)
 
         self.update()
@@ -329,8 +328,18 @@ class CureTestUI(PeachyFrame):
         self.navigate(SetupUI)
 
     def _save(self):
-        
-        pass
+        try:
+            speed = self._configuration_api.get_speed_at_height(
+                    self._base_height.get(),
+                    self._total_height.get(),
+                    self._start_speed.get(),
+                    self._stop_speed.get(),
+                    self._best_height.get()
+                    )
+            self._configuration_api.set_speed(speed)
+            self.navigate(SetupUI)
+        except Exception as ex:
+            tkMessageBox.showwarning("Error", ex.message)
 
     def _start(self):
         try:
@@ -342,10 +351,7 @@ class CureTestUI(PeachyFrame):
                 )
             self.navigate(PrintStatusUI,layer_generator = cure_test, config = self._configuration_api.get_current_config(), calling_class = CureTestUI, printer = self._current_printer)
         except Exception as ex:
-            tkMessageBox.showwarning(
-            "Error",
-            ex.message
-        )
+            tkMessageBox.showwarning("Error", ex.message)
 
     def close(self):
         pass
