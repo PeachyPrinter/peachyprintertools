@@ -42,7 +42,7 @@ class PeachyPrinterTools(Tk):
 
 if __name__ == "__main__":
     PEACHY_PATH = '.peachyprintertools'
-    logfile = os.path.join(os.path.expanduser('~'), self.PEACHY_PATH,'peachyprinter.log' )
+    logfile = os.path.join(os.path.expanduser('~'), PEACHY_PATH,'peachyprinter.log' )
     try:
         parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
         parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
