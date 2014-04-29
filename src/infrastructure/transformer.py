@@ -56,7 +56,7 @@ class HomogenousTransformer(Transformer):
         builder = []
         index = 0
         for ((xp,yp),(xi,yi)) in points.items():
-            augment = self._augment(index,xi,yi)
+            augment = self._augment(index,xi / self._scale, yi / self._scale)
             builder.append([ xp, yp,  1,  0,  0,  0,  0,  0,  0] + augment[0])
             builder.append([  0,  0,  0, xp, yp,  1,  0,  0,  0] + augment[1])
             builder.append([  0,  0,  0,  0,  0,  0, xp, yp,  1] + augment[2])

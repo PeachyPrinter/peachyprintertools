@@ -77,6 +77,37 @@ class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         
         self.assertEquals(expected_points, actual_points)
 
+    def test_given_a_basic_mapping_yields_expected_results_with_scale(self):
+        perfect_data = {
+            'height': 1.0 , 
+            'lower_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                },
+            'upper_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
+        }
+        scale = 0.5
+        transformer = HomogenousTransformer(perfect_data, scale)
+
+        test_points = [ 
+            [1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0]
+        ]
+
+        expected_points = [
+            (0.75,0.75),(0.25,0.25),(0.5,0.5),(0.625,0.625)
+        ]
+
+        actual_points   = [ transformer.transform ( point) for point in test_points ]
+        
+        self.assertEquals(expected_points, actual_points)
+
     def test_given_a_basic_mapping_yields_expected_results(self):
         perfect_data = {
             'height': 5.0 , 
