@@ -23,7 +23,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.GCodeReader')
     @patch('api.print_api.AudioModulationLaserControl')
     @patch('api.print_api.DripBasedZAxis')
-    def test_print_gcode_should_create_required_classes_and_start_it(self, 
+    @patch('api.print_api.SubLayerGenerator')
+    def test_print_gcode_should_create_required_classes_and_start_it(self,
+            mock_SubLayerGenerator, 
             mock_DripBasedZAxis,
             mock_AudioModulationLaserControl,
             mock_GCodeReader,
@@ -38,6 +40,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_dripbasedzaxis = mock_DripBasedZAxis.return_value
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
+        mock_sublayergenerator = mock_SubLayerGenerator.return_value
         mock_audiowriter = mock_AudioWriter.return_value
         mock_transformer = mock_Transformer.return_value
         mock_pathtoaudio = mock_PathToAudio.return_value
@@ -46,8 +49,14 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
         mock_gcodereader.get_layers.return_value = fake_layers
 
+
         api = PrintAPI(self.DEFAULT_CONFIG)
         api.print_gcode(gcode_path)
+
+        mock_SubLayerGenerator.assert_called_with(
+            fake_layers,
+            self.DEFAULT_CONFIG['sublayer_height_mm']
+            )
 
         mock_DripBasedZAxis.assert_called_with(
             drips_per_mm = self.DEFAULT_CONFIG['drips_per_mm'],
@@ -71,6 +80,50 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_transformer, 
             self.DEFAULT_CONFIG['laser_thickness_mm']
             )
+        mock_Controller.assert_called_with(
+            mock_audiomodulationlasercontrol,
+            mock_pathtoaudio,
+            mock_audiowriter,
+            mock_sublayergenerator,
+            zaxis = mock_dripbasedzaxis,
+            status_call_back = None
+            )
+
+    @patch('api.print_api.Controller')
+    @patch('api.print_api.PathToAudio')
+    @patch('api.print_api.HomogenousTransformer')
+    @patch('api.print_api.AudioWriter')
+    @patch('api.print_api.GCodeReader')
+    @patch('api.print_api.AudioModulationLaserControl')
+    @patch('api.print_api.DripBasedZAxis')
+    @patch('api.print_api.SubLayerGenerator')
+    def test_print_gcode_should_not_print_sublayers_if_option_flase(self,
+            mock_SubLayerGenerator, 
+            mock_DripBasedZAxis,
+            mock_AudioModulationLaserControl,
+            mock_GCodeReader,
+            mock_AudioWriter,
+            mock_Transformer,
+            mock_PathToAudio,
+            mock_Controller,
+            ):
+        gcode_path = "FakeFile"
+        actual_samples_per_second = 7
+        fake_layers = "Fake Layers"
+        mock_dripbasedzaxis = mock_DripBasedZAxis.return_value
+        mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
+        mock_gcodereader = mock_GCodeReader.return_value
+        mock_sublayergenerator = mock_SubLayerGenerator.return_value
+        mock_audiowriter = mock_AudioWriter.return_value
+        mock_transformer = mock_Transformer.return_value
+        mock_pathtoaudio = mock_PathToAudio.return_value
+        mock_controller = mock_Controller.return_value
+        mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
+        mock_gcodereader.get_layers.return_value = fake_layers
+
+        api = PrintAPI(self.DEFAULT_CONFIG)
+        api.print_gcode(gcode_path, print_sub_layers = False)
+
         mock_Controller.assert_called_with(
             mock_audiomodulationlasercontrol,
             mock_pathtoaudio,

@@ -7,6 +7,7 @@ from infrastructure.drip_based_zaxis import DripBasedZAxis
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
+from infrastructure.layer_generators import SubLayerGenerator
 
 
 '''TODO'''
@@ -17,9 +18,13 @@ class PrintAPI(object):
         self._controller = None
         self._status_call_back = status_call_back
 
-    def print_gcode(self, file_like_object):
+    def print_gcode(self, file_like_object, print_sub_layers = True):
         gcode_reader = GCodeReader(file_like_object)
-        layer_generator = gcode_reader.get_layers()
+        gcode_layer_generator = gcode_reader.get_layers()
+        if print_sub_layers:
+            layer_generator = SubLayerGenerator(gcode_layer_generator, self._configuration['sublayer_height_mm'])
+        else:
+            layer_generator = gcode_layer_generator
         self.print_layers(layer_generator)
 
     def print_layers(self, layer_generator):
