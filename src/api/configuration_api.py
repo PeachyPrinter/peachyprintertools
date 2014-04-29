@@ -55,7 +55,6 @@ class ConfigurationAPI(object):
 
     def get_available_audio_options(self):
         options = self._audio_setup.get_valid_sampling_options()
-        print("Options: %s" % options)
         inputs = dict([ (self._audio_as_plain_text(option), option) for option in options['input']])
         inputs = self._audio_mark_recommend(inputs, 'inputs')
         outputs = dict([ (self._audio_as_plain_text(option), option) for option in options['output']])
