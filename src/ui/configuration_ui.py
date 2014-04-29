@@ -154,20 +154,17 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Label(self, text = 'Printer: ').grid(column=0,row=0)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
         
-        self.instructions = u"Some much better text and instructions go here"
-        Label(self,text=self.instructions, anchor="w",fg="black",bg="green").grid(column=0,row=10,columnspan=4)
-
         Label(self).grid(column=1,row=15)
 
-        Label(self,text='Drips', anchor="w",fg="black",bg="white").grid(column=0,row=20,sticky=N+S+E+W)
-        Label(self,textvariable=self._drip_count,  anchor="w",fg="black",bg="white").grid(column=1,row=20,sticky=N+S+E+W)
+        Label(self,text='Drips', anchor="w").grid(column=0,row=20,sticky=N+S+E+W)
+        Label(self,textvariable=self._drip_count,  anchor="w").grid(column=1,row=20,sticky=N+S+E+W)
         Button(self,text=u"Reset Counter", command=self._reset).grid(column=2,row=20,sticky=N+S+E+W)
 
-        Label(self,text="End Height in Millimeters", anchor="w",fg="black",bg="white", justify="right").grid(column=0,row=30,sticky=N+S+E+W)
+        Label(self,text="End Height in Millimeters", anchor="w",justify="right").grid(column=0,row=30,sticky=N+S+E+W)
         Entry(self, width=5, justify="left", textvariable=self._height_mm_entry, validate = 'key', validatecommand=self.validate_int_command()).grid(column=1,row=30,sticky=N+S+E+W)
 
-        Label(self,text="Drips per mm", anchor="w",fg="black",bg="white", justify="right").grid(column=0,row=40,sticky=N+S+E+W)
-        Label(self,textvariable=self.drips_per_mm_field_text, anchor="w",fg="black",bg="white").grid(column=1,row=40,sticky=N+S+E+W)
+        Label(self,text="Drips per mm", anchor="w", justify="right").grid(column=0,row=40,sticky=N+S+E+W)
+        Label(self,textvariable=self.drips_per_mm_field_text, anchor="w").grid(column=1,row=40,sticky=N+S+E+W)
         Button(self,text=u"Mark", command=self._mark).grid(column=2,row=40,sticky=N+S+E+W)
 
         Label(self).grid(column=1,row=45)
@@ -238,7 +235,9 @@ class SetupAudioUI(PeachyFrame):
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
 
         Label(self).grid(column=0,row=20)
-        
+        Label(self, text = 'Selecting a format not supported by your system may result in odd behaviour').grid(column=0,row=25,columnspan=3)
+        Label(self).grid(column=0,row=26)
+
         Label(self, text = "Audio Input Settings" ).grid(column=0,row=30)
         OptionMenu( self, self.input_audio_selection_current, *self.input_options.keys()).grid(column=1,row=30,sticky=NSEW)
 

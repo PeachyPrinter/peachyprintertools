@@ -9,12 +9,13 @@ from infrastructure.layer_generators import CureTestGenerator
 '''TODO'''
 class ConfigurationAPI(object):
     _BEST_AUDIO_OUT_OPTIONS = [
+        '48000, 16 bit', 
+        '48000, 24 bit',
         '48000, 32 bit Floating Point', 
-        '48000, 24 bit', 
-        '48000, 16 bit',
+        '44100, 16 bit', 
+        '44100, 32 bit',
         '44100, 32 bit Floating Point', 
-        '44100, 24 bit', 
-        '44100, 16 bit']
+        ]
         
     _BEST_AUDIO_IN_OPTIONS = [ 
         '48000, 16 bit', 
@@ -129,8 +130,6 @@ class ConfigurationAPI(object):
         if self._drip_detector:
             self._drip_detector.stop()
             self._drip_detector = None
-
-    # ----------------------------- Calibration Setup ----------------------------------
 
     # ----------------------------- Cure Test Setup ------------------------------------
     def get_cure_test(self, base_height, total_height, start_speed, stop_speed):

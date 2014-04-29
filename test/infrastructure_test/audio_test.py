@@ -34,16 +34,6 @@ class PyAudioSetupTests(unittest.TestCase, test_helpers.TestHelpers):
                 { 'sample_rate' : 48000, 'depth': '24 bit' },
                 { 'sample_rate' : 48000, 'depth': '32 bit' },
                 { 'sample_rate' : 48000, 'depth': '32 bit Floating Point' },
-                { 'sample_rate' : 96000, 'depth': '8 bit' },
-                { 'sample_rate' : 96000, 'depth': '16 bit' },
-                { 'sample_rate' : 96000, 'depth': '24 bit' },
-                { 'sample_rate' : 96000, 'depth': '32 bit' },
-                { 'sample_rate' : 96000, 'depth': '32 bit Floating Point' },
-                { 'sample_rate' : 192000, 'depth': '8 bit' },
-                { 'sample_rate' : 192000, 'depth': '16 bit' },
-                { 'sample_rate' : 192000, 'depth': '24 bit' },
-                { 'sample_rate' : 192000, 'depth': '32 bit' },
-                { 'sample_rate' : 192000, 'depth': '32 bit Floating Point' },
             ]
         expected = {
             'input' : all_options,

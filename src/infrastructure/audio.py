@@ -15,7 +15,7 @@ audio_formats = {
 
 class AudioSetup(object):
     def __init__(self ):
-        self._supported_rates = [ 44100, 48000, 96000, 192000]
+        self._supported_rates = [ 44100, 48000 ]
         self._supported_depths = audio_formats.keys()
 
     def _get_depths_for_rate(self, pa, device_id, sample_rate, io_type):
@@ -24,10 +24,10 @@ class AudioSetup(object):
             try:
                 format = audio_formats[depth]
                 if io_type == 'input':
-                    if pa.is_format_supported(sample_rate,input_device=device_id, input_channels=1, input_format = format):
+                    if pa.is_format_supported(rate=sample_rate,input_device=device_id, input_channels=1, input_format = format):
                         depths.append(depth)
                 else:
-                    if pa.is_format_supported(sample_rate,output_device = device_id, output_channels=2, output_format= format):
+                    if pa.is_format_supported(rate=sample_rate,output_device = device_id, output_channels=2, output_format= format):
                         depths.append(depth)
             except ValueError:
                 pass
