@@ -1,6 +1,12 @@
 from Tkinter import *
 import logging
 import sys
+import re
+
+class UIHelpers(object):
+    def strip_margin(self, text):
+        return re.sub('\n[ \t]*\|', '\n', text)
+
 
 class PeachyFrame(Frame):
     def __init__(self, parent, configuration_manager, **kwargs):

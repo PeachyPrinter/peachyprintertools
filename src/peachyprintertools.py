@@ -16,7 +16,7 @@ syslog.openlog("Peachy")
 class PeachyPrinterTools(Tk):
     def __init__(self,parent):
         Tk.__init__(self,parent)
-        self.geometry("640x480")
+        self.geometry("800x600")
         self.title('Peachy Printer Tools')
 
         if sys.platform != 'darwin':

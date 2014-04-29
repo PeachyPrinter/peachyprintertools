@@ -29,7 +29,7 @@ class CalibrationPoint(object):
     def actual_xyz_float(self):
         return  [float(self.actual_x.get()),float(self.actual_y.get()),float(self.actual_z.get())]
 
-class CalibrationUI(PeachyFrame, FieldValidations):
+class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
     def initialize(self):
         self._printer = self.kwargs['printer']
@@ -39,7 +39,7 @@ class CalibrationUI(PeachyFrame, FieldValidations):
         self._index = 0
         self._test_patterns = self._calibrationAPI.get_test_patterns()
         self.data_points = []
-        # self.parent.geometry("%dx%d" % (500,700))
+        self._current_selection = IntVar()
         self.grid()
 
         Label(self, text = 'Printer: ').grid(column=1,row=5)
@@ -47,12 +47,6 @@ class CalibrationUI(PeachyFrame, FieldValidations):
 
         Label(self).grid(column=1,row=7)
 
-        instructions = '''Amazing Instructions'''
-        Label(self,text = instructions, background='snow').grid(column=1, row=10, columnspan=6 )
-
-        Label(self).grid(column=1,row=15)
-
-        self._current_selection = IntVar()
         Radiobutton(self, command = self._option_changed, text="Center Point", variable=self._current_selection, value=0).grid(column = 1, row = 20, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Alignment", variable=self._current_selection, value=1).grid(column = 1, row = 30, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value=2).grid(column = 1, row = 40, sticky=W)
