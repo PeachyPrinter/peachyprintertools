@@ -14,8 +14,8 @@ from infrastructure.audio import AudioSetup, AudioWriter
 
 class PyAudioSetupTests(unittest.TestCase, test_helpers.TestHelpers):
     maxDiff = None
-    input_info  = {'defaultSampleRate': 44100.0, 'defaultLowOutputLatency': 0.011609977324263039, 'defaultLowInputLatency': 0.011609977324263039, 'maxInputChannels': 32L, 'structVersion': 2L, 'hostApi': 0L, 'index': 13L, 'defaultHighOutputLatency': 0.046439909297052155, 'maxOutputChannels': 32L, 'name': 'default', 'defaultHighInputLatency': 0.046439909297052155}
-    output_info = {'defaultSampleRate': 44100.0, 'defaultLowOutputLatency': 0.011609977324263039, 'defaultLowInputLatency': 0.011609977324263039, 'maxInputChannels': 32L, 'structVersion': 2L, 'hostApi': 0L, 'index': 13L, 'defaultHighOutputLatency': 0.046439909297052155, 'maxOutputChannels': 32L, 'name': 'default', 'defaultHighInputLatency': 0.046439909297052155}
+    input_info  = {'defaultSampleRate': 44100.0, 'defaultLowOutputLatency': 0.011609977324263039, 'defaultLowInputLatency': 0.011609977324263039, 'maxInputChannels': 1L, 'structVersion': 2L, 'hostApi': 0L, 'index': 13L, 'defaultHighOutputLatency': 0.046439909297052155, 'maxOutputChannels': 1L, 'name': 'default', 'defaultHighInputLatency': 0.046439909297052155}
+    output_info = {'defaultSampleRate': 48000.0, 'defaultLowOutputLatency': 0.011609977324263039, 'defaultLowInputLatency': 0.011609977324263039, 'maxInputChannels': 32L, 'structVersion': 2L, 'hostApi': 0L, 'index': 13L, 'defaultHighOutputLatency': 0.046439909297052155, 'maxOutputChannels': 32L, 'name': 'default', 'defaultHighInputLatency': 0.046439909297052155}
 
     @patch('pyaudio.PyAudio')
     def test_get_valid_sampling_options_should_list_options(self, mock_PyAudio):
@@ -75,8 +75,8 @@ class PyAudioSetupTests(unittest.TestCase, test_helpers.TestHelpers):
         no_channels = self.output_info.copy()
         no_channels['maxOutputChannels'] = 1
         mock_py_audio = mock_PyAudio.return_value
-        mock_py_audio.get_default_input_device_info.return_value = no_channels
-        mock_py_audio.get_default_output_device_info.return_value = self.output_info
+        mock_py_audio.get_default_input_device_info.return_value = self.input_info
+        mock_py_audio.get_default_output_device_info.return_value = no_channels
         mock_py_audio.is_format_supported.return_value = True
 
         audio_setup = AudioSetup()

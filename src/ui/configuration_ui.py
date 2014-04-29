@@ -217,7 +217,7 @@ class SetupAudioUI(PeachyFrame):
         audio_options = self._configuration_api.get_available_audio_options()
 
         self.input_options = audio_options['inputs']
-        if (self.input_options < 1):
+        if (len(self.input_options) < 1):
             logging.error("No inputs available")
             tkMessageBox.showwarning('Error','Audio card appears to have no inputs')
             self._back()
@@ -226,7 +226,7 @@ class SetupAudioUI(PeachyFrame):
         self.input_audio_selection_current.set(self.input_options.keys()[self._get_recommend_audio_index(self.input_options.keys())])
 
         self.output_options = audio_options['outputs']
-        if (self.output_options < 1):
+        if (len(self.output_options) < 1):
             logging.error("No outputs available")
             tkMessageBox.showwarning('Error','Audio card appears to have no outputs')
             self._back()

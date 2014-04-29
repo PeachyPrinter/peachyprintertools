@@ -47,7 +47,7 @@ class AudioSetup(object):
                 if input_device['maxInputChannels'] >= 1:
                     for depth in self._get_depths_for_rate(pa,input_device_id,sample_rate,'input'):
                         inputs.append({'sample_rate': sample_rate, 'depth' : depth})
-                if input_device['maxOutputChannels'] >= 2:
+                if output_device['maxOutputChannels'] >= 2:
                     for depth in self._get_depths_for_rate(pa,output_device_id,sample_rate,'output'):
                         outputs.append({'sample_rate': sample_rate, 'depth' : depth})
         finally:
