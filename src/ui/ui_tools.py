@@ -1,5 +1,6 @@
 from Tkinter import *
 import logging
+import sys
 
 class PeachyFrame(Frame):
     def __init__(self, parent, configuration_manager, **kwargs):
@@ -21,7 +22,7 @@ class PeachyFrame(Frame):
 
     def quit(self):
         self.close()
-        exit(0)
+        sys.exit(0)
 
 class FieldValidations(object):
     def validate_int_command(self):

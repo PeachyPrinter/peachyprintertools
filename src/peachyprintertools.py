@@ -10,6 +10,7 @@ from infrastructure.configuration import FileBasedConfigurationManager
 from api.configuration_api import ConfigurationAPI
 from ui.main_ui import MainUI
 
+
 class PeachyPrinterTools(Tk):
     def __init__(self,parent):
         Tk.__init__(self,parent)
@@ -38,16 +39,16 @@ class PeachyPrinterTools(Tk):
 
     def close(self):
         self.destroy()
-        exit(0)
+        sys.exit(0)
 
 if __name__ == "__main__":
     PEACHY_PATH = '.peachyprintertools'
-    logfile = os.path.join(os.path.expanduser('~'), PEACHY_PATH,'peachyprinter.log' )
     try:
+        logfile = os.path.join(os.path.expanduser('~'), PEACHY_PATH,'peachyprinter.log' )
         parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
         parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
         parser.add_argument('-c', '--console', dest='console',  action='store_true', required=False, help="Logs to console not file" )
-        args = parser.parse_args()
+        args, unknown = parser.parse_known_args()
 
         logging_format = '%(levelname)s: %(asctime)s %(module)s - %(message)s'
         logging_level = getattr(logging, args.loglevel.upper(), "WARNING")
@@ -62,4 +63,3 @@ if __name__ == "__main__":
         app.title('Peachy Printer Tools')
         app.mainloop()
     except Exception as ex:
-        logging.error("Error in application:\n%s" % ex)

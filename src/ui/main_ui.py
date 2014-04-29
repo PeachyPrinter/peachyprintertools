@@ -1,6 +1,7 @@
 from Tkinter import *
 import tkMessageBox
 from ui_tools import *
+import sys
 
 class MainUI(PeachyFrame):
 
@@ -22,4 +23,4 @@ class MainUI(PeachyFrame):
         self.navigate(PrintUI)
 
     def _quit(self):
-        exit(0)
+        sys.exit(0)
