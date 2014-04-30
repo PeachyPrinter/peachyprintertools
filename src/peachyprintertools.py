@@ -10,9 +10,6 @@ from infrastructure.configuration import FileBasedConfigurationManager
 from api.configuration_api import ConfigurationAPI
 from ui.main_ui import MainUI
 
-import syslog
-syslog.openlog("Peachy")
-
 class PeachyPrinterTools(Tk):
     def __init__(self,parent):
         Tk.__init__(self,parent)

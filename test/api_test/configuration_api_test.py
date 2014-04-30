@@ -185,8 +185,6 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             AudioSetting(48000, '16 bit', recommended = True, current = True),
             AudioSetting(48000, '32 bit Floating Point'),
         ] 
-        print("-+" * 50)
-        print( [str(a) for a in actual['outputs']])
         self.assertListContentsEqual(expected_ordered,actual['outputs'])
 
     @patch.object(AudioSetup, 'get_valid_sampling_options' )
