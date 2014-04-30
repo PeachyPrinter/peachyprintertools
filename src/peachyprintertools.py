@@ -57,7 +57,10 @@ if __name__ == "__main__":
     else:
         logging.basicConfig(filename = logfile ,format=logging_format, level=logging_level)
 
-    path = os.path.dirname(os.path.realpath(__file__))
+    if getattr(sys, 'frozen', False):
+        path = os.path.dirname(sys.executable)
+    else:
+        path = os.path.dirname(os.path.realpath(__file__))
     app = PeachyPrinterTools(None, path)
     app.title('Peachy Printer Tools')
     app.mainloop()
