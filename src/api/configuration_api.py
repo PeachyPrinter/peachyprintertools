@@ -35,6 +35,8 @@ class ConfigurationAPI(object):
         self._current_config = None
         self._audio_setup = AudioSetup()
         self._drip_detector = None
+        self._marked_drips = None
+
     
     def current_printer(self):
         if self._current_config:
@@ -151,7 +153,10 @@ class ConfigurationAPI(object):
         self._drip_detector.reset(0)
 
     def get_drips_per_mm(self):
-        return self._marked_drips / self._target_height
+        if self._marked_drips:
+            return self._marked_drips / self._target_height
+        else:
+            return self._current_config['drips_per_mm']
 
     def start_counting_drips(self, drip_call_back = None):
         self._drip_detector = DripBasedZAxis(

@@ -146,7 +146,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self.grid()
 
         self.drips_per_mm_field_text = DoubleVar()
-        self.drips_per_mm_field_text.set(0.0)
+        self.drips_per_mm_field_text.set(self._configuration_api.get_drips_per_mm())
 
         self._height_mm_entry = IntVar()
         self._height_mm_entry.set(10)

@@ -433,6 +433,17 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
         mock_DripBasedZAxis.assert_called_with(1, sample_rate=48000, bit_depth='16 bit',drip_call_back = None)
 
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_drips_per_mm_should_return_current_setting_if_unmarked(self, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        mock_load.return_value = self.DEFAULT_CONFIG
+
+        configuration_API.load_printer('Printer')
+
+        actual = configuration_API.get_drips_per_mm()
+
+        self.assertEquals(self.DEFAULT_CONFIG['drips_per_mm'], actual)
+
     # ----------------------------- General Setup --------------------------------------
     @patch.object(ConfigurationManager, 'load' )
     def test_get_laser_thickness_mm_returns_thickness(self, mock_load):
