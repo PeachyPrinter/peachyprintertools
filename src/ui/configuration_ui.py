@@ -213,23 +213,21 @@ class SetupAudioUI(PeachyFrame):
 
         audio_options = self._configuration_api.get_available_audio_options()
 
-        self.input_options = audio_options['inputs']
-        if (len(self.input_options) < 1):
+        self._input_options = dict([ (str(option), option) for option in audio_options['inputs']])
+        if (len(self._input_options) < 1):
             logging.error("No inputs available")
             tkMessageBox.showwarning('Error','Audio card appears to have no inputs')
             self._back()
+        self._input_audio_selection_current = StringVar()
+        self._input_audio_selection_current.set(self._currently_selected(self._input_options))
 
-        self.input_audio_selection_current = StringVar()
-        self.input_audio_selection_current.set(self.input_options.keys()[self._get_recommend_audio_index(self.input_options.keys())])
-
-        self.output_options = audio_options['outputs']
-        if (len(self.output_options) < 1):
+        self._output_options = dict([ (str(option), option) for option in audio_options['outputs']])
+        if (len(self._output_options) < 1):
             logging.error("No outputs available")
             tkMessageBox.showwarning('Error','Audio card appears to have no outputs')
             self._back()
-
-        self.output_audio_selection_current = StringVar()
-        self.output_audio_selection_current.set(self.output_options.keys()[self._get_recommend_audio_index(self.output_options.keys())])
+        self._output_audio_selection_current = StringVar()
+        self._output_audio_selection_current.set(self._currently_selected(self._output_options))
         
         Label(self, text = 'Printer: ').grid(column=0,row=0)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
@@ -239,17 +237,24 @@ class SetupAudioUI(PeachyFrame):
         Label(self).grid(column=0,row=26)
 
         Label(self, text = "Audio Input Settings" ).grid(column=0,row=30)
-        OptionMenu( self, self.input_audio_selection_current, *self.input_options.keys()).grid(column=1,row=30,sticky=NSEW)
+        OptionMenu( self, self._input_audio_selection_current, *self._input_options.keys()).grid(column=1,row=30,sticky=NSEW)
 
         Label(self, text = "Audio Output Settings" ).grid(column=0,row=40)
-        OptionMenu(self, self.output_audio_selection_current, *self.output_options.keys()).grid(column=1,row=40,sticky=NSEW)
+        OptionMenu(self, self._output_audio_selection_current, *self._output_options.keys()).grid(column=1,row=40,sticky=NSEW)
 
         Label(self).grid(column=0,row=50)
 
         Button(self, text ="Back", command = self._back).grid(column=0,row=60,sticky=N+S+W)
-        Button(self, text ="Save", command = self._process).grid(column=1,row=60,sticky=N+S+E)
+        Button(self, text ="Save", command = self._save).grid(column=1,row=60,sticky=N+S+E)
 
         self.update()
+
+    def _currently_selected(self, audio_options):
+        current_option = [ k for k, v in audio_options.iteritems() if v.current ]
+        if (len(current_option) == 0):
+            return audio_options[0]
+        else:
+            return current_option[0]
 
     def _get_recommend_audio_index(self, options):
         for i in range(0,len(options)):
@@ -260,12 +265,12 @@ class SetupAudioUI(PeachyFrame):
     def _back(self):
         self.navigate(SetupUI)
 
-    def _process(self):
-        input_option = self.input_options[self.input_audio_selection_current.get()]
-        output_option = self.output_options[self.output_audio_selection_current.get()]
+    def _save(self):
+        input_option = self._input_options[self._input_audio_selection_current.get()]
+        output_option = self._output_options[self._output_audio_selection_current.get()]
         
-        self._configuration_api.set_audio_input_options(input_option['sample_rate'],input_option['depth'])
-        self._configuration_api.set_audio_output_options(output_option['sample_rate'],output_option['depth'])
+        self._configuration_api.set_audio_input_options(input_option)
+        self._configuration_api.set_audio_output_options(output_option)
 
         self.navigate(SetupUI)
 

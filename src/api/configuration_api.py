@@ -5,23 +5,31 @@ from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 from infrastructure.layer_generators import CureTestGenerator
 
+class AudioSetting(object):
+    def __init__(self, sample_frequency, bit_depth, recommended = False, current = False):
+        self.sample_frequency = sample_frequency
+        self.bit_depth = bit_depth
+        self.recommended = recommended
+        self.current = current
 
-'''TODO'''
+    def set_recommended(self):
+        self.recommended = True
+
+    def set_current(self):
+        self.current = True
+
+    def __eq__(self, other):
+        return self.sample_frequency == other.sample_frequency and self.bit_depth == other.bit_depth and self.recommended == other.recommended and self.current == other.current
+
+    def __str__(self):
+        if self.recommended:
+            return "%s Hz, %s (Recommended)" % (self.sample_frequency, self.bit_depth)
+        else:
+            return "%s Hz, %s" % (self.sample_frequency, self.bit_depth)
+
+
+'''Api for adjusting setting for the peachy current_printer, This API is still in active development and as is subject dramatic change'''
 class ConfigurationAPI(object):
-    _BEST_AUDIO_OUT_OPTIONS = [
-        '48000, 16 bit', 
-        '48000, 24 bit',
-        '48000, 32 bit Floating Point', 
-        '44100, 16 bit', 
-        '44100, 32 bit',
-        '44100, 32 bit Floating Point', 
-        ]
-        
-    _BEST_AUDIO_IN_OPTIONS = [ 
-        '48000, 16 bit', 
-        '44100, 16 bit'
-        ]
-
     def __init__(self, configuration_manager):
         self._configuration_manager = configuration_manager
         self._current_config = None
@@ -53,41 +61,69 @@ class ConfigurationAPI(object):
         self._configuration_manager.save(self._current_config)
 
     # ----------------------------------- Audio Setup ------------------------------------------
+    _BEST_AUDIO_OUT_OPTIONS = [
+        AudioSetting(48000, '16 bit'), 
+        AudioSetting(48000, '24 bit'),
+        AudioSetting(48000, '32 bit Floating Point'), 
+        AudioSetting(44100, '16 bit'), 
+        AudioSetting(44100, '32 bit'),
+        AudioSetting(44100, '32 bit Floating Point'), 
+        ]
+        
+    _BEST_AUDIO_IN_OPTIONS = [ 
+        AudioSetting(48000, '16 bit'), 
+        AudioSetting(44100, '16 bit')
+        ]
 
     def get_available_audio_options(self):
         options = self._audio_setup.get_valid_sampling_options()
-        inputs = dict([ (self._audio_as_plain_text(option), option) for option in options['input']])
-        inputs = self._audio_mark_recommend(inputs, 'inputs')
-        outputs = dict([ (self._audio_as_plain_text(option), option) for option in options['output']])
-        outputs = self._audio_mark_recommend(outputs, 'outputs')
-        return { 'inputs': inputs ,'outputs' : outputs}
+        inputs  = [ AudioSetting(option['sample_rate'],option['depth']) for option in options['input' ]]
+        outputs = [ AudioSetting(option['sample_rate'],option['depth']) for option in options['output']]
+        self._set_recommend(inputs, 'inputs')
+        self._set_recommend(outputs, 'outputs')
+        self._set_currently_selected(inputs, 'inputs')
+        self._set_currently_selected(outputs, 'outputs')
+        return { 'inputs': self._sort_options(inputs) ,'outputs' : self._sort_options(outputs)}
 
-    def _audio_as_plain_text(self, audio_option):
-        return "%s, %s" % (audio_option['sample_rate'],audio_option['depth'])
+    def _sort_options(self, options):
+        options.sort(key = lambda option: (option.sample_frequency, option.bit_depth))
+        return options
 
-    def _audio_mark_recommend(self, available_audio_settings, io_type):
+    def _set_recommend(self, audio_settings, io_type):
         options = self._BEST_AUDIO_IN_OPTIONS if io_type == 'inputs' else self._BEST_AUDIO_OUT_OPTIONS
         for option in options:
-            if available_audio_settings.has_key(option):
-                available_audio_settings["%s (Recommended)" % option] = available_audio_settings[option]
-                del available_audio_settings[option]
-                return available_audio_settings
-        return available_audio_settings
+            for audio_setting in audio_settings:
+                if option == audio_setting:
+                    audio_setting.set_recommended()
+                    return
 
-    def set_audio_output_options(self, sample_frequency,bit_depth):
-        if sample_frequency == 44100:
+    def _set_currently_selected(self, audio_settings, io_type):
+        if io_type == 'inputs':
+            sample_frequency = self._current_config['input_sample_frequency']
+            bit_depth = self._current_config['input_bit_depth']
+        else:
+            sample_frequency = self._current_config['output_sample_frequency']
+            bit_depth = self._current_config['output_bit_depth']
+        for audio_setting in audio_settings:
+            if sample_frequency == audio_setting.sample_frequency and bit_depth == audio_setting.bit_depth:
+                audio_setting.set_current()
+                return
+
+    def set_audio_output_options(self, audio_setting):
+        #TODO JT 2014-04-30 - The modulation stuff may not belong here.
+        if (audio_setting.sample_frequency == 44100):
             self._current_config['on_modulation_frequency'] = 11025
             self._current_config['off_modulation_frequency'] = 3675
         else:
             self._current_config['on_modulation_frequency'] = 12000
             self._current_config['off_modulation_frequency'] = 4000
-        self._current_config['output_bit_depth'] = bit_depth
-        self._current_config['output_sample_frequency'] = sample_frequency
+        self._current_config['output_bit_depth'] = audio_setting.bit_depth
+        self._current_config['output_sample_frequency'] = audio_setting.sample_frequency
         self.save()
 
-    def set_audio_input_options(self,sample_frequency, bit_depth):
-        self._current_config['input_bit_depth'] = bit_depth
-        self._current_config['input_sample_frequency'] = sample_frequency
+    def set_audio_input_options(self,audio_setting):
+        self._current_config['input_bit_depth'] = audio_setting.bit_depth
+        self._current_config['input_sample_frequency'] = audio_setting.sample_frequency
         self.save()
 
     # ------------------------------- Drip Setup --------------------------------------

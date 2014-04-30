@@ -94,3 +94,8 @@ class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):
         for item in expected:
             if not item in actual:
                 self.fail("%s\ndid not equal\n%s\non item\n%s" % (expected,actual, item))
+
+    def assertListContentsEqual(self,expected,actual):
+        self.assertEquals(len(expected), len(actual))
+        for index in range(0, len(expected)):
+            self.assertEquals(expected[index],actual[index], '%s != %s' %(expected[index], actual[index]))
