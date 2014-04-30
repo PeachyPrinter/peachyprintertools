@@ -11,8 +11,9 @@ from api.configuration_api import ConfigurationAPI
 from ui.main_ui import MainUI
 
 class PeachyPrinterTools(Tk):
-    def __init__(self,parent):
+    def __init__(self,parent, path):
         Tk.__init__(self,parent)
+        self.path = path
         self.geometry("800x600")
         self.title('Peachy Printer Tools')
 
@@ -31,8 +32,7 @@ class PeachyPrinterTools(Tk):
         MainUI(self, self._configuration_manager)
 
     def setup_icon(self):
-        working_dir = os.path.dirname(os.path.realpath(sys.modules[self.__class__.__module__].__file__))
-        img_file = os.path.join(working_dir,'resources','peachy.gif')
+        img_file = os.path.join(self.path,'resources','peachy.gif')
         img = PhotoImage(file=img_file)
         self.tk.call('wm', 'iconphoto', self._w, img)
 
@@ -57,6 +57,7 @@ if __name__ == "__main__":
     else:
         logging.basicConfig(filename = logfile ,format=logging_format, level=logging_level)
 
-    app = PeachyPrinterTools(None)
+    path = os.path.dirname(os.path.realpath(__file__))
+    app = PeachyPrinterTools(None, path)
     app.title('Peachy Printer Tools')
     app.mainloop()
