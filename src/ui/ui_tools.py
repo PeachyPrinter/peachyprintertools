@@ -16,7 +16,10 @@ class PeachyFrame(Frame):
         self.kwargs = kwargs
         self.parent.protocol("WM_DELETE_WINDOW", self.quit)
         self._configuration_manager = configuration_manager
-        self.initialize()
+        try:
+            self.initialize()
+        except Exception as ex:
+            tkMessageBox.showwarning( "Error",ex.message)
 
     def navigate(self, next_frame , **kwargs):
         self.close()

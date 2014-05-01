@@ -40,6 +40,9 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self._test_patterns = self._calibrationAPI.get_test_patterns()
         self.data_points = []
         self._current_selection = IntVar()
+        self._current_pattern = StringVar()
+        self._current_pattern.set(self._test_patterns[0])
+
         self.grid()
 
         Label(self, text = 'Printer: ').grid(column=1,row=5)
@@ -54,9 +57,6 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
         Label(self).grid(column=1,row=51)
 
-        self._current_pattern = StringVar()
-        self._current_pattern.set(self._test_patterns[0])
-        
         self.pattern_options = OptionMenu(self, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
         self.pattern_options.grid(column=2,row=50,sticky=W)
         
