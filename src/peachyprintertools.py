@@ -41,8 +41,11 @@ class PeachyPrinterTools(Tk):
         sys.exit(0)
 
 if __name__ == "__main__":
-    PEACHY_PATH = '.peachyprintertools'
-    logfile = os.path.join(os.path.expanduser('~'), PEACHY_PATH,'peachyprinter.log' )
+    PEACHY_FOLDER = '.peachyprintertools'
+    PEACHY_PATH = os.path.join(os.path.expanduser('~'), PEACHY_FOLDER)
+    if not os.path.exists(PEACHY_PATH):
+        os.makedirs(PEACHY_PATH)
+    logfile = os.path.join(PEACHY_PATH,'peachyprinter.log' )
     parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
     parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
     parser.add_argument('-c', '--console', dest='console',  action='store_true', required=False, help="Logs to console not file" )
