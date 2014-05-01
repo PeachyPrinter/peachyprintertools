@@ -5,6 +5,7 @@ from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import DripBasedZAxis
 from infrastructure.layer_generators import CureTestGenerator
 
+'''Details the audio settings'''
 class AudioSetting(object):
     def __init__(self, sample_frequency, bit_depth, recommended = False, current = False):
         self.sample_frequency = sample_frequency
@@ -28,7 +29,8 @@ class AudioSetting(object):
             return "%s Hz, %s" % (self.sample_frequency, self.bit_depth)
 
 
-'''Api for adjusting setting for the peachy current_printer, This API is still in active development and as is subject dramatic change'''
+'''Api for adjusting setting for the peachy current_printer.
+This API is still in active development and as is subject dramatic change'''
 class ConfigurationAPI(object):
     def __init__(self, configuration_manager):
         self._configuration_manager = configuration_manager
@@ -37,7 +39,7 @@ class ConfigurationAPI(object):
         self._drip_detector = None
         self._marked_drips = None
 
-    
+    '''Returns the currently loaded printer name'''
     def current_printer(self):
         if self._current_config:
             return self._current_config['name']
@@ -45,20 +47,25 @@ class ConfigurationAPI(object):
             logging.debug('Current config missing')
             return None
 
+    '''Returns the current printer config in json'''
     def get_current_config(self):
         return self._current_config
 
+    '''Returns a list of available printers'''
     def get_available_printers(self):
         return self._configuration_manager.list()
 
+    '''Adds a printer by name with default settings'''
     def add_printer(self, name):
         self._current_config = self._configuration_manager.new(name)
         self.save()
 
+    '''Loads a previous configured printer by name'''
     def load_printer(self, name):
         self._current_config = self._configuration_manager.load(name)
         logging.debug("Loaded config:\n%s" % self._current_config)
     
+    '''Saves the currently selected config'''
     def save(self):
         self._configuration_manager.save(self._current_config)
 
@@ -77,6 +84,8 @@ class ConfigurationAPI(object):
         AudioSetting(44100, '16 bit')
         ]
 
+    '''Lists all available audio options returning a list of AudioSetting. 
+    Warning: due to a bug in a port audio this may list unusable audio types.'''
     def get_available_audio_options(self):
         options = self._audio_setup.get_valid_sampling_options()
         inputs  = [ AudioSetting(option['sample_rate'],option['depth']) for option in options['input' ]]
@@ -111,6 +120,7 @@ class ConfigurationAPI(object):
                 audio_setting.set_current()
                 return
 
+    '''Sets the output audio based on the AudioSetting passed in'''
     def set_audio_output_options(self, audio_setting):
         #TODO JT 2014-04-30 - The modulation stuff may not belong here.
         if (audio_setting.sample_frequency == 44100):
@@ -123,6 +133,7 @@ class ConfigurationAPI(object):
         self._current_config['output_sample_frequency'] = audio_setting.sample_frequency
         self.save()
 
+    '''Sets the output audio based on the AudioSetting passed in'''
     def set_audio_input_options(self,audio_setting):
         self._current_config['input_bit_depth'] = audio_setting.bit_depth
         self._current_config['input_sample_frequency'] = audio_setting.sample_frequency
@@ -130,9 +141,11 @@ class ConfigurationAPI(object):
 
     # ------------------------------- Drip Setup --------------------------------------
 
+    '''Returns the current number of drips that have been counted'''
     def get_drips(self):
         return self._drip_detector.current_z_location_mm()
 
+    '''Records the current of drips'''
     def mark_drips_at_target(self):
         if self._target_height != None:
             self._marked_drips = self.get_drips()
@@ -140,6 +153,7 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Target height must be specified before marking end point")
 
+    '''Sets the target height that the drips will be marked at'''
     def set_target_height(self,height_mm):
         try:
             if float(height_mm) > 0.0:
@@ -149,15 +163,18 @@ class ConfigurationAPI(object):
         except:
             raise Exception("Target height must be a positive numeric value")
 
+    '''Sets the drip count back to 0'''
     def reset_drips(self):
         self._drip_detector.reset(0)
 
+    '''Does the math based on set_target_height and mark_drips_at_target to return the drips per mm'''
     def get_drips_per_mm(self):
         if self._marked_drips:
             return self._marked_drips / self._target_height
         else:
             return self._current_config['drips_per_mm']
 
+    '''Turns on the counting of drips. Stop must be called to end this.'''
     def start_counting_drips(self, drip_call_back = None):
         self._drip_detector = DripBasedZAxis(
             1,
@@ -167,16 +184,19 @@ class ConfigurationAPI(object):
             )
         self._drip_detector.start()
 
+    '''Turns off the counting of drips if counting'''
     def stop_counting_drips(self):
         if self._drip_detector:
             self._drip_detector.stop()
             self._drip_detector = None
 
     # ----------------------------- Cure Test Setup ------------------------------------
+    '''Returns a layer generator that can be used with the print API to print a cure test.'''
     def get_cure_test(self, base_height, total_height, start_speed, stop_speed):
         self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed)
         return CureTestGenerator(base_height, total_height, start_speed, stop_speed, self._current_config['sublayer_height_mm'])
 
+    '''Based on provided setting returns the speed the printer was going at the specified height'''
     def get_speed_at_height(self, base_height, total_height, start_speed, stop_speed, height):
         self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed)
         if (height < base_height or height > total_height):
@@ -228,9 +248,11 @@ class ConfigurationAPI(object):
 
     # ----------------------------- General Setup --------------------------------------
 
+    '''Returns the current setting for laser thickness'''
     def get_laser_thickness_mm(self):
         return self._current_config['laser_thickness_mm']
 
+    '''Sets the laser thickness in mm'''
     def set_laser_thickness_mm(self, thickness_mm):
         if (type(thickness_mm) == types.FloatType  and thickness_mm > 0.0):
             self._current_config['laser_thickness_mm'] = thickness_mm
@@ -238,9 +260,11 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Laser thickness must be a positive floating point number")
 
+    '''Gets the Sublayer height sublayers are added between layers for grater definition'''
     def get_sublayer_height_mm(self):
         return self._current_config['sublayer_height_mm']
 
+    '''Sets the Sublayer height sublayers are added between layers for grater definition'''
     def set_sublayer_height_mm(self, thickness_mm):
         if (type(thickness_mm) == types.FloatType  and thickness_mm > 0.0):
             self._current_config['sublayer_height_mm'] = thickness_mm
