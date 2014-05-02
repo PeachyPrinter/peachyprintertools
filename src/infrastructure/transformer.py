@@ -92,9 +92,12 @@ class HomogenousTransformer(Transformer):
         return (adjusted_height * (self._upper_transform - self._lower_transform)) + self._lower_transform
 
     def transform(self,(x,y,z)):
+        logging.debug('in x: %s in: y %s' % (x,y))
         realworld = np.array([[x], [y], [1]])
         logging.debug('Z: %s M: %s' % (z, self._transforms_for_height(z)))
         computerland =  self._transforms_for_height(z) * realworld
         [kx, ky, k] = [computerland.item(i, 0) for i in range(3)]
+        logging.debug('out kx: %s , ky: %s, k: %s' % (kx,ky,k))
+        
         return (kx/k, ky/k)
        

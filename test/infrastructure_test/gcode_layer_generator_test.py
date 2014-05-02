@@ -130,6 +130,23 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         
         self.assertEquals([], actual)
 
+    def test_to_command_returns_empty_list_for_blank_lines(self):
+        test_gcode_line = "\n"
+        command_reader = GCodeCommandReader()
+
+        actual = command_reader.to_command(test_gcode_line)
+        
+        self.assertEquals([], actual)
+
+    def test_to_command_returns_empty_list_for_blank(self):
+        test_gcode_line = ""
+        command_reader = GCodeCommandReader()
+
+        actual = command_reader.to_command(test_gcode_line)
+        
+        self.assertEquals([], actual)
+
+
     def test_to_command_returns_empty_list_for_ignorable_codes(self):
         test_gcode_lines = [";Comment","M101","O NAME OF PROGRAM"]
         command_reader = GCodeCommandReader()
@@ -244,27 +261,45 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         
         self.assertCommandsEqual(expected, actual)
 
-    def test_vertically_diagonal_writes_unsupported(self):
+    def test_vertically_diagonal_writes_are_made_moves_and_lateral_draws(self):
         gcode_setup1 = "G0 Z0.1 F6000 E0"
         gcode_setup2 = "G0 Z0.2 F6000 E0"
         gcode_setup3 = "G0 X0.5 Y0.5 F6000"
         gcode_test = "G0 X0.7 Y0.7 Z0.5 F6000 E1"
         command_reader = GCodeCommandReader()
         expected = [ 
-            VerticalMove(0.0,0.3,100.0), 
-            LateralDraw(0.5,0.5,100.0),
+            VerticalMove(0.2,0.3,100.0), 
+            LateralDraw([0.5,0.5],[0.5,0.5],100.0),
             VerticalMove(0.3,0.4,100.0), 
-            LateralDraw(0.5,0.5,100.0),
+            LateralDraw([0.5,0.5],[0.5,0.5],100.0),
             VerticalMove(0.4,0.5,100.0), 
-            LateralDraw(0.5,0.5,100.0),
+            LateralDraw([0.5,0.5],[0.5,0.5],100.0),
+            LateralDraw([0.5,0.5],[0.7,0.7],100.0),
             ]
 
         command_reader.to_command(gcode_setup1)
         command_reader.to_command(gcode_setup2)
         command_reader.to_command(gcode_setup3)
 
-        with self.assertRaises(Exception):
-            command_reader.to_command(gcode_test)
+        self.assertCommandsEqual(expected, command_reader.to_command(gcode_test))
+
+    def test_vertically_diagonal_move_are_made_moves_and_lateral_moves(self):
+        gcode_setup1 = "G0 Z0.1 F6000 E0"
+        gcode_setup2 = "G0 Z0.2 F6000 E0"
+        gcode_setup3 = "G0 X0.5 Y0.5 F6000"
+        gcode_test = "G0 X0.7 Y0.7 Z0.5 F6000"
+        command_reader = GCodeCommandReader()
+        expected = [ 
+            VerticalMove(0.2,0.5,100.0), 
+            LateralMove([0.5,0.5],[0.7,0.7],100.0),
+            ]
+
+        command_reader.to_command(gcode_setup1)
+        command_reader.to_command(gcode_setup2)
+        command_reader.to_command(gcode_setup3)
+
+        self.assertCommandsEqual(expected, command_reader.to_command(gcode_test))
+
 
     def test_to_command_handles_unknown_sub_command(self):
         gcode_line = "G1 X1.0 Y1.0 F6000 E12 Q55"

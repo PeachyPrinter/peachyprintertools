@@ -55,6 +55,7 @@ class PrintStatusUI(PeachyFrame):
         self._elapsed_time = StringVar()
         self._current_layer = IntVar()
         self._current_height = StringVar()
+        self._current_model_height = StringVar()
         self._current_drips = IntVar()
         self._waiting_for_drips = StringVar()
         self._status = StringVar()
@@ -75,8 +76,11 @@ class PrintStatusUI(PeachyFrame):
         Label(self, text = "Layer" ).grid(column=0,row=20)
         Label(self, textvariable = self._current_layer ).grid(column=1,row=20)
 
-        Label(self, text = "Height (mm)" ).grid(column=0,row=30)
+        Label(self, text = "Actual Height (mm)" ).grid(column=0,row=30)
         Label(self, textvariable = self._current_height ).grid(column=1,row=30)
+
+        Label(self, text = "Model Height (mm)" ).grid(column=0,row=35)
+        Label(self, textvariable = self._current_model_height ).grid(column=1,row=35)
 
         Label(self, text = "Drips" ).grid(column=0,row=40)
         Label(self, textvariable = self._current_drips ).grid(column=1,row=40)
@@ -105,6 +109,7 @@ class PrintStatusUI(PeachyFrame):
         self._elapsed_time.set("%02d:%02d:%02d" % (hours,minutes,seconds))
         self._current_layer.set(status['current_layer'])
         self._current_height.set("%.2f" % status['height'])
+        self._current_model_height.set("%.2f" % status['model_height'])
         self._current_drips.set(status['drips'])
         self._waiting_for_drips.set("Yes" if status['waiting_for_drips'] else "No")
         self._status.set(status['status'])

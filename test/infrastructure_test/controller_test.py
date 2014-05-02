@@ -455,6 +455,12 @@ class MachineStatusTests(unittest.TestCase):
 
         self.assertEqual(1,status.status()['errors'])
 
+    def test_set_model_height_update_height_of_layer(self):
+        status = MachineStatus()
+        status.set_model_height(7.12213)
+
+        self.assertEqual(7.12213,status.status()['model_height'])
+
     def test_waiting_for_drips_sets_waiting(self):
         status = MachineStatus()
         status.set_waiting_for_drips()

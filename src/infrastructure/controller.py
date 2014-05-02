@@ -33,6 +33,7 @@ class MachineStatus(object):
         self._laser_state = False
         self._waiting_for_drips = True
         self._height = 0.0
+        self._model_height = 0.0
         self._errors = []
         self._start_time = datetime.datetime.now()
         self._stop_time = None
@@ -64,9 +65,9 @@ class MachineStatus(object):
         self._waiting_for_drips = False
         self._update()
 
-    def set_layers_ahead(self):
+    def set_model_height(self, model_height):
+        self._model_height = model_height
         self._update()
-        pass
 
     def set_complete(self):
         self._complete = True
@@ -96,6 +97,7 @@ class MachineStatus(object):
             'waiting_for_drips' : self._waiting_for_drips,
             'height' : self._height,
             'drips' : self._drips,
+            'model_height' : self._model_height,
 
         }
 

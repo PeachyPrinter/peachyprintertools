@@ -142,7 +142,6 @@ class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         actual_points   = [ transformer.transform ( point) for point in test_points ]
         
         self.assertEquals(expected_points, actual_points)
-
    
 
 if __name__ == '__main__':

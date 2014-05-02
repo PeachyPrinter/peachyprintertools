@@ -2,6 +2,7 @@ import collections
 from domain.commands import *
 from domain.layer_generator import LayerGenerator
 import logging
+import sys
 
 class GCodeReader(object):
     def __init__(self, file_object):
@@ -43,7 +44,9 @@ class GCodeToLayerGenerator(LayerGenerator):
             gcode_line = self._file_object.next()
             self._line_number +=1
             try:
+                logging.info("in: %s" % gcode_line)
                 commands = self._gcode_command_reader.to_command(gcode_line.strip())
+                logging.info("out: %s" % commands)
                 for command in commands:
                     self._command_queue.append(command)
             except Exception as ex:
@@ -54,29 +57,29 @@ class GCodeToLayerGenerator(LayerGenerator):
 
 
     def _get_layer(self, layer = None):
-        try:
-            command = self._command_queue.popleft()
-            if type(command) == VerticalMove:
-                if layer:
-                    self._command_queue.appendleft(command)
-                    return layer
+        generating_layer = True
+        while generating_layer:
+            try:
+                command = self._command_queue.popleft()
+                if type(command) == VerticalMove:
+                    if layer:
+                        self._command_queue.appendleft(command)
+                        return layer
+                    else:
+                        layer = Layer(command.end)
                 else:
-                    return self._get_layer(Layer(command.end))
-            else:
-                if layer:
-                    layer.commands.append(command)
-                    return self._get_layer(layer)
+                    if layer:
+                        layer.commands.append(command)
+                    else:
+                        layer = Layer(0.0, [ command ])
+            except IndexError:
+                if self._file_complete:
+                    if layer:
+                        return layer
+                    else:
+                        raise StopIteration
                 else:
-                    return self._get_layer(Layer(0.0, [ command ]))
-        except IndexError:
-            if self._file_complete:
-                if layer:
-                    return layer
-                else:
-                    raise StopIteration
-            else:
-                self._populate_buffer()
-                return self._get_layer(layer)
+                    self._populate_buffer()
 
 class GCodeCommandReader(object):
     _INCHES2MM = 25.4
@@ -124,8 +127,10 @@ class GCodeCommandReader(object):
             raise Exception("Feed Rate Never Specified")
         if z_mm:
             if x_mm or y_mm:
-                logging.error("Vertically angled writes are not supported...yet")
-                raise Exception("Vertically angled writes are not supported...yet")
+                logging.warning("Vertically angled writes are not supported...yet")
+                up = self._get_vertical_movement(z_mm,write)
+                over = self._get_lateral_movement([x_mm,y_mm], write)
+                return up + over
             return self._get_vertical_movement(z_mm,write)
         elif x_mm and y_mm:
             return self._get_lateral_movement([x_mm,y_mm], write)
@@ -189,6 +194,8 @@ class GCodeCommandReader(object):
                 self._layer_height = this_layer_height
 
     def _can_ignore(self, command):
+        if command in [ '\n', '' ]:
+            return True
         for prefix in self._IGNORABLE_PREFIXES:
             if command.startswith(prefix):
                 return True
