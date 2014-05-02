@@ -286,6 +286,27 @@ class ControllerTests(unittest.TestCase):
 
         self.assertTrue(actual)
 
+    def test_should_update_layer_height(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        expected_model_height = 32.7
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_zaxis = mock_ZAxis.return_value
+        mock_zaxis.current_z_location_mm.return_value = 23.2
+        mock_layer_generator = mock_LayerGenerator.return_value
+        mock_layer_generator.next.return_value = Layer(expected_model_height,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+        mock_path_to_audio.process.return_value = "SomeAudio"
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
+        self.controller.start()
+
+        self.controller.stop()
+
+        self.wait_for_controller()
+        actual = self.controller.get_status()['model_height']
+
+        self.assertEquals(expected_model_height,actual)
+
     def test_set_waiting_while_not_wating_for_z(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
