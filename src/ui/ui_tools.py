@@ -20,7 +20,9 @@ class PeachyFrame(Frame):
         try:
             self.initialize()
         except Exception as ex:
-            tkMessageBox.showwarning( "Error",ex.message)
+            logging.error(ex)
+            tkMessageBox.showwarning( "Error",ex)
+            raise ex
 
     def navigate(self, next_frame , **kwargs):
         self.close()

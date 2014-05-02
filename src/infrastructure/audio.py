@@ -65,9 +65,12 @@ class AudioWriter(object):
         self._buffer_size = self._sample_rate / 8
 
         logging.info("Audio Writer started with sample rate: %s, bit depth %s" % (self._sample_rate, self._bit_depth))
-        if not self._configuration_supported(self._sample_rate,self._format):
+        try: 
+            self._configuration_supported(self._sample_rate,self._format)
+        except:
             logging.error("Audio configuration not supported; Sample Rate: %s; Sample Bits: %s " % (self._sample_rate, self._bit_depth))
             raise Exception("Audio configuration not supported; Sample Rate: %s; Sample Bits: %s " % (self._sample_rate, self._bit_depth) )
+        
         self._outstream = self._pa.open(
             format=self._format,
             channels = 2,
@@ -79,7 +82,8 @@ class AudioWriter(object):
 
     def _configuration_supported(self, sample_rate, format):
         device_info = self._pa.get_default_host_api_info()
-        default_device_id = device_info['defaultInputDevice']
+        default_device_id = device_info['defaultOutputDevice']
+        logging.debug('Checking audio... id: %s, output_channels: %s, output_format: %s, sample rate: %s ' %(default_device_id, 2, format,sample_rate))
         supported = self._pa.is_format_supported(sample_rate,output_device=default_device_id,output_channels=2,output_format=format)
         return supported
 

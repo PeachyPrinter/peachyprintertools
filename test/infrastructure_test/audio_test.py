@@ -127,7 +127,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
         sample_device_info = {
             'index': 0L, 'name': 'ALSA', 
             'defaultOutputDevice': 12L, 'type': 8L, 
-            'deviceCount': 13L, 'defaultInputDevice': 12L, 
+            'deviceCount': 13L, 'defaultInputDevice': 10L, 
             'structVersion': 1L
         }
 
@@ -160,12 +160,12 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
         sample_device_info = {
             'index': 0L, 'name': 'ALSA', 
             'defaultOutputDevice': 12L, 'type': 8L, 
-            'deviceCount': 13L, 'defaultInputDevice': 12L, 
+            'deviceCount': 13L, 'defaultInputDevice': 10L, 
             'structVersion': 1L
         }
 
         mock_py_audio.get_default_host_api_info.return_value = sample_device_info
-        mock_py_audio.is_format_supported.return_value = False
+        mock_py_audio.is_format_supported.side_effect = ValueError()
 
         with self.assertRaises(Exception):
             audio_writer = AudioWriter(sampling_frequency,bit_depth)
@@ -176,7 +176,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
         bit_depth = '16 bit'
-        sample_device_info = { 'defaultInputDevice': 12L, }
+        sample_device_info = { 'defaultOutputDevice': 10L, }
 
         mock_py_audio.get_default_host_api_info.return_value = sample_device_info
         mock_py_audio.is_format_supported.return_value = True
@@ -191,7 +191,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
         bit_depth = '16 bit'
-        sample_device_info = { 'defaultInputDevice': 12L, }
+        sample_device_info = { 'defaultOutputDevice': 12L, }
 
         mock_py_audio.get_default_host_api_info.return_value = sample_device_info
         mock_py_audio.is_format_supported.return_value = True
@@ -207,7 +207,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
         bit_depth = '16 bit'
-        sample_device_info = { 'defaultInputDevice': 12L, }
+        sample_device_info = { 'defaultOutputDevice': 12L, }
 
         mock_py_audio.get_default_host_api_info.return_value = sample_device_info
         mock_py_audio.is_format_supported.return_value = True
@@ -234,7 +234,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
         mock_py_audio = mock_PyAudio.return_value
         sampling_frequency = 48000
         bit_depth = '32 bit Floating Point'
-        sample_device_info = { 'defaultInputDevice': 12L, }
+        sample_device_info = { 'defaultOutputDevice': 12L, }
 
         mock_py_audio.get_default_host_api_info.return_value = sample_device_info
         mock_py_audio.is_format_supported.return_value = True

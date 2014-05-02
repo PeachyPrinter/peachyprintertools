@@ -41,11 +41,11 @@ class CalibrationAPI(object):
             )
         self._audio_writer = None
         self._controller = None
+        logging.debug("Setting up audiowriter")
         self._audio_writer = AudioWriter(
             self._configuration['output_sample_frequency'], 
             self._configuration['output_bit_depth'],
             )
-
         self._current_generator = self._point_generator
         self._controller = Controller(
             self._laser_control,
