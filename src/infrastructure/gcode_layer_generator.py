@@ -44,9 +44,7 @@ class GCodeToLayerGenerator(LayerGenerator):
             gcode_line = self._file_object.next()
             self._line_number +=1
             try:
-                logging.info("in: %s" % gcode_line)
                 commands = self._gcode_command_reader.to_command(gcode_line.strip())
-                logging.info("out: %s" % commands)
                 for command in commands:
                     self._command_queue.append(command)
             except Exception as ex:
