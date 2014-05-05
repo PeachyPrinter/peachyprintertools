@@ -264,7 +264,7 @@ class DripBasedZAxisTests(unittest.TestCase):
         drip_zaxis.stop()
         self.assertEqual(24, drip_zaxis.current_z_location_mm())
 
-# TODO JT 2014-04-09 - initial_height
+#
 
 
 

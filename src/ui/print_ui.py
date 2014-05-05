@@ -58,6 +58,7 @@ class PrintStatusUI(PeachyFrame):
         self._current_model_height = StringVar()
         self._current_drips = IntVar()
         self._waiting_for_drips = StringVar()
+        self._skipped_layers = IntVar()
         self._status = StringVar()
         self._stop_button_text = StringVar()
         self._stop_button_text.set("Abort Print")
@@ -88,6 +89,9 @@ class PrintStatusUI(PeachyFrame):
         Label(self, text = "Waiting for drips" ).grid(column=0,row=50)
         Label(self, textvariable = self._waiting_for_drips ).grid(column=1,row=50)
 
+        Label(self, text = "Skipped Layers" ).grid(column=0,row=55)
+        Label(self, textvariable = self._skipped_layers ).grid(column=1,row=55)
+
         Label(self, text = "Status").grid(column=0,row=60)
         Label(self, textvariable = self._status).grid(column=1,row=60)
 
@@ -112,6 +116,7 @@ class PrintStatusUI(PeachyFrame):
         self._current_model_height.set("%.2f" % status['model_height'])
         self._current_drips.set(status['drips'])
         self._waiting_for_drips.set("Yes" if status['waiting_for_drips'] else "No")
+        self._skipped_layers.set(status['skipped_layers'])
         self._status.set(status['status'])
         if (status['status'] == "Complete"):
             self._stop_button_text.set("Finished")

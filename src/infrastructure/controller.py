@@ -113,6 +113,7 @@ class Controller(threading.Thread,):
                     audio_writer,
                     layer_generator,
                     zaxis = None,
+                    zaxis_control = None,
                     status_call_back = None, 
                     max_lead_distance = None):
         threading.Thread.__init__(self)
