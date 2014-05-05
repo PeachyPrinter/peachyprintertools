@@ -55,7 +55,8 @@ class PrintAPI(object):
             audio_writer,
             layer_generator,
             zaxis = zaxis,
-            status_call_back = self._status_call_back
+            status_call_back = self._status_call_back,
+            max_lead_distance = self._configuration['max_lead_distance']
             )
         self._controller.start()
 

@@ -39,6 +39,7 @@ class MachineStatus(object):
         self._stop_time = None
         self._complete = False
         self._drips = 0
+        self._skipped_layers = 0
 
     def _update(self):
         if self._status_call_back:
@@ -52,6 +53,9 @@ class MachineStatus(object):
     def add_layer(self):
         self._current_layer += 1
         self._update()
+
+    def skipped_layer(self):
+        self._skipped_layers += 1
 
     def add_error(self, error):
         self._errors.append(error)
@@ -98,7 +102,7 @@ class MachineStatus(object):
             'height' : self._height,
             'drips' : self._drips,
             'model_height' : self._model_height,
-
+            'skipped_layers' : self._skipped_layers,
         }
 
 
@@ -132,15 +136,29 @@ class Controller(threading.Thread,):
         self._abort_current_command = False
         logging.info("Starting print")
 
+
+    def run(self):
+        self.running = True
+        if self._zaxis:
+            self._zaxis.start()
+        self.starting = False
+        self._process_layers()
+        self._status.set_complete()
+        self._terminate()
+
     def change_generator(self, layer_generator):
         self._layer_generator = layer_generator
         self._abort_current_command = True
 
+    def get_status(self):
+        return self._status.status()
+
+    def stop(self):
+        logging.warning("Shutdown requested")
+        self._shutting_down = True
+
     def _process_layers(self):
-        going = True
-        while going:
-            if self._shutting_down:
-                return
+        while not self._shutting_down:
             try:
                 layer = self._layer_generator.next()
                 self._status.set_model_height(layer.z)
@@ -151,24 +169,15 @@ class Controller(threading.Thread,):
                         if (ahead_by <= self._max_lead_distance):
                             self._process_layer(layer)
                         else:
-                            pass
+                            logging.warning("Dripping too fast, Skipping layer")
+                            self._status.skipped_layer()
                     else:
                         self._process_layer(layer)
                 else:
                     self._process_layer(layer)
                 self._status.add_layer()
             except StopIteration:
-                going = False
-
-    def _wait_till(self, height):
-        while self._zaxis.current_z_location_mm() < height:
-            logging.info("Controller: Waiting for drips")
-            self._status.set_waiting_for_drips()
-            if self._shutting_down:
-                return
-            self._laser_control.set_laser_off()
-            self._move_lateral(self.state.xy, self.state.z,self.state.speed)
-        self._status.set_not_waiting_for_drips()
+                self._shutting_down = True
 
     def _process_layer(self, layer):
         for command in layer.commands:
@@ -187,15 +196,23 @@ class Controller(threading.Thread,):
                 self._laser_control.set_laser_off()
                 self._move_lateral(command.end, layer.z, command.speed)
 
+    def _move_lateral(self,(to_x,to_y), to_z,speed):
+        to_xyz = [to_x,to_y,to_z]
+        path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
+        modulated_path = self._laser_control.modulate(path)
+        self._audio_writer.write_chunk(modulated_path)
+        self.state.set_state(to_xyz,speed)
 
-    def run(self):
-        self.running = True
-        if self._zaxis:
-            self._zaxis.start()
-        self.starting = False
-        self._process_layers()
-        self._status.set_complete()
-        self._terminate()
+    def _wait_till(self, height):
+        while self._zaxis.current_z_location_mm() < height:
+            logging.info("Controller: Waiting for drips")
+            self._status.set_waiting_for_drips()
+            if self._shutting_down:
+                return
+            self._laser_control.set_laser_off()
+            self._move_lateral(self.state.xy, self.state.z,self.state.speed)
+        self._status.set_not_waiting_for_drips()
+
 
     def _terminate(self):
         self._shutting_down = True
@@ -210,16 +227,3 @@ class Controller(threading.Thread,):
             logging.error(ex)
         self.running = False
 
-    def get_status(self):
-        return self._status.status()
-
-    def stop(self):
-        logging.warning("Shutdown requested")
-        self._shutting_down = True
-
-    def _move_lateral(self,(to_x,to_y), to_z,speed):
-        to_xyz = [to_x,to_y,to_z]
-        path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
-        modulated_path = self._laser_control.modulate(path)
-        self._audio_writer.write_chunk(modulated_path)
-        self.state.set_state(to_xyz,speed)

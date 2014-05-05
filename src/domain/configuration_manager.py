@@ -17,7 +17,8 @@ class ConfigurationManager(object):
                 'upper_points':{(1,1):(1,1),(1,0):(1,0),(0,0):(0,0),(0,1):(0,1),},
                 },
             'calibration_scale' : 1.0,
-            'draw_speed' : 200.0
+            'draw_speed' : 200.0,
+            'max_lead_distance' : 1.0,
             }
 
     def list(self):

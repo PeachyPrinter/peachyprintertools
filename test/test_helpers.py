@@ -86,6 +86,7 @@ class DefaultsHelpers(object):
                 },
             'calibration_scale' : 1.0,
             'draw_speed' : 200.0,
+            'max_lead_distance' : 1.0
             }
 
 class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):

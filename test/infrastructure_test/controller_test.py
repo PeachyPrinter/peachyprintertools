@@ -26,7 +26,7 @@ class ControllerTests(unittest.TestCase):
 
     def wait_for_controller(self):
         while self.controller.starting or self.controller.running:
-            time.sleep(0.1)
+            time.sleep(0.01)
 
     def tearDown(self):
         if self.controller and self.controller.is_alive():
@@ -135,6 +135,7 @@ class ControllerTests(unittest.TestCase):
         self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator,zaxis =mock_zaxis,max_lead_distance=max_lead_distance)
         self.controller.start()
         self.wait_for_controller()
+        self.assertEquals(1, self.controller.get_status()['skipped_layers'])
         self.assertEquals(5, mock_audio_writer.write_chunk.call_count)
 
     def test_if_draw_command_start_and_current_pos_are_not_the_same_should_move_to_new_posisition(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
@@ -466,6 +467,12 @@ class MachineStatusTests(unittest.TestCase):
 
         self.assertEqual(1,status.status()['current_layer'])
 
+    def test_skipped_layer_adds_a_skipped_layer(self):
+        status = MachineStatus()
+        status.skipped_layer()
+
+        self.assertEqual(1,status.status()['skipped_layers'])
+
     def test_status_is_starting_before_first_drip(self):
         status = MachineStatus()
         self.assertEqual('Starting',status.status()['status'])
@@ -530,7 +537,6 @@ class MachineStatusTests(unittest.TestCase):
         status.add_error(MachineError(message))
 
         self.assertEqual(expected,status.status()['errors'])
-
 
     def test_drip_call_back_updates_height(self):
         status = MachineStatus()
