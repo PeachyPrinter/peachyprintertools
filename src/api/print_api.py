@@ -56,7 +56,7 @@ class PrintAPI(object):
             layer_generator,
             zaxis = zaxis,
             status_call_back = self._status_call_back,
-            max_lead_distance = self._configuration['max_lead_distance']
+            max_lead_distance = self._configuration['max_lead_distance_mm']
             )
         self._controller.start()
 

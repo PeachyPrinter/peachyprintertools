@@ -301,7 +301,7 @@ class ControllerTests(unittest.TestCase):
         self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
         self.controller.start()
 
-        time.sleep(0.1)
+        time.sleep(0.01)
         actual = self.controller.get_status()['waiting_for_drips']
         self.controller.stop()
 
@@ -322,7 +322,7 @@ class ControllerTests(unittest.TestCase):
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
         self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
         self.controller.start()
-
+        time.sleep(0.01)
         self.controller.stop()
 
         self.wait_for_controller()

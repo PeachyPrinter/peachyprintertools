@@ -87,7 +87,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_sublayergenerator,
             zaxis = mock_dripbasedzaxis,
             status_call_back = None,
-            max_lead_distance = self.DEFAULT_CONFIG['max_lead_distance']
+            max_lead_distance = self.DEFAULT_CONFIG['max_lead_distance_mm']
             )
 
     @patch('api.print_api.Controller')
@@ -132,7 +132,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             fake_layers,
             zaxis = mock_dripbasedzaxis,
             status_call_back = None,
-            max_lead_distance = self.DEFAULT_CONFIG['max_lead_distance']
+            max_lead_distance = self.DEFAULT_CONFIG['max_lead_distance_mm']
             )
 
     def test_print_can_be_stopped_before_started(self):

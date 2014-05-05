@@ -23,7 +23,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         'calibration_data': types.DictType,
         'calibration_scale': types.FloatType,
         'draw_speed' : types.FloatType,
-        'max_lead_distance' : types.FloatType,
+        'max_lead_distance_mm' : types.FloatType,
 
     }
     CONFIGURATION_EXTENSION = '.cfg'

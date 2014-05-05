@@ -98,26 +98,31 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._configuration_api.load_printer(self._current_printer)
 
-        self.laser_thickness_entry_text = StringVar()
+        self.laser_thickness_entry_text = DoubleVar()
         self.laser_thickness_entry_text.set(self._configuration_api.get_laser_thickness_mm())
-        self.sublayer_height_entry_text = StringVar()
+        self.sublayer_height_entry_text = DoubleVar()
         self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
+        self.max_lead_distance_entry_text = DoubleVar()
+        self.max_lead_distance_entry_text.set(self._configuration_api.get_max_lead_distance_mm())
 
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
 
         Label(self).grid(column=1,row=15)
 
-        Label(self, text = "Laser Thickness (mm)" ).grid(column=0,row=20)
+        Label(self, text = "Laser Thickness (mm) [0.5]" ).grid(column=0,row=20)
         Entry(self, textvariable = self.laser_thickness_entry_text).grid(column=1, row=20)
 
-        Label(self, text = "Sub Layer Height (mm)" ).grid(column=0,row=30)
+        Label(self, text = "Sub Layer Height (mm) [0.05]" ).grid(column=0,row=30)
         Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=1, row=30)
 
-        Label(self).grid(column=1,row=35)
+        Label(self, text = "Maximum Lead Distance" ).grid(column=0,row=40)
+        Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=1, row=40)
 
-        Button(self, text ="Back", command = self._back).grid(column=0,row=40,sticky=N+S+W)
-        Button(self, text ="Save", command = self._save).grid(column=2,row=40,sticky=N+S+E)
+        Label(self).grid(column=1,row=50)
+
+        Button(self, text ="Back", command = self._back).grid(column=0,row=60,sticky=N+S+W)
+        Button(self, text ="Save", command = self._save).grid(column=2,row=60,sticky=N+S+E)
         self.update()
 
     def _back(self):
@@ -126,8 +131,10 @@ class SetupOptionsUI(PeachyFrame):
     def _save(self):
         laser_thickness = self.laser_thickness_entry_text.get()
         sublayer_height = self.sublayer_height_entry_text.get()
+        max_lead_distance = self.max_lead_distance_entry_text.get()
         self._configuration_api.set_laser_thickness_mm(float(laser_thickness))
         self._configuration_api.set_sublayer_height_mm(float(sublayer_height))
+        self._configuration_api.set_max_lead_distance_mm(float(max_lead_distance))
         self.navigate(SetupUI)
 
     def close(self):

@@ -444,6 +444,51 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     # ----------------------------- General Setup --------------------------------------
     @patch.object(ConfigurationManager, 'load' )
+    def test_get_max_lead_distance_mm_returns_max_lead_distance(self, mock_load):
+        expected = 0.4
+        config = self.DEFAULT_CONFIG.copy()
+        config['max_lead_distance_mm'] = expected
+        mock_load.return_value =  config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_max_lead_distance_mm())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_max_lead_distance_mm_sets_max_lead_distance_mm(self, mock_save, mock_load):
+        expected = 0.4
+        expected_config = self.DEFAULT_CONFIG.copy()
+        expected_config['max_lead_distance_mm'] = expected
+        mock_load.return_value =  self.DEFAULT_CONFIG.copy()
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_max_lead_distance_mm(expected)
+
+        self.assertEquals(expected,configuration_API.get_max_lead_distance_mm())
+        mock_save.assert_called_with(expected_config)
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_max_lead_distance_mm_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
+        mock_load.return_value =   {'name':'test' }
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.set_max_lead_distance_mm('a')
+        with self.assertRaises(Exception):
+            configuration_API.set_max_lead_distance_mm(-1.0)
+        with self.assertRaises(Exception):
+            configuration_API.set_max_lead_distance_mm({'a':'b'})
+        with self.assertRaises(Exception):
+            configuration_API.set_max_lead_distance_mm(0)
+        with self.assertRaises(Exception):
+            configuration_API.set_max_lead_distance_mm(1)
+
+
+    @patch.object(ConfigurationManager, 'load' )
     def test_get_laser_thickness_mm_returns_thickness(self, mock_load):
         expected = 7.0
         config = self.DEFAULT_CONFIG.copy()
@@ -456,7 +501,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
-    def test_set_laser_thickness_mm_returns_thickness(self, mock_save, mock_load):
+    def test_set_laser_thickness_mm_sets_thickness(self, mock_save, mock_load):
         expected_thickness = 7.0
         config =  self.DEFAULT_CONFIG.copy()
         expected = config.copy()

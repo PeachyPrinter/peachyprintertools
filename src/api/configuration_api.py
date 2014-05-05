@@ -271,3 +271,16 @@ class ConfigurationAPI(object):
             self.save()
         else:
             raise Exception("Sublayer height must be a positive floating point number")
+
+    '''Gets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
+    def get_max_lead_distance_mm(self):
+        return self._current_config['max_lead_distance_mm']
+
+    '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
+    def set_max_lead_distance_mm(self, lead_distance_mm):
+        if (type(lead_distance_mm) == types.FloatType  and lead_distance_mm > 0.0):
+            self._current_config['max_lead_distance_mm'] = lead_distance_mm
+            self.save()
+        else:
+            raise Exception("Max lead distance height must be a positive floating point number")
+
