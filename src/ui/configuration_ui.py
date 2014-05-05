@@ -5,6 +5,7 @@ from ui.main_ui import MainUI
 from ui.calibration_ui import *
 from api.configuration_api import ConfigurationAPI
 from print_ui import PrintStatusUI
+import help_text
 
 class SetupUI(PeachyFrame):
 
@@ -97,6 +98,7 @@ class SetupOptionsUI(PeachyFrame):
         self._current_printer = self.kwargs['printer']
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._configuration_api.load_printer(self._current_printer)
+        self.option_add('*Dialog.msg.width', 50)
 
         self.laser_thickness_entry_text = DoubleVar()
         self.laser_thickness_entry_text.set(self._configuration_api.get_laser_thickness_mm())
@@ -107,6 +109,7 @@ class SetupOptionsUI(PeachyFrame):
 
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
+        Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
 
         Label(self).grid(column=1,row=15)
 
@@ -116,14 +119,17 @@ class SetupOptionsUI(PeachyFrame):
         Label(self, text = "Sub Layer Height (mm) [0.05]" ).grid(column=0,row=30)
         Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=1, row=30)
 
-        Label(self, text = "Maximum Lead Distance" ).grid(column=0,row=40)
-        Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=1, row=40)
+        Label(self, text = "Maximum Lead Distance (mm) [0.5]" ).grid(column=0,row=40)
+        Entry(self, textvariable = self.max_lead_distance_entry_text).grid(column=1, row=40)
 
         Label(self).grid(column=1,row=50)
 
         Button(self, text ="Back", command = self._back).grid(column=0,row=60,sticky=N+S+W)
         Button(self, text ="Save", command = self._save).grid(column=2,row=60,sticky=N+S+E)
         self.update()
+
+    def _help(self):
+        PopUp(self,'Help', help_text.options_help)
 
     def _back(self):
         self.navigate(SetupUI)

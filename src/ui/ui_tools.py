@@ -1,4 +1,5 @@
 from Tkinter import *
+import ScrolledText
 import tkMessageBox
 import logging
 import sys
@@ -7,6 +8,22 @@ import re
 class UIHelpers(object):
     def strip_margin(self, text):
         return re.sub('\n[ \t]*\|', '\n', text)
+
+class PopUp():
+    def __init__(self,parent,title,text):
+        tl = Toplevel()
+        tl.title(title)
+        tl.geometry('500x500')
+        text_window = ScrolledText.ScrolledText(tl, wrap=WORD, height=50 )
+        text_window.tag_configure("center", justify='center')
+        text_window.tag_add("center", 1.0, "end")
+        text_window.insert(INSERT, text)
+        # text_window.tag_add("bold", "1.1", "1.20")
+        text_window.pack()
+        tl.focus_force()
+
+
+
 
 
 class PeachyFrame(Frame):
