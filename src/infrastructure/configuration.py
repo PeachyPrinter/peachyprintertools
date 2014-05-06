@@ -24,6 +24,10 @@ class FileBasedConfigurationManager(ConfigurationManager):
         'calibration_scale': types.FloatType,
         'draw_speed' : types.FloatType,
         'max_lead_distance_mm' : types.FloatType,
+        'use_serial_zaxis' : types.BooleanType,
+        'serial_port': types.StringType,
+        'serial_on': types.StringType,
+        'serial_off' : types.StringType,
 
     }
     CONFIGURATION_EXTENSION = '.cfg'

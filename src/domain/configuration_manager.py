@@ -19,6 +19,10 @@ class ConfigurationManager(object):
             'calibration_scale' : 1.0,
             'draw_speed' : 200.0,
             'max_lead_distance_mm' : 0.5,
+            'use_serial_zaxis' : False,
+            'serial_port': '',
+            'serial_on': '1',
+            'serial_off' : '0'
             }
 
     def list(self):
