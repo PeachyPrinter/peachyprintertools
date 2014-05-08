@@ -63,6 +63,8 @@ class AudioWriter(object):
         self._set_format_from_depth(bit_depth)
         self._pa = pyaudio.PyAudio()
         self._buffer_size = self._sample_rate / 8
+        self._min_buffer_size = self._buffer_size / 8
+        self._max_buffer_size = self._buffer_size - self._min_buffer_size
 
         logging.info("Audio Writer started with sample rate: %s, bit depth %s" % (self._sample_rate, self._bit_depth))
         try: 
@@ -103,15 +105,18 @@ class AudioWriter(object):
             logging.error("Bit depth ![%s]! specified is not supported" % depth)
             raise Exception("Bit depth ![%s]! specified is not supported" % depth)
 
-    def _wait_for_buffer(self,current_buffer_size):
-        if current_buffer_size < self._buffer_size / 8.0:
-            time.sleep(self._buffer_size * 1.0 / self._sample_rate * 1.0 / 8.0)
+    def _wait_for_buffer(self,available_buffer):
+        if (available_buffer <= self._min_buffer_size):
+            time.sleep(self._samples_in_seconds(self._max_buffer_size - available_buffer))
+
+    def _samples_in_seconds(self, samples):
+        return (samples * 1.0) / (self._sample_rate * 1.0)
 
     def write_chunk(self, chunk):
         for audio in chunk:
             frames = self._to_frame(audio)
-            buffer_size = self._outstream.get_write_available()
-            self._wait_for_buffer(buffer_size)
+            available_buffer_size = self._outstream.get_write_available()
+            self._wait_for_buffer(available_buffer_size)
             self._outstream.write(frames)
 
 

@@ -284,3 +284,8 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Max lead distance height must be a positive floating point number")
 
+
+    #----------------------------Advanced Setup---------------------------------------
+
+    # def use_serial_zaxis_control(self, on = True)
+
