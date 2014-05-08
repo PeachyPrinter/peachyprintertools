@@ -105,9 +105,9 @@ class AudioWriter(object):
             logging.error("Bit depth ![%s]! specified is not supported" % depth)
             raise Exception("Bit depth ![%s]! specified is not supported" % depth)
 
-    def _wait_for_buffer(self,available_buffer):
+    def _wait_for_buffer(self,available_buffer,samples_to_write):
         if (available_buffer <= self._min_buffer_size):
-            time.sleep(self._samples_in_seconds(self._max_buffer_size - available_buffer))
+            time.sleep(self._samples_in_seconds(samples_to_write))
 
     def _samples_in_seconds(self, samples):
         return (samples * 1.0) / (self._sample_rate * 1.0)
@@ -116,7 +116,7 @@ class AudioWriter(object):
         for audio in chunk:
             frames = self._to_frame(audio)
             available_buffer_size = self._outstream.get_write_available()
-            self._wait_for_buffer(available_buffer_size)
+            self._wait_for_buffer(available_buffer_size, len(frames))
             self._outstream.write(frames)
 
 
