@@ -125,7 +125,7 @@ class SquareGenerator(TestLayerGenerator):
 
 import math
 class CircleGenerator(TestLayerGenerator):
-    def __init__(self, speed = 100.0, radius = 20.0, steps = 100):
+    def __init__(self, speed = 100.0, radius = 20.0, steps = 20):
         self.set_speed(speed)
         self.set_radius(radius)
         self._steps = steps
@@ -175,7 +175,7 @@ class SpiralGenerator(TestLayerGenerator):
             yield [x,y]
 
 class SpyroGraphGenerator(TestLayerGenerator):
-    def __init__(self, speed = 200.0, radius = 20.0, steps = 100):
+    def __init__(self, speed = 200.0, radius = 20.0, steps = 20):
         self.set_speed(speed)
         self.set_radius(radius)
         self._steps = steps
