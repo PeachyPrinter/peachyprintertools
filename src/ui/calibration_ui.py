@@ -53,17 +53,17 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         Radiobutton(self, command = self._option_changed, text="Center Point", variable=self._current_selection, value=0).grid(column = 1, row = 20, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Alignment", variable=self._current_selection, value=1).grid(column = 1, row = 30, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value=2).grid(column = 1, row = 40, sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Calibrated Patterns", variable=self._current_selection, value=3).grid(column = 1, row = 50, sticky=W)
-
-        Label(self).grid(column=1,row=51)
+        Radiobutton(self, command = self._option_changed, text="Calibrated Patterns", variable=self._current_selection, value=3).grid(column = 1, row = 60, sticky=W)
 
         self.pattern_options = OptionMenu(self, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
-        self.pattern_options.grid(column=2,row=50,sticky=W)
-        
+        self.pattern_options.grid(column=2,row=60,sticky=W)
+
+        Label(self).grid(column=1,row=70)
+
         self._setup_calibration_grid()
 
-        Label(self).grid(column=1,row=99)
-        Button(self,text=u"Back", command=self._back_button_click).grid(column=1,row=100, sticky=N+S+W)
+        Label(self).grid(column=1,row=80)
+        Button(self,text=u"Back", command=self._back_button_click).grid(column=1,row=90, sticky=N+S+W)
 
         self._option_changed()
         self.update()
@@ -81,54 +81,59 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self.calibration_fields = {}
         self.upper_z = DoubleVar()
         self.upper_z.set(data['height'])
+        self.calibration_frame = LabelFrame(self,text="Calibration", padx=5, pady=5)
+        self.calibration_frame.grid(column=2,row=50,columnspan=4)
 
-        self.calibration_fields['r_z_h'] = Label(self,text="Upper Calibration Height (mm)" ,**options )
-        self.calibration_fields['r_z_h'].grid(column=1,row=55,columnspan=2)
-        self.calibration_fields['a_z'] = Entry(self, 
+        self.calibration_fields['r_z_h'] = Label(self.calibration_frame,text="Upper Calibration Height (mm)" ,**options )
+        self.calibration_fields['r_z_h'].grid(column=1,row=10,columnspan=2)
+        self.calibration_fields['a_z'] = Entry(self.calibration_frame, 
                 validate = 'key', validatecommand=self.validate_float_command(), 
                 textvariable=self.upper_z, width=8 ,**options)
-        self.calibration_fields['a_z'].grid(column=3,row=55)
+        self.calibration_fields['a_z'].grid(column=3,row=10)
         self.calibration_fields['a_z'].bind('<FocusOut>', self._upper_z_change)
+        self.calibration_fields['a_z'].bind('<KeyRelease>', self._upper_z_change)
 
-        self.calibration_fields['r_x_h'] = Label(self,text="Calibration Point" ,**options )
-        self.calibration_fields['r_x_h'].grid(column=1,row=60)
+        Label(self).grid(column=0, row=20)
 
-        self.calibration_fields['a_x_h'] = Label(self,text="Actual X (mm)",**options)
-        self.calibration_fields['a_x_h'].grid(column=2,row=60)
-        self.calibration_fields['a_y_h'] = Label(self,text="Actual Y (mm)",**options)
-        self.calibration_fields['a_y_h'].grid(column=3,row=60)
-        self.calibration_fields['a_z_h'] = Label(self,text="Actual Z (mm)",**options)
-        self.calibration_fields['a_z_h'].grid(column=4,row=60)
+        self.calibration_fields['a_x_h'] = Label(self.calibration_frame,text="Actual X (mm)",**options)
+        self.calibration_fields['a_x_h'].grid(column=1,row=30)
+        self.calibration_fields['a_y_h'] = Label(self.calibration_frame,text="Actual Y (mm)",**options)
+        self.calibration_fields['a_y_h'].grid(column=2,row=30)
+        self.calibration_fields['a_z_h'] = Label(self.calibration_frame,text="Actual Z (mm)",**options)
+        self.calibration_fields['a_z_h'].grid(column=3,row=30)
 
-        start_row = 70
+        start_row = 40
         for index in range(0,len(self.data_points)):
-            self.calibration_fields['r_x_%s' % index] = Label(self,text=str(index + 1), width=8 ,**options )
-            self.calibration_fields['r_x_%s' % index].grid(column=1,row=start_row + index)
-            self.calibration_fields['a_x_%s' % index] = Entry(self, 
+            current_row = start_row + index * 2
+            if (index == len(self.data_points) / 2):
+                Label(self.calibration_frame).grid(column=1,row=current_row-1)
+            
+            self.calibration_fields['a_x_%s' % index] = Entry(self.calibration_frame, 
                 validate = 'key', validatecommand=self.validate_float_command(), 
                 textvariable=self.data_points[index].actual_x, width=8 ,**options)
-            self.calibration_fields['a_x_%s' % index].grid(column=2,row=start_row + index)
+            self.calibration_fields['a_x_%s' % index].grid(column=1,row=current_row)
             self.calibration_fields['a_x_%s' % index].bind('<FocusIn>', 
                 lambda event, point=self.data_points[index]: 
                     self._point_change(point))
-            self.calibration_fields['a_y_%s' % index] = Entry(self,
+            self.calibration_fields['a_y_%s' % index] = Entry(self.calibration_frame,
                 validate = 'key', validatecommand=self.validate_float_command(), 
                 textvariable=self.data_points[index].actual_y, width=8 ,**options)
-            self.calibration_fields['a_y_%s' % index].grid(column=3,row=start_row + index)
+            self.calibration_fields['a_y_%s' % index].grid(column=2,row=current_row)
             self.calibration_fields['a_y_%s' % index].bind('<FocusIn>', 
                 lambda event, point=self.data_points[index]:
                     self._point_change(point))
-            self.calibration_fields['r_z_%s' % index] = Label(self,textvariable=self.data_points[index].ref_z, width=8 ,**options)
-            self.calibration_fields['r_z_%s' % index].grid(column=4,row=start_row + index)
+            self.calibration_fields['r_z_%s' % index] = Label(self.calibration_frame,textvariable=self.data_points[index].ref_z, width=8 ,**options)
+            self.calibration_fields['r_z_%s' % index].grid(column=3,row=current_row)
 
 
-        self.save_button = Button(self,text=u"Save", command=self._save_click,**options)
-        self.save_button.grid(column=4,row=(start_row + len(self.data_points) + 1))
+        self.save_button = Button(self.calibration_frame,text=u"Save", command=self._save_click,**options)
+        self.save_button.grid(column=4,row=(start_row + len(self.data_points) * 2 + 1))
 
     def _point_change(self,data):
         self._calibrationAPI.show_point(data.ref_xyz_float)
 
     def _hide_calibration(self):
+        self.calibration_frame.grid_remove()
         for (key,value) in self.calibration_fields.items():
             value.grid_remove()
         self.save_button.grid_remove()
@@ -148,6 +153,7 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
             self._upper_z_change(None)
 
     def _show_calibration(self):
+        self.calibration_frame.grid()
         for key,value in self.calibration_fields.items():
             value.grid()
         self.save_button.grid()

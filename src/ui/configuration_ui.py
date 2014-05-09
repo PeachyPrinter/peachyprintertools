@@ -113,7 +113,7 @@ class SetupOptionsUI(PeachyFrame):
 
         Label(self).grid(column=1,row=15)
 
-        Label(self, text = "Laser Thickness (mm) [0.5]" ).grid(column=0,row=20)
+        Label(self, text = "Spot Diameter (mm) [0.5]" ).grid(column=0,row=20)
         Entry(self, textvariable = self.laser_thickness_entry_text).grid(column=1, row=20)
 
         Label(self, text = "Sub Layer Height (mm) [0.05]" ).grid(column=0,row=30)
