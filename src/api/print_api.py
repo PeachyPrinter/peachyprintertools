@@ -8,6 +8,7 @@ from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
 from infrastructure.layer_generators import SubLayerGenerator
+from infrastructure.zaxis_control import SerialZAxisControl
 
 
 '''TODO'''
@@ -49,12 +50,22 @@ class PrintAPI(object):
             sample_rate = self._configuration['input_sample_frequency'],
             bit_depth = self._configuration['input_bit_depth'],
             )
+        if self._configuration['use_serial_zaxis']:
+            zaxis_control = SerialZAxisControl(
+                                self._configuration['serial_port'], 
+                                on_command = self._configuration['serial_on'], 
+                                off_command = self._configuration['serial_off']
+                                )
+        else:
+            zaxis_control = None
+            
         self._controller = Controller(
             laser_control,
             path_to_audio,
             audio_writer,
             layer_generator,
             zaxis = zaxis,
+            zaxis_control = zaxis_control,
             status_call_back = self._status_call_back,
             max_lead_distance = self._configuration['max_lead_distance_mm']
             )
