@@ -14,6 +14,20 @@ Peachy Printer usage agreement
 In Short:
 Lasers are bloody dangerous, you can light fires, blind yourself, or even cause critical failures in aircraft. As a result peachy printer assumes no liability for improper use of lasers.
 
+Peachy Printer Tools uses:
+
+    Numpy http://www.numpy.org/
+    Copyright © 2005-2013, NumPy Developers.
+    All rights reserved.
+
+    mock http://www.voidspace.org.uk/python/mock/
+
+    PyAudio http://people.csail.mit.edu/hubert/pyaudio/
+    Copyright (c) 2006-2014 Hubert Pham
+
+    Python 2.7 https://www.python.org/
+
+The software and works:
 
 Copyright (C) 2014 Peachy Printer LLC
 
