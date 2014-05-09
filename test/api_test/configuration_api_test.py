@@ -443,6 +443,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(self.DEFAULT_CONFIG['drips_per_mm'], actual)
 
     # ----------------------------- General Setup --------------------------------------
+
     @patch.object(ConfigurationManager, 'load' )
     def test_get_max_lead_distance_mm_returns_max_lead_distance(self, mock_load):
         expected = 0.4
@@ -575,6 +576,47 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             configuration_API.set_sublayer_height_mm(0)
         with self.assertRaises(Exception):
             configuration_API.set_sublayer_height_mm(1)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_serial_options_loads_correctly(self, mock_load):
+        mock_load.return_value =  self.DEFAULT_CONFIG
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        actual_enabled = configuration_API.get_serial_enabled()
+        actual_port = configuration_API.get_serial_port()
+        actual_on = configuration_API.get_serial_on_command()
+        actual_off = configuration_API.get_serial_off_command()
+
+        self.assertEquals(self.DEFAULT_CONFIG['use_serial_zaxis'],actual_enabled)
+        self.assertEquals(self.DEFAULT_CONFIG['serial_port'],actual_port)
+        self.assertEquals(self.DEFAULT_CONFIG['serial_on'],actual_on)
+        self.assertEquals(self.DEFAULT_CONFIG['serial_off'],actual_off)
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_get_serial_options_loads_correctly(self, mock_save, mock_load):
+        expected_enabled = True
+        expected_port = 'com54'
+        expected_on = 'GOGOGO'
+        expected_off = 'STOPSTOP'
+
+        mock_load.return_value =  self.DEFAULT_CONFIG.copy()
+        expected_config = self.DEFAULT_CONFIG.copy()
+        expected_config['use_serial_zaxis'] = expected_enabled
+        expected_config['serial_port']      = expected_port
+        expected_config['serial_on']        = expected_on
+        expected_config['serial_off']       = expected_off
+
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_serial_enabled(expected_enabled)
+        configuration_API.set_serial_port(expected_port)
+        configuration_API.set_serial_on_command(expected_on)
+        configuration_API.set_serial_off_command(expected_off)
+
+        mock_save.assert_called_with(expected_config)
 
 #-----------------------------------------Cure Test Setup Tests -----------------------------------
 

@@ -287,5 +287,32 @@ class ConfigurationAPI(object):
 
     #----------------------------Advanced Setup---------------------------------------
 
-    # def use_serial_zaxis_control(self, on = True)
+    def get_serial_enabled(self):
+        return self._current_config['use_serial_zaxis']
+
+    def get_serial_port(self):
+        return self._current_config['serial_port']
+
+    def get_serial_on_command(self):
+        return self._current_config['serial_on']
+
+    def get_serial_off_command(self):
+        return self._current_config['serial_off']
+
+    def set_serial_enabled(self, enabled):
+        self._current_config['use_serial_zaxis'] = enabled
+        self.save()
+
+    def set_serial_port(self, port):
+        self._current_config['serial_port'] = port
+        self.save()
+
+    def set_serial_on_command(self, on_command):
+        self._current_config['serial_on'] = on_command
+        self.save()
+
+    def set_serial_off_command(self, off_command):
+        self._current_config['serial_off'] = off_command
+        self.save()
+
 
