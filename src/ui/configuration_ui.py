@@ -128,17 +128,25 @@ class SetupOptionsUI(PeachyFrame):
         advanced_frame.grid(column=0,row=60, columnspan=3)
         # ----------------------Frame Start---------------------------
         self._use_serial = IntVar()
+        self._use_serial.set(self._configuration_api.get_serial_enabled())
         self._serial_on_command = StringVar()
+        self._serial_on_command.set(self._configuration_api.get_serial_on_command())
         self._serial_off_command = StringVar()
-        self._serial_speed = IntVar()
+        self._serial_off_command.set(self._configuration_api.get_serial_off_command())
+        self._serial_port = StringVar()
+        self._serial_port.set(self._configuration_api.get_serial_port())
 
-        Checkbutton(advanced_frame, text="Use serial drip control").grid(column=0, row = 10)
-        Label(advanced_frame,text="Serial Speed (baud)").grid(column=0, row=20)
-        Entry(advanced_frame,textvariable=self._serial_speed).grid(column=1, row=20)
+        Checkbutton(advanced_frame, text="Use Serial Drip Control", variable = self._use_serial, command=self._showhide_serial).grid(column=0, row = 10)
+        Label(advanced_frame,text="Serial Port").grid(column=0, row=20)
+        self._serial_port_entry = Entry(advanced_frame,textvariable=self._serial_port)
+        self._serial_port_entry.grid(column=1, row=20)
         Label(advanced_frame,text="Serial On Command").grid(column=0, row=30)
-        Entry(advanced_frame,textvariable=self._serial_on_command).grid(column=1, row=30)
+        self._serial_on_entry = Entry(advanced_frame,textvariable=self._serial_on_command)
+        self._serial_on_entry.grid(column=1, row=30)
         Label(advanced_frame,text="Serial Off Command").grid(column=0, row=40)
-        Entry(advanced_frame,textvariable=self._serial_off_command).grid(column=1, row=40)
+        self._serial_off_entry = Entry(advanced_frame,textvariable=self._serial_off_command)
+        self._serial_off_entry.grid(column=1, row=40)
+        self._showhide_serial()
 
         # ----------------------Frame End---------------------------
         Label(self).grid(column=1,row=70)
@@ -147,20 +155,31 @@ class SetupOptionsUI(PeachyFrame):
         Button(self, text ="Save", command = self._save).grid(column=2,row=80,sticky=N+S+E)
         self.update()
 
+    def _showhide_serial(self):
+        if self._use_serial.get():
+            self._serial_off_entry.configure(state='normal')
+            self._serial_on_entry.configure(state='normal')
+            self._serial_port_entry.configure(state='normal')
+        else:
+            self._serial_off_entry.configure(state='disabled')
+            self._serial_on_entry.configure(state='disabled')
+            self._serial_port_entry.configure(state='disabled')
+
     def _help(self):
         PopUp(self,'Help', help_text.options_help)
 
     def _back(self):
-
         self.navigate(SetupUI)
 
     def _save(self):
-        laser_thickness = self.laser_thickness_entry_text.get()
-        sublayer_height = self.sublayer_height_entry_text.get()
-        max_lead_distance = self.max_lead_distance_entry_text.get()
-        self._configuration_api.set_laser_thickness_mm(float(laser_thickness))
-        self._configuration_api.set_sublayer_height_mm(float(sublayer_height))
-        self._configuration_api.set_max_lead_distance_mm(float(max_lead_distance))
+        self._configuration_api.set_laser_thickness_mm(float(self.laser_thickness_entry_text.get()))
+        self._configuration_api.set_sublayer_height_mm(float(self.sublayer_height_entry_text.get()))
+        self._configuration_api.set_max_lead_distance_mm(float(self.max_lead_distance_entry_text.get()))
+        self._configuration_api.set_serial_enabled(bool(self._use_serial.get()))
+        self._configuration_api.set_serial_port(self._serial_port.get())
+        self._configuration_api.set_serial_on_command(self._serial_on_command.get())
+        self._configuration_api.set_serial_off_command(self._serial_off_command.get())
+
         self.navigate(SetupUI)
 
     def close(self):
