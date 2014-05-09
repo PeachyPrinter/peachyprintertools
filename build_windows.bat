@@ -17,12 +17,12 @@ set SEMANTIC=0.0.1
 set /p SEMANTIC=<symantic.version
 IF NOT DEFINED GIT_HOME (
   git --version
-  IF ERRORLEVEL 0 (
+  IF "%ERRORLEVEL%" == "0" (
     set GIT_HOME=git
   ) ELSE (
-    echo Could not find git.
+    echo "Could not find git."
     pause
-    REM exit 1
+    EXIT /B 1
   )
 )
 
@@ -43,9 +43,9 @@ echo Running Tests
 echo ------------------------------------
 
 python test/test-all.py
-IF NOT ERRORLEVEL 0 (
-    echo FAILED TESTS ABORTING
-    exit 1
+IF NOT "%ERRORLEVEL%" == "0" (
+    echo "FAILED TESTS ABORTING"
+    EXIT /B 2
 )
 
 
@@ -55,10 +55,9 @@ echo ------------------------------------
 
 cd src
 python setup.py bdist_msi
-IF NOT ERRORLEVEL 0 (
-    echo FAILED TESTS ABORTING
-    exit 1
-)
+IF NOT "%ERRORLEVEL%" == "0" (
+    echo "FAILED PACKAGING ABORTING"
+    EXIT /B 3
 cd ..
 
 echo ------------------------------------
