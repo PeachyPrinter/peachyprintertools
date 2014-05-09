@@ -124,14 +124,34 @@ class SetupOptionsUI(PeachyFrame):
 
         Label(self).grid(column=1,row=50)
 
-        Button(self, text ="Back", command = self._back).grid(column=0,row=60,sticky=N+S+W)
-        Button(self, text ="Save", command = self._save).grid(column=2,row=60,sticky=N+S+E)
+        advanced_frame = LabelFrame(self, text="Advanced Options (use at your own risk)", padx=5, pady=5)
+        advanced_frame.grid(column=0,row=60, columnspan=3)
+        # ----------------------Frame Start---------------------------
+        self._use_serial = IntVar()
+        self._serial_on_command = StringVar()
+        self._serial_off_command = StringVar()
+        self._serial_speed = IntVar()
+
+        Checkbutton(advanced_frame, text="Use serial drip control").grid(column=0, row = 10)
+        Label(advanced_frame,text="Serial Speed (baud)").grid(column=0, row=20)
+        Entry(advanced_frame,textvariable=self._serial_speed).grid(column=1, row=20)
+        Label(advanced_frame,text="Serial On Command").grid(column=0, row=30)
+        Entry(advanced_frame,textvariable=self._serial_on_command).grid(column=1, row=30)
+        Label(advanced_frame,text="Serial Off Command").grid(column=0, row=40)
+        Entry(advanced_frame,textvariable=self._serial_off_command).grid(column=1, row=40)
+
+        # ----------------------Frame End---------------------------
+        Label(self).grid(column=1,row=70)
+
+        Button(self, text ="Back", command = self._back).grid(column=0,row=80,sticky=N+S+W)
+        Button(self, text ="Save", command = self._save).grid(column=2,row=80,sticky=N+S+E)
         self.update()
 
     def _help(self):
         PopUp(self,'Help', help_text.options_help)
 
     def _back(self):
+
         self.navigate(SetupUI)
 
     def _save(self):
@@ -227,18 +247,19 @@ class SetupAudioUI(PeachyFrame):
         audio_options = self._configuration_api.get_available_audio_options()
 
         self._input_options = dict([ (str(option), option) for option in audio_options['inputs']])
-        if (len(self._input_options) < 1):
+        self._output_options = dict([ (str(option), option) for option in audio_options['outputs']])
+
+        if (len(self._input_options) < 1 or len(self._output_options) < 1):
             logging.error("No inputs available")
-            tkMessageBox.showwarning('Error','Audio card appears to have no inputs')
+            tkMessageBox.showwarning('Error','Audio card appears to not be setup correctly, Have you plugged in your dripper and printer?')
             self._back()
+            return
+            
         self._input_audio_selection_current = StringVar()
         self._input_audio_selection_current.set(self._currently_selected(self._input_options))
 
         self._output_options = dict([ (str(option), option) for option in audio_options['outputs']])
-        if (len(self._output_options) < 1):
-            logging.error("No outputs available")
-            tkMessageBox.showwarning('Error','Audio card appears to have no outputs')
-            self._back()
+
         self._output_audio_selection_current = StringVar()
         self._output_audio_selection_current.set(self._currently_selected(self._output_options))
         

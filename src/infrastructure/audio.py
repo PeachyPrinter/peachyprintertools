@@ -39,8 +39,11 @@ class AudioSetup(object):
         outputs =  []
         try:
             pa = pyaudio.PyAudio()
-            input_device = pa.get_default_input_device_info()
-            output_device = pa.get_default_output_device_info()
+            try:
+                input_device = pa.get_default_input_device_info()
+                output_device = pa.get_default_output_device_info()
+            except IOError:
+                return { 'input' : inputs, 'output' : outputs}
             input_device_id = input_device['index']
             output_device_id = output_device['index']
             for sample_rate in self._supported_rates:

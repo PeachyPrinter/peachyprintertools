@@ -39,7 +39,8 @@ class PrintUI(PeachyFrame):
 
     def print_g_code_click(self):
         filename = tkFileDialog.askopenfile(**self.file_opt)
-        self.navigate(PrintStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
+        if filename:
+            self.navigate(PrintStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
 
     def _back(self):
         self.navigate(MainUI)
