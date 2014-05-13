@@ -109,7 +109,7 @@ class AudioWriter(object):
             raise Exception("Bit depth ![%s]! specified is not supported" % depth)
     
     def _wait_for_buffer(self,available_write,samples_to_write):
-        print("Waiting for output buffer")
+        logging.debug("Waiting for output buffer")
         if (available_write < samples_to_write):
             time.sleep(self._samples_in_seconds(samples_to_write))
 
