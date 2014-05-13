@@ -44,12 +44,13 @@ class MachineStatus(object):
         self._lock = threading.Lock()
 
     def _update(self):
-        if self._status_call_back:
-            self._lock.acquire()
-            try:
-                self._status_call_back(self.status())
-            finally:
-                self._lock.release()
+        if not self._lock.locked():
+            if self._status_call_back:
+                self._lock.acquire()
+                try:
+                    self._status_call_back(self.status())
+                finally:
+                    self._lock.release()
 
     def drip_call_back(self, drips, height):
         self._height = height
