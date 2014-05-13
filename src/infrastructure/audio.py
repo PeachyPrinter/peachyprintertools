@@ -121,9 +121,9 @@ class AudioWriter(object):
             frames = self._to_frame(audio)
             available_buffer_size = self._outstream.get_write_available()
             self._wait_for_buffer(available_buffer_size, len(frames))
-            print("Write frames")
+            logging.debug("Write frames")
             self._outstream.write(frames)
-            print("Done write frames")
+            logging.debug("Done write frames")
 
 
     def _to_frame(self, values):
