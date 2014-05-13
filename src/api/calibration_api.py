@@ -64,11 +64,18 @@ class CalibrationAPI(object):
             self._unapply_calibration()
             self._update_generator(self._point_generator)
 
-
     '''Used to show a single line on one axis used to line up calibration grid'''
     def show_line(self):
         self._unapply_calibration()
         self._update_generator(self._alignment_generator)
+
+    def get_max_deflection(self):
+        return self._configuration['max_deflection']
+
+    def set_max_deflection(self, deflection):
+        self._configuration['max_deflection'] = deflection
+        self._unapply_calibration()
+        self._configuration_manager.save(self._configuration)
 
     '''Used to show a test pattern with calibration applied'''
     def show_test_pattern(self,pattern):
@@ -78,6 +85,11 @@ class CalibrationAPI(object):
         else:
             logging.error('Pattern: %s does not exist' % pattern)
             raise Exception('Pattern: %s does not exist' % pattern)
+
+    '''Shows the scale square'''
+    def show_scale(self):
+        self._unapply_calibration()
+        self._update_generator(self._test_patterns['Square'])
 
     '''returns a list of test patterns'''
     def get_test_patterns(self):

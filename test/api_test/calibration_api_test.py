@@ -342,6 +342,51 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         actual = calibration_api.get_largest_object_radius()
         self.assertEquals(expected, actual)
 
+    def test_get_max_deflection_should_return_max_deflection(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        config = self.DEFAULT_CONFIG.copy()
+        expected = 0.68
+        config['max_deflection'] =  expected
+        mock_configuration_manager.load.return_value = config
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        actual = calibration_api.get_max_deflection()
+        self.assertEquals(expected, actual)
+
+    def test_set_max_deflection_should_save_and_update_max_deflection(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        mock_transformer = mock_Transformer.return_value
+        mock_pathtoaudio = mock_PathToAudio.return_value
+        config = self.DEFAULT_CONFIG.copy()
+        expected_config = config.copy()
+        expected = 0.68
+        expected_config['max_deflection'] = expected
+        config['max_deflection'] = 0.11
+        mock_configuration_manager.load.return_value = config
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        actual = calibration_api.set_max_deflection(expected)
+        
+        mock_configuration_manager.save.assert_called_with(expected_config)
+        mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)
+        
+    @patch('api.calibration_api.SquareGenerator')
+    def test_show_scale_should_use_Square_Generator_and_Tuning_Transformer(self, mock_SquareGenerator, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        mock_squaregenerator = mock_SquareGenerator.return_value
+        mock_transformer = mock_Transformer.return_value
+        mock_pathtoaudio = mock_PathToAudio.return_value
+        mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
+        mock_controller = mock_Controller.return_value
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        calibration_api.show_scale()
+        
+        mock_controller.change_generator.assert_called_with(mock_squaregenerator)
+        mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)
 
     # def test_get_calibration_points_returns_pattern_if_the_existing_configuration_empty(self,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
     #     calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
