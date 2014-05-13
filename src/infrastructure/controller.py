@@ -229,9 +229,12 @@ class Controller(threading.Thread,):
                 self._zaxis_control.move_up()
             logging.info("Controller: Waiting for drips")
             self._status.set_waiting_for_drips()
+            logging.debug("Checking for shutdown")
             if self._shutting_down:
                 return
+            logging.debug("Setting laser off")
             self._laser_control.set_laser_off()
+            logging.debug("Moving")
             self._move_lateral(self.state.xy, self.state.z,self.state.speed)
         self._status.set_not_waiting_for_drips()
 
