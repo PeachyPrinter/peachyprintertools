@@ -203,8 +203,9 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._height_mm_entry = IntVar()
         self._height_mm_entry.set(10)
 
-        Label(self, text = 'Printer: ').grid(column=0,row=0)
-        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
+        Label(self, text = 'Printer: ').grid(column=0,row=10)
+        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
+        Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
         
         Label(self).grid(column=1,row=15)
 
@@ -235,6 +236,9 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
     def _back(self):
         self.navigate(SetupUI)
+
+    def _help(self):
+        PopUp(self,'Help', help_text.setup_drip_calibration_help)
 
     def _mark(self):
         try:
@@ -283,8 +287,9 @@ class SetupAudioUI(PeachyFrame):
         self._output_audio_selection_current = StringVar()
         self._output_audio_selection_current.set(self._currently_selected(self._output_options))
         
-        Label(self, text = 'Printer: ').grid(column=0,row=0)
-        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=0)
+        Label(self, text = 'Printer: ').grid(column=0,row=10)
+        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
+        Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
 
         Label(self).grid(column=0,row=20)
         Label(self, text = 'Selecting a format not supported by your system may result in odd behaviour').grid(column=0,row=25,columnspan=3)
@@ -319,6 +324,9 @@ class SetupAudioUI(PeachyFrame):
     def _back(self):
         self.navigate(SetupUI)
 
+    def _help(self):
+        PopUp(self,'Help', help_text.setup_audio_help)
+
     def _save(self):
         input_option = self._input_options[self._input_audio_selection_current.get()]
         output_option = self._output_options[self._output_audio_selection_current.get()]
@@ -351,6 +359,7 @@ class CureTestUI(PeachyFrame):
 
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
+        Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
 
         Label(self).grid(column=1,row=15)
 
@@ -384,6 +393,9 @@ class CureTestUI(PeachyFrame):
 
     def _back(self):
         self.navigate(SetupUI)
+
+    def _help(self):
+        PopUp(self,'Help', help_text.cure_test_help)
 
     def _save(self):
         try:
