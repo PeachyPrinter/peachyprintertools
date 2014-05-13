@@ -4,6 +4,7 @@ from ui.ui_tools import *
 from ui.main_ui import MainUI
 from api.calibration_api import CalibrationAPI
 import numpy as np
+import help_text
 
 class CalibrationPoint(object):
     def __init__(self,ref_x,ref_y,ref_z,actual_x,actual_y,actual_z):
@@ -46,7 +47,8 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self.grid()
 
         Label(self, text = 'Printer: ').grid(column=1,row=5)
-        Label(self, text = self._printer).grid(column=2,row=5)
+        Label(self, text = self._printer, width=30 ).grid(column=2,row=5)
+        Button(self, text='?', command=self._help).grid(column=3, row=5,stick=N+E)
 
         Label(self).grid(column=1,row=7)
 
@@ -131,6 +133,9 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
     def _point_change(self,data):
         self._calibrationAPI.show_point(data.ref_xyz_float)
+
+    def _help(self):
+        PopUp(self,'Help', help_text.calibration_help)
 
     def _hide_calibration(self):
         self.calibration_frame.grid_remove()
