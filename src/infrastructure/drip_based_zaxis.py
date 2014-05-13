@@ -105,9 +105,13 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self.instream.start_stream()
         self._running = True
         while(self._running):
+            logging.debug("Waiting for Frames")
             self._wait_for_buffer(self.instream.get_read_available())
+            logging.debug("Reading Frames")
             frames = self.instream.read(self.instream.get_read_available())
+            logging.debug("Done reading frames")
             self._add_frames(frames)
+            logging.debug("Done adding frames")
 
     def _wait_for_buffer(self,current_buffer_size):
         if current_buffer_size < self._buffer_size / 8.0:

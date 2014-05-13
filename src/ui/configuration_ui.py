@@ -249,6 +249,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         )
 
     def _save(self):
+        self._configuration_api.stop_counting_drips()
         self._configuration_api.save()
         self.navigate(SetupUI)
 
