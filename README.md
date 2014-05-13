@@ -4,7 +4,7 @@ Peachy Printer Tools
 Status
 -------------------------
 
-Very Active Development
+Very Active Development (BETA - 2)
 
 
 Known Issues
@@ -55,13 +55,14 @@ Development
 + pyaudio
 + mock
 
+
 #### Runing the tests
 
 Run Suite Once
 
 **python test/test-all.py**
 
-Run Suite on Every Change (linux like OS)
+Run Suite on Every Change (linux like OS only )
 
 **./runsuite test/test-all.py**
 
