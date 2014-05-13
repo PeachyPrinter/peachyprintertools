@@ -46,6 +46,17 @@ class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals([1.0, 1.0 ], tuning_transformer.transform([1.0,1.1,1.0]))
         self.assertEquals([1.0, 0.0 ], tuning_transformer.transform([1.0,-0.1,1.0]))
 
+    def test_can_change_tuning_transformer_scale(self):
+        tuning_transformer = TuningTransformer(scale = 1.0)
+        self.assertEquals([1.0,1.0], tuning_transformer.transform([1.0,1.0,1.0]))
+        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
+        self.assertEquals([0.0,0.0], tuning_transformer.transform([0.0,0.0,1.0]))
+        tuning_transformer.set_scale(0.5)
+        self.assertEquals([0.75,0.75], tuning_transformer.transform([1.0,1.0,1.0]))
+        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
+        self.assertEquals([0.25,0.25], tuning_transformer.transform([0.0,0.0,1.0]))
+
+
 class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_given_a_basic_mapping_yields_expected_results(self):
         perfect_data = {
@@ -95,18 +106,41 @@ class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         }
         scale = 0.5
         transformer = HomogenousTransformer(perfect_data, scale)
-
-        test_points = [ 
-            [1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0]
-        ]
-
-        expected_points = [
-            (0.75,0.75),(0.25,0.25),(0.5,0.5),(0.625,0.625)
-        ]
+        test_points = [[1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0]]
+        expected_points = [(0.75,0.75),(0.25,0.25),(0.5,0.5),(0.625,0.625)]
 
         actual_points   = [ transformer.transform ( point) for point in test_points ]
         
         self.assertEquals(expected_points, actual_points)
+
+    def test_given_a_basic_mapping_yields_expected_results_with_scale_change(self):
+        perfect_data = {
+            'height': 1.0 , 
+            'lower_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                },
+            'upper_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
+        }
+        scale = 0.5
+        transformer = HomogenousTransformer(perfect_data, scale)
+        test_points = [[1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0]]
+        expected_points_pre = [(0.75,0.75),(0.25,0.25),(0.5,0.5),(0.625,0.625)]
+        expected_points_post = [(1.0,1.0),(0.0,0.0),(0.5,0.5),(0.75,0.75)]
+
+        actual_points_pre = [ transformer.transform ( point) for point in test_points ]
+        transformer.set_scale(1.0)
+        actual_points_post = [ transformer.transform ( point) for point in test_points ]
+
+        self.assertEquals(expected_points_pre, actual_points_pre)
+        self.assertEquals(expected_points_post,actual_points_post)
 
     def test_given_a_basic_mapping_yields_expected_results(self):
         perfect_data = {

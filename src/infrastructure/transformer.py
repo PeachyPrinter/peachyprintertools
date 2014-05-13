@@ -1,6 +1,7 @@
 import numpy as np
 import logging
 from domain.transformer import Transformer
+import threading
 
 class OneToOneTransformer(Transformer):
     def transform(self, xyz):
@@ -22,6 +23,9 @@ class TuningTransformer(Transformer):
         y = self._transform(y)
         return [x,y]
 
+    def set_scale(self, new_scale):
+        self._scale = new_scale
+
     def _check_and_adjust(self, value):
         if value > 1.0:
             value = 1.0
@@ -36,12 +40,22 @@ class TuningTransformer(Transformer):
 
 class HomogenousTransformer(Transformer):
     def __init__(self, config, scale = 1.0):
+        self._lock = threading.Lock()
+        self._config = config
         self._scale = scale
-        logging.info(config)
-        self._lower_transform = self._get_transformation_matrix(config['lower_points'])
-        self._upper_transform = self._get_transformation_matrix(config['upper_points'])
-        self._upper_height = config['height']
+        logging.info(self._config)
+        self._get_transforms()
+        self._upper_height = self._config['height']
         self._cache = {}
+        
+
+    def _get_transforms(self):
+        self._lock.acquire()
+        try:
+            self._lower_transform = self._get_transformation_matrix(self._config['lower_points'])
+            self._upper_transform = self._get_transformation_matrix(self._config['upper_points'])
+        finally:
+            self._lock.release()
 
     def _get_transformation_matrix(self,mappings):
         mapping_matrix = self._build_matrix(mappings)
@@ -92,12 +106,19 @@ class HomogenousTransformer(Transformer):
         return (adjusted_height * (self._upper_transform - self._lower_transform)) + self._lower_transform
 
     def transform(self,(x,y,z)):
-        logging.debug('in x: %s in: y %s' % (x,y))
-        realworld = np.array([[x], [y], [1]])
-        logging.debug('Z: %s M: %s' % (z, self._transforms_for_height(z)))
-        computerland =  self._transforms_for_height(z) * realworld
-        [kx, ky, k] = [computerland.item(i, 0) for i in range(3)]
-        logging.debug('out kx: %s , ky: %s, k: %s' % (kx,ky,k))
-        
+        self._lock.acquire()
+        try:
+            logging.debug('in x: %s in: y %s' % (x,y))
+            realworld = np.array([[x], [y], [1]])
+            logging.debug('Z: %s M: %s' % (z, self._transforms_for_height(z)))
+            computerland =  self._transforms_for_height(z) * realworld
+            [kx, ky, k] = [computerland.item(i, 0) for i in range(3)]
+            logging.debug('out kx: %s , ky: %s, k: %s' % (kx,ky,k))
+        finally:
+            self._lock.release()
         return (kx/k, ky/k)
+
+    def set_scale(self, new_scale):
+        self._scale = new_scale
+        self._get_transforms()
        
