@@ -47,7 +47,7 @@ Please see the LICENSE file
 
 Development 
 --------------------------
-## Dependancies
+#### Dependancies
 
 + python 2.7
 + numpy
@@ -55,7 +55,7 @@ Development
 + pyaudio
 + mock
 
-## Runing the tests
+#### Runing the tests
 
 Run Suite Once
 *python test/test-all.py*
@@ -63,7 +63,7 @@ Run Suite Once
 Run Suite on Every Change (linux like OS)
 *./runsuite test/test-all.py*
 
-## Running the application 
+#### Running the application 
 
 *python src/peachyprintertools.py*
 
