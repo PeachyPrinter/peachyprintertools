@@ -41,10 +41,15 @@ class MachineStatus(object):
         self._complete = False
         self._drips = 0
         self._skipped_layers = 0
+        self._lock = threading.Lock()
 
     def _update(self):
         if self._status_call_back:
-            self._status_call_back(self.status())
+            self._lock.acquire()
+            try:
+                self._status_call_back(self.status())
+            finally:
+                self._lock.release()
 
     def drip_call_back(self, drips, height):
         self._height = height
