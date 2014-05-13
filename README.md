@@ -58,18 +58,37 @@ Development
 #### Runing the tests
 
 Run Suite Once
-*python test/test-all.py*
+
+**python test/test-all.py**
 
 Run Suite on Every Change (linux like OS)
-*./runsuite test/test-all.py*
+
+**./runsuite test/test-all.py**
 
 #### Running the application 
 
-*python src/peachyprintertools.py*
+Run the application
+
+**python src/peachyprintertools.py**
+
+Run in Debug Logging Mode
+
+**python src/peachyprintertools.py --log=DEBUG**
+
+Run in DEBUG to Console (Very slow)
+
+**python src/peachyprintertools.py -c --log=DEBUG**
+
+Log Levels:
++ DEBUG
++ INFO
++ WARN
++ ERROR
+
+Logs and configs are stored in the user folder in the .peachyprintertools directory.
 
 
 Software Contributers
 --------------------------
-
 
 + James Townley (Lead)
