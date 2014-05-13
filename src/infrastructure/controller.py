@@ -214,9 +214,13 @@ class Controller(threading.Thread,):
 
     def _move_lateral(self,(to_x,to_y), to_z,speed):
         to_xyz = [to_x,to_y,to_z]
+        logging.debug("creating path")
         path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
+        logging.debug("modulating path")
         modulated_path = self._laser_control.modulate(path)
+        logging.debug("writing audio")
         self._audio_writer.write_chunk(modulated_path)
+        logging.debug("Done writing audio")
         self.state.set_state(to_xyz,speed)
 
     def _wait_till(self, height):
