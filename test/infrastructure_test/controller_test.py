@@ -407,22 +407,39 @@ class ControllerTests(unittest.TestCase):
         self.assertEquals(1, self.controller.get_status()['current_layer'])
         self.assertEquals('Complete',self.controller.get_status()['status'])
 
-    def test_should_record_errors(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+    def test_should_record_errors_and_abort(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
-        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
-        stub_layer_generator = StubLayerGenerator([test_layer])
+        mock_layer_generator = mock_LayerGenerator.return_value
+        mock_layer_generator.next.return_value =  Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
         mock_path_to_audio.process.side_effect = Exception("Something Broke")
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
 
-        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator)
         self.controller.start()
 
         self.wait_for_controller()
 
         self.assertEquals(1, len(self.controller.get_status()['errors']))
         self.assertEquals("Something Broke", self.controller.get_status()['errors'][0]['message'])
+
+    def test_should_record_errors_and_continue_when_abort_on_error_is_false(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        test_layer1 = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
+        test_layer2 = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
+        stub_layer_generator = StubLayerGenerator([test_layer1, test_layer2])
+        mock_path_to_audio.process.side_effect = Exception("Something Broke")
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator, abort_on_error = False)
+        self.controller.start()
+
+        self.wait_for_controller()
+
+        self.assertEquals(2, len(self.controller.get_status()['errors']))
 
     def test_should_change_layer_generator(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -585,12 +602,30 @@ class MachineStatusTests(unittest.TestCase):
         mock_datetime.now.return_value = mock_time
         message = "Message"
         expected = [{
+        'layer' : None,
         'time': mock_time, 
         'message': message,
         }]
 
         status = MachineStatus()
         status.add_error(MachineError(message))
+
+        self.assertEqual(expected,status.status()['errors'])
+
+    @patch.object(datetime, 'datetime')
+    def test_add_error_adds_an_error_with_layer(self,mock_datetime):
+        expected_layer = 34
+        mock_time = self.real_datetime(2012,1,1,8,0,0)
+        mock_datetime.now.return_value = mock_time
+        message = "Message"
+        expected = [{
+        'layer' : expected_layer,
+        'time': mock_time, 
+        'message': message,
+        }]
+
+        status = MachineStatus()
+        status.add_error(MachineError(message, expected_layer))
 
         self.assertEqual(expected,status.status()['errors'])
 

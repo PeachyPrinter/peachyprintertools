@@ -23,9 +23,10 @@ class MachineState(object):
         self.speed = speed
 
 class MachineError(object):
-    def __init__(self,message):
+    def __init__(self,message, layer = None):
         self.timestamp = datetime.datetime.now()
         self.message = message
+        self.layer = layer
 
 class MachineStatus(object):
     def __init__(self, status_call_back = None):
@@ -96,7 +97,7 @@ class MachineStatus(object):
             return 'Running'
     
     def _formatted_errors(self):
-        return [ {'time': error.timestamp, 'message' : error.message} for error in self._errors ]
+        return [ {'time': error.timestamp, 'message' : error.message, 'layer' : error.layer} for error in self._errors ]
 
     def status(self): 
         return { 
@@ -123,9 +124,11 @@ class Controller(threading.Thread,):
                     zaxis_control = None,
                     status_call_back = None, 
                     max_lead_distance = sys.float_info.max, 
+                    abort_on_error=True
                     ):
         threading.Thread.__init__(self)
         self.deamon = True
+        self._abort_on_error = abort_on_error
         self._max_lead_distance = max_lead_distance
         self._zaxis_control = zaxis_control
 
@@ -171,9 +174,11 @@ class Controller(threading.Thread,):
 
     def _process_layers(self):
         ahead_by = None
+        layer_count  = 0
         while not self._shutting_down:
             try:
                 layer = self._layer_generator.next()
+                layer_count += 1
                 self._status.set_model_height(layer.z)
                 if self._zaxis:
                     self._wait_till(layer.z)
@@ -191,7 +196,9 @@ class Controller(threading.Thread,):
             except StopIteration:
                 self._shutting_down = True
             except Exception as ex:
-                self._status.add_error(MachineError(str(ex)))
+                self._status.add_error(MachineError(str(ex),layer_count))
+                if self._abort_on_error:
+                    self._terminate()
 
     def _should_process(self, ahead_by_distance):
         if not ahead_by_distance:
