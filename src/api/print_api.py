@@ -19,16 +19,16 @@ class PrintAPI(object):
         self._controller = None
         self._status_call_back = status_call_back
 
-    def print_gcode(self, file_like_object, print_sub_layers = True):
+    def print_gcode(self, file_like_object, print_sub_layers = True, dry_run = False):
         gcode_reader = GCodeReader(file_like_object)
         gcode_layer_generator = gcode_reader.get_layers()
         if print_sub_layers:
             layer_generator = SubLayerGenerator(gcode_layer_generator, self._configuration['sublayer_height_mm'])
         else:
             layer_generator = gcode_layer_generator
-        self.print_layers(layer_generator)
+        self.print_layers(layer_generator, dry_run)
 
-    def print_layers(self, layer_generator):
+    def print_layers(self, layer_generator, dry_run = False):
         laser_control = AudioModulationLaserControl(
             self._configuration['output_sample_frequency'],
             self._configuration['on_modulation_frequency'],
@@ -40,25 +40,32 @@ class PrintAPI(object):
             transformer, 
             self._configuration['laser_thickness_mm']
             )
-        audio_writer = AudioWriter(
-            self._configuration['output_sample_frequency'], 
-            self._configuration['output_bit_depth'],
-            )
-        zaxis = DripBasedZAxis(
-            drips_per_mm = self._configuration['drips_per_mm'], 
-            initial_height = 0.0, 
-            sample_rate = self._configuration['input_sample_frequency'],
-            bit_depth = self._configuration['input_bit_depth'],
-            )
-        if self._configuration['use_serial_zaxis']:
-            zaxis_control = SerialZAxisControl(
-                                self._configuration['serial_port'], 
-                                on_command = self._configuration['serial_on'], 
-                                off_command = self._configuration['serial_off']
-                                )
-        else:
+        if dry_run:
+            audio_writer = None
+            zaxis = None
             zaxis_control = None
-            
+            abort_on_error = False
+        else:
+            audio_writer = AudioWriter(
+                self._configuration['output_sample_frequency'], 
+                self._configuration['output_bit_depth'],
+                )
+            zaxis = DripBasedZAxis(
+                drips_per_mm = self._configuration['drips_per_mm'], 
+                initial_height = 0.0, 
+                sample_rate = self._configuration['input_sample_frequency'],
+                bit_depth = self._configuration['input_bit_depth'],
+                )
+            if self._configuration['use_serial_zaxis']:
+                zaxis_control = SerialZAxisControl(
+                                    self._configuration['serial_port'], 
+                                    on_command = self._configuration['serial_on'], 
+                                    off_command = self._configuration['serial_off']
+                                    )
+            else:
+                zaxis_control = None
+            abort_on_error = True
+
         self._controller = Controller(
             laser_control,
             path_to_audio,
@@ -67,7 +74,8 @@ class PrintAPI(object):
             zaxis = zaxis,
             zaxis_control = zaxis_control,
             status_call_back = self._status_call_back,
-            max_lead_distance = self._configuration['max_lead_distance_mm']
+            max_lead_distance = self._configuration['max_lead_distance_mm'],
+            abort_on_error = abort_on_error
             )
         self._controller.start()
 
@@ -76,8 +84,7 @@ class PrintAPI(object):
         return self._controller.get_status()
 
     def verify_gcode(self, g_code_file_like_object):
-        # returns list/first errors and line numbers
-        pass
+        self.print_gcode(g_code_file_like_object, dry_run = True)
 
     def stop(self):
         if self._controller:
