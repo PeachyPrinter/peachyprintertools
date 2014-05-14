@@ -100,7 +100,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioModulationLaserControl')
     @patch('api.print_api.DripBasedZAxis')
     @patch('api.print_api.SubLayerGenerator')
-    def test_verify_gcode_should_create_required_classes_and_start_it(self,
+    def test_verify_gcode_should_create_required_classes_and_start_it_and_return_errors(self,
             mock_SubLayerGenerator, 
             mock_DripBasedZAxis,
             mock_AudioModulationLaserControl,
@@ -121,13 +121,17 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_transformer = mock_Transformer.return_value
         mock_pathtoaudio = mock_PathToAudio.return_value
         mock_controller = mock_Controller.return_value
+        expected_errors = ['Some Error']
+        mock_controller.get_status.return_value = {'errors':expected_errors}
 
         mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
         mock_gcodereader.get_layers.return_value = fake_layers
 
 
         api = PrintAPI(self.DEFAULT_CONFIG)
-        api.verify_gcode(gcode_path)
+        result = api.verify_gcode(gcode_path)
+
+        self.assertEquals(expected_errors, result)
 
         mock_SubLayerGenerator.assert_called_with(
             fake_layers,

@@ -1,4 +1,5 @@
 import logging
+import threading
 
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
@@ -85,6 +86,8 @@ class PrintAPI(object):
 
     def verify_gcode(self, g_code_file_like_object):
         self.print_gcode(g_code_file_like_object, dry_run = True)
+        self._controller.join()
+        return self._controller.get_status()['errors']
 
     def stop(self):
         if self._controller:
