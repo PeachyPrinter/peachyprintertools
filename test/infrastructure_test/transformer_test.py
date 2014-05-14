@@ -58,6 +58,34 @@ class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
 
 
 class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
+    def test_points_outside_range_raise_exception(self):
+        perfect_data = {
+            'height': 1.0 , 
+            'lower_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                },
+            'upper_points': { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
+        }
+        scale = 1.0
+        transformer = HomogenousTransformer(perfect_data, scale)
+
+        test_points = [ 
+            [-2.0,-2.0,0.0],[2.0,2.0,0.0],
+        ]
+
+        for test_point in test_points:
+            with self.assertRaises(Exception):
+                transformer.transform (test_point)
+
+
     def test_given_a_basic_mapping_yields_expected_results(self):
         perfect_data = {
             'height': 1.0 , 

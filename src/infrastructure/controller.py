@@ -190,6 +190,8 @@ class Controller(threading.Thread,):
                 self._status.add_layer()
             except StopIteration:
                 self._shutting_down = True
+            except Exception as ex:
+                self._status.add_error(MachineError(str(ex)))
 
     def _should_process(self, ahead_by_distance):
         if not ahead_by_distance:
@@ -220,13 +222,10 @@ class Controller(threading.Thread,):
 
     def _move_lateral(self,(to_x,to_y), to_z,speed):
         to_xyz = [to_x,to_y,to_z]
-        logging.debug("creating path")
         path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
-        logging.debug("modulating path")
         modulated_path = self._laser_control.modulate(path)
-        logging.debug("writing audio")
-        self._audio_writer.write_chunk(modulated_path)
-        logging.debug("Done writing audio")
+        if self._audio_writer:
+            self._audio_writer.write_chunk(modulated_path)
         self.state.set_state(to_xyz,speed)
 
     def _wait_till(self, height):

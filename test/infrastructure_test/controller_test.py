@@ -49,6 +49,20 @@ class ControllerTests(unittest.TestCase):
 
         self.assertEqual(1,mock_laser_control.set_laser_on.call_count)
 
+    def test_should_work_with_no_writer(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
+        stub_layer_generator = StubLayerGenerator([test_layer])
+        mock_path_to_audio.process.return_value = "SomeAudio"
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,None,stub_layer_generator)
+        self.controller.start()
+
+        self.wait_for_controller()
+
+
     def test_should_turn_off_laser_for_move_commands(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
@@ -392,6 +406,23 @@ class ControllerTests(unittest.TestCase):
 
         self.assertEquals(1, self.controller.get_status()['current_layer'])
         self.assertEquals('Complete',self.controller.get_status()['status'])
+
+    def test_should_record_errors(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
+        stub_layer_generator = StubLayerGenerator([test_layer])
+        mock_path_to_audio.process.side_effect = Exception("Something Broke")
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
+        self.controller.start()
+
+        self.wait_for_controller()
+
+        self.assertEquals(1, len(self.controller.get_status()['errors']))
+        self.assertEquals("Something Broke", self.controller.get_status()['errors'][0]['message'])
 
     def test_should_change_layer_generator(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value

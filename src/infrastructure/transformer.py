@@ -116,7 +116,13 @@ class HomogenousTransformer(Transformer):
             logging.debug('out kx: %s , ky: %s, k: %s' % (kx,ky,k))
         finally:
             self._lock.release()
-        return (kx/k, ky/k)
+        x1,y1 = (kx/k, ky/k) 
+        if x1 >= 0.0 and x1 <=1.0 and y1>= 0.0 and y1 <=1.0:
+            return (x1, y1)
+        else:
+            logging.error("Bounds of printer exceeded")
+            raise Exception("Bounds of printer exceeded")
+
 
     def set_scale(self, new_scale):
         self._scale = new_scale
