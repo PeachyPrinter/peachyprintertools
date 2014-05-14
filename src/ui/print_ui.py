@@ -48,6 +48,78 @@ class PrintUI(PeachyFrame):
     def close(self):
         pass
 
+class VerifyStatusUI(PeachyFrame):
+
+    def initialize(self):
+        self.grid()
+        
+        self._elapsed_time = StringVar()
+        self._current_layer = IntVar()
+        self._current_height = StringVar()
+        self._current_model_height = StringVar()
+        self._errors = IntVar()
+        self._status = StringVar()
+        self._stop_button_text = StringVar()
+        self._stop_button_text.set("Abort Print")
+        self._current_status = {}
+
+        self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
+        if 'filename' in self.kwargs:
+            file_to_print = self.kwargs['filename']
+            self._print_api.verify_gcode(file_to_print)
+        else:
+            self._print_api.verify_gcode(self.kwargs['layer_generator'])
+
+
+        Label(self, text = "Verifying Model" ).grid(column=0,row=5)
+        Label(self ).grid(column=0,row=8)
+
+        Label(self, text = "Elapsed Time" ).grid(column=0,row=10)
+        Label(self, textvariable = self._elapsed_time ).grid(column=1,row=10)
+
+        Label(self, text = "Layer" ).grid(column=0,row=20)
+        Label(self, textvariable = self._current_layer ).grid(column=1,row=20)
+
+        Label(self, text = "Model Height (mm)" ).grid(column=0,row=35)
+        Label(self, textvariable = self._current_model_height ).grid(column=1,row=35)
+
+        Label(self, text = "Status").grid(column=0,row=60)
+        Label(self, textvariable = self._status).grid(column=1,row=60)
+
+        Label(self, text = "Errors" ).grid(column=0,row=70)
+        Label(self, textvariable = self._errors ).grid(column=1,row=70)
+
+        Label(self).grid(column=0,row=70)
+        
+        Button(self,textvariable=self._stop_button_text, command=self._stop_button_click).grid(column=2,row=80)
+        Button(self,text="Show Errors", command=self._show_errors).grid(column=3,row=80)
+        
+        self.update()
+
+    def _stop_button_click(self):
+        self._print_api.stop()
+        self.navigate(self.kwargs['calling_class'], printer = self.kwargs['printer'])
+
+    def _show_errors(self):
+        PopUp(self,'Errors', '\n'.join([ "Layer %s : %s" % (err['layer'], err['message']) for err in self._current_status['errors'] ]))
+
+    def status_call_back(self,status):
+        total_seconds = int(status['elapsed_time'].total_seconds())
+        hours, remainder = divmod(total_seconds,60*60)
+        minutes, seconds = divmod(remainder,60)
+
+        self._elapsed_time.set("%02d:%02d:%02d" % (hours,minutes,seconds))
+        self._current_layer.set(status['current_layer'])
+        self._current_model_height.set("%.2f" % status['model_height'])
+        self._errors.set(len(status['errors']))
+        self._current_status = status
+        self._status.set(status['status'])
+        if (status['status'] == "Complete"):
+            self._stop_button_text.set("Finished")
+
+    def close(self):
+        self._print_api.stop()
+
 class PrintStatusUI(PeachyFrame):
 
     def initialize(self):

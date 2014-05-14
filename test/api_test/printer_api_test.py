@@ -129,9 +129,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
 
         api = PrintAPI(self.DEFAULT_CONFIG)
-        result = api.verify_gcode(gcode_path)
+        api.verify_gcode(gcode_path)
 
-        self.assertEquals(expected_errors, result)
 
         mock_SubLayerGenerator.assert_called_with(
             fake_layers,

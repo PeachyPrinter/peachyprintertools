@@ -179,6 +179,7 @@ class Controller(threading.Thread,):
             try:
                 layer = self._layer_generator.next()
                 layer_count += 1
+                self._status.add_layer()
                 self._status.set_model_height(layer.z)
                 if self._zaxis:
                     self._wait_till(layer.z)
@@ -191,8 +192,6 @@ class Controller(threading.Thread,):
                 else:
                     logging.warning("Dripping too fast, Skipping layer")
                     self._status.skipped_layer()
-
-                self._status.add_layer()
             except StopIteration:
                 self._shutting_down = True
             except Exception as ex:
