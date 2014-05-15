@@ -1,5 +1,6 @@
 import os
 import hashlib
+import config
 import pickle
 import types
 import logging
@@ -7,7 +8,6 @@ import logging
 from domain.configuration_manager import ConfigurationManager
 
 class FileBasedConfigurationManager(ConfigurationManager):
-    PEACHY_PATH = '.peachyprintertools'
     REQUIRED_FIELDS = {
         'name' : types.StringType ,
         'output_bit_depth': types.StringType ,
@@ -33,12 +33,12 @@ class FileBasedConfigurationManager(ConfigurationManager):
     CONFIGURATION_EXTENSION = '.cfg'
 
     def __init__(self):
-        self._configuration_path = os.path.join(os.path.expanduser('~'), self.PEACHY_PATH)
+        pass
 
     def list(self):
         printers = []
-        if os.path.exists(self._configuration_path):
-            for file_name in os.listdir(self._configuration_path):
+        if os.path.exists(config.PEACHY_PATH):
+            for file_name in os.listdir(config.PEACHY_PATH):
                 if file_name.endswith(self.CONFIGURATION_EXTENSION):
                     configuration = self._load_configuration(os.path.join(self._path(), file_name))
                     if configuration:
@@ -87,9 +87,9 @@ class FileBasedConfigurationManager(ConfigurationManager):
         return valid
 
     def _path(self):
-        if not os.path.exists(self._configuration_path):
-            os.makedirs(self._configuration_path)
-        return self._configuration_path
+        if not os.path.exists(config.PEACHY_PATH):
+            os.makedirs(config.PEACHY_PATH)
+        return config.PEACHY_PATH
 
     def _get_file_name(self, name):
         filename = hashlib.md5(name).hexdigest() + self.CONFIGURATION_EXTENSION

@@ -2,6 +2,7 @@
 # -*- coding: iso-8859-1 -*-
 
 import logging
+import config
 import argparse
 import os
 import sys
@@ -41,11 +42,10 @@ class PeachyPrinterTools(Tk):
         sys.exit(0)
 
 if __name__ == "__main__":
-    PEACHY_FOLDER = '.peachyprintertools'
-    PEACHY_PATH = os.path.join(os.path.expanduser('~'), PEACHY_FOLDER)
-    if not os.path.exists(PEACHY_PATH):
-        os.makedirs(PEACHY_PATH)
-    logfile = os.path.join(PEACHY_PATH,'peachyprinter.log' )
+    if not os.path.exists(config.PEACHY_PATH):
+        os.makedirs(config.PEACHY_PATH)
+    logfile = os.path.join(config.PEACHY_PATH,'peachyprinter.log' )
+    os.remove(logfile)
     parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
     parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
     parser.add_argument('-c', '--console', dest='console',  action='store_true', required=False, help="Logs to console not file" )
