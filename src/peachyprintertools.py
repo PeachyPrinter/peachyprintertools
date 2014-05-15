@@ -41,16 +41,10 @@ class PeachyPrinterTools(Tk):
         self.destroy()
         sys.exit(0)
 
-if __name__ == "__main__":
-    if not os.path.exists(config.PEACHY_PATH):
-        os.makedirs(config.PEACHY_PATH)
+def setup_logging(args):
     logfile = os.path.join(config.PEACHY_PATH,'peachyprinter.log' )
-    os.remove(logfile)
-    parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
-    parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
-    parser.add_argument('-c', '--console', dest='console',  action='store_true', required=False, help="Logs to console not file" )
-    args, unknown = parser.parse_known_args()
-
+    if os.path.isfile(logfile):
+        os.remove(logfile)
     logging_format = '%(levelname)s: %(asctime)s %(module)s - %(message)s'
     logging_level = getattr(logging, args.loglevel.upper(), "WARNING")
     if not isinstance(logging_level, int):
@@ -59,6 +53,16 @@ if __name__ == "__main__":
         logging.basicConfig(stream = sys.stdout,format=logging_format, level=logging_level)
     else:
         logging.basicConfig(filename = logfile ,format=logging_format, level=logging_level)
+
+if __name__ == "__main__":
+    if not os.path.exists(config.PEACHY_PATH):
+        os.makedirs(config.PEACHY_PATH)
+    parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
+    parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
+    parser.add_argument('-c', '--console', dest='console',  action='store_true', required=False, help="Logs to console not file" )
+    args, unknown = parser.parse_known_args()
+
+    setup_logging(args)
 
     if getattr(sys, 'frozen', False):
         path = os.path.dirname(sys.executable)
