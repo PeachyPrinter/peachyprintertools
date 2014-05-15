@@ -174,33 +174,6 @@ class SpiralGenerator(TestLayerGenerator):
             radius += inc
             yield [x,y]
 
-class SpyroGraphGenerator(TestLayerGenerator):
-    def __init__(self, speed = 200.0, radius = 20.0, steps = 20):
-        self.set_speed(speed)
-        self.set_radius(radius)
-        self._steps = steps
-        self.last_xy = [0.0,0.0]
-
-    def next(self):
-        layer = Layer(0.0)
-        for point in self.points():
-            layer.commands.append(LateralDraw(self.last_xy,point, self._speed))
-            self.last_xy = point
-        return layer
-
-    def points(self):
-        inner_angle_step =  (2.0 * math.pi / self._steps)
-        outer_angle_step = (2.0 * math.pi / self._steps * 8.0)
-        for r in range(0, self._steps / 8):
-            theta =  outer_angle_step * r
-            x = math.sin(theta) * self._radius / 2
-            y = math.cos(theta) * self._radius / 2
-            for i in range(0,self._steps):
-                theta =  inner_angle_step * i
-                x1 = math.sin(theta) * self._radius / 2 + x
-                y1 = math.cos(theta) * self._radius / 2 + y
-                yield [x1,y1]
-
 class CureTestGenerator(LayerGenerator):
     def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height):
         base_height = float(base_height)

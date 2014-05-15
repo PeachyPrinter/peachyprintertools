@@ -28,7 +28,8 @@ class PrintUI(PeachyFrame):
 
         OptionMenu(self, self._printer_selection_current, *available_printers, command = self._printer_selected).grid(column=1,row=10,sticky=N+S+E+W)
         Label(self).grid(column=1,row=20)
-        Button(self,text=u"Print From G Code", command=self.print_g_code_click).grid(column=1,row=30,sticky=N+S+E+W)
+        Button(self,text=u"Verify G Code", command=self.verify_g_code_click).grid(column=1,row=25,sticky=N+S+E+W)
+        Button(self,text=u"Print G Code", command=self.print_g_code_click).grid(column=1,row=30,sticky=N+S+E+W)
         Label(self).grid(column=1,row=40)
         Button(self,text=u"Back", command=self._back).grid(column=0,row=50)
 
@@ -41,6 +42,11 @@ class PrintUI(PeachyFrame):
         filename = tkFileDialog.askopenfile(**self.file_opt)
         if filename:
             self.navigate(PrintStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
+
+    def verify_g_code_click(self):
+        filename = tkFileDialog.askopenfile(**self.file_opt)
+        if filename:
+            self.navigate(VerifyStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
 
     def _back(self):
         self.navigate(MainUI)
@@ -60,7 +66,7 @@ class VerifyStatusUI(PeachyFrame):
         self._errors = IntVar()
         self._status = StringVar()
         self._stop_button_text = StringVar()
-        self._stop_button_text.set("Abort Print")
+        self._stop_button_text.set("Abort Verification")
         self._current_status = {}
 
         self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
@@ -101,7 +107,7 @@ class VerifyStatusUI(PeachyFrame):
         self.navigate(self.kwargs['calling_class'], printer = self.kwargs['printer'])
 
     def _show_errors(self):
-        PopUp(self,'Errors', '\n'.join([ "Layer %s : %s" % (err['layer'], err['message']) for err in self._current_status['errors'] ]))
+        PopUp(self,'Errors', '\n'.join([ "SubLayer %s : %s" % (err['layer'], err['message']) for err in self._current_status['errors'] ]))
 
     def status_call_back(self,status):
         total_seconds = int(status['elapsed_time'].total_seconds())

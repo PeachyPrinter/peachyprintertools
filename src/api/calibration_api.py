@@ -24,7 +24,6 @@ class CalibrationAPI(object):
             'Square' : SquareGenerator(),
             'Circle' : CircleGenerator(),
             'Spiral' : SpiralGenerator(),
-            'SpyroGraph' : SpyroGraphGenerator(),
             }
         self._current_generator = self._point_generator
 
