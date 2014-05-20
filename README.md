@@ -55,6 +55,7 @@ Development
 + cx_freeze
 + pyaudio
 + mock
++ pyserial
 
 
 #### Runing the tests

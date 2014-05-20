@@ -57,6 +57,7 @@ def setup_logging(args):
 if __name__ == "__main__":
     if not os.path.exists(config.PEACHY_PATH):
         os.makedirs(config.PEACHY_PATH)
+
     parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
     parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
     parser.add_argument('-c', '--console', dest='console',  action='store_true', required=False, help="Logs to console not file" )
