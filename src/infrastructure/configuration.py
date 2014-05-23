@@ -28,6 +28,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         'serial_port': types.StringType,
         'serial_on': types.StringType,
         'serial_off' : types.StringType,
+        'laser_offset' : types.ListType,
     }
     
     CONFIGURATION_EXTENSION = '.cfg'

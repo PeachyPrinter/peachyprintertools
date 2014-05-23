@@ -22,7 +22,8 @@ class ConfigurationManager(object):
             'use_serial_zaxis' : False,
             'serial_port': '',
             'serial_on': '1',
-            'serial_off' : '0'
+            'serial_off' : '0',
+            'laser_offset' : [0.0,0.0]
             }
 
     def list(self):
