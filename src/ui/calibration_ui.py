@@ -42,6 +42,8 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self.data_points = []
         self._current_selection = IntVar()
         self._current_pattern = StringVar()
+        self._x_offset_value = IntVar()
+        self._y_offset_value = IntVar()
         self._scale_value = IntVar()
         self._scale_value.set(int(self._calibrationAPI.get_max_deflection() * 100.0))
         self._current_pattern.set(self._test_patterns[0])
@@ -57,11 +59,17 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         Radiobutton(self, command = self._option_changed, text="Center Point", variable=self._current_selection, value=0).grid(column = 1, row = 20, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Alignment", variable=self._current_selection, value=1).grid(column = 1, row = 30, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Scale", variable=self._current_selection, value=4).grid(column = 1, row = 35,sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Offset", variable=self._current_selection, value=5).grid(column = 1, row = 37,sticky=W)
         Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value=2).grid(column = 1, row = 40, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Calibrated Patterns", variable=self._current_selection, value=3).grid(column = 1, row = 60, sticky=W)
 
         self._scale_setting = Spinbox(self, from_=1, to=75, command =self._scale_changed, textvariable=self._scale_value)
         self._scale_setting.grid(column=2, row=35,sticky=W)
+
+        self._x_offset_setting = Spinbox(self, from_=-1000, to=1000, command = self._offset_changed, textvariable=self._x_offset_value)
+        self._x_offset_setting.grid(column=2, row=37,sticky=W)
+        self._y_offset_setting = Spinbox(self, from_=-1000, to=1000, command =self._offset_changed, textvariable=self._y_offset_value)
+        self._y_offset_setting.grid(column=3, row=37,sticky=W)
 
         self.pattern_options = OptionMenu(self, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
         self.pattern_options.grid(column=2,row=60,sticky=W)
@@ -181,38 +189,61 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
     def _show_scale(self):
         self._scale_setting.grid()
 
+    def _hide_offset(self):
+        self._x_offset_setting.grid_remove()
+        self._y_offset_setting.grid_remove()
+
+    def _show_offset(self):
+        self._x_offset_setting.grid()
+        self._y_offset_setting.grid()
+
     def _pattern_changed(self, pattern):
         self._calibrationAPI.show_test_pattern(pattern)
 
     def _scale_changed(self):
         self._calibrationAPI.set_max_deflection(self._scale_value.get() / 100.0)
 
+    def _offset_changed(self):
+        offset = [ self._x_offset_value.get() / 1000.0 , self._y_offset_value.get() / 1000.0 ]
+        self._calibrationAPI.set_laser_offset(offset)
+
     def _option_changed(self):
         if self._current_selection.get() == 0:
             self._hide_patterns()
             self._hide_scale()
             self._hide_calibration()
+            self._hide_offset()
             self._calibrationAPI.show_point(self._zero)
         elif self._current_selection.get() == 1:
             self._hide_calibration()
             self._hide_scale()
             self._hide_patterns()
+            self._hide_offset()
             self._calibrationAPI.show_line()
         elif self._current_selection.get() == 2:
             self._hide_patterns()
             self._hide_scale()
             self._show_calibration()
+            self._hide_offset()
             self._calibrationAPI.show_point(self._zero)
         elif self._current_selection.get() == 3:
             self._show_patterns()
             self._hide_scale()
             self._hide_calibration()
+            self._hide_offset()
             self._pattern_changed(self._current_pattern.get())
         elif self._current_selection.get() == 4:
             self._hide_patterns()
             self._hide_calibration()
             self._show_scale()
+            self._hide_offset()
             self._calibrationAPI.show_scale()
+        elif self._current_selection.get() == 5:
+            self._hide_patterns()
+            self._hide_calibration()
+            self._hide_scale()
+            self._show_offset()
+            self._calibrationAPI.show_blink()
 
         else:
             raise Exception("Programmer Error")

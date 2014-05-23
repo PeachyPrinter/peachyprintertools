@@ -65,13 +65,12 @@ class CalibrationAPI(object):
             self._update_generator(self._point_generator)
 
     '''Used to show a blinking point with no calibration applied used for aligning on and off laser posisition'''
-    def show_blink(self,xyz = [0.0,0.0,0.0]):
+    def show_blink(self,xyz = [0.5,0.5,0.0]):
         x,y,z = xyz
         self._blink_generator.xy = [x,y]
         if (self._current_generator != self._blink_generator):
             self._unapply_calibration()
             self._update_generator(self._blink_generator)
-
 
     '''Used to show a single line on one axis used to line up calibration grid'''
     def show_line(self):
