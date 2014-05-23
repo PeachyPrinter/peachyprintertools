@@ -23,9 +23,6 @@ class PopUp():
         tl.focus_force()
 
 
-
-
-
 class PeachyFrame(Frame):
     def __init__(self, parent, configuration_manager, **kwargs):
         logging.info("Peachy Frame kwargs: %s" % kwargs)

@@ -10,8 +10,8 @@ class AudioModulationLaserControl(LaserControl):
     _MODULATION_AMPLITUDE_RATIO = 0.25
     _SOURCE_AMPLITUDE_RATIO = 1.0 - _MODULATION_AMPLITUDE_RATIO
 
-    def __init__(self, sampling_rate, on_frequency, off_frequency):
-
+    def __init__(self, sampling_rate, on_frequency, off_frequency, offset=[0.0,0.0]):
+        self._x_offset, self._y_offset = offset
         logging.info("Laser Control: Modulation On: %s" % on_frequency )
         logging.info("Laser Control: Modulation Off: %s" % off_frequency )
         if sampling_rate % on_frequency != 0:
@@ -40,13 +40,19 @@ class AudioModulationLaserControl(LaserControl):
                 wave.append(cos_wave)
         return wave
 
+    def set_offset(self,offset):
+        self._x_offset, self._y_offset = offset
+
     def modulate(self, data):
         if self._laser_on:
             pattern = self.on_laser_wave
+            for (left,right) in data:
+                l = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + (left * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
+                r = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + (right* self._SOURCE_AMPLITUDE_RATIO)] , pattern)
+                yield numpy.column_stack((l, r))
         else:
             pattern = self.off_laser_wave
-
-        for (left,right) in data:
-            l = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + (left  * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
-            r = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + (right * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
-            yield numpy.column_stack((l, r))
+            for (left,right) in data:
+                l = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + ((left  + self._x_offset) * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
+                r = numpy.multiply( [ self._MODULATION_AMPLITUDE_RATIO + ((right + self._y_offset) * self._SOURCE_AMPLITUDE_RATIO)] , pattern)
+                yield numpy.column_stack((l, r))
