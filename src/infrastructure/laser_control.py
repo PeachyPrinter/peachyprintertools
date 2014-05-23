@@ -11,6 +11,7 @@ class AudioModulationLaserControl(LaserControl):
     _SOURCE_AMPLITUDE_RATIO = 1.0 - _MODULATION_AMPLITUDE_RATIO
 
     def __init__(self, sampling_rate, on_frequency, off_frequency):
+
         logging.info("Laser Control: Modulation On: %s" % on_frequency )
         logging.info("Laser Control: Modulation Off: %s" % off_frequency )
         if sampling_rate % on_frequency != 0:

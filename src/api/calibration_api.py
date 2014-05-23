@@ -23,7 +23,7 @@ class CalibrationAPI(object):
             'Hilbert Space Filling Curve' : HilbertGenerator(),
             'Square' : SquareGenerator(),
             'Circle' : CircleGenerator(),
-            'Spiral' : SpiralGenerator(),
+            'Spiral' : SpiralGenerator()
             }
         self._current_generator = self._point_generator
 

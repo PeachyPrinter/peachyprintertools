@@ -32,6 +32,24 @@ class CalibrationLineGenerator(LayerGenerator):
     def next(self):
         return Layer(0.0, commands = [LateralDraw([0.0,0.5],[1.0,0.5],self._speed),LateralDraw([1.0,0.5],[0.0,0.5],self._speed)])
 
+class BlinkGenerator(TestLayerGenerator):
+    def __init__(self, starting_xy = [0.0,0.0]):
+        self.xy = starting_xy
+        self.speed = 100.0
+        self._state = True
+
+    def set(self,xy):
+        self.xy = xy
+
+    def next(self):
+        layer = Layer(0.0)
+        if self._state:
+            layer.commands.append(LateralDraw(self.xy,self.xy,self.speed))
+        else:
+            layer.commands.append(LateralMove(self.xy,self.xy,self.speed))
+        self._state = not self._state
+        return layer
+
 class SubLayerGenerator(LayerGenerator):
     def __init__(self,layer_generator,sub_layer_height, tollerance = 0.001):
         self._layer_generator = layer_generator
