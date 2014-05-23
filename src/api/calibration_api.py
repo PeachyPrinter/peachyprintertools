@@ -86,6 +86,17 @@ class CalibrationAPI(object):
         self._unapply_calibration()
         self._configuration_manager.save(self._configuration)
 
+    '''Returns the currently configured offset for laser on and off'''
+    def get_laser_offset(self):
+        return self._configuration['laser_offset']
+
+    '''Sets the currently configured offset for laser on and off'''
+    def set_laser_offset(self, laser_offset):
+        self._configuration['laser_offset'] = laser_offset
+        self._laser_control.set_offset(laser_offset)
+        self._configuration_manager.save(self._configuration)
+
+
     '''Used to show a test pattern with calibration applied'''
     def show_test_pattern(self,pattern):
         if pattern in self._test_patterns.keys():

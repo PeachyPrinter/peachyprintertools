@@ -227,7 +227,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         capi = ConfigurationAPI(ConfigurationManager())
         expected = config.copy()
         expected['on_modulation_frequency'] = 11025
-        expected['off_modulation_frequency'] = 3675
+        expected['off_modulation_frequency'] = 2205
         expected['output_bit_depth'] = '16 bit'
         expected['output_sample_frequency'] =  44100
 
@@ -246,7 +246,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         capi = ConfigurationAPI(ConfigurationManager())
         expected = config.copy()
         expected['on_modulation_frequency'] = 12000
-        expected['off_modulation_frequency'] = 4000
+        expected['off_modulation_frequency'] = 2000
         expected['output_bit_depth'] = '32 bit Floating Point'
         expected['output_sample_frequency'] =  48000
 

@@ -125,10 +125,10 @@ class ConfigurationAPI(object):
         #TODO JT 2014-04-30 - The modulation stuff may not belong here.
         if (audio_setting.sample_frequency == 44100):
             self._current_config['on_modulation_frequency'] = 11025
-            self._current_config['off_modulation_frequency'] = 3675
+            self._current_config['off_modulation_frequency'] = 2205
         else:
             self._current_config['on_modulation_frequency'] = 12000
-            self._current_config['off_modulation_frequency'] = 4000
+            self._current_config['off_modulation_frequency'] = 2000
         self._current_config['output_bit_depth'] = audio_setting.bit_depth
         self._current_config['output_sample_frequency'] = audio_setting.sample_frequency
         self.save()

@@ -386,6 +386,35 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         
         mock_configuration_manager.save.assert_called_with(expected_config)
         mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)
+
+    def test_get_laser_offset_should_return_laser_offset(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        config = self.DEFAULT_CONFIG.copy()
+        expected = [0.01,0.01]
+        config['laser_offset'] =  expected
+        mock_configuration_manager.load.return_value = config
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        actual = calibration_api.get_laser_offset()
+        self.assertEquals(expected, actual)
+
+    def test_set_laser_offset_should_save_and_update_laser_offset(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        mock_laser_control = mock_AudioModulationLaserControl.return_value
+        config = self.DEFAULT_CONFIG.copy()
+        expected_config = config.copy()
+        expected = [0.01,0.01]
+        expected_config['laser_offset'] = expected
+        config['laser_offset'] = [0.55,0.55]
+        mock_configuration_manager.load.return_value = config
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+
+        actual = calibration_api.set_laser_offset(expected)
+        
+        mock_configuration_manager.save.assert_called_with(expected_config)
+        mock_laser_control.set_offset.assert_called_with(expected)
         
     @patch('api.calibration_api.SquareGenerator')
     def test_show_scale_should_use_Square_Generator_and_Tuning_Transformer(self, mock_SquareGenerator, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
