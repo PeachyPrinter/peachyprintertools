@@ -17,6 +17,7 @@ class CalibrationAPI(object):
         self._configuration = self._configuration_manager.load(self._printer)
 
         self._point_generator = SinglePointGenerator()
+        self._blink_generator = BlinkGenerator()
         self._alignment_generator = CalibrationLineGenerator()
 
         self._test_patterns = { 
@@ -62,6 +63,15 @@ class CalibrationAPI(object):
         if (self._current_generator != self._point_generator):
             self._unapply_calibration()
             self._update_generator(self._point_generator)
+
+    '''Used to show a blinking point with no calibration applied used for aligning on and off laser posisition'''
+    def show_blink(self,xyz = [0.0,0.0,0.0]):
+        x,y,z = xyz
+        self._blink_generator.xy = [x,y]
+        if (self._current_generator != self._blink_generator):
+            self._unapply_calibration()
+            self._update_generator(self._blink_generator)
+
 
     '''Used to show a single line on one axis used to line up calibration grid'''
     def show_line(self):
@@ -111,8 +121,6 @@ class CalibrationAPI(object):
     def make_pattern_fit(self):
         for pattern in self._test_patterns.values():
             pattern.set_radius(self.get_largest_object_radius())
-
-
 
     '''Validates a calibration'''
     def validate(self, calibration):

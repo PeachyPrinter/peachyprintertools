@@ -116,6 +116,21 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         mock_controller.change_generator.assert_called_with(mock_layer_generator)
 
+    @patch('api.calibration_api.BlinkGenerator')
+    def test_show_blink_should_use_blink_Generator(self, mock_BlinkGenerator, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        mock_configuration_manager.load.return_value = self.DEFAULT_CONFIG
+        mock_layer_generator = mock_BlinkGenerator.return_value
+        mock_controller = mock_Controller.return_value
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+        x,y,z = 1.0,0.2,1.0
+
+        calibration_api.show_line()
+        calibration_api.show_blink([x,y,z])
+
+        mock_controller.change_generator.assert_called_with(mock_layer_generator)
+
     @patch('api.calibration_api.CalibrationLineGenerator')
     def test_show_line_should_use_CalibrationLineGenerator(self, mock_CalibrationLineGenerator,mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
