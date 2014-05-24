@@ -210,8 +210,8 @@ class GCodeCommandReader(object):
         'G1'  : _command_draw,
         'G0'  : _command_draw,
         'G01' : _command_draw,
-        'G20' : _units_mm,
-        'G21' : _units_inches
+        'G21' : _units_mm,
+        'G20' : _units_inches
     }
 
     _IGNORABLE_PREFIXES = [ 
