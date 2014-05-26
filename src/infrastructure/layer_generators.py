@@ -217,9 +217,9 @@ class CureTestGenerator(LayerGenerator):
             current_speed = self._speed_per_layer * (self._current_layer - self._base_layers +1)
 
         commands = [
-            LateralDraw([0,0],[1,0], current_speed),
-            LateralDraw([1,0],[1,1], current_speed),
-            LateralMove([1,1],[0,0], current_speed),
+            LateralDraw([0,0],[10,0], current_speed),
+            LateralDraw([10,0],[10,10], current_speed),
+            LateralMove([10,10],[0,0], current_speed),
         ]
         layer = Layer(float(self._current_layer * self._sub_layer_height), commands = commands)
         self._current_layer += 1

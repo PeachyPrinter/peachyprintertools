@@ -204,14 +204,14 @@ class CureTestGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         stop_speed = 100
         genererator = CureTestGenerator(0,1,start_speed,stop_speed,1)
         expected_layer1 = Layer(0.0, commands = [
-            LateralDraw([0,0],[1,0],start_speed),
-            LateralDraw([1,0],[1,1],start_speed),
-            LateralMove([1,1],[0,0], start_speed), 
+            LateralDraw([0,0],[10,0],start_speed),
+            LateralDraw([10,0],[10,10],start_speed),
+            LateralMove([10,10],[0,0], start_speed), 
             ])
         expected_layer2 = Layer(1.0, commands = [
-            LateralDraw([0,0],[1,0],stop_speed),
-            LateralDraw([1,0],[1,1],stop_speed),
-            LateralMove([1,1], [0,0], stop_speed), 
+            LateralDraw([0,0],[10,0],stop_speed),
+            LateralDraw([10,0],[10,10],stop_speed),
+            LateralMove([10,10], [0,0], stop_speed), 
             ])
 
         self.assertLayerEquals(expected_layer1, genererator.next())
@@ -222,14 +222,14 @@ class CureTestGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         stop_speed = 100
         genererator = CureTestGenerator(1,2,start_speed,stop_speed,1)
         expected_base = Layer(0.0, commands = [
-            LateralDraw([0,0],[1,0],75),
-            LateralDraw([1,0],[1,1],75),
-            LateralMove([1,1],[0,0],75), 
+            LateralDraw([0,0],[10,0],75),
+            LateralDraw([10,0],[10,10],75),
+            LateralMove([10,10],[0,0],75), 
             ])
         expected_layer1 = Layer(1.0, commands = [
-            LateralDraw([0,0],[1,0],start_speed),
-            LateralDraw([1,0],[1,1],start_speed),
-            LateralMove([1,1], [0,0], start_speed), 
+            LateralDraw([0,0],[10,0],start_speed),
+            LateralDraw([10,0],[10,10],start_speed),
+            LateralMove([10,10], [0,0], start_speed), 
             ])
 
         self.assertLayerEquals(expected_base, genererator.next())
