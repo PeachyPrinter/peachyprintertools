@@ -311,9 +311,9 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertCommandsEqual(expected, actual)
 
     def test_to_command_handles_units(self):
-        gcode_metric =  "G20"
+        gcode_metric =  "G21"
         gcode_metric_line = "G1 X1.0 Y1.0 F6000 E12"
-        gcode_feet = "G21"
+        gcode_feet = "G20"
         gcode_feet_line = "G1 X1.0 Y1.0 F6000 E12"
         command_reader = GCodeCommandReader()
         expected_metric = [ LateralDraw([0.0,0.0],[1.0,1.0],100.0) ]
