@@ -6,7 +6,13 @@ Maximum Lead Distance (mm) [0.5] - If you are dripping too fast this is the dist
 calibration_help = '''Using the "Center Point" option align your grid paper\n
 Using Alignment align your grid paper with the laser line.\n
 Calibration consists of 2 samples at two heights. Go to the top point, click through the fields, and record the real world examples.  Repeat for the lower height.\n
-Use the calibrated Patterns to test things out.'''
+Use the calibrated Patterns to test things out.
+
+Other notes:
+
+1. Scale is the percentage of the the volume range of your sound card that peachy will use, We highly recomemd keeping it below 76 percent becuse to top 25 percent of sound cards ( the really loud sounds) dont come out quite right! and that makes for very warped prints. 
+
+'''
 
 setup_audio_help = '''Some help setting up audio goes here'''
 
