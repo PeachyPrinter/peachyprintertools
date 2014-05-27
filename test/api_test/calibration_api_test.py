@@ -152,7 +152,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         patterns = calibration_api.get_test_patterns()
 
-        self.assertEquals(['Circle','Hilbert Space Filling Curve','Spiral','Square'],patterns)
+        self.assertEquals(['Memory Hourglass','Circle','Hilbert Space Filling Curve','Spiral','Square'],patterns)
 
     def test_change_pattern_should_raise_exception_when_test_patterns_unavailable(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value

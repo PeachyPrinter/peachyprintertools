@@ -108,6 +108,43 @@ class HilbertGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         
         self.assertLayerEquals(expected,actual)
 
+class MemoryHourglassTests(unittest.TestCase,test_helpers.TestHelpers):
+    def test_can_call_next_and_get_specified_command(self):
+        layer_generator = MemoryHourglassGenerator(speed = 100.0, radius = 50.0)
+        expected_commands = [
+            LateralDraw([ 0.0, -15.0],[ 0.0,  0.0],100.0),
+            LateralDraw([ 0.0,  0.0],[ 15.0, 0.0],100.0),
+            LateralDraw([ 15.0, 0.0],[ 20.0, 5.0],100.0),
+            LateralDraw([ 20.0, 5.0],[ 25.0, 0.0],100.0),
+            LateralDraw([ 25.0, 0.0],[ 30.0, -5.0],100.0), 
+            LateralDraw([ 30.0, -5.0],[ 35.0,  0.0],100.0), 
+            LateralDraw([ 35.0,  0.0],[ 50.0,  0.0],100.0),
+            LateralDraw([ 50.0,  0.0],[ 0.0,  50.0],100.0), 
+            LateralDraw([ 0.0,  50.0],[ 0.0,  35.0],100.0), 
+            LateralDraw([ 0.0,  35.0],[-5.0,  30.0],100.0), 
+            LateralDraw([-5.0,  30.0],[ 0.0,  25.0],100.0), 
+            LateralDraw([ 0.0,  25.0],[ 5.0,  20.0],100.0), 
+            LateralDraw([ 5.0,  20.0],[ 0.0,  15.0],100.0), 
+            LateralDraw([ 0.0,  15.0],[ 0.0,  0.0],100.0), 
+            LateralDraw([ 0.0,  0.0],[-15.0,  0.0],100.0), 
+            LateralDraw([-15.0,  0.0],[-20.0, -5.0],100.0), 
+            LateralDraw([-20.0, -5.0],[-25.0,  0.0],100.0), 
+            LateralDraw([-25.0,  0.0],[-30.0,  5.0],100.0), 
+            LateralDraw([-30.0,  5.0],[-35.0,  0.0],100.0), 
+            LateralDraw([-35.0,  0.0],[-50.0,  0.0],100.0), 
+            LateralDraw([-50.0,  0.0],[ 0.0, -50.0],100.0),
+            LateralDraw([ 0.0, -50.0],[ 0.0, -35.0],100.0), 
+            LateralDraw([ 0.0, -35.0],[ 5.0, -30.0],100.0), 
+            LateralDraw([ 5.0, -30.0],[ 0.0, -25.0],100.0), 
+            LateralDraw([ 0.0, -25.0],[-5.0, -20.0],100.0), 
+            LateralDraw([-5.0, -20.0],[ 0.0, -15.0],100.0),
+            ]
+        
+        expected = Layer(0.0, commands = expected_commands )
+        actual =   layer_generator.next() 
+        self.assertLayerEquals(expected,actual)
+
+
 
 
 #---------------- Production Generators  -------------------------------------

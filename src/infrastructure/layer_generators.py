@@ -193,6 +193,26 @@ class SpiralGenerator(TestLayerGenerator):
             radius += inc
             yield [x,y]
 
+class MemoryHourglassGenerator(TestLayerGenerator):
+    def __init__(self, speed = 100.0, radius = 20.0):
+        self.set_speed(speed)
+        self.set_radius(radius)
+        self.path =  [
+                 [0.0 ,  0.0], [0.3 ,  0.0], [ 0.4,  0.1], [ 0.5,  0.0], [ 0.6, -0.1], [ 0.7,  0.0], [ 1.0,  0.0],
+                 [0.0 ,  1.0], [0.0 ,  0.7], [-0.1,  0.6], [ 0.0,  0.5], [ 0.1,  0.4], [ 0.0,  0.3], [ 0.0,  0.0], 
+                 [-0.3,  0.0], [-0.4, -0.1], [-0.5,  0.0], [-0.6,  0.1], [-0.7,  0.0], [-1.0,  0.0], [ 0.0, -1.0],
+                 [0.0 , -0.7], [0.1 , -0.6], [ 0.0, -0.5], [-0.1, -0.4], [ 0.0, -0.3]
+                ]
+
+    def next(self):
+        layer = Layer(0.0)
+        last = [ a * self._radius for a in self.path[-1:][0] ]
+        for point in self.path:
+            scaled_point = [ a * self._radius for a in point ]
+            layer.commands.append(LateralDraw(last,scaled_point, self._speed))
+            last = scaled_point
+        return layer
+
 class CureTestGenerator(LayerGenerator):
     def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height):
         base_height = float(base_height)
