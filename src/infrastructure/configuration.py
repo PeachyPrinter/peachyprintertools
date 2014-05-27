@@ -7,6 +7,87 @@ import logging
 
 from domain.configuration_manager import ConfigurationManager
 
+
+class OptionsConfiguration(object):
+    def __init__(self):
+        self._draw_speed = None
+        self._laser_offset = None
+        self._sublayer_height_mm = None
+        self._laser_thickness_mm = None
+
+    @property
+    def draw_speed(self):
+        return self._draw_speed
+
+    @draw_speed.setter
+    def draw_speed(cls, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            cls._draw_speed = value
+        else:
+            raise ValueError("Draw Speed must be of %s" % (str(_type)))
+
+
+
+class DripperConfiguration(object):
+    def __init__(self):
+        self.max_lead_distance_mm = None
+        self.drips_per_mm = None
+
+
+class CalibrationConfiguration(object):
+    def __init__(self):
+        self._scale = None
+        self._data = None
+        self.max_deflection = None
+
+
+class SerialZAxisConfiguration(object):
+    def __init__(self):
+        self._on = None
+        self._port = None
+        self._on_command = None
+        self._off_command = None
+
+
+class AudioInputConfiguration(object):
+    def __init__(self):
+        self._bit_depth = None
+        self._sample_rate = None
+
+
+class AudioOutputConfiguration(object):
+    def __init__(self):
+        self._bit_depth = None
+        self._sample_rate = None
+        self._modulation_on_frequency = None
+        self._modulation_off_frequency = None
+    
+
+class AudioConfiguration(object):
+    def __init__(self):
+        self._input = AudioInputConfiguration()
+        self._output = AudioOutputConfiguration()
+
+    @property
+    def input():
+        return self._input
+
+    @property
+    def output():
+        return self._output
+
+class Configuration(object):
+    def __init__(self):
+        self._name = "Peachy Printer"
+        self._audio = AudioConfiguration()
+        self._serial = SerialConfiguration()
+        self._calibration = CalibrationConfiguration()
+        self._dripper = DripperConfiguration()
+        self._options = OptionsConfiguration()
+
+
+
 class FileBasedConfigurationManager(ConfigurationManager):
     REQUIRED_FIELDS = {
         'name' : types.StringType ,

@@ -12,7 +12,16 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 from infrastructure.configuration import FileBasedConfigurationManager as ConfigurationManager
+from infrastructure.configuration import OptionsConfiguration
 import test_helpers
+
+class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
+    def test_can_set_and_get_values(self):
+        expected_speed = 7.0
+        c = OptionsConfiguration()
+        c.draw_speed = expected_speed
+        self.assertEquals(expected_speed, c.draw_speed)
+
 
 class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     
