@@ -39,21 +39,21 @@ class TuningTransformer(Transformer):
         return ((axis - 0.5) * self._scale) + 0.5
 
 class HomogenousTransformer(Transformer):
-    def __init__(self, config, scale = 1.0):
+    def __init__(self, scale = 1.0, upper_height = 0.0, upper_points = {}, lower_points = {}):
         self._lock = threading.Lock()
-        self._config = config
         self._scale = scale
-        logging.info(self._config)
+        self._lower_points = lower_points
+        self._upper_points = upper_points
         self._get_transforms()
-        self._upper_height = self._config['height']
+        self._upper_height = upper_height
         self._cache = {}
         
 
     def _get_transforms(self):
         self._lock.acquire()
         try:
-            self._lower_transform = self._get_transformation_matrix(self._config['lower_points'])
-            self._upper_transform = self._get_transformation_matrix(self._config['upper_points'])
+            self._lower_transform = self._get_transformation_matrix(self._lower_points)
+            self._upper_transform = self._get_transformation_matrix(self._upper_points)
         finally:
             self._lock.release()
 

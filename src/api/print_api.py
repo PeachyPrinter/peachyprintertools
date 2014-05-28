@@ -35,7 +35,12 @@ class PrintAPI(object):
             self._configuration.audio.output.modulation_on_frequency,
             self._configuration.audio.output.modulation_off_frequency
             )
-        transformer = HomogenousTransformer(self._configuration.calibration)
+        transformer = HomogenousTransformer(
+            self._configuration.calibration.scale,
+            self._configuration.calibration.height,
+            self._configuration.calibration.lower_points,
+            self._configuration.calibration.upper_points,
+            )
         path_to_audio = PathToAudio(
             laser_control.actual_samples_per_second,
             transformer, 

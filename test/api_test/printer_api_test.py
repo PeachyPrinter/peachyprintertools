@@ -75,7 +75,12 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             test_config.audio.output.sample_rate,
             test_config.audio.output.bit_depth,
             )
-        mock_Transformer.assert_called_with(test_config.calibration)
+        mock_Transformer.assert_called_with(
+            test_config.calibration.scale,
+            test_config.calibration.height,
+            test_config.calibration.lower_points,
+            test_config.calibration.upper_points,
+            )
         mock_PathToAudio.assert_called_with(
             actual_samples_per_second,
             mock_transformer, 
@@ -148,7 +153,12 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertEquals(0, mock_AudioWriter.call_count)
 
-        mock_Transformer.assert_called_with(test_config.calibration)
+        mock_Transformer.assert_called_with(
+            test_config.calibration.scale,
+            test_config.calibration.height,
+            test_config.calibration.lower_points,
+            test_config.calibration.upper_points,
+            )
         mock_PathToAudio.assert_called_with(
             actual_samples_per_second,
             mock_transformer, 

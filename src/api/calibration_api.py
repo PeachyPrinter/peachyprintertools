@@ -30,9 +30,9 @@ class CalibrationAPI(object):
         self._current_generator = self._point_generator
 
         self._laser_control = AudioModulationLaserControl(
-            self._configuration.audio.output.sample_frequency,
-            self._configuration.audio.output.on_modulation_frequency,
-            self._configuration.audio.output.off_modulation_frequency
+            self._configuration.audio.output.sample_rate,
+            self._configuration.audio.output.modulation_on_frequency,
+            self._configuration.audio.output.modulation_off_frequency
             )
         transformer = TuningTransformer(scale = self._configuration.calibration.max_deflection)
         self._path_to_audio= PathToAudio(
@@ -44,7 +44,7 @@ class CalibrationAPI(object):
         self._controller = None
         logging.debug("Setting up audiowriter")
         self._audio_writer = AudioWriter(
-            self._configuration.audio.output.sample_frequency, 
+            self._configuration.audio.output.sample_rate, 
             self._configuration.audio.output.bit_depth,
             )
         self._current_generator = self._point_generator
@@ -84,7 +84,7 @@ class CalibrationAPI(object):
     def set_max_deflection(self, deflection):
         self._configuration.calibration.max_deflection = deflection
         self._unapply_calibration()
-        self._configuration_manager.save(self._configuration)
+        self._save()
 
     '''Returns the currently configured offset for laser on and off'''
     def get_laser_offset(self):
@@ -94,7 +94,7 @@ class CalibrationAPI(object):
     def set_laser_offset(self, laser_offset):
         self._configuration.options.laser_offset = laser_offset
         self._laser_control.set_offset(laser_offset)
-        self._configuration_manager.save(self._configuration)
+        self._save()
 
 
     '''Used to show a test pattern with calibration applied'''
@@ -120,11 +120,15 @@ class CalibrationAPI(object):
         return self._configuration.calibration
 
     '''Saves the suppliled calibration'''
-    def save(self, calibration):
-        if not self.validate(calibration):
-            raise Exception('Bad Calibration %s ' % calibration)
-        self._configuration.calibration = calibration
-        logging.debug("Saving calibration: %s" % calibration)
+    def save_points(self, height, lower_points, upper_points):
+        self._configuration.calibration.height = height
+        self._configuration.calibration.lower_points = lower_points
+        self._configuration.calibration.upper_points = upper_points
+        self._save()
+
+    def _save(self):
+        # if not self.validate(calibration):
+        #     raise Exception('Bad Calibration %s ' % calibration)
         self._configuration_manager.save(self._configuration)
         self.make_pattern_fit() #TODO make this better.
 
@@ -133,23 +137,23 @@ class CalibrationAPI(object):
         for pattern in self._test_patterns.values():
             pattern.set_radius(self.get_largest_object_radius())
 
-    '''Validates a calibration'''
-    def validate(self, calibration):
-        if not 'height' in calibration:
-            return False
-        if not 'upper_points' in calibration:
-            return False
-        if not 'lower_points' in calibration:
-            return False
-        if (type(calibration['height']) != types.FloatType):
-            return False
-        if (calibration['height'] <= 0.0):
-            return False
-        if not self._validate_points(calibration['upper_points']):
-            return False
-        if not self._validate_points(calibration['lower_points']):
-            return False
-        return True
+    # '''Validates a calibration'''
+    # def validate(self, calibration):
+    #     if not 'height' in calibration:
+    #         return False
+    #     if not 'upper_points' in calibration:
+    #         return False
+    #     if not 'lower_points' in calibration:
+    #         return False
+    #     if (type(calibration['height']) != types.FloatType):
+    #         return False
+    #     if (calibration['height'] <= 0.0):
+    #         return False
+    #     if not self._validate_points(calibration['upper_points']):
+    #         return False
+    #     if not self._validate_points(calibration['lower_points']):
+    #         return False
+    #     return True
 
     '''Must be called before shutting down applications'''
     def stop(self):
@@ -160,10 +164,18 @@ class CalibrationAPI(object):
         self._controller.change_generator(self._current_generator)
 
     def _apply_calibration(self):
-        self._path_to_audio.set_transformer(HomogenousTransformer(self._configuration.calibration, scale = self._configuration["max_deflection"]))
+        self._path_to_audio.set_transformer(
+            HomogenousTransformer(
+                scale = self._configuration.calibration.max_deflection,
+                upper_height = self._configuration.calibration.height,
+                lower_points = self._configuration.calibration.lower_points,
+                upper_points = self._configuration.calibration.upper_points
+                )
+            )
 
     def _unapply_calibration(self):
-        self._path_to_audio.set_transformer(TuningTransformer(scale = self._configuration.calibratin.max_deflection))
+        self._path_to_audio.set_transformer(
+            TuningTransformer(scale = self._configuration.calibration.max_deflection))
     
     def _validate_points(self,points):
         if (len(points) != 4):
