@@ -88,15 +88,15 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         options = {'borderwidth':2 }
         data = self._calibrationAPI.current_calibration()
         
-        for ((rx,ry),(ax,ay)) in data['upper_points'].items():
-            self.data_points.append(CalibrationPoint(rx,ry,data['height'],ax,ay,data['height']))
-        for ((rx,ry),(ax,ay)) in data['lower_points'].items():
+        for ((rx,ry),(ax,ay)) in data.upper_points.items():
+            self.data_points.append(CalibrationPoint(rx,ry,data.height,ax,ay,data.height))
+        for ((rx,ry),(ax,ay)) in data.lower_points.items():
             self.data_points.append(CalibrationPoint(rx,ry,0.0,ax,ay,0.0))
 
 
         self.calibration_fields = {}
         self.upper_z = DoubleVar()
-        self.upper_z.set(data['height'])
+        self.upper_z.set(data.height)
         self.calibration_frame = LabelFrame(self,text="Calibration", padx=5, pady=5)
         self.calibration_frame.grid(column=2,row=50,columnspan=4)
 
@@ -250,14 +250,11 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
 
     def _save_click(self):
-        config = {}
-        config['height'] = self.upper_z.get()
+        height = self.upper_z.get()
         lower_points = [ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == 0.0 ]
         upper_points = [ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == self.upper_z.get() ]
-        config['lower_points'] = dict(lower_points)
-        config['upper_points'] = dict(upper_points)
 
-        self._calibrationAPI.save(config)
+        self._calibrationAPI.save_points(height,lower_points,upper_points)
 
     def _back_button_click(self):
         from ui.configuration_ui import SetupUI

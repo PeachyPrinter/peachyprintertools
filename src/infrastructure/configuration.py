@@ -452,11 +452,11 @@ class ConfigurationGenerator(object):
         configuration.dripper.drips_per_mm                 = 100.0
         configuration.dripper.max_lead_distance_mm         = 1.0
 
-        configuration.calibration.max_deflection           = 75.0
+        configuration.calibration.max_deflection           = 0.75
         configuration.calibration.height                   = 40.0
-        configuration.calibration.scale                    = 75.0
-        configuration.calibration.lower_points             = {(2.0, 2.0):( 2.0,  2.0), (0.0, 2.0):(-2.0,  2.0), (2.0, 0.0):( 2.0, -2.0), (0.0, 0.0):(-2.0, -2.0)}
-        configuration.calibration.upper_points             = {(1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0)}
+        configuration.calibration.scale                    = 1.0
+        configuration.calibration.lower_points             = {(1.0, 1.0):( 40.0,  40.0), ( 1.0, -1.0):( 40.0, -40.0), (-1.0, -1.0):( -40.0, -40.0), (-1.0, 1.0):(-40.0, 40.0)}
+        configuration.calibration.upper_points             = {(1.0, 1.0):( 30.0,  30.0), ( 1.0, -1.0):( 30.0, -30.0), (-1.0, -1.0):( -30.0, -30.0), (-1.0, 1.0):(-30.0, 30.0)}
 
         configuration.serial.on                            = False
         configuration.serial.port                          = "COM2"
@@ -478,7 +478,8 @@ class FileBasedConfigurationManager(ConfigurationManager):
         if os.path.exists(config.PEACHY_PATH):
             for file_name in os.listdir(config.PEACHY_PATH):
                 if file_name.endswith(self.CONFIGURATION_EXTENSION):
-                    configuration = self._load_configuration(os.path.join(self._path(), file_name))
+                    pth = os.path.join(self._path(), file_name)
+                    configuration = self._load_configuration(pth)
                     if configuration:
                         printers.append(configuration.name)
         return printers
@@ -497,9 +498,9 @@ class FileBasedConfigurationManager(ConfigurationManager):
     def _load_configuration(self, filename):
         with open(filename, 'r') as file_handle:
             try:
-                data = open(file_handle, 'r')
-                json_config = json.loads(data.read())
-                return Configuration(json_config)
+                data = file_handle.read()
+                conf = Configuration(json.loads(data))
+                return conf
             except Exception as ex:
                 logging.error("Error loading file: %s" % ex)
                 return None

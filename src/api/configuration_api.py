@@ -297,7 +297,7 @@ class ConfigurationAPI(object):
         return self._current_config.serial.on_command
 
     def get_serial_off_command(self):
-        return self._current_config.serial.serial_off
+        return self._current_config.serial.off_command
 
     def set_serial_enabled(self, enabled):
         self._current_config.serial.on = enabled

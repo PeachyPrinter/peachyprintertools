@@ -627,6 +627,11 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         configuration_API.set_serial_on_command(expected_on)
         configuration_API.set_serial_off_command(expected_off)
 
+        self.assertEquals( expected_enabled ,configuration_API.get_serial_enabled())
+        self.assertEquals( expected_port ,configuration_API.get_serial_port())
+        self.assertEquals( expected_on ,configuration_API.get_serial_on_command())
+        self.assertEquals( expected_off ,configuration_API.get_serial_off_command())
+
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
 #-----------------------------------------Cure Test Setup Tests -----------------------------------

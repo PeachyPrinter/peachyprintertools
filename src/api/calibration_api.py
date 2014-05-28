@@ -166,7 +166,7 @@ class CalibrationAPI(object):
     def _apply_calibration(self):
         self._path_to_audio.set_transformer(
             HomogenousTransformer(
-                scale = self._configuration.calibration.max_deflection,
+                scale = self._configuration.calibration.scale,
                 upper_height = self._configuration.calibration.height,
                 lower_points = self._configuration.calibration.lower_points,
                 upper_points = self._configuration.calibration.upper_points
