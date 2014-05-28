@@ -59,23 +59,21 @@ class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
 
 class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_points_outside_range_raise_exception(self):
-        perfect_data = {
-            'height': 1.0 , 
-            'lower_points': { 
-                (1.0, 1.0):( 1.0,  1.0),
-                (0.0, 1.0):(-1.0,  1.0),
-                (1.0, 0.0):( 1.0, -1.0),
-                (0.0, 0.0):(-1.0, -1.0)
-                },
-            'upper_points': { 
+        height = 1.0  
+        lower_points = { 
                 (1.0, 1.0):( 1.0,  1.0),
                 (0.0, 1.0):(-1.0,  1.0),
                 (1.0, 0.0):( 1.0, -1.0),
                 (0.0, 0.0):(-1.0, -1.0)
                 }
-        }
+        upper_points = { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
         scale = 1.0
-        transformer = HomogenousTransformer(perfect_data, scale)
+        transformer = HomogenousTransformer(scale,height,lower_points,upper_points)
 
         test_points = [ 
             [-2.0,-2.0,0.0],[2.0,2.0,0.0],
@@ -87,23 +85,21 @@ class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
 
 
     def test_given_a_basic_mapping_yields_expected_results(self):
-        perfect_data = {
-            'height': 1.0 , 
-            'lower_points': { 
-                (1.0, 1.0):( 1.0,  1.0),
-                (0.0, 1.0):(-1.0,  1.0),
-                (1.0, 0.0):( 1.0, -1.0),
-                (0.0, 0.0):(-1.0, -1.0)
-                },
-            'upper_points': { 
+        height = 1.0  
+        lower_points = { 
                 (1.0, 1.0):( 1.0,  1.0),
                 (0.0, 1.0):(-1.0,  1.0),
                 (1.0, 0.0):( 1.0, -1.0),
                 (0.0, 0.0):(-1.0, -1.0)
                 }
-        }
+        upper_points = { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
         scale = 1.0
-        transformer = HomogenousTransformer(perfect_data, scale)
+        transformer = HomogenousTransformer(scale,height,lower_points,upper_points)
 
         test_points = [ 
             [1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0],
@@ -117,23 +113,21 @@ class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_points, actual_points)
 
     def test_given_a_basic_mapping_yields_expected_results_with_scale(self):
-        perfect_data = {
-            'height': 1.0 , 
-            'lower_points': { 
-                (1.0, 1.0):( 1.0,  1.0),
-                (0.0, 1.0):(-1.0,  1.0),
-                (1.0, 0.0):( 1.0, -1.0),
-                (0.0, 0.0):(-1.0, -1.0)
-                },
-            'upper_points': { 
+        height = 1.0  
+        lower_points = { 
                 (1.0, 1.0):( 1.0,  1.0),
                 (0.0, 1.0):(-1.0,  1.0),
                 (1.0, 0.0):( 1.0, -1.0),
                 (0.0, 0.0):(-1.0, -1.0)
                 }
-        }
+        upper_points = { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
         scale = 0.5
-        transformer = HomogenousTransformer(perfect_data, scale)
+        transformer = HomogenousTransformer(scale,height,lower_points,upper_points)
         test_points = [[1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0]]
         expected_points = [(0.75,0.75),(0.25,0.25),(0.5,0.5),(0.625,0.625)]
 
@@ -142,23 +136,21 @@ class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_points, actual_points)
 
     def test_given_a_basic_mapping_yields_expected_results_with_scale_change(self):
-        perfect_data = {
-            'height': 1.0 , 
-            'lower_points': { 
-                (1.0, 1.0):( 1.0,  1.0),
-                (0.0, 1.0):(-1.0,  1.0),
-                (1.0, 0.0):( 1.0, -1.0),
-                (0.0, 0.0):(-1.0, -1.0)
-                },
-            'upper_points': { 
+        height = 1.0  
+        lower_points = { 
                 (1.0, 1.0):( 1.0,  1.0),
                 (0.0, 1.0):(-1.0,  1.0),
                 (1.0, 0.0):( 1.0, -1.0),
                 (0.0, 0.0):(-1.0, -1.0)
                 }
-        }
+        upper_points = { 
+                (1.0, 1.0):( 1.0,  1.0),
+                (0.0, 1.0):(-1.0,  1.0),
+                (1.0, 0.0):( 1.0, -1.0),
+                (0.0, 0.0):(-1.0, -1.0)
+                }
         scale = 0.5
-        transformer = HomogenousTransformer(perfect_data, scale)
+        transformer = HomogenousTransformer(scale,height,lower_points,upper_points)
         test_points = [[1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0]]
         expected_points_pre = [(0.75,0.75),(0.25,0.25),(0.5,0.5),(0.625,0.625)]
         expected_points_post = [(1.0,1.0),(0.0,0.0),(0.5,0.5),(0.75,0.75)]
@@ -171,23 +163,21 @@ class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_points_post,actual_points_post)
 
     def test_given_a_basic_mapping_yields_expected_results(self):
-        perfect_data = {
-            'height': 5.0 , 
-            'lower_points': { 
+        height = 5.0  
+        lower_points = { 
                 (1.0, 1.0):( 4.0,  4.0),
                 (0.0, 1.0):(-4.0,  4.0),
                 (1.0, 0.0):( 4.0, -4.0),
                 (0.0, 0.0):(-4.0, -4.0)
-                },
-            'upper_points': { 
+                }
+        upper_points = { 
                 (1.0, 1.0):( 1.0,  1.0),
                 (0.0, 1.0):(-1.0,  1.0),
                 (1.0, 0.0):( 1.0, -1.0),
                 (0.0, 0.0):(-1.0, -1.0)
                 }
-        }
         scale = 1.0
-        transformer = HomogenousTransformer(perfect_data, scale)
+        transformer = HomogenousTransformer(scale,height,lower_points,upper_points)
 
         test_points = [ 
             [1.0,1.0,0.0],[-1.0,-1.0,0.0],[0.0,0.0,0.0],[0.5,0.5,0.0],
