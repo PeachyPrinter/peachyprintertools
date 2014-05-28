@@ -30,22 +30,22 @@ class CalibrationAPI(object):
         self._current_generator = self._point_generator
 
         self._laser_control = AudioModulationLaserControl(
-            self._configuration['output_sample_frequency'],
-            self._configuration['on_modulation_frequency'],
-            self._configuration['off_modulation_frequency']
+            self._configuration.audio.output.sample_frequency,
+            self._configuration.audio.output.on_modulation_frequency,
+            self._configuration.audio.output.off_modulation_frequency
             )
-        transformer = TuningTransformer(scale = self._configuration["max_deflection"])
+        transformer = TuningTransformer(scale = self._configuration.calibration.max_deflection)
         self._path_to_audio= PathToAudio(
             self._laser_control.actual_samples_per_second,
             transformer,
-            self._configuration["laser_thickness_mm"]
+            self._configuration.options.laser_thickness_mm
             )
         self._audio_writer = None
         self._controller = None
         logging.debug("Setting up audiowriter")
         self._audio_writer = AudioWriter(
-            self._configuration['output_sample_frequency'], 
-            self._configuration['output_bit_depth'],
+            self._configuration.audio.output.sample_frequency, 
+            self._configuration.audio.output.bit_depth,
             )
         self._current_generator = self._point_generator
         self._controller = Controller(
@@ -79,20 +79,20 @@ class CalibrationAPI(object):
         self._update_generator(self._alignment_generator)
 
     def get_max_deflection(self):
-        return self._configuration['max_deflection']
+        return self._configuration.calibration.max_deflection
 
     def set_max_deflection(self, deflection):
-        self._configuration['max_deflection'] = deflection
+        self._configuration.calibration.max_deflection = deflection
         self._unapply_calibration()
         self._configuration_manager.save(self._configuration)
 
     '''Returns the currently configured offset for laser on and off'''
     def get_laser_offset(self):
-        return self._configuration['laser_offset']
+        return self._configuration.options.laser_offset
 
     '''Sets the currently configured offset for laser on and off'''
     def set_laser_offset(self, laser_offset):
-        self._configuration['laser_offset'] = laser_offset
+        self._configuration.options.laser_offset = laser_offset
         self._laser_control.set_offset(laser_offset)
         self._configuration_manager.save(self._configuration)
 
@@ -117,13 +117,13 @@ class CalibrationAPI(object):
 
     '''Returns the current calibration for the printer'''
     def current_calibration(self):
-        return self._configuration['calibration_data']
+        return self._configuration.calibration
 
     '''Saves the suppliled calibration'''
     def save(self, calibration):
         if not self.validate(calibration):
             raise Exception('Bad Calibration %s ' % calibration)
-        self._configuration['calibration_data'] = calibration
+        self._configuration.calibration = calibration
         logging.debug("Saving calibration: %s" % calibration)
         self._configuration_manager.save(self._configuration)
         self.make_pattern_fit() #TODO make this better.
@@ -160,10 +160,10 @@ class CalibrationAPI(object):
         self._controller.change_generator(self._current_generator)
 
     def _apply_calibration(self):
-        self._path_to_audio.set_transformer(HomogenousTransformer(self._configuration['calibration_data'], scale = self._configuration["max_deflection"]))
+        self._path_to_audio.set_transformer(HomogenousTransformer(self._configuration.calibration, scale = self._configuration["max_deflection"]))
 
     def _unapply_calibration(self):
-        self._path_to_audio.set_transformer(TuningTransformer(scale = self._configuration["max_deflection"]))
+        self._path_to_audio.set_transformer(TuningTransformer(scale = self._configuration.calibratin.max_deflection))
     
     def _validate_points(self,points):
         if (len(points) != 4):
@@ -173,7 +173,7 @@ class CalibrationAPI(object):
     '''Based on current calibrations_gets_maximum_size_of_object at the base layer'''
     def get_largest_object_radius(self):
         lowest = None
-        for (x,y) in self._configuration['calibration_data']['lower_points'].values():
+        for (x,y) in self._configuration.calibration.lower_points.values():
             if not lowest or abs(x) < lowest:
                 lowest = abs(x)
             if abs(y) < lowest:

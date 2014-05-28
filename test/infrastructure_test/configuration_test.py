@@ -277,7 +277,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         cm = ConfigurationManager()
 
         actual =  cm.new('Peachy Printer')
-        expected = self.DEFAULT_CONFIG
+        expected = self.default_config
         self.assertConfigurationEqual(expected, actual)
 
     @patch.object(os.path, 'exists')
@@ -286,7 +286,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         mock_exists.return_value = True
         printer_name = 'Test1'
         expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools', printer_name + '.cfg' )
-        mocked_open = mock_open(read_data=self.DEFAULT_CONFIG.toJson())
+        mocked_open = mock_open(read_data=self.default_config.toJson())
         with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
             data = cm.new(printer_name)
@@ -332,8 +332,8 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_list_should_return_name_of_configurations(self, mock_listdir, mock_exists):
         mock_exists.return_value = True
         mock_listdir.return_value = [ 'blabla.cfg' ]
-        expected = [ self.DEFAULT_CONFIG.name ]
-        mocked_open = mock_open(read_data=self.DEFAULT_CONFIG.toJson())
+        expected = [ self.default_config.name ]
+        mocked_open = mock_open(read_data=self.default_config.toJson())
         with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
 
@@ -347,7 +347,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         mock_exists.return_value = True
         mock_listdir.return_value = [ 'blabla.cow' ]
         expected = [ ]
-        mocked_open = mock_open(read_data=self.DEFAULT_CONFIG.toJson())
+        mocked_open = mock_open(read_data=self.default_config.toJson())
         with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
             actual = cm.list()
@@ -379,8 +379,8 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_load_should_load_data(self,mock_exists):
         mock_exists.return_value = True
         
-        expected = self.DEFAULT_CONFIG
-        mocked_open = mock_open(read_data=self.DEFAULT_CONFIG.toJson())
+        expected = self.default_config
+        mocked_open = mock_open(read_data=self.default_config.toJson())
         
         with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
@@ -389,7 +389,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
 
     def test_new_should_return_a_config_with_defaults_and_correct_name(self):
         name = "Apple"
-        expected = ConfigurationGenerator().default_configuration()
+        expected = self.default_config
         expected.name = name
         cm = ConfigurationManager()
         

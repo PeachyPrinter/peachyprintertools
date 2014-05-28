@@ -42,7 +42,7 @@ class ConfigurationAPI(object):
     '''Returns the currently loaded printer name'''
     def current_printer(self):
         if self._current_config:
-            return self._current_config['name']
+            return self._current_config.name
         else:
             logging.debug('Current config missing')
             return None
@@ -110,11 +110,11 @@ class ConfigurationAPI(object):
 
     def _set_currently_selected(self, audio_settings, io_type):
         if io_type == 'inputs':
-            sample_frequency = self._current_config['input_sample_frequency']
-            bit_depth = self._current_config['input_bit_depth']
+            sample_frequency = self._current_config.audio.input.sample_rate
+            bit_depth = self._current_config.audio.input.bit_depth
         else:
-            sample_frequency = self._current_config['output_sample_frequency']
-            bit_depth = self._current_config['output_bit_depth']
+            sample_frequency = self._current_config.audio.output.sample_rate
+            bit_depth = self._current_config.audio.output.bit_depth
         for audio_setting in audio_settings:
             if sample_frequency == audio_setting.sample_frequency and bit_depth == audio_setting.bit_depth:
                 audio_setting.set_current()
@@ -124,19 +124,19 @@ class ConfigurationAPI(object):
     def set_audio_output_options(self, audio_setting):
         #TODO JT 2014-04-30 - The modulation stuff may not belong here.
         if (audio_setting.sample_frequency == 44100):
-            self._current_config['on_modulation_frequency'] = 11025
-            self._current_config['off_modulation_frequency'] = 2205
+            self._current_config.audio.output.on_modulation_frequency = 11025
+            self._current_config.audio.output.off_modulation_frequency = 2205
         else:
-            self._current_config['on_modulation_frequency'] = 12000
-            self._current_config['off_modulation_frequency'] = 2000
-        self._current_config['output_bit_depth'] = audio_setting.bit_depth
-        self._current_config['output_sample_frequency'] = audio_setting.sample_frequency
+            self._current_config.audio.output.on_modulation_frequency = 12000
+            self._current_config.audio.output.off_modulation_frequency = 2000
+        self._current_config.audio.output.bit_depth = audio_setting.bit_depth
+        self._current_config.audio.output.sample_rate = audio_setting.sample_frequency
         self.save()
 
     '''Sets the output audio based on the AudioSetting passed in'''
     def set_audio_input_options(self,audio_setting):
-        self._current_config['input_bit_depth'] = audio_setting.bit_depth
-        self._current_config['input_sample_frequency'] = audio_setting.sample_frequency
+        self._current_config.audio.input.bit_depth = audio_setting.bit_depth
+        self._current_config.audio.input.sample_rate = audio_setting.sample_frequency
         self.save()
 
     # ------------------------------- Drip Setup --------------------------------------
@@ -149,7 +149,7 @@ class ConfigurationAPI(object):
     def mark_drips_at_target(self):
         if self._target_height != None:
             self._marked_drips = self.get_drips()
-            self._current_config['drips_per_mm'] = self.get_drips_per_mm() 
+            self._current_config.dripper.drips_per_mm = self.get_drips_per_mm() 
         else:
             raise Exception("Target height must be specified before marking end point")
 
@@ -172,14 +172,14 @@ class ConfigurationAPI(object):
         if self._marked_drips:
             return self._marked_drips / self._target_height
         else:
-            return self._current_config['drips_per_mm']
+            return self._current_config.dripper.drips_per_mm
 
     '''Turns on the counting of drips. Stop must be called to end this.'''
     def start_counting_drips(self, drip_call_back = None):
         self._drip_detector = DripBasedZAxis(
             1,
-            sample_rate = self._current_config['input_sample_frequency'], 
-            bit_depth = self._current_config['input_bit_depth'],
+            sample_rate = self._current_config.audio.input.sample_rate, 
+            bit_depth = self._current_config.audio.input.bit_depth,
             drip_call_back = drip_call_back
             )
         self._drip_detector.start()
@@ -194,7 +194,7 @@ class ConfigurationAPI(object):
     '''Returns a layer generator that can be used with the print API to print a cure test.'''
     def get_cure_test(self, base_height, total_height, start_speed, stop_speed):
         self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed)
-        return CureTestGenerator(base_height, total_height, start_speed, stop_speed, self._current_config['sublayer_height_mm'])
+        return CureTestGenerator(base_height, total_height, start_speed, stop_speed, self._current_config.options.sublayer_height_mm)
 
     '''Based on provided setting returns the speed the printer was going at the specified height'''
     def get_speed_at_height(self, base_height, total_height, start_speed, stop_speed, height):
@@ -240,7 +240,7 @@ class ConfigurationAPI(object):
     '''Save the maximum speed in mm per second in the configuration file'''
     def set_speed(self,mm_per_second):
         if (float(mm_per_second) > 0.0):
-            self._current_config['draw_speed'] = float(mm_per_second)
+            self._current_config.options.draw_speed = float(mm_per_second)
             self.save()
         else:
             logging.warning('Specified speed if less then or equal to 0')
@@ -250,36 +250,36 @@ class ConfigurationAPI(object):
 
     '''Returns the current setting for laser thickness'''
     def get_laser_thickness_mm(self):
-        return self._current_config['laser_thickness_mm']
+        return self._current_config.options.laser_thickness_mm
 
     '''Sets the laser thickness in mm'''
     def set_laser_thickness_mm(self, thickness_mm):
         if (type(thickness_mm) == types.FloatType  and thickness_mm > 0.0):
-            self._current_config['laser_thickness_mm'] = thickness_mm
+            self._current_config.options.laser_thickness_mm = thickness_mm
             self.save()
         else:
             raise Exception("Laser thickness must be a positive floating point number")
 
     '''Gets the Sublayer height sublayers are added between layers for grater definition'''
     def get_sublayer_height_mm(self):
-        return self._current_config['sublayer_height_mm']
+        return self._current_config.options.sublayer_height_mm
 
     '''Sets the Sublayer height sublayers are added between layers for grater definition'''
     def set_sublayer_height_mm(self, thickness_mm):
         if (type(thickness_mm) == types.FloatType  and thickness_mm > 0.0):
-            self._current_config['sublayer_height_mm'] = thickness_mm
+            self._current_config.options.sublayer_height_mm = thickness_mm
             self.save()
         else:
             raise Exception("Sublayer height must be a positive floating point number")
 
     '''Gets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
     def get_max_lead_distance_mm(self):
-        return self._current_config['max_lead_distance_mm']
+        return self._current_config.dripper.max_lead_distance_mm
 
     '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
     def set_max_lead_distance_mm(self, lead_distance_mm):
         if (type(lead_distance_mm) == types.FloatType  and lead_distance_mm > 0.0):
-            self._current_config['max_lead_distance_mm'] = lead_distance_mm
+            self._current_config.dripper.max_lead_distance_mm = lead_distance_mm
             self.save()
         else:
             raise Exception("Max lead distance height must be a positive floating point number")
@@ -288,31 +288,31 @@ class ConfigurationAPI(object):
     #----------------------------Advanced Setup---------------------------------------
 
     def get_serial_enabled(self):
-        return self._current_config['use_serial_zaxis']
+        return self._current_config.serial.on
 
     def get_serial_port(self):
-        return self._current_config['serial_port']
+        return self._current_config.serial.port
 
     def get_serial_on_command(self):
-        return self._current_config['serial_on']
+        return self._current_config.serial.on_command
 
     def get_serial_off_command(self):
-        return self._current_config['serial_off']
+        return self._current_config.serial.serial_off
 
     def set_serial_enabled(self, enabled):
-        self._current_config['use_serial_zaxis'] = enabled
+        self._current_config.serial.on = enabled
         self.save()
 
     def set_serial_port(self, port):
-        self._current_config['serial_port'] = port
+        self._current_config.serial.port = port
         self.save()
 
     def set_serial_on_command(self, on_command):
-        self._current_config['serial_on'] = on_command
+        self._current_config.serial.on_command = on_command
         self.save()
 
     def set_serial_off_command(self, off_command):
-        self._current_config['serial_off'] = off_command
+        self._current_config.serial.off_command = off_command
         self.save()
 
 

@@ -53,7 +53,10 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'new' )
     def test_current_printer_returns_printer_name(self, mock_new, mock_save):
         capi = ConfigurationAPI(ConfigurationManager())
-        mock_new.return_value = { 'name' : 'Spam' }
+        name = "Spam"
+        config = self.default_config
+        config.name = name
+        mock_new.return_value = config
         capi.add_printer('Spam')
 
         actual = capi.current_printer()
@@ -70,9 +73,9 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
         mock_load.assert_called_with(printer_name)
 
-    @patch.object(ConfigurationManager, 'load' )
-    def test_cannot_add_printer_that_already_exists(self, mock_load):
-        pass
+#     @patch.object(ConfigurationManager, 'load' )
+#     def test_cannot_add_printer_that_already_exists(self, mock_load):
+#         pass
     
     @patch.object(ConfigurationManager, 'load' )
     def test_get_config_returns_current_config(self, mock_load):
@@ -101,7 +104,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
                    }
 
         mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         capi = ConfigurationAPI(ConfigurationManager())
         capi.load_printer("Printer")
         
@@ -131,7 +134,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
                    }
 
         mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         capi = ConfigurationAPI(ConfigurationManager())
         capi.load_printer("Printer")
         
@@ -150,7 +153,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             }
 
         mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         capi = ConfigurationAPI(ConfigurationManager())
         capi.load_printer("Printer")
 
@@ -173,7 +176,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             }
 
         mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         capi = ConfigurationAPI(ConfigurationManager())
         capi.load_printer("Printer")
 
@@ -196,11 +199,11 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             }
 
         mock_get_valid_sampling_options.return_value = audio_options
-        config = self.DEFAULT_CONFIG.copy()
-        config['input_bit_depth'] = '16 bit'
-        config['input_sample_frequency'] = 44100
-        config['output_bit_depth'] = '16 bit'
-        config['output_sample_frequency'] = 44100
+        config = self.default_config
+        config.audio.input.bit_depth = '16 bit'
+        config.audio.input.sample_rate = 44100
+        config.audio.output.bit_depth = '16 bit'
+        config.audio.output.sample_rate = 44100
 
         mock_load.return_value = config
 
@@ -222,72 +225,70 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_audio_output_options_should_update_output_when_44100(self, mock_save, mock_load):
-        config = self.DEFAULT_CONFIG.copy()
-        mock_load.return_value = config
+        mock_load.return_value = self.default_config
         capi = ConfigurationAPI(ConfigurationManager())
-        expected = config.copy()
-        expected['on_modulation_frequency'] = 11025
-        expected['off_modulation_frequency'] = 2205
-        expected['output_bit_depth'] = '16 bit'
-        expected['output_sample_frequency'] =  44100
+        expected = self.default_config
+        expected.audio.output.on_modulation_frequency = 11025
+        expected.audio.output.off_modulation_frequency = 2205
+        expected.audio.output.bit_depth = '16 bit'
+        expected.audio.output.sample_rate =  44100
 
         capi.load_printer("Printer")
         
         actual = capi.set_audio_output_options(AudioSetting(44100, '16 bit'))
-
-        mock_save.assert_called_with(expected)
+        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_audio_output_options_should_update_output_when_48000(self, mock_save, mock_load):
         printer_name = 'MegaPrint'
-        config =  self.DEFAULT_CONFIG.copy()
+        config =  self.default_config
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
-        expected = config.copy()
-        expected['on_modulation_frequency'] = 12000
-        expected['off_modulation_frequency'] = 2000
-        expected['output_bit_depth'] = '32 bit Floating Point'
-        expected['output_sample_frequency'] =  48000
+        expected = self.default_config
+        expected.audio.output.on_modulation_frequency = 12000
+        expected.audio.output.off_modulation_frequency = 2000
+        expected.audio.output.bit_depth = '32 bit Floating Point'
+        expected.audio.output.sample_rate =  48000
 
         capi.load_printer(printer_name)
         
         actual = capi.set_audio_output_options(AudioSetting(48000,'32 bit Floating Point'))
 
-        mock_save.assert_called_with(expected)
+        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_audio_input_options_should_update_when_44100(self, mock_save, mock_load):
-        config =  self.DEFAULT_CONFIG.copy()
+        config =  self.default_config
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
-        expected = config.copy()
-        expected['input_bit_depth'] = '16 bit'
-        expected['input_sample_frequency'] =  44100
+        expected = self.default_config
+        expected.audio.input.bit_depth = '16 bit'
+        expected.audio.input.sample_rate =  44100
 
         capi.load_printer('Printer')
         
         actual = capi.set_audio_input_options(AudioSetting(44100,'16 bit'))
 
-        mock_save.assert_called_with(expected)
+        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_audio_input_options_should_update_when_48000(self, mock_save, mock_load):
-        config =  self.DEFAULT_CONFIG.copy()
+        config =  self.default_config
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
-        expected = config.copy()
-        expected['input_bit_depth'] = '32 bit Floating Point'
-        expected['input_sample_frequency'] =  48000
+        expected = self.default_config
+        expected.audio.input.bit_depth = '32 bit Floating Point'
+        expected.audio.input.sample_rate =  48000
 
         capi.load_printer('Printer')
         
         actual = capi.set_audio_input_options(AudioSetting(48000,'32 bit Floating Point'))
 
-        mock_save.assert_called_with(expected)
+        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
 
 
@@ -298,7 +299,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(DripBasedZAxis, 'start')
     def test_start_counting_drips_should_start_getting_drips(self, mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
 
         configuration_API.start_counting_drips()
@@ -311,7 +312,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.configuration_api.DripBasedZAxis')
     def test_start_counting_drips_should_pass_call_back_function(self, mock_DripBasedZAxis, mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
 
         def callback(bla):
@@ -322,8 +323,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
         mock_DripBasedZAxis.assert_called_with(
             1,
-            sample_rate = self.DEFAULT_CONFIG['input_sample_frequency'], 
-            bit_depth = self.DEFAULT_CONFIG['input_bit_depth'],
+            sample_rate = self.default_config.audio.input.sample_rate, 
+            bit_depth = self.default_config.audio.input.bit_depth,
             drip_call_back = callback
             )
 
@@ -333,7 +334,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(DripBasedZAxis, 'stop')
     def test_stop_counting_drips_should_stop_getting_drips(self, mock_stop,mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
         configuration_API.start_counting_drips()
 
@@ -351,7 +352,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         mock_current_z_location_mm.return_value = fake_drip_counter 
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
 
         configuration_API.start_counting_drips()
@@ -365,7 +366,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(DripBasedZAxis, 'reset')
     def test_drip_calibration_should_call_reset_when_reset_requested(self, mock_reset,mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
 
         configuration_API.start_counting_drips()
@@ -407,7 +408,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         expected_drips_per_mm = fake_drip_counter / target_height
         
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = self.DEFAULT_CONFIG.copy()
+        mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
         mock_current_z_location_mm.return_value = fake_drip_counter
         
@@ -423,32 +424,39 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'load' )
     def test_start_counting_drips_should_use_audio_input_settings(self, mock_load, mock_save, mock_DripBasedZAxis):
         mock_drip_based_zaxis = mock_DripBasedZAxis
-        mock_load.return_value =  self.DEFAULT_CONFIG
+        mock_load.return_value =  self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer('printer')
+        expected_sample_rate = self.default_config.audio.input.sample_rate
+        expected_bit_depth = self.default_config.audio.input.bit_depth
 
         configuration_API.start_counting_drips()
 
-        mock_DripBasedZAxis.assert_called_with(1, sample_rate=48000, bit_depth='16 bit',drip_call_back = None)
+        mock_DripBasedZAxis.assert_called_with(
+            1, 
+            sample_rate=expected_sample_rate, 
+            bit_depth=expected_bit_depth,
+            drip_call_back = None
+        )
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_drips_per_mm_should_return_current_setting_if_unmarked(self, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
 
         configuration_API.load_printer('Printer')
 
         actual = configuration_API.get_drips_per_mm()
 
-        self.assertEquals(self.DEFAULT_CONFIG['drips_per_mm'], actual)
+        self.assertEquals(self.default_config.dripper.drips_per_mm, actual)
 
     # ----------------------------- General Setup --------------------------------------
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_max_lead_distance_mm_returns_max_lead_distance(self, mock_load):
         expected = 0.4
-        config = self.DEFAULT_CONFIG.copy()
-        config['max_lead_distance_mm'] = expected
+        config = self.default_config
+        config.dripper.max_lead_distance_mm = expected
         mock_load.return_value =  config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
@@ -459,16 +467,16 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'save' )
     def test_set_max_lead_distance_mm_sets_max_lead_distance_mm(self, mock_save, mock_load):
         expected = 0.4
-        expected_config = self.DEFAULT_CONFIG.copy()
-        expected_config['max_lead_distance_mm'] = expected
-        mock_load.return_value =  self.DEFAULT_CONFIG.copy()
+        expected_config = self.default_config
+        expected_config.dripper.max_lead_distance_mm = expected
+        mock_load.return_value =  self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
         configuration_API.set_max_lead_distance_mm(expected)
 
         self.assertEquals(expected,configuration_API.get_max_lead_distance_mm())
-        mock_save.assert_called_with(expected_config)
+        self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
@@ -492,8 +500,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'load' )
     def test_get_laser_thickness_mm_returns_thickness(self, mock_load):
         expected = 7.0
-        config = self.DEFAULT_CONFIG.copy()
-        config['laser_thickness_mm'] = expected
+        config = self.default_config
+        config.options.laser_thickness_mm = expected
         mock_load.return_value =  config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
@@ -504,10 +512,10 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'save' )
     def test_set_laser_thickness_mm_sets_thickness(self, mock_save, mock_load):
         expected_thickness = 7.0
-        config =  self.DEFAULT_CONFIG.copy()
-        expected = config.copy()
-        expected['laser_thickness_mm'] = expected_thickness
-        mock_load.return_value =  config.copy() 
+        config =  self.default_config
+        expected = config
+        expected.options.laser_thickness_mm = expected_thickness
+        mock_load.return_value =  config 
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -537,7 +545,10 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'load' )
     def test_sublayer_height_mm_returns_theight(self, mock_load):
         expected = 7.0
-        mock_load.return_value =  { 'name':'name', 'sublayer_height_mm': expected }
+        expected_config = self.default_config
+        expected_config.options.sublayer_height_mm = expected
+        mock_load.return_value =  expected_config
+
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -547,10 +558,10 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'save' )
     def test_set_sublayer_height_mm_returns_height(self, mock_save, mock_load):
         expected_height = 7.0
-        config =  { 'name':'test' }
-        expected = config.copy()
-        expected['sublayer_height_mm'] = expected_height
-        mock_load.return_value =  config.copy() 
+        config =  self.default_config
+        expected = config
+        expected.options.sublayer_height_mm = expected_height
+        mock_load.return_value =  config 
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -562,7 +573,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_sublayer_height_mm_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
-        mock_load.return_value =   {'name':'test' }
+        mock_load.return_value =   self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -579,7 +590,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_serial_options_loads_correctly(self, mock_load):
-        mock_load.return_value =  self.DEFAULT_CONFIG
+        mock_load.return_value =  self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -588,10 +599,10 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         actual_on = configuration_API.get_serial_on_command()
         actual_off = configuration_API.get_serial_off_command()
 
-        self.assertEquals(self.DEFAULT_CONFIG['use_serial_zaxis'],actual_enabled)
-        self.assertEquals(self.DEFAULT_CONFIG['serial_port'],actual_port)
-        self.assertEquals(self.DEFAULT_CONFIG['serial_on'],actual_on)
-        self.assertEquals(self.DEFAULT_CONFIG['serial_off'],actual_off)
+        self.assertEquals(self.default_config.serial.on, actual_enabled)
+        self.assertEquals(self.default_config.serial.port, actual_port)
+        self.assertEquals(self.default_config.serial.on_command, actual_on)
+        self.assertEquals(self.default_config.serial.off_command, actual_off)
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
@@ -601,12 +612,12 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         expected_on = 'GOGOGO'
         expected_off = 'STOPSTOP'
 
-        mock_load.return_value =  self.DEFAULT_CONFIG.copy()
-        expected_config = self.DEFAULT_CONFIG.copy()
-        expected_config['use_serial_zaxis'] = expected_enabled
-        expected_config['serial_port']      = expected_port
-        expected_config['serial_on']        = expected_on
-        expected_config['serial_off']       = expected_off
+        mock_load.return_value =  self.default_config
+        expected = self.default_config
+        expected.serial.on = expected_enabled
+        expected.serial.port      = expected_port
+        expected.serial.on_command        = expected_on
+        expected.serial.off_command       = expected_off
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
@@ -616,13 +627,13 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         configuration_API.set_serial_on_command(expected_on)
         configuration_API.set_serial_off_command(expected_off)
 
-        mock_save.assert_called_with(expected_config)
+        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
 #-----------------------------------------Cure Test Setup Tests -----------------------------------
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_cure_test_total_height_must_exceed_base_height(self, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -634,7 +645,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_cure_test_final_speed_exceeds_start_speed(self, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -646,7 +657,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_cure_test_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -681,7 +692,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_cure_test_returns_a_layer_generator(self, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
         
@@ -690,7 +701,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_speed_at_height_must_exceed_base_height(self, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -701,7 +712,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_speed_at_height_must_have_height_between_total_and_base(self, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -712,7 +723,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_speed_at_height_final_speed_exceeds_start_speed(self, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -724,7 +735,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_speed_at_height_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
@@ -759,7 +770,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_speed_at_height_returns_a_correct_height(self, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
         
@@ -769,22 +780,22 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_speed(self, mock_save, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG.copy()
-        expected_config = self.DEFAULT_CONFIG.copy()
-        expected_config['draw_speed'] = 121.0
+        mock_load.return_value = self.default_config
+        expected = self.default_config
+        expected.options.draw_speed = 121.0
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
         
         configuration_API.set_speed(121)
         
-        mock_save.assert_called_with(expected_config)
+        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_speed_should_throw_exception_if_less_then_or_0(self, mock_save, mock_load):
-        mock_load.return_value = self.DEFAULT_CONFIG.copy()
-        expected_config = self.DEFAULT_CONFIG.copy()
-        expected_config['draw_speed'] = 121.0
+        mock_load.return_value = self.default_config
+        expected_config = self.default_config
+        expected_config.options.draw_speed = 121.0
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
         
