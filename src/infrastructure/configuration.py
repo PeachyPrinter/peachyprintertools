@@ -2,6 +2,7 @@ import os
 import hashlib
 import config
 import pickle
+import json
 import types
 import logging
 
@@ -9,21 +10,29 @@ from domain.configuration_manager import ConfigurationManager
 
 
 class OptionsConfiguration(object):
-    def __init__(self):
-        self._draw_speed = None
-        self._laser_offset = None
-        self._sublayer_height_mm = None
-        self._laser_thickness_mm = None
+    def __init__(self, souce_dict = {}):
+        self._draw_speed = souce_dict.get(u'draw_speed', None)
+        self._laser_offset = souce_dict.get(u'laser_offset', None)
+        self._sublayer_height_mm = souce_dict.get(u'sublayer_height_mm', None)
+        self._laser_thickness_mm = souce_dict.get(u'laser_thickness_mm', None)
+
+    def toDict(self):
+        return { 
+        u'draw_speed': self._draw_speed,
+        u'laser_offset' : self._laser_offset,
+        u'sublayer_height_mm': self._sublayer_height_mm,
+        u'laser_thickness_mm' : self._laser_thickness_mm,
+        }
 
     @property
     def draw_speed(self):
         return self._draw_speed
 
     @draw_speed.setter
-    def draw_speed(cls, value):
+    def draw_speed(self, value):
         _type = types.FloatType
         if type(value) == _type:
-            cls._draw_speed = value
+            self._draw_speed = value
         else:
             raise ValueError("Draw Speed must be of %s" % (str(_type)))
 
@@ -32,14 +41,14 @@ class OptionsConfiguration(object):
         return self._laser_offset
 
     @laser_offset.setter
-    def laser_offset(cls, value):
+    def laser_offset(self, value):
         _type = types.ListType
         _inner_type = types.FloatType
         if (type(value) == _type and 
             len(value) == 2 and 
             type(value[0]) == _inner_type and
             type(value[1]) == _inner_type):
-            cls._laser_offset = value
+            self._laser_offset = value
         else:
             raise ValueError("Laser Offset must be of %s" % (str(_type)))
 
@@ -48,10 +57,10 @@ class OptionsConfiguration(object):
         return self._sublayer_height_mm
 
     @sublayer_height_mm.setter
-    def sublayer_height_mm(cls, value):
+    def sublayer_height_mm(self, value):
         _type = types.FloatType
         if type(value) == _type:
-            cls._sublayer_height_mm = value
+            self._sublayer_height_mm = value
         else:
             raise ValueError("Sublayer Height must be of %s" % (str(_type)))
 
@@ -60,29 +69,33 @@ class OptionsConfiguration(object):
         return self._laser_thickness_mm
 
     @laser_thickness_mm.setter
-    def laser_thickness_mm(cls, value):
+    def laser_thickness_mm(self, value):
         _type = types.FloatType
         if type(value) == _type:
-            cls._laser_thickness_mm = value
+            self._laser_thickness_mm = value
         else:
             raise ValueError("Laser Thickness must be of %s" % (str(_type)))
 
-
-
 class DripperConfiguration(object):
-    def __init__(self):
-        self._max_lead_distance_mm = None
-        self._drips_per_mm = None
+    def __init__(self, souce_dict = {}):
+        self._max_lead_distance_mm = souce_dict.get(u'max_lead_distance_mm', None)
+        self._drips_per_mm = souce_dict.get(u'drips_per_mm', None)
+
+    def toDict(self):
+        return { 
+        u'max_lead_distance_mm': self._max_lead_distance_mm,
+        u'drips_per_mm' : self._drips_per_mm,
+        }
 
     @property
     def max_lead_distance_mm(self):
         return self._max_lead_distance_mm
 
     @max_lead_distance_mm.setter
-    def max_lead_distance_mm(cls, value):
+    def max_lead_distance_mm(self, value):
         _type = types.FloatType
         if type(value) == _type:
-            cls._max_lead_distance_mm = value
+            self._max_lead_distance_mm = value
         else:
             raise ValueError("Max Lead distance must be of %s" % (str(_type)))
 
@@ -91,29 +104,47 @@ class DripperConfiguration(object):
         return self._drips_per_mm
 
     @drips_per_mm.setter
-    def drips_per_mm(cls, value):
+    def drips_per_mm(self, value):
         _type = types.FloatType
         if type(value) == _type:
-            cls._drips_per_mm = value
+            self._drips_per_mm = value
         else:
             raise ValueError("Drips per mm must be of %s" % (str(_type)))
 
-
 class CalibrationConfiguration(object):
-    def __init__(self):
-        self._scale = None
-        self._data = None
-        self._max_deflection = None
+    def __init__(self, souce_dict = {}):
+        self._scale = souce_dict.get(u'scale', None)
+        if souce_dict.has_key(u'data'):
+            self._data = {
+                'height' : souce_dict[u'data']['height'],
+                'lower_points' : dict([ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in souce_dict[u'data'][u'lower_points'] ]),
+                'upper_points' : dict([ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in souce_dict[u'data'][u'upper_points'] ]),
+                }
+        else:
+            self._data = {}
+        
+        self._max_deflection = souce_dict.get(u'max_deflection', None)
+
+    def toDict(self):
+        return { 
+        u'scale': self._scale,
+        u'data' : {
+            u'height' : self._data['height'],
+            u'lower_points' : self._data['lower_points'].items(),
+            u'upper_points' : self._data['upper_points'].items(),
+        },
+        u'max_deflection': self._max_deflection,
+        }
 
     @property
     def scale(self):
         return self._scale
 
     @scale.setter
-    def scale(cls, value):
+    def scale(self, value):
         _type = types.FloatType
         if type(value) == _type:
-            cls._scale = value
+            self._scale = value
         else:
             raise ValueError("Scale must be of %s" % (str(_type)))
 
@@ -122,10 +153,10 @@ class CalibrationConfiguration(object):
         return self._data
 
     @data.setter
-    def data(cls, value):
+    def data(self, value):
         _type = types.DictType
         if type(value) == _type:
-            cls._data = value
+            self._data = value
         else:
             raise ValueError("Data must be of %s" % (str(_type)))
 
@@ -134,30 +165,38 @@ class CalibrationConfiguration(object):
         return self._max_deflection
 
     @max_deflection.setter
-    def max_deflection(cls, value):
+    def max_deflection(self, value):
         _type = types.FloatType
         if type(value) == _type:
-            cls._max_deflection = value
+            self._max_deflection = value
         else:
             raise ValueError("Max Deflection must be of %s" % (str(_type)))
 
-
 class SerialZAxisConfiguration(object):
-    def __init__(self):
-        self._on = None
-        self._port = None
-        self._on_command = None
-        self._off_command = None
+    def __init__(self, souce_dict = {}):
+        self._on = souce_dict.get(u'on', None)
+        self._port = souce_dict.get(u'port', None)
+        self._on_command = souce_dict.get(u'on_command', None)
+        self._off_command = souce_dict.get(u'off_command', None)
+
+    def toDict(self):
+        return { 
+        u'on': self._on,
+        u'port' : self._port,
+        u'on_command': self._on_command,
+        u'off_command' : self._off_command
+        }
+
 
     @property
     def on(self):
         return self._on
 
     @on.setter
-    def on(cls, value):
+    def on(self, value):
         _type = types.BooleanType
         if type(value) == _type:
-            cls._on = value
+            self._on = value
         else:
             raise ValueError("Bit depth must be of %s" % (str(_type)))
 
@@ -166,10 +205,10 @@ class SerialZAxisConfiguration(object):
         return self._port
 
     @port.setter
-    def port(cls, value):
+    def port(self, value):
         _type = types.StringType
         if type(value) == _type:
-            cls._port = value
+            self._port = value
         else:
             raise ValueError("Bit depth must be of %s" % (str(_type)))
 
@@ -178,10 +217,10 @@ class SerialZAxisConfiguration(object):
         return self._on_command
 
     @on_command.setter
-    def on_command(cls, value):
+    def on_command(self, value):
         _type = types.StringType
         if type(value) == _type:
-            cls._on_command = value
+            self._on_command = value
         else:
             raise ValueError("Bit depth must be of %s" % (str(_type)))
 
@@ -190,29 +229,35 @@ class SerialZAxisConfiguration(object):
         return self._off_command
 
     @off_command.setter
-    def off_command(cls, value):
+    def off_command(self, value):
         _type = types.StringType
         if type(value) == _type:
-            cls._off_command = value
+            self._off_command = value
         else:
             raise ValueError("Bit depth must be of %s" % (str(_type)))
 
-   
-
 class AudioInputConfiguration(object):
-    def __init__(self):
-        self._bit_depth = None
-        self._sample_rate = None
+    def __init__(self, souce_dict = {}):
+        self._bit_depth = souce_dict.get(u'bit_depth', None)
+        self._sample_rate = souce_dict.get(u'sample_rate', None)
+
+
+    def toDict(self):
+        return { 
+        u'bit_depth': self._bit_depth,
+        u'sample_rate' : self._sample_rate
+        }
+
 
     @property
     def bit_depth(self):
         return self._bit_depth
 
     @bit_depth.setter
-    def bit_depth(cls, value):
+    def bit_depth(self, value):
         _type = types.StringType
         if type(value) == _type:
-            cls._bit_depth = value
+            self._bit_depth = value
         else:
             raise ValueError("Bit depth must be of %s" % (str(_type)))
 
@@ -221,30 +266,37 @@ class AudioInputConfiguration(object):
         return self._sample_rate
 
     @sample_rate.setter
-    def sample_rate(cls, value):
+    def sample_rate(self, value):
         _type = types.IntType
         if type(value) == _type:
-            cls._sample_rate = value
+            self._sample_rate = value
         else:
             raise ValueError("Sample Rate must be of %s" % (str(_type)))
 
-
 class AudioOutputConfiguration(object):
-    def __init__(self):
-        self._bit_depth = None
-        self._sample_rate = None
-        self._modulation_on_frequency = None
-        self._modulation_off_frequency = None
+    def __init__(self, souce_dict = {}):
+        self._bit_depth = souce_dict.get(u'bit_depth', None)
+        self._sample_rate = souce_dict.get(u'sample_rate', None)
+        self._modulation_on_frequency = souce_dict.get(u'modulation_on_frequency', None)
+        self._modulation_off_frequency = souce_dict.get(u'modulation_off_frequency', None)
+
+    def toDict(self):
+        return { 
+        u'bit_depth': self._bit_depth,
+        u'sample_rate' : self._sample_rate,
+        u'modulation_on_frequency': self._modulation_on_frequency,
+        u'modulation_off_frequency' : self._modulation_off_frequency
+        }
 
     @property
     def bit_depth(self):
         return self._bit_depth
 
     @bit_depth.setter
-    def bit_depth(cls, value):
+    def bit_depth(self, value):
         _type = types.StringType
         if type(value) == _type:
-            cls._bit_depth = value
+            self._bit_depth = value
         else:
             raise ValueError("Bit depth must be of %s" % (str(_type)))
 
@@ -253,10 +305,10 @@ class AudioOutputConfiguration(object):
         return self._sample_rate
 
     @sample_rate.setter
-    def sample_rate(cls, value):
+    def sample_rate(self, value):
         _type = types.IntType
         if type(value) == _type:
-            cls._sample_rate = value
+            self._sample_rate = value
         else:
             raise ValueError("Sample Rate must be of %s" % (str(_type)))
 
@@ -266,10 +318,10 @@ class AudioOutputConfiguration(object):
         return self._modulation_on_frequency
 
     @modulation_on_frequency.setter
-    def modulation_on_frequency(cls, value):
+    def modulation_on_frequency(self, value):
         _type = types.IntType
         if type(value) == _type:
-            cls._modulation_on_frequency = value
+            self._modulation_on_frequency = value
         else:
             raise ValueError("Modulation On Frequency must be of %s" % (str(_type)))
 
@@ -279,18 +331,23 @@ class AudioOutputConfiguration(object):
         return self._modulation_off_frequency
 
     @modulation_off_frequency.setter
-    def modulation_off_frequency(cls, value):
+    def modulation_off_frequency(self, value):
         _type = types.IntType
         if type(value) == _type:
-            cls._modulation_off_frequency = value
+            self._modulation_off_frequency = value
         else:
             raise ValueError("Sample Rate must be of %s" % (str(_type)))
     
-
 class AudioConfiguration(object):
-    def __init__(self):
-        self._input = AudioInputConfiguration()
-        self._output = AudioOutputConfiguration()
+    def __init__(self, souce_dict = {}):
+        self._input = AudioInputConfiguration(souce_dict.get(u'input', {}))
+        self._output = AudioOutputConfiguration(souce_dict.get(u'output', {}))
+
+    def toDict(self):
+        return { 
+        u'input': self._input.toDict(),
+        u'output' : self._output.toDict()
+        }
 
     @property
     def input(self):
@@ -301,13 +358,28 @@ class AudioConfiguration(object):
         return self._output
 
 class Configuration(object):
-    def __init__(self):
-        self._name = "Peachy Printer"
-        self._audio = AudioConfiguration()
-        self._serial = SerialZAxisConfiguration()
-        self._calibration = CalibrationConfiguration()
-        self._dripper = DripperConfiguration()
-        self._options = OptionsConfiguration()
+    def __init__(self, souce_dict = {}):
+        self._name = souce_dict.get(u'name', None)
+        self._audio = AudioConfiguration(souce_dict = souce_dict.get(u'audio', {}))
+        self._serial = SerialZAxisConfiguration(souce_dict = souce_dict.get(u'serial', {}))
+        self._calibration = CalibrationConfiguration(souce_dict = souce_dict.get(u'calibration', {}))
+        self._dripper = DripperConfiguration(souce_dict = souce_dict.get(u'dripper', {}))
+        self._options = OptionsConfiguration(souce_dict = souce_dict.get(u'options', {}))
+
+
+    def toDict(self):
+        return { 
+        u'name': self._name,
+        u'audio' : self._audio.toDict(),
+        u'serial' : self._serial.toDict(),
+        u'calibration' : self._calibration.toDict(),
+        u'dripper' : self._dripper.toDict(),
+        u'options' : self._options.toDict(),
+        }
+
+    def toJson(self):
+        di = self.toDict()
+        return json.dumps(di)
 
     @property
     def audio(self):
@@ -333,10 +405,10 @@ class Configuration(object):
     def name(self):
         return self._name
     @name.setter
-    def name(cls, value):
+    def name(self, value):
         _type = types.StringType
         if type(value) == _type:
-            cls._name = value
+            self._name = value
         else:
             raise ValueError("Name must be of %s" % (str(_type)))
 

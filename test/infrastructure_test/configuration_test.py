@@ -2,6 +2,7 @@ import unittest
 import os
 import sys
 import pickle
+import json
 import hashlib
 
 from StringIO import StringIO
@@ -57,7 +58,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         config.calibration.data                     = expected_calibration_data
         config.calibration.scale                    = expected_calibration_scale
         config.options.draw_speed                   = expected_draw_speed
-        config.dripper.max_lead_distance            = expected_max_lead_distance_mm
+        config.dripper.max_lead_distance_mm         = expected_max_lead_distance_mm
         config.serial.on                            = expected_use_serial_zaxis
         config.serial.port                          = expected_serial_port
         config.serial.on_command                    = expected_serial_on
@@ -78,7 +79,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_calibration_data, config.calibration.data )
         self.assertEquals(expected_calibration_scale, config.calibration.scale )
         self.assertEquals(expected_draw_speed, config.options.draw_speed )
-        self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance )
+        self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )
         self.assertEquals(expected_use_serial_zaxis, config.serial.on )
         self.assertEquals(expected_serial_port, config.serial.port )
         self.assertEquals(expected_serial_on, config.serial.on_command )
@@ -148,6 +149,113 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             config.serial.off_command = expected_serial_off
         with self.assertRaises(Exception):
             config.options.laser_offset = expected_laser_offset
+
+    def test_can_create_json(self):
+        expected_name = "PP"
+        expected_output_bit_depth = "16"
+        expected_output_sample_frequency =  48000
+        expected_on_modulation_frequency = 8000
+        expected_off_modulation_frequency = 2000
+        expected_input_bit_depth = "8"
+        expected_input_sample_frequency = 4800
+        expected_sublayer_height_mm = 0.
+        expected_laser_thickness_mm = 0.1
+        expected_drips_per_mm = 10.1
+        expected_max_deflection = 75.2
+        expected_calibration_data = {
+            'height': 1.0 , 
+            'lower_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
+            'upper_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
+            }
+        expected_calibration_scale = 0.1 
+        expected_draw_speed = 2.0
+        expected_max_lead_distance_mm = 0.2
+        expected_use_serial_zaxis = True
+        expected_serial_port = "COM2"
+        expected_serial_on = "12"
+        expected_serial_off = "13"
+        expected_laser_offset = [ 0.1, 0.1]
+        config = Configuration()
+
+        config.name                                 = expected_name
+        config.audio.output.bit_depth               = expected_output_bit_depth
+        config.audio.output.sample_rate             = expected_output_sample_frequency
+        config.audio.output.modulation_on_frequency = expected_on_modulation_frequency
+        config.audio.output.modulation_off_frequency= expected_off_modulation_frequency
+        config.audio.input.bit_depth                = expected_input_bit_depth
+        config.audio.input.sample_rate              = expected_input_sample_frequency
+        config.options.sublayer_height_mm           = expected_sublayer_height_mm
+        config.options.laser_thickness_mm           = expected_laser_thickness_mm
+        config.dripper.drips_per_mm                 = expected_drips_per_mm
+        config.calibration.max_deflection           = expected_max_deflection
+        config.calibration.data                     = expected_calibration_data
+        config.calibration.scale                    = expected_calibration_scale
+        config.options.draw_speed                   = expected_draw_speed
+        config.dripper.max_lead_distance_mm         = expected_max_lead_distance_mm
+        config.serial.on                            = expected_use_serial_zaxis
+        config.serial.port                          = expected_serial_port
+        config.serial.on_command                    = expected_serial_on
+        config.serial.off_command                   = expected_serial_off
+        config.options.laser_offset                 = expected_laser_offset
+
+        expected_json = json.loads('{"name": "PP", "calibration": {"max_deflection": 75.2, "scale": 0.1, "data": {"upper_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "lower_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "height": 1.0}}, "dripper": {"max_lead_distance_mm": 0.2, "drips_per_mm": 10.1}, "serial": {"on": true, "on_command": "12", "port": "COM2", "off_command": "13"}, "audio": {"input": {"bit_depth": "8", "sample_rate": 4800}, "output": {"bit_depth": "16", "modulation_off_frequency": 2000, "sample_rate": 48000, "modulation_on_frequency": 8000}}, "options": {"laser_offset": [0.1, 0.1], "sublayer_height_mm": 0.0, "draw_speed": 2.0, "laser_thickness_mm": 0.1}}')
+
+        actual_json = json.loads(config.toJson())
+        self.assertDictEqual(expected_json, actual_json)
+
+    def test_can_load_from_json(self):
+        expected_name = "PP"
+        expected_output_bit_depth = "16"
+        expected_output_sample_frequency =  48000
+        expected_on_modulation_frequency = 8000
+        expected_off_modulation_frequency = 2000
+        expected_input_bit_depth = "8"
+        expected_input_sample_frequency = 4800
+        expected_sublayer_height_mm = 0.
+        expected_laser_thickness_mm = 0.1
+        expected_drips_per_mm = 10.1
+        expected_max_deflection = 75.2
+        expected_calibration_data = {
+            'height': 1.0 , 
+            'lower_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
+            'upper_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
+            }
+        expected_calibration_scale = 0.1 
+        expected_draw_speed = 2.0
+        expected_max_lead_distance_mm = 0.2
+        expected_use_serial_zaxis = True
+        expected_serial_port = "COM2"
+        expected_serial_on = "12"
+        expected_serial_off = "13"
+        expected_laser_offset = [ 0.1, 0.1]
+
+        json_file = '''{"name": "PP", "calibration": {"max_deflection": 75.2, "scale": 0.1, "data": {
+        "upper_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], 
+        "lower_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "height": 1.0}}, 
+        "dripper": {"max_lead_distance_mm": 0.2, "drips_per_mm": 10.1}, "serial": {"on": true, "on_command": "12", "port": "COM2", "off_command": "13"}, "audio": {"input": {"bit_depth": "8", "sample_rate": 4800}, "output": {"bit_depth": "16", "modulation_off_frequency": 2000, "sample_rate": 48000, "modulation_on_frequency": 8000}}, "options": {"laser_offset": [0.1, 0.1], "sublayer_height_mm": 0.0, "draw_speed": 2.0, "laser_thickness_mm": 0.1}}'''
+        config = Configuration(souce_dict = json.loads(json_file))
+
+        self.maxDiff = None
+        self.assertEquals(expected_name, config.name )
+        self.assertEquals(expected_output_bit_depth, config.audio.output.bit_depth )
+        self.assertEquals(expected_output_sample_frequency, config.audio.output.sample_rate )
+        self.assertEquals(expected_on_modulation_frequency, config.audio.output.modulation_on_frequency )
+        self.assertEquals(expected_off_modulation_frequency, config.audio.output.modulation_off_frequency )
+        self.assertEquals(expected_input_bit_depth, config.audio.input.bit_depth )
+        self.assertEquals(expected_input_sample_frequency, config.audio.input.sample_rate )
+        self.assertEquals(expected_sublayer_height_mm, config.options.sublayer_height_mm )
+        self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm )
+        self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm )
+        self.assertEquals(expected_max_deflection, config.calibration.max_deflection )
+        self.assertDictEqual(expected_calibration_data, config.calibration.data )
+        self.assertEquals(expected_calibration_scale, config.calibration.scale )
+        self.assertEquals(expected_draw_speed, config.options.draw_speed )
+        self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )
+        self.assertEquals(expected_use_serial_zaxis, config.serial.on )
+        self.assertEquals(expected_serial_port, config.serial.port )
+        self.assertEquals(expected_serial_on, config.serial.on_command )
+        self.assertEquals(expected_serial_off, config.serial.off_command )
+        self.assertEquals(expected_laser_offset, config.options.laser_offset )
 
 
 class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
