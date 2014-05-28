@@ -440,8 +440,8 @@ class ConfigurationGenerator(object):
 
         configuration.calibration.max_deflection           = 0.75
         configuration.calibration.height                   = 40.0
-        configuration.calibration.lower_points             = {(1.0, 1.0):( 40.0,  40.0), ( 1.0, -1.0):( 40.0, -40.0), (-1.0, -1.0):( -40.0, -40.0), (-1.0, 1.0):(-40.0, 40.0)}
-        configuration.calibration.upper_points             = {(1.0, 1.0):( 30.0,  30.0), ( 1.0, -1.0):( 30.0, -30.0), (-1.0, -1.0):( -30.0, -30.0), (-1.0, 1.0):(-30.0, 30.0)}
+        configuration.calibration.lower_points             = {(1.0, 1.0):( 40.0,  40.0), ( 1.0, 0.0):( 40.0, -40.0), (0.0, 0.0):( -40.0, -40.0), (0.0, 1.0):(-40.0, 40.0)}
+        configuration.calibration.upper_points             = {(1.0, 1.0):( 30.0,  30.0), ( 1.0, 0.0):( 30.0, -30.0), (0.0, 0.0):( -30.0, -30.0), (0.0, 1.0):(-30.0, 30.0)}
 
         configuration.serial.on                            = False
         configuration.serial.port                          = "COM2"

@@ -42,10 +42,11 @@ class HomogenousTransformer(Transformer):
     def __init__(self, scale , upper_height , lower_points, upper_points ):
         self._lock = threading.Lock()
         self._scale = scale
+        self._upper_height = upper_height
         self._lower_points = lower_points
         self._upper_points = upper_points
+        
         self._get_transforms()
-        self._upper_height = upper_height
         self._cache = {}
         
 
