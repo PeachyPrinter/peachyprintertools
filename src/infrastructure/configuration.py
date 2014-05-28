@@ -1,7 +1,6 @@
 import os
 import hashlib
 import config
-import pickle
 import json
 import types
 import logging
@@ -114,26 +113,19 @@ class DripperConfiguration(object):
 class CalibrationConfiguration(object):
     def __init__(self, souce_dict = {}):
         self._scale = souce_dict.get(u'scale', None)
-        if souce_dict.has_key(u'data'):
-            self._data = {
-                'height' : souce_dict[u'data']['height'],
-                'lower_points' : dict([ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in souce_dict[u'data'][u'lower_points'] ]),
-                'upper_points' : dict([ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in souce_dict[u'data'][u'upper_points'] ]),
-                }
-        else:
-            self._data = {}
-        
         self._max_deflection = souce_dict.get(u'max_deflection', None)
+        self._height = souce_dict.get(u'height', None)
+        self._lower_points = dict([ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in souce_dict.get(u'lower_points', []) ] )
+        self._upper_points = dict([ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in souce_dict.get(u'upper_points', []) ] )
+
 
     def toDict(self):
         return { 
         u'scale': self._scale,
-        u'data' : {
-            u'height' : self._data['height'],
-            u'lower_points' : self._data['lower_points'].items(),
-            u'upper_points' : self._data['upper_points'].items(),
-        },
-        u'max_deflection': self._max_deflection,
+            u'max_deflection': self._max_deflection,
+            u'height' : self._height,
+            u'lower_points' : self._lower_points.items(),
+            u'upper_points' : self._upper_points.items(),
         }
 
     @property
@@ -149,14 +141,38 @@ class CalibrationConfiguration(object):
             raise ValueError("Scale must be of %s" % (str(_type)))
 
     @property
-    def data(self):
-        return self._data
+    def height(self):
+        return self._height
 
-    @data.setter
-    def data(self, value):
+    @height.setter
+    def height(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._height = value
+        else:
+            raise ValueError("Height must be of %s" % (str(_type)))
+    
+    @property
+    def lower_points(self):
+        return self._lower_points
+
+    @lower_points.setter
+    def lower_points(self, value):
         _type = types.DictType
         if type(value) == _type:
-            self._data = value
+            self._lower_points = value
+        else:
+            raise ValueError("Data must be of %s" % (str(_type)))
+    
+    @property
+    def upper_points(self):
+        return self._upper_points
+
+    @upper_points.setter
+    def upper_points(self, value):
+        _type = types.DictType
+        if type(value) == _type:
+            self._upper_points = value
         else:
             raise ValueError("Data must be of %s" % (str(_type)))
 
@@ -337,7 +353,7 @@ class AudioOutputConfiguration(object):
             self._modulation_off_frequency = value
         else:
             raise ValueError("Sample Rate must be of %s" % (str(_type)))
-    
+
 class AudioConfiguration(object):
     def __init__(self, souce_dict = {}):
         self._input = AudioInputConfiguration(souce_dict.get(u'input', {}))
@@ -365,6 +381,8 @@ class Configuration(object):
         self._calibration = CalibrationConfiguration(souce_dict = souce_dict.get(u'calibration', {}))
         self._dripper = DripperConfiguration(souce_dict = souce_dict.get(u'dripper', {}))
         self._options = OptionsConfiguration(souce_dict = souce_dict.get(u'options', {}))
+
+
 
 
     def toDict(self):
@@ -412,35 +430,48 @@ class Configuration(object):
         else:
             raise ValueError("Name must be of %s" % (str(_type)))
 
+#TODO: JT 2014-05-28 Find out where this really lives
+class ConfigurationGenerator(object):
+    def default_configuration(self):
+        configuration = Configuration()
+        
+        configuration.name                                 = "Peachy Printer"
+
+        configuration.audio.output.bit_depth               = "16 bit"
+        configuration.audio.output.sample_rate             = 48000
+        configuration.audio.output.modulation_on_frequency = 8000
+        configuration.audio.output.modulation_off_frequency= 2000
+        configuration.audio.input.bit_depth                = "8 bit"
+        configuration.audio.input.sample_rate              = 44100
+
+        configuration.options.sublayer_height_mm           = 0.01
+        configuration.options.laser_thickness_mm           = 0.5
+        configuration.options.draw_speed                   = 200.0
+        configuration.options.laser_offset                 = [0.0,0.0]
+
+        configuration.dripper.drips_per_mm                 = 100.0
+        configuration.dripper.max_lead_distance_mm         = 1.0
+
+        configuration.calibration.max_deflection           = 75.0
+        configuration.calibration.height                   = 40.0
+        configuration.calibration.scale                    = 75.0
+        configuration.calibration.lower_points             = {(2.0, 2.0):( 2.0,  2.0), (0.0, 2.0):(-2.0,  2.0), (2.0, 0.0):( 2.0, -2.0), (0.0, 0.0):(-2.0, -2.0)}
+        configuration.calibration.upper_points             = {(1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0)}
+
+        configuration.serial.on                            = False
+        configuration.serial.port                          = "COM2"
+        configuration.serial.on_command                    = "1"
+        configuration.serial.off_command                   = "0"
+
+        return configuration
 
 class FileBasedConfigurationManager(ConfigurationManager):
-    REQUIRED_FIELDS = {
-        'name' : types.StringType ,
-        'output_bit_depth': types.StringType ,
-        'output_sample_frequency' : types.IntType ,
-        'on_modulation_frequency': types.IntType ,
-        'off_modulation_frequency': types.IntType ,
-        'input_bit_depth': types.StringType ,
-        'input_sample_frequency': types.IntType ,
-        'sublayer_height_mm': types.FloatType,
-        'laser_thickness_mm' : types.FloatType,
-        'drips_per_mm':types.FloatType,
-        'max_deflection' :types.FloatType,
-        'calibration_data': types.DictType,
-        'calibration_scale': types.FloatType,
-        'draw_speed' : types.FloatType,
-        'max_lead_distance_mm' : types.FloatType,
-        'use_serial_zaxis' : types.BooleanType,
-        'serial_port': types.StringType,
-        'serial_on': types.StringType,
-        'serial_off' : types.StringType,
-        'laser_offset' : types.ListType,
-    }
     
     CONFIGURATION_EXTENSION = '.cfg'
 
     def __init__(self):
         pass
+
 
     def list(self):
         printers = []
@@ -449,7 +480,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
                 if file_name.endswith(self.CONFIGURATION_EXTENSION):
                     configuration = self._load_configuration(os.path.join(self._path(), file_name))
                     if configuration:
-                        printers.append(configuration['name'])
+                        printers.append(configuration.name)
         return printers
 
     def load(self, printer_name):
@@ -465,33 +496,24 @@ class FileBasedConfigurationManager(ConfigurationManager):
 
     def _load_configuration(self, filename):
         with open(filename, 'r') as file_handle:
-            configuration = pickle.load(file_handle)
-            if self._valid(configuration):
-                return configuration
-            else:
+            try:
+                data = open(file_handle, 'r')
+                json_config = json.loads(data.read())
+                return Configuration(json_config)
+            except Exception as ex:
+                logging.error("Error loading file: %s" % ex)
                 return None
 
+
     def save(self, configuration):
-        if self._valid(configuration):
-            filename = self._get_file_name(configuration['name'])
-            with open(filename,'w') as file_handle:
-                pickle.dump(configuration, file_handle)
-        else:
-            logging.error("Saving, Configuration Specified is invalid\n%s" % configuration)
-            raise Exception("Configuration Specified is invalid\n%s" % configuration )
-
+        filename = self._get_file_name(configuration.name)
+        with open(filename,'w') as file_handle:
+            file_handle.write(configuration.toJson())
+        
     def new(self, printer_name):
-        new_printer = self.DEFAULTS.copy()
-        new_printer['name'] = printer_name
-        return new_printer
-
-    def _valid(self, configuration):
-        valid = True
-        for (key, value) in self.REQUIRED_FIELDS.items():
-            if not (configuration.has_key(key) and type(configuration[key]) == value):
-                logging.warn('%s missing or invalid\n%s' % (key, configuration))
-                valid = False
-        return valid
+        new_printer_config = ConfigurationGenerator().default_configuration()
+        new_printer_config.name = printer_name
+        return new_printer_config
 
     def _path(self):
         if not os.path.exists(config.PEACHY_PATH):
@@ -499,5 +521,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         return config.PEACHY_PATH
 
     def _get_file_name(self, name):
-        filename = hashlib.md5(name).hexdigest() + self.CONFIGURATION_EXTENSION
+        safe_name = ''.join( l for l in name if l.isalnum() )
+        filename = safe_name + self.CONFIGURATION_EXTENSION
         return os.path.join(self._path(), filename)
+

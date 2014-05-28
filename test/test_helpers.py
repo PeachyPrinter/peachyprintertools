@@ -1,6 +1,7 @@
 import numpy
 import unittest
 from domain.commands import *
+from infrastructure.configuration import ConfigurationGenerator
 
 class NumpyTestHelpers(object):
 
@@ -67,32 +68,7 @@ class CommandTestHelpers(object):
         return abs(a-b) <= (abs(a)+abs(b))/2 * tol
 
 class DefaultsHelpers(object):
-    DEFAULT_CONFIG = {
-            'name' : 'Unnamed Printer',
-            'output_bit_depth' : '16 bit',
-            'output_sample_frequency' : 48000,
-            'on_modulation_frequency' : 12000,
-            'off_modulation_frequency' : 2000,
-            'input_bit_depth' : '16 bit',
-            'input_sample_frequency' : 48000,
-            'sublayer_height_mm' : 0.05,
-            'laser_thickness_mm' : 0.5,
-            'drips_per_mm': 1.0,
-            'max_deflection': 0.75,
-            'calibration_data' : { 
-                'height': 1, 
-                'lower_points':{(1,1):(100,100),(1,0):(100,-100),(0,0):(-100,-100),(0,1):(-100,100)},
-                'upper_points':{(1,1):(100,100),(1,0):(100,-100),(0,0):(-100,-100),(0,1):(-100,100)},
-                },
-            'calibration_scale' : 1.0,
-            'draw_speed' : 200.0,
-            'max_lead_distance_mm' : 0.5,
-            'use_serial_zaxis' : False,
-            'serial_port': '',
-            'serial_on': '1',
-            'serial_off' : '0',
-            'laser_offset' : [0.0,0.0]
-            }
+    DEFAULT_CONFIG = ConfigurationGenerator().default_configuration()
 
 class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):
     def assertListDict(self,expected,actual):
@@ -105,3 +81,27 @@ class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):
         self.assertEquals(len(expected), len(actual))
         for index in range(0, len(expected)):
             self.assertEquals(expected[index],actual[index], '%s != %s' %(expected[index], actual[index]))
+
+    def assertConfigurationEqual(self, expected, actual):
+        self.assertEquals(expected.name                                 , actual.name                                 , "name did not match was %s expected %s"                                  % (expected.name                                 , actual.name                                 ))
+        self.assertEquals(expected.audio.output.bit_depth               , actual.audio.output.bit_depth               , "audio.output.bit_depth did not match was %s expected %s"                % (expected.audio.output.bit_depth               , actual.audio.output.bit_depth               ))
+        self.assertEquals(expected.audio.output.sample_rate             , actual.audio.output.sample_rate             , "audio.output.sample_rate did not match was %s expected %s"              % (expected.audio.output.sample_rate             , actual.audio.output.sample_rate             ))
+        self.assertEquals(expected.audio.output.modulation_on_frequency , actual.audio.output.modulation_on_frequency , "audio.output.modulation_on_frequency did not match was %s expected %s"  % (expected.audio.output.modulation_on_frequency , actual.audio.output.modulation_on_frequency ))
+        self.assertEquals(expected.audio.output.modulation_off_frequency, actual.audio.output.modulation_off_frequency, "audio.output.modulation_off_frequency did not match was %s expected %s" % (expected.audio.output.modulation_off_frequency, actual.audio.output.modulation_off_frequency))
+        self.assertEquals(expected.audio.input.bit_depth                , actual.audio.input.bit_depth                , "audio.input.bit_depth did not match was %s expected %s"                 % (expected.audio.input.bit_depth                , actual.audio.input.bit_depth                ))
+        self.assertEquals(expected.audio.input.sample_rate              , actual.audio.input.sample_rate              , "audio.input.sample_rate did not match was %s expected %s"               % (expected.audio.input.sample_rate              , actual.audio.input.sample_rate              ))
+        self.assertEquals(expected.options.sublayer_height_mm           , actual.options.sublayer_height_mm           , "options.sublayer_height_mm did not match was %s expected %s"            % (expected.options.sublayer_height_mm           , actual.options.sublayer_height_mm           ))
+        self.assertEquals(expected.options.laser_thickness_mm           , actual.options.laser_thickness_mm           , "options.laser_thickness_mm did not match was %s expected %s"            % (expected.options.laser_thickness_mm           , actual.options.laser_thickness_mm           ))
+        self.assertEquals(expected.dripper.drips_per_mm                 , actual.dripper.drips_per_mm                 , "dripper.drips_per_mm did not match was %s expected %s"                  % (expected.dripper.drips_per_mm                 , actual.dripper.drips_per_mm                 ))
+        self.assertEquals(expected.calibration.max_deflection           , actual.calibration.max_deflection           , "calibration.max_deflection did not match was %s expected %s"            % (expected.calibration.max_deflection           , actual.calibration.max_deflection           ))
+        self.assertEquals(expected.calibration.height                   , actual.calibration.height                   , "calibration.height did not match was %s expected %s"                    % (expected.calibration.height                   , actual.calibration.height                   ))
+        self.assertEquals(expected.calibration.scale                    , actual.calibration.scale                    , "calibration.scale did not match was %s expected %s"                     % (expected.calibration.scale                    , actual.calibration.scale                    ))
+        self.assertEquals(expected.calibration.lower_points             , actual.calibration.lower_points             , "calibration.lower_points did not match was %s expected %s"              % (expected.calibration.lower_points             , actual.calibration.lower_points             ))
+        self.assertEquals(expected.calibration.upper_points             , actual.calibration.upper_points             , "calibration.upper_points did not match was %s expected %s"              % (expected.calibration.upper_points             , actual.calibration.upper_points             ))
+        self.assertEquals(expected.options.draw_speed                   , actual.options.draw_speed                   , "options.draw_speed did not match was %s expected %s"                    % (expected.options.draw_speed                   , actual.options.draw_speed                   ))
+        self.assertEquals(expected.dripper.max_lead_distance_mm         , actual.dripper.max_lead_distance_mm         , "dripper.max_lead_distance_mm did not match was %s expected %s"          % (expected.dripper.max_lead_distance_mm         , actual.dripper.max_lead_distance_mm         ))
+        self.assertEquals(expected.serial.on                            , actual.serial.on                            , "serial.on did not match was %s expected %s"                             % (expected.serial.on                            , actual.serial.on                            ))
+        self.assertEquals(expected.serial.port                          , actual.serial.port                          , "serial.port did not match was %s expected %s"                           % (expected.serial.port                          , actual.serial.port                          ))
+        self.assertEquals(expected.serial.on_command                    , actual.serial.on_command                    , "serial.on_command did not match was %s expected %s"                     % (expected.serial.on_command                    , actual.serial.on_command                    ))
+        self.assertEquals(expected.serial.off_command                   , actual.serial.off_command                   , "serial.off_command did not match was %s expected %s"                    % (expected.serial.off_command                   , actual.serial.off_command                   ))
+        self.assertEquals(expected.options.laser_offset                 , actual.options.laser_offset                 , "options.laser_offset did not match was %s expected %s"                  % (expected.options.laser_offset                 , actual.options.laser_offset                 ))

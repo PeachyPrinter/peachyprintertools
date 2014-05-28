@@ -1,30 +1,4 @@
 class ConfigurationManager(object):
-    DEFAULTS = {
-            'name' : "Unnamed Printer",
-            'output_bit_depth' : '16 bit',
-            'output_sample_frequency' : 48000,
-            'on_modulation_frequency' : 12000,
-            'off_modulation_frequency' : 2000,
-            'input_bit_depth' : '16 bit',
-            'input_sample_frequency' : 48000,
-            'sublayer_height_mm' : 0.05,
-            'drips_per_mm' : 1.0,
-            'laser_thickness_mm' : 0.5,
-            'max_deflection': 0.75,
-            'calibration_data' : { 
-                'height': 1, 
-                'lower_points':{(1,1):(100,100),(1,0):(100,-100),(0,0):(-100,-100),(0,1):(-100,100)},
-                'upper_points':{(1,1):(100,100),(1,0):(100,-100),(0,0):(-100,-100),(0,1):(-100,100)},
-                },
-            'calibration_scale' : 1.0,
-            'draw_speed' : 200.0,
-            'max_lead_distance_mm' : 0.5,
-            'use_serial_zaxis' : False,
-            'serial_port': '',
-            'serial_on': '1',
-            'serial_off' : '0',
-            'laser_offset' : [0.0,0.0]
-            }
 
     def list(self):
         raise NotImplementedException("Abstract Class")

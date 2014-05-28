@@ -1,19 +1,18 @@
 import unittest
 import os
 import sys
-import pickle
 import json
 import hashlib
 
 from StringIO import StringIO
 
-from mock import patch, MagicMock
+from mock import patch, MagicMock,mock_open
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 from infrastructure.configuration import FileBasedConfigurationManager as ConfigurationManager
-from infrastructure.configuration import Configuration
+from infrastructure.configuration import Configuration, ConfigurationGenerator
 import test_helpers
 
 class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
@@ -29,11 +28,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_laser_thickness_mm = 0.1
         expected_drips_per_mm = 10.1
         expected_max_deflection = 75.2
-        expected_calibration_data = {
-            'height': 1.0 , 
-            'lower_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
-            'upper_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
-            }
+        expected_calibration_height = 1.0
+        expected_calibration_lower_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
+        expected_calibration_upper_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
         expected_calibration_scale = 0.1 
         expected_draw_speed = 2.0
         expected_max_lead_distance_mm = 0.2
@@ -55,7 +52,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         config.options.laser_thickness_mm           = expected_laser_thickness_mm
         config.dripper.drips_per_mm                 = expected_drips_per_mm
         config.calibration.max_deflection           = expected_max_deflection
-        config.calibration.data                     = expected_calibration_data
+        config.calibration.height                   = expected_calibration_height
+        config.calibration.lower_points             = expected_calibration_lower_points
+        config.calibration.upper_points             = expected_calibration_upper_points
         config.calibration.scale                    = expected_calibration_scale
         config.options.draw_speed                   = expected_draw_speed
         config.dripper.max_lead_distance_mm         = expected_max_lead_distance_mm
@@ -76,7 +75,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm )
         self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm )
         self.assertEquals(expected_max_deflection, config.calibration.max_deflection )
-        self.assertEquals(expected_calibration_data, config.calibration.data )
+        self.assertEquals(expected_calibration_height, config.calibration.height )
+        self.assertEquals(expected_calibration_lower_points, config.calibration.lower_points )
+        self.assertEquals(expected_calibration_upper_points, config.calibration.upper_points )
         self.assertEquals(expected_calibration_scale, config.calibration.scale )
         self.assertEquals(expected_draw_speed, config.options.draw_speed )
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )
@@ -98,7 +99,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_laser_thickness_mm = True
         expected_drips_per_mm = True
         expected_max_deflection = True
-        expected_calibration_data = True
+        expected_calibration_height = True
+        expected_calibration_lower_points = True
+        expected_calibration_upper_points = True
         expected_calibration_scale = True
         expected_draw_speed = True
         expected_max_lead_distance_mm = True
@@ -132,7 +135,11 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             config.calibration.max_deflection = expected_max_deflection
         with self.assertRaises(Exception):
-            config.calibration.data = expected_calibration_data
+            config.calibration.height = expected_calibration_height
+        with self.assertRaises(Exception):
+            config.calibration.lower_points = expected_calibration_lower_points
+        with self.assertRaises(Exception):
+            config.calibration.upper_points = expected_calibration_upper_points
         with self.assertRaises(Exception):
             config.calibration.scale = expected_calibration_scale
         with self.assertRaises(Exception):
@@ -162,11 +169,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_laser_thickness_mm = 0.1
         expected_drips_per_mm = 10.1
         expected_max_deflection = 75.2
-        expected_calibration_data = {
-            'height': 1.0 , 
-            'lower_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
-            'upper_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
-            }
+        expected_calibration_height = 1.0
+        expected_calibration_lower_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
+        expected_calibration_upper_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
         expected_calibration_scale = 0.1 
         expected_draw_speed = 2.0
         expected_max_lead_distance_mm = 0.2
@@ -188,7 +193,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         config.options.laser_thickness_mm           = expected_laser_thickness_mm
         config.dripper.drips_per_mm                 = expected_drips_per_mm
         config.calibration.max_deflection           = expected_max_deflection
-        config.calibration.data                     = expected_calibration_data
+        config.calibration.height                   = expected_calibration_height
+        config.calibration.lower_points             = expected_calibration_lower_points
+        config.calibration.upper_points             = expected_calibration_upper_points
         config.calibration.scale                    = expected_calibration_scale
         config.options.draw_speed                   = expected_draw_speed
         config.dripper.max_lead_distance_mm         = expected_max_lead_distance_mm
@@ -198,7 +205,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         config.serial.off_command                   = expected_serial_off
         config.options.laser_offset                 = expected_laser_offset
 
-        expected_json = json.loads('{"name": "PP", "calibration": {"max_deflection": 75.2, "scale": 0.1, "data": {"upper_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "lower_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "height": 1.0}}, "dripper": {"max_lead_distance_mm": 0.2, "drips_per_mm": 10.1}, "serial": {"on": true, "on_command": "12", "port": "COM2", "off_command": "13"}, "audio": {"input": {"bit_depth": "8", "sample_rate": 4800}, "output": {"bit_depth": "16", "modulation_off_frequency": 2000, "sample_rate": 48000, "modulation_on_frequency": 8000}}, "options": {"laser_offset": [0.1, 0.1], "sublayer_height_mm": 0.0, "draw_speed": 2.0, "laser_thickness_mm": 0.1}}')
+        expected_json = json.loads('{"name": "PP", "calibration": {"max_deflection": 75.2, "scale": 0.1, "upper_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "lower_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "height": 1.0 }, "dripper": {"max_lead_distance_mm": 0.2, "drips_per_mm": 10.1}, "serial": {"on": true, "on_command": "12", "port": "COM2", "off_command": "13"}, "audio": {"input": {"bit_depth": "8", "sample_rate": 4800}, "output": {"bit_depth": "16", "modulation_off_frequency": 2000, "sample_rate": 48000, "modulation_on_frequency": 8000}}, "options": {"laser_offset": [0.1, 0.1], "sublayer_height_mm": 0.0, "draw_speed": 2.0, "laser_thickness_mm": 0.1}}')
 
         actual_json = json.loads(config.toJson())
         self.assertDictEqual(expected_json, actual_json)
@@ -215,11 +222,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_laser_thickness_mm = 0.1
         expected_drips_per_mm = 10.1
         expected_max_deflection = 75.2
-        expected_calibration_data = {
-            'height': 1.0 , 
-            'lower_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
-            'upper_points': { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) },
-            }
+        expected_calibration_height = 1.0
+        expected_calibration_lower_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
+        expected_calibration_upper_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
         expected_calibration_scale = 0.1 
         expected_draw_speed = 2.0
         expected_max_lead_distance_mm = 0.2
@@ -229,10 +234,15 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_serial_off = "13"
         expected_laser_offset = [ 0.1, 0.1]
 
-        json_file = '''{"name": "PP", "calibration": {"max_deflection": 75.2, "scale": 0.1, "data": {
-        "upper_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], 
-        "lower_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "height": 1.0}}, 
-        "dripper": {"max_lead_distance_mm": 0.2, "drips_per_mm": 10.1}, "serial": {"on": true, "on_command": "12", "port": "COM2", "off_command": "13"}, "audio": {"input": {"bit_depth": "8", "sample_rate": 4800}, "output": {"bit_depth": "16", "modulation_off_frequency": 2000, "sample_rate": 48000, "modulation_on_frequency": 8000}}, "options": {"laser_offset": [0.1, 0.1], "sublayer_height_mm": 0.0, "draw_speed": 2.0, "laser_thickness_mm": 0.1}}'''
+        json_file = '''{
+        "name": "PP", 
+        "calibration": {
+                        "max_deflection": 75.2, 
+                        "scale": 0.1, 
+                        "upper_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], 
+                        "lower_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]],
+                        "height": 1.0
+                        }, "dripper": {"max_lead_distance_mm": 0.2, "drips_per_mm": 10.1}, "serial": {"on": true, "on_command": "12", "port": "COM2", "off_command": "13"}, "audio": {"input": {"bit_depth": "8", "sample_rate": 4800}, "output": {"bit_depth": "16", "modulation_off_frequency": 2000, "sample_rate": 48000, "modulation_on_frequency": 8000}}, "options": {"laser_offset": [0.1, 0.1], "sublayer_height_mm": 0.0, "draw_speed": 2.0, "laser_thickness_mm": 0.1}}'''
         config = Configuration(souce_dict = json.loads(json_file))
 
         self.maxDiff = None
@@ -247,7 +257,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm )
         self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm )
         self.assertEquals(expected_max_deflection, config.calibration.max_deflection )
-        self.assertDictEqual(expected_calibration_data, config.calibration.data )
+        self.assertEquals(expected_calibration_height, config.calibration.height )
+        self.assertEquals(expected_calibration_lower_points, config.calibration.lower_points )
+        self.assertEquals(expected_calibration_upper_points, config.calibration.upper_points )
         self.assertEquals(expected_calibration_scale, config.calibration.scale )
         self.assertEquals(expected_draw_speed, config.options.draw_speed )
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )
@@ -264,29 +276,26 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_new_creates_a_new_configution_dict_with_sane_values(self):
         cm = ConfigurationManager()
 
-        actual =  cm.new('Unnamed Printer')
+        actual =  cm.new('Peachy Printer')
         expected = self.DEFAULT_CONFIG
-        self.assertEquals(expected, actual)
+        self.assertConfigurationEqual(expected, actual)
 
     @patch.object(os.path, 'exists')
     @patch.object(os, 'makedirs')
-    @patch.object(pickle, 'dump')
-    def test_save_printers_configuration_dictionary_to_peachyprintertools_folder_in_home(self,mock_dump, mock_makedirs,mock_exists):
+    def test_save_printers_configuration_dictionary_to_peachyprintertools_folder_in_home(self, mock_makedirs,mock_exists):
         mock_exists.return_value = True
         printer_name = 'Test1'
-        printer_name_hash = hashlib.md5(printer_name).hexdigest()
-        expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools', printer_name_hash + '.cfg' )
-
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
-            mock_open.return_value = MagicMock(spec=file)
+        expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools', printer_name + '.cfg' )
+        mocked_open = mock_open(read_data=self.DEFAULT_CONFIG.toJson())
+        with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
             data = cm.new(printer_name)
+            expected_data = data.toJson()
             cm.save(data)
 
         self.assertFalse(mock_makedirs.called)
-        mock_open.assert_called_with(expected_path, 'w')
-        file_handle = mock_open.return_value.__enter__.return_value
-        mock_dump.assert_called_with(data,file_handle)
+        mocked_open.assert_called_with(expected_path, 'w')
+        mocked_open().write.assert_called_with(expected_data)
 
     @patch.object(os.path, 'exists')
     @patch.object(os, 'makedirs')
@@ -297,21 +306,10 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
             mock_open.return_value = MagicMock(spec=file)
             cm = ConfigurationManager()
             data = cm.new('Test1')
-            data['name'] = 'Test1'
 
             cm.save(data)
 
         mock_makedirs.assert_called_with(expected_path)
-
-    @patch.object(os.path, 'exists')
-    @patch.object(os, 'makedirs')
-    def test_save_should_throw_exception_when_missing_fields(self,mock_makedirs,mock_exists):
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
-            cm = ConfigurationManager()
-            data = cm.new('Test1')
-            del data['output_bit_depth']
-            with self.assertRaises(Exception): 
-                cm.save(data)
 
     @patch.object(os.path, 'exists')
     def test_list_should_return_empty_list_when_folder_doesnt_exist(self, mock_exists):
@@ -331,14 +329,12 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
 
     @patch.object(os.path, 'exists')
     @patch.object(os, 'listdir')
-    @patch.object(pickle,'load')
-    def test_list_should_return_name_of_configurations(self, mock_pickle, mock_listdir, mock_exists):
+    def test_list_should_return_name_of_configurations(self, mock_listdir, mock_exists):
         mock_exists.return_value = True
         mock_listdir.return_value = [ 'blabla.cfg' ]
-        expected = [ self.DEFAULT_CONFIG['name'] ]
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
-            manager = mock_open.return_value.__enter__.return_value
-            mock_pickle.return_value = self.DEFAULT_CONFIG
+        expected = [ self.DEFAULT_CONFIG.name ]
+        mocked_open = mock_open(read_data=self.DEFAULT_CONFIG.toJson())
+        with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
 
             actual = cm.list()
@@ -351,31 +347,10 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         mock_exists.return_value = True
         mock_listdir.return_value = [ 'blabla.cow' ]
         expected = [ ]
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
-            manager = mock_open.return_value.__enter__.return_value
-            manager.read.return_value = StringIO(pickle.dumps(self.DEFAULT_CONFIG))
+        mocked_open = mock_open(read_data=self.DEFAULT_CONFIG.toJson())
+        with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
-
             actual = cm.list()
-
-            self.assertEquals(expected, actual)
-
-    @patch.object(os.path, 'exists')
-    @patch.object(os, 'listdir')
-    @patch.object(pickle,'load')
-    def test_list_should_only_process_list_valid_files(self, mock_pickle, mock_listdir, mock_exists):
-        mock_exists.return_value = True
-        mock_listdir.return_value = [ 'blabla.cfg' ]
-        expected = [ ]
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
-            bad_config = self.DEFAULT_CONFIG.copy()
-            del bad_config['output_bit_depth']
-            manager = mock_open.return_value.__enter__.return_value
-            mock_pickle.return_value = bad_config
-            cm = ConfigurationManager()
-
-            actual = cm.list()
-
             self.assertEquals(expected, actual)
 
     @patch.object(os.path, 'exists')
@@ -383,9 +358,9 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     @patch.object(os, 'makedirs')
     def test_load_should_throw_exception_not_there(self, mock_makedirs, mock_listdir, mock_exists):
         mock_exists.return_value = False
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
+        mocked_open = mock_open()
+        with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
-
             with self.assertRaises(Exception):
                 cm.load(u"Not There")
 
@@ -393,37 +368,34 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_load_should_throw_exception_if_bad_data(self,  mock_exists):
         mock_exists.return_value = True
         with patch('infrastructure.configuration.open', create=True) as mock_open:
-            bad_config = self.DEFAULT_CONFIG.copy()
-            del bad_config['output_bit_depth']
             manager = mock_open.return_value.__enter__.return_value
-            manager.read.return_value = pickle.dumps(bad_config)
-            expected = self.DEFAULT_CONFIG
+            manager.read.return_value = StringIO("ASDFASDFASD")
             cm = ConfigurationManager()
 
             with self.assertRaises(Exception):
                 cm.load(u"Some Printer")
 
     @patch.object(os.path, 'exists')
-    @patch.object(pickle, 'load')
-    def test_load_should_load_data(self, mock_load,mock_exists):
+    def test_load_should_load_data(self,mock_exists):
         mock_exists.return_value = True
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
-            manager = mock_open.return_value.__enter__.return_value
-            mock_load.return_value = self.DEFAULT_CONFIG
-            expected = self.DEFAULT_CONFIG
+        
+        expected = self.DEFAULT_CONFIG
+        mocked_open = mock_open(read_data=self.DEFAULT_CONFIG.toJson())
+        
+        with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
             actual = cm.load('Some Printer')
-            self.assertEquals(expected, actual)
+            self.assertConfigurationEqual(expected, actual)
 
     def test_new_should_return_a_config_with_defaults_and_correct_name(self):
         name = "Apple"
-        expected = self.DEFAULT_CONFIG.copy()
-        expected['name'] = 'Apple'
+        expected = ConfigurationGenerator().default_configuration()
+        expected.name = name
         cm = ConfigurationManager()
         
         actual = cm.new(name)
 
-        self.assertEquals(expected,actual)
+        self.assertConfigurationEqual(expected,actual)
 
 if __name__ == '__main__':
     unittest.main()
