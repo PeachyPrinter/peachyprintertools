@@ -24,22 +24,22 @@ class PrintAPI(object):
         gcode_reader = GCodeReader(file_like_object)
         gcode_layer_generator = gcode_reader.get_layers()
         if print_sub_layers:
-            layer_generator = SubLayerGenerator(gcode_layer_generator, self._configuration['sublayer_height_mm'])
+            layer_generator = SubLayerGenerator(gcode_layer_generator, self._configuration.options.sublayer_height_mm)
         else:
             layer_generator = gcode_layer_generator
         self.print_layers(layer_generator, dry_run)
 
     def print_layers(self, layer_generator, dry_run = False):
         laser_control = AudioModulationLaserControl(
-            self._configuration['output_sample_frequency'],
-            self._configuration['on_modulation_frequency'],
-            self._configuration['off_modulation_frequency']
+            self._configuration.audio.output.sample_rate,
+            self._configuration.audio.output.modulation_on_frequency,
+            self._configuration.audio.output.modulation_off_frequency
             )
-        transformer = HomogenousTransformer(self._configuration['calibration_data'], scale = self._configuration["max_deflection"])
+        transformer = HomogenousTransformer(self._configuration.calibration)
         path_to_audio = PathToAudio(
             laser_control.actual_samples_per_second,
             transformer, 
-            self._configuration['laser_thickness_mm']
+            self._configuration.options.laser_thickness_mm
             )
         if dry_run:
             audio_writer = None
@@ -48,20 +48,20 @@ class PrintAPI(object):
             abort_on_error = False
         else:
             audio_writer = AudioWriter(
-                self._configuration['output_sample_frequency'], 
-                self._configuration['output_bit_depth'],
+                self._configuration.audio.output.sample_rate, 
+                self._configuration.audio.output.bit_depth,
                 )
             zaxis = DripBasedZAxis(
-                drips_per_mm = self._configuration['drips_per_mm'], 
+                drips_per_mm = self._configuration.dripper.drips_per_mm, 
                 initial_height = 0.0, 
-                sample_rate = self._configuration['input_sample_frequency'],
-                bit_depth = self._configuration['input_bit_depth'],
+                sample_rate = self._configuration.audio.input.sample_rate,
+                bit_depth = self._configuration.audio.input.bit_depth,
                 )
-            if self._configuration['use_serial_zaxis']:
+            if self._configuration.serial.on:
                 zaxis_control = SerialZAxisControl(
-                                    self._configuration['serial_port'], 
-                                    on_command = self._configuration['serial_on'], 
-                                    off_command = self._configuration['serial_off']
+                                    self._configuration.serial.port, 
+                                    on_command = self._configuration.serial.on_command, 
+                                    off_command = self._configuration.serial.off_command
                                     )
             else:
                 zaxis_control = None
@@ -75,7 +75,7 @@ class PrintAPI(object):
             zaxis = zaxis,
             zaxis_control = zaxis_control,
             status_call_back = self._status_call_back,
-            max_lead_distance = self._configuration['max_lead_distance_mm'],
+            max_lead_distance = self._configuration.dripper.max_lead_distance_mm,
             abort_on_error = abort_on_error
             )
         self._controller.start()

@@ -49,36 +49,37 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
         mock_gcodereader.get_layers.return_value = fake_layers
 
+        test_config = self.default_config
 
-        api = PrintAPI(self.DEFAULT_CONFIG)
+        api = PrintAPI(test_config)
         api.print_gcode(gcode_path)
 
         mock_SubLayerGenerator.assert_called_with(
             fake_layers,
-            self.DEFAULT_CONFIG['sublayer_height_mm']
+            test_config.options.sublayer_height_mm
             )
 
         mock_DripBasedZAxis.assert_called_with(
-            drips_per_mm = self.DEFAULT_CONFIG['drips_per_mm'],
+            drips_per_mm = test_config.dripper.drips_per_mm,
             initial_height = 0.0,
-            sample_rate =  self.DEFAULT_CONFIG['input_sample_frequency'],
-            bit_depth = self.DEFAULT_CONFIG['input_bit_depth']
+            sample_rate =  test_config.audio.input.sample_rate,
+            bit_depth = test_config.audio.input.bit_depth
             )
         mock_AudioModulationLaserControl.assert_called_with(
-            self.DEFAULT_CONFIG['output_sample_frequency'],
-            self.DEFAULT_CONFIG['on_modulation_frequency'],
-            self.DEFAULT_CONFIG['off_modulation_frequency'],
+            test_config.audio.output.sample_rate,
+            test_config.audio.output.modulation_on_frequency,
+            test_config.audio.output.modulation_off_frequency,
             )
         mock_GCodeReader.assert_called_with(gcode_path)
         mock_AudioWriter.assert_called_with(
-            self.DEFAULT_CONFIG['output_sample_frequency'],
-            self.DEFAULT_CONFIG['output_bit_depth'],
+            test_config.audio.output.sample_rate,
+            test_config.audio.output.bit_depth,
             )
-        mock_Transformer.assert_called_with(self.DEFAULT_CONFIG['calibration_data'], scale = self.DEFAULT_CONFIG['max_deflection'])
+        mock_Transformer.assert_called_with(test_config.calibration)
         mock_PathToAudio.assert_called_with(
             actual_samples_per_second,
             mock_transformer, 
-            self.DEFAULT_CONFIG['laser_thickness_mm']
+            test_config.options.laser_thickness_mm
             )
         mock_Controller.assert_called_with(
             mock_audiomodulationlasercontrol,
@@ -88,7 +89,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             zaxis = mock_dripbasedzaxis,
             zaxis_control = None,
             status_call_back = None,
-            max_lead_distance = self.DEFAULT_CONFIG['max_lead_distance_mm'],
+            max_lead_distance = test_config.dripper.max_lead_distance_mm,
             abort_on_error = True
             )
 
@@ -127,31 +128,31 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
         mock_gcodereader.get_layers.return_value = fake_layers
 
-
-        api = PrintAPI(self.DEFAULT_CONFIG)
+        test_config = self.default_config
+        api = PrintAPI(test_config)
         api.verify_gcode(gcode_path)
 
 
         mock_SubLayerGenerator.assert_called_with(
             fake_layers,
-            self.DEFAULT_CONFIG['sublayer_height_mm']
+            test_config.options.sublayer_height_mm
             )
 
         self.assertEquals(0, mock_DripBasedZAxis.call_count)
         mock_AudioModulationLaserControl.assert_called_with(
-            self.DEFAULT_CONFIG['output_sample_frequency'],
-            self.DEFAULT_CONFIG['on_modulation_frequency'],
-            self.DEFAULT_CONFIG['off_modulation_frequency'],
+            test_config.audio.output.sample_rate,
+            test_config.audio.output.modulation_on_frequency,
+            test_config.audio.output.modulation_off_frequency,
             )
         mock_GCodeReader.assert_called_with(gcode_path)
 
         self.assertEquals(0, mock_AudioWriter.call_count)
 
-        mock_Transformer.assert_called_with(self.DEFAULT_CONFIG['calibration_data'], scale = self.DEFAULT_CONFIG['max_deflection'])
+        mock_Transformer.assert_called_with(test_config.calibration)
         mock_PathToAudio.assert_called_with(
             actual_samples_per_second,
             mock_transformer, 
-            self.DEFAULT_CONFIG['laser_thickness_mm']
+            test_config.options.laser_thickness_mm
             )
         mock_Controller.assert_called_with(
             mock_audiomodulationlasercontrol,
@@ -161,7 +162,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             zaxis = None,
             zaxis_control = None,
             status_call_back = None,
-            max_lead_distance = self.DEFAULT_CONFIG['max_lead_distance_mm'],
+            max_lead_distance = test_config.dripper.max_lead_distance_mm,
             abort_on_error = False
             )
 
@@ -197,7 +198,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
         mock_gcodereader.get_layers.return_value = fake_layers
 
-        api = PrintAPI(self.DEFAULT_CONFIG)
+        api = PrintAPI(self.default_config)
         api.print_gcode(gcode_path, print_sub_layers = False)
 
         mock_Controller.assert_called_with(
@@ -208,12 +209,12 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             zaxis = mock_dripbasedzaxis,
             zaxis_control = None,
             status_call_back = None,
-            max_lead_distance = self.DEFAULT_CONFIG['max_lead_distance_mm'],
+            max_lead_distance = self.default_config.dripper.max_lead_distance_mm,
             abort_on_error = True
             )
 
     def test_print_can_be_stopped_before_started(self):
-        api = PrintAPI(self.DEFAULT_CONFIG)
+        api = PrintAPI(self.default_config)
         api.stop()
 
     @patch('api.print_api.Controller')
@@ -236,7 +237,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_controller = mock_Controller.return_value
 
 
-        api = PrintAPI(self.DEFAULT_CONFIG)
+        api = PrintAPI(self.default_config)
         api.print_gcode("Spam")
         api.get_status()
 
@@ -278,11 +279,11 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
         mock_gcodereader.get_layers.return_value = fake_layers
 
-        config = self.DEFAULT_CONFIG.copy()
-        config['use_serial_zaxis'] = True
-        config['serial_port'] = "COM6"
-        config['serial_on'] = "ON"
-        config['serial_off'] = "OFF"
+        config = self.default_config
+        config.serial.on = True
+        config.serial.port = "COM6"
+        config.serial.on_command = "ON"
+        config.serial.off_command = "OFF"
         api = PrintAPI(config)
         api.print_gcode(gcode_path)
 
@@ -295,7 +296,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             zaxis = mock_dripbasedzaxis,
             zaxis_control = mock_serialzaxiscontrol,
             status_call_back = None,
-            max_lead_distance = config['max_lead_distance_mm'],
+            max_lead_distance = config.dripper.max_lead_distance_mm,
             abort_on_error = True
         )
 
