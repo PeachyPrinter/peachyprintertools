@@ -164,6 +164,7 @@ class CalibrationAPI(object):
         self._controller.change_generator(self._current_generator)
 
     def _apply_calibration(self):
+        print("applying calibration")
         self._path_to_audio.set_transformer(
             HomogenousTransformer(
                 scale = self._configuration.calibration.max_deflection,
