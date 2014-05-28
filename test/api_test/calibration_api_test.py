@@ -294,7 +294,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         calibration_api.show_test_pattern('Hilbert Space Filling Curve')
 
         mock_HomogenousTransformer.assert_called_with( 
-            scale = self.default_config.calibration.scale,
+            scale = self.default_config.calibration.max_deflection,
             upper_height = self.default_config.calibration.height,
             upper_points = self.default_config.calibration.upper_points, 
             lower_points = self.default_config.calibration.lower_points

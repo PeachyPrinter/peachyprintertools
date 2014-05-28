@@ -112,7 +112,6 @@ class DripperConfiguration(object):
 
 class CalibrationConfiguration(object):
     def __init__(self, souce_dict = {}):
-        self._scale = souce_dict.get(u'scale', None)
         self._max_deflection = souce_dict.get(u'max_deflection', None)
         self._height = souce_dict.get(u'height', None)
         self._lower_points = dict([ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in souce_dict.get(u'lower_points', []) ] )
@@ -121,24 +120,11 @@ class CalibrationConfiguration(object):
 
     def toDict(self):
         return { 
-        u'scale': self._scale,
             u'max_deflection': self._max_deflection,
             u'height' : self._height,
             u'lower_points' : self._lower_points.items(),
             u'upper_points' : self._upper_points.items(),
         }
-
-    @property
-    def scale(self):
-        return self._scale
-
-    @scale.setter
-    def scale(self, value):
-        _type = types.FloatType
-        if type(value) == _type:
-            self._scale = value
-        else:
-            raise ValueError("Scale must be of %s" % (str(_type)))
 
     @property
     def height(self):
@@ -454,7 +440,6 @@ class ConfigurationGenerator(object):
 
         configuration.calibration.max_deflection           = 0.75
         configuration.calibration.height                   = 40.0
-        configuration.calibration.scale                    = 1.0
         configuration.calibration.lower_points             = {(1.0, 1.0):( 40.0,  40.0), ( 1.0, -1.0):( 40.0, -40.0), (-1.0, -1.0):( -40.0, -40.0), (-1.0, 1.0):(-40.0, 40.0)}
         configuration.calibration.upper_points             = {(1.0, 1.0):( 30.0,  30.0), ( 1.0, -1.0):( 30.0, -30.0), (-1.0, -1.0):( -30.0, -30.0), (-1.0, 1.0):(-30.0, 30.0)}
 

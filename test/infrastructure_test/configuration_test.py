@@ -31,7 +31,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_calibration_height = 1.0
         expected_calibration_lower_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
         expected_calibration_upper_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
-        expected_calibration_scale = 0.1 
         expected_draw_speed = 2.0
         expected_max_lead_distance_mm = 0.2
         expected_use_serial_zaxis = True
@@ -55,7 +54,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         config.calibration.height                   = expected_calibration_height
         config.calibration.lower_points             = expected_calibration_lower_points
         config.calibration.upper_points             = expected_calibration_upper_points
-        config.calibration.scale                    = expected_calibration_scale
         config.options.draw_speed                   = expected_draw_speed
         config.dripper.max_lead_distance_mm         = expected_max_lead_distance_mm
         config.serial.on                            = expected_use_serial_zaxis
@@ -78,7 +76,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_calibration_height, config.calibration.height )
         self.assertEquals(expected_calibration_lower_points, config.calibration.lower_points )
         self.assertEquals(expected_calibration_upper_points, config.calibration.upper_points )
-        self.assertEquals(expected_calibration_scale, config.calibration.scale )
         self.assertEquals(expected_draw_speed, config.options.draw_speed )
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )
         self.assertEquals(expected_use_serial_zaxis, config.serial.on )
@@ -102,7 +99,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_calibration_height = True
         expected_calibration_lower_points = True
         expected_calibration_upper_points = True
-        expected_calibration_scale = True
         expected_draw_speed = True
         expected_max_lead_distance_mm = True
         expected_use_serial_zaxis = "!@#!@#"
@@ -141,8 +137,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             config.calibration.upper_points = expected_calibration_upper_points
         with self.assertRaises(Exception):
-            config.calibration.scale = expected_calibration_scale
-        with self.assertRaises(Exception):
             config.options.draw_speed = expected_draw_speed
         with self.assertRaises(Exception):
             config.dripper.max_lead_distance_mm = expected_max_lead_distance_mm
@@ -172,7 +166,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_calibration_height = 1.0
         expected_calibration_lower_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
         expected_calibration_upper_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
-        expected_calibration_scale = 0.1 
         expected_draw_speed = 2.0
         expected_max_lead_distance_mm = 0.2
         expected_use_serial_zaxis = True
@@ -196,7 +189,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         config.calibration.height                   = expected_calibration_height
         config.calibration.lower_points             = expected_calibration_lower_points
         config.calibration.upper_points             = expected_calibration_upper_points
-        config.calibration.scale                    = expected_calibration_scale
         config.options.draw_speed                   = expected_draw_speed
         config.dripper.max_lead_distance_mm         = expected_max_lead_distance_mm
         config.serial.on                            = expected_use_serial_zaxis
@@ -205,7 +197,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         config.serial.off_command                   = expected_serial_off
         config.options.laser_offset                 = expected_laser_offset
 
-        expected_json = json.loads('{"name": "PP", "calibration": {"max_deflection": 75.2, "scale": 0.1, "upper_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "lower_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "height": 1.0 }, "dripper": {"max_lead_distance_mm": 0.2, "drips_per_mm": 10.1}, "serial": {"on": true, "on_command": "12", "port": "COM2", "off_command": "13"}, "audio": {"input": {"bit_depth": "8", "sample_rate": 4800}, "output": {"bit_depth": "16", "modulation_off_frequency": 2000, "sample_rate": 48000, "modulation_on_frequency": 8000}}, "options": {"laser_offset": [0.1, 0.1], "sublayer_height_mm": 0.0, "draw_speed": 2.0, "laser_thickness_mm": 0.1}}')
+        expected_json = json.loads('{"name": "PP", "calibration": {"max_deflection": 75.2, "upper_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "lower_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], "height": 1.0 }, "dripper": {"max_lead_distance_mm": 0.2, "drips_per_mm": 10.1}, "serial": {"on": true, "on_command": "12", "port": "COM2", "off_command": "13"}, "audio": {"input": {"bit_depth": "8", "sample_rate": 4800}, "output": {"bit_depth": "16", "modulation_off_frequency": 2000, "sample_rate": 48000, "modulation_on_frequency": 8000}}, "options": {"laser_offset": [0.1, 0.1], "sublayer_height_mm": 0.0, "draw_speed": 2.0, "laser_thickness_mm": 0.1}}')
 
         actual_json = json.loads(config.toJson())
         self.assertDictEqual(expected_json, actual_json)
@@ -225,7 +217,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_calibration_height = 1.0
         expected_calibration_lower_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
         expected_calibration_upper_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
-        expected_calibration_scale = 0.1 
         expected_draw_speed = 2.0
         expected_max_lead_distance_mm = 0.2
         expected_use_serial_zaxis = True
@@ -238,7 +229,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         "name": "PP", 
         "calibration": {
                         "max_deflection": 75.2, 
-                        "scale": 0.1, 
                         "upper_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]], 
                         "lower_points": [[[0.0, 1.0], [-1.0, 1.0]], [[1.0, 0.0], [1.0, -1.0]], [[0.0, 0.0], [-1.0, -1.0]], [[1.0, 1.0], [1.0, 1.0]]],
                         "height": 1.0
@@ -260,7 +250,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_calibration_height, config.calibration.height )
         self.assertEquals(expected_calibration_lower_points, config.calibration.lower_points )
         self.assertEquals(expected_calibration_upper_points, config.calibration.upper_points )
-        self.assertEquals(expected_calibration_scale, config.calibration.scale )
         self.assertEquals(expected_draw_speed, config.options.draw_speed )
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )
         self.assertEquals(expected_use_serial_zaxis, config.serial.on )

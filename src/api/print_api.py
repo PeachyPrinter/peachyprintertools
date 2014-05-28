@@ -36,7 +36,7 @@ class PrintAPI(object):
             self._configuration.audio.output.modulation_off_frequency
             )
         transformer = HomogenousTransformer(
-            self._configuration.calibration.scale,
+            self._configuration.calibration.max_deflection,
             self._configuration.calibration.height,
             self._configuration.calibration.lower_points,
             self._configuration.calibration.upper_points,
