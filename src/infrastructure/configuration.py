@@ -393,7 +393,7 @@ class Configuration(ConfigurationBase):
 
     def toJson(self):
         di = self.toDict()
-        return json.dumps(di)
+        return json.dumps(di, sort_keys = True, indent =2)
 
     @property
     def audio(self):

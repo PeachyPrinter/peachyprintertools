@@ -128,8 +128,6 @@ class CalibrationAPI(object):
         self._save()
 
     def _save(self):
-        # if not self.validate(calibration):
-        #     raise Exception('Bad Calibration %s ' % calibration)
         self._configuration_manager.save(self._configuration)
         self.make_pattern_fit() #TODO make this better.
 
@@ -137,24 +135,6 @@ class CalibrationAPI(object):
     def make_pattern_fit(self):
         for pattern in self._test_patterns.values():
             pattern.set_radius(self.get_largest_object_radius())
-
-    # '''Validates a calibration'''
-    # def validate(self, calibration):
-    #     if not 'height' in calibration:
-    #         return False
-    #     if not 'upper_points' in calibration:
-    #         return False
-    #     if not 'lower_points' in calibration:
-    #         return False
-    #     if (type(calibration['height']) != types.FloatType):
-    #         return False
-    #     if (calibration['height'] <= 0.0):
-    #         return False
-    #     if not self._validate_points(calibration['upper_points']):
-    #         return False
-    #     if not self._validate_points(calibration['lower_points']):
-    #         return False
-    #     return True
 
     '''Must be called before shutting down applications'''
     def stop(self):
