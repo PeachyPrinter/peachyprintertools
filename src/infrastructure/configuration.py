@@ -7,13 +7,23 @@ import logging
 
 from domain.configuration_manager import ConfigurationManager
 
+class ConfigurationBase(object):
+    def get(self, source, key, default = None):
+        if (key in source):
+            value = source[key]
+            if type(value) == types.UnicodeType:
+                value = str(value)
+            return value
+        else:
+            return default
 
-class OptionsConfiguration(object):
-    def __init__(self, souce_dict = {}):
-        self._draw_speed = souce_dict.get(u'draw_speed', None)
-        self._laser_offset = souce_dict.get(u'laser_offset', None)
-        self._sublayer_height_mm = souce_dict.get(u'sublayer_height_mm', None)
-        self._laser_thickness_mm = souce_dict.get(u'laser_thickness_mm', None)
+
+class OptionsConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._draw_speed = self.get(source, u'draw_speed')
+        self._laser_offset = self.get(source, u'laser_offset')
+        self._sublayer_height_mm = self.get(source, u'sublayer_height_mm')
+        self._laser_thickness_mm = self.get(source, u'laser_thickness_mm')
 
     def toDict(self):
         return { 
@@ -75,10 +85,10 @@ class OptionsConfiguration(object):
         else:
             raise ValueError("Laser Thickness must be of %s" % (str(_type)))
 
-class DripperConfiguration(object):
-    def __init__(self, souce_dict = {}):
-        self._max_lead_distance_mm = souce_dict.get(u'max_lead_distance_mm', None)
-        self._drips_per_mm = souce_dict.get(u'drips_per_mm', None)
+class DripperConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._max_lead_distance_mm = self.get(source, u'max_lead_distance_mm')
+        self._drips_per_mm = self.get(source, u'drips_per_mm')
 
     def toDict(self):
         return { 
@@ -110,12 +120,12 @@ class DripperConfiguration(object):
         else:
             raise ValueError("Drips per mm must be of %s" % (str(_type)))
 
-class CalibrationConfiguration(object):
-    def __init__(self, souce_dict = {}):
-        self._max_deflection = souce_dict.get(u'max_deflection', None)
-        self._height = souce_dict.get(u'height', None)
-        self._lower_points = dict([ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in souce_dict.get(u'lower_points', []) ] )
-        self._upper_points = dict([ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in souce_dict.get(u'upper_points', []) ] )
+class CalibrationConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._max_deflection = self.get(source, u'max_deflection')
+        self._height = self.get(source, u'height')
+        self._lower_points = dict([ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in source.get(u'lower_points', []) ] )
+        self._upper_points = dict([ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in source.get(u'upper_points', []) ] )
 
 
     def toDict(self):
@@ -174,12 +184,12 @@ class CalibrationConfiguration(object):
         else:
             raise ValueError("Max Deflection must be of %s" % (str(_type)))
 
-class SerialZAxisConfiguration(object):
-    def __init__(self, souce_dict = {}):
-        self._on = souce_dict.get(u'on', None)
-        self._port = souce_dict.get(u'port', None)
-        self._on_command = souce_dict.get(u'on_command', None)
-        self._off_command = souce_dict.get(u'off_command', None)
+class SerialZAxisConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._on = self.get(source, u'on')
+        self._port = self.get(source, u'port')
+        self._on_command = self.get(source, u'on_command')
+        self._off_command = self.get(source, u'off_command')
 
     def toDict(self):
         return { 
@@ -212,7 +222,7 @@ class SerialZAxisConfiguration(object):
         if type(value) == _type:
             self._port = value
         else:
-            raise ValueError("Bit depth must be of %s" % (str(_type)))
+            raise ValueError("Port must be of %s was %s" % (_type, type(value)))
 
     @property
     def on_command(self):
@@ -238,10 +248,10 @@ class SerialZAxisConfiguration(object):
         else:
             raise ValueError("Bit depth must be of %s" % (str(_type)))
 
-class AudioInputConfiguration(object):
-    def __init__(self, souce_dict = {}):
-        self._bit_depth = souce_dict.get(u'bit_depth', None)
-        self._sample_rate = souce_dict.get(u'sample_rate', None)
+class AudioInputConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._bit_depth = self.get(source, u'bit_depth')
+        self._sample_rate = self.get(source, u'sample_rate')
 
 
     def toDict(self):
@@ -275,12 +285,12 @@ class AudioInputConfiguration(object):
         else:
             raise ValueError("Sample Rate must be of %s" % (str(_type)))
 
-class AudioOutputConfiguration(object):
-    def __init__(self, souce_dict = {}):
-        self._bit_depth = souce_dict.get(u'bit_depth', None)
-        self._sample_rate = souce_dict.get(u'sample_rate', None)
-        self._modulation_on_frequency = souce_dict.get(u'modulation_on_frequency', None)
-        self._modulation_off_frequency = souce_dict.get(u'modulation_off_frequency', None)
+class AudioOutputConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._bit_depth = self.get(source, u'bit_depth')
+        self._sample_rate = self.get(source, u'sample_rate')
+        self._modulation_on_frequency = self.get(source, u'modulation_on_frequency')
+        self._modulation_off_frequency = self.get(source, u'modulation_off_frequency')
 
     def toDict(self):
         return { 
@@ -340,10 +350,10 @@ class AudioOutputConfiguration(object):
         else:
             raise ValueError("Sample Rate must be of %s" % (str(_type)))
 
-class AudioConfiguration(object):
-    def __init__(self, souce_dict = {}):
-        self._input = AudioInputConfiguration(souce_dict.get(u'input', {}))
-        self._output = AudioOutputConfiguration(souce_dict.get(u'output', {}))
+class AudioConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._input = AudioInputConfiguration(source.get(u'input', {}))
+        self._output = AudioOutputConfiguration(source.get(u'output', {}))
 
     def toDict(self):
         return { 
@@ -359,14 +369,14 @@ class AudioConfiguration(object):
     def output(self):
         return self._output
 
-class Configuration(object):
-    def __init__(self, souce_dict = {}):
-        self._name = souce_dict.get(u'name', None)
-        self._audio = AudioConfiguration(souce_dict = souce_dict.get(u'audio', {}))
-        self._serial = SerialZAxisConfiguration(souce_dict = souce_dict.get(u'serial', {}))
-        self._calibration = CalibrationConfiguration(souce_dict = souce_dict.get(u'calibration', {}))
-        self._dripper = DripperConfiguration(souce_dict = souce_dict.get(u'dripper', {}))
-        self._options = OptionsConfiguration(souce_dict = souce_dict.get(u'options', {}))
+class Configuration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._name = self.get(source, u'name')
+        self._audio = AudioConfiguration(source = source.get(u'audio', {}))
+        self._serial = SerialZAxisConfiguration(source = source.get(u'serial', {}))
+        self._calibration = CalibrationConfiguration(source = source.get(u'calibration', {}))
+        self._dripper = DripperConfiguration(source = source.get(u'dripper', {}))
+        self._options = OptionsConfiguration(source = source.get(u'options', {}))
 
 
 
