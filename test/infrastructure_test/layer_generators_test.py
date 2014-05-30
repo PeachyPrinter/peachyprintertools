@@ -275,9 +275,14 @@ class CureTestGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_should_have_the_right_number_of_layers(self):
         start_speed = 50
         stop_speed = 100
-        genererator = CureTestGenerator(3,6,start_speed,stop_speed,1)
+        base_height = 3
+        total_height = 6
+        sublayers_size = 0.1
+        expected_layers = int(total_height / 0.1)
 
-        for i in range(0,7):
+        genererator = CureTestGenerator(base_height,total_height,start_speed,stop_speed,sublayers_size)
+
+        for i in range(0,expected_layers +1):
             genererator.next()
 
         with self.assertRaises(StopIteration):

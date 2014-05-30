@@ -552,7 +552,7 @@ class MachineStatusTests(unittest.TestCase):
 
     def test_status_is_running_after_first_drip(self):
         status = MachineStatus()
-        status.drip_call_back(1,1)
+        status.drip_call_back(1,1,1)
         self.assertEqual('Running',status.status()['status'])
 
     def test_status_is_running_after_first_layer(self):
@@ -569,7 +569,7 @@ class MachineStatusTests(unittest.TestCase):
         status = MachineStatus()
         status.set_complete()
         status.add_layer()
-        status.drip_call_back(45,10)
+        status.drip_call_back(45,10,12)
         self.assertEqual('Complete',status.status()['status'])
 
     def test_add_error_adds_an_error(self):
@@ -631,9 +631,10 @@ class MachineStatusTests(unittest.TestCase):
 
     def test_drip_call_back_updates_height(self):
         status = MachineStatus()
-        status.drip_call_back(67,12)
+        status.drip_call_back(67,12,12.2)
         self.assertEqual(12, status.status()['height'])
         self.assertEqual(67, status.status()['drips'])
+        self.assertEqual(12.2, status.status()['drips_per_second'])
 
 
     def test_any_change_should_call_call_back(self):
@@ -643,7 +644,7 @@ class MachineStatusTests(unittest.TestCase):
         self.assertEquals(1,self.call_count)
         status.set_waiting_for_drips()
         self.assertEquals(2,self.call_count)
-        status.drip_call_back(1,1)
+        status.drip_call_back(1,1,1)
         self.assertEquals(3,self.call_count)
         status.add_layer()
         self.assertEquals(4,self.call_count)
