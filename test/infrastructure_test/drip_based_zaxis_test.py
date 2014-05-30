@@ -174,10 +174,12 @@ class DripBasedZAxisTests(unittest.TestCase):
     calls = 0
     drips = 'Spam'
     height = "Spam"
-    def call_back(self, drips, height):
+    drips_per_mm = 0
+    def call_back(self, drips, height,drips_per_mm):
         self.calls += 1
         self.drips = drips
         self.height = height
+        self.drips_per_mm = drips_per_mm
 
     @patch('pyaudio.PyAudio')
     def test_call_back_should_be_called_if_provided(self, mock_pyaudio):
@@ -194,6 +196,7 @@ class DripBasedZAxisTests(unittest.TestCase):
         self.assertEqual(1, self.calls)
         self.assertEqual(1, self.drips)
         self.assertEqual(1, self.height)
+        self.assertTrue( 0 < self.drips_per_mm)
 
     @patch('pyaudio.PyAudio')
     def test_reset_should_call_call_back(self, mock_pyaudio):
@@ -211,6 +214,7 @@ class DripBasedZAxisTests(unittest.TestCase):
         self.assertEqual(2, self.calls)
         self.assertEqual(0, self.drips)
         self.assertEqual(0, self.height)
+        self.assertEqual(0, self.drips_per_mm)
 
     @patch('pyaudio.PyAudio')
     def test_set_call_back_should_change_call_back(self, mock_pyaudio):

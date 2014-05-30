@@ -203,6 +203,9 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._height_mm_entry = IntVar()
         self._height_mm_entry.set(10)
 
+        self._average_drips = StringVar()
+        self._average_drips.set(0)
+
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
         Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
@@ -211,6 +214,8 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         Label(self,text='Drips', anchor="w").grid(column=0,row=20,sticky=N+S+E+W)
         Label(self,textvariable=self._drip_count,  anchor="w").grid(column=1,row=20,sticky=N+S+E+W)
+        Label(self,text='Drips/Second (last 10 drips)', anchor="w").grid(column=0,row=25,sticky=N+S+E+W)
+        Label(self,textvariable=self._average_drips,  anchor="w").grid(column=1,row=25,sticky=N+S+E+W)
         Button(self,text=u"Reset Counter", command=self._reset).grid(column=2,row=20,sticky=N+S+E+W)
 
         Label(self,text="End Height in Millimeters", anchor="w",justify="right").grid(column=0,row=30,sticky=N+S+E+W)
@@ -228,8 +233,9 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
         self.update()
 
-    def _drips_updated(self, drips, height):
+    def _drips_updated(self, drips, height, drips_per_second):
         self._drip_count.set(drips)
+        self._average_drips.set("%0.2f" % drips_per_second)
 
     def _reset(self):
         self._configuration_api.reset_drips()

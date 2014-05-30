@@ -39,6 +39,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         self.instream = None
         self._buffer_size =  int(self._sample_rate/8)
         self._buffer_wait_time = self._buffer_size * 1.0 / self._sample_rate * 1.0 / 8.0
+        self._drips = []
 
         self.set_drips_per_mm(drips_per_mm)
         logging.info("Drip Listening initialized using: samplerate: %s, bit depth %s, drips per mm: %s" %(self._sample_rate,bit_depth,self._drips_per_mm))
@@ -71,8 +72,9 @@ class DripBasedZAxis(ZAxis, threading.Thread):
 
     def reset(self, z_height_mm = 0.0):
         self._num_drips = z_height_mm * self._drips_per_mm
+        self._drips = []
         if self._drip_call_back:
-            self._drip_call_back(self._num_drips, self.current_z_location_mm())
+            self._drip_call_back(self._num_drips, self.current_z_location_mm(),self._avg_drips())
 
     def set_drips_per_mm(self,number_drips_per_mm):
         self._drips_per_mm = number_drips_per_mm
@@ -133,6 +135,19 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                 except Exception as ex:
                     logging.error(ex)
 
+    def _avg_drips(self):
+        if len(self._drips) <= 0.0:
+            return 0.0
+        else:
+            time_delta = time.time() - self._drips[0] 
+            return (len(self._drips) * 1.0) / time_delta
+
+    def _drips_happened(self):
+        self._drips.append(time.time())
+
+        if len(self._drips) > 10:
+            self._drips = self._drips[-10:]
+
 
     def _add_frames(self, frames):
         hold_samples_c = 250
@@ -148,8 +163,9 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                 else:
                     if (self._indrip == True ):
                         self._num_drips += 1
+                        self._drips_happened()
                         if self._drip_call_back:
-                            self._drip_call_back(self._num_drips, self.current_z_location_mm())
+                            self._drip_call_back(self._num_drips, self.current_z_location_mm(), self._avg_drips())
                         logging.debug("Drips: %d" % self._num_drips)
                         self._indrip = False
                         self._hold_samples = self._release
