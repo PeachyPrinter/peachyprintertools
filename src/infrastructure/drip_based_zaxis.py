@@ -114,7 +114,16 @@ class DripBasedZAxis(ZAxis, threading.Thread):
             logging.debug("Done reading frames")
             self._add_frames(frames)
             logging.debug("Done adding frames")
-        logging.info("Shutting Down Drip Detector")
+        self.stop()
+        
+    def _wait_for_buffer(self,current_buffer_size):
+        if current_buffer_size < self._buffer_size / 8.0:
+            time.sleep(self._buffer_wait_time)
+
+    def stop(self):
+        logging.info("Drip Detector Shutdown Requested")
+        if self._running:
+            self._running = False
         if self.instream:
             try:
                 self.instream.stop_stream()
@@ -126,15 +135,6 @@ class DripBasedZAxis(ZAxis, threading.Thread):
             except Exception as ex:
                 logging.error(ex)
         logging.info("Shut Down Drip Detector")
-
-    def _wait_for_buffer(self,current_buffer_size):
-        if current_buffer_size < self._buffer_size / 8.0:
-            time.sleep(self._buffer_wait_time)
-
-    def stop(self):
-        logging.info("Drip Detector Shutdown Requested")
-        if self._running:
-            self._running = False
 
     def _avg_drips(self):
         if len(self._drips) <= 0.0:
