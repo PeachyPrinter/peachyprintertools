@@ -155,7 +155,7 @@ class DripBasedZAxisTests(unittest.TestCase):
     @patch('pyaudio.PyAudio')
     def test_drip_zaxis_should_report_2_drips_if_started_half_way_though_drip(self, mock_pyaudio):
         drips_per = 1
-        wave_file = os.path.join(self.test_file_path, 'half_and_1_drips.wav')
+        wave_file = os.path.join(self.test_file_path, '1_half_and_1_drips.wav')
         self.stream = MockPyAudioInputStream(wave_file)
 
         my_mock_pyaudio = mock_pyaudio.return_value
@@ -220,8 +220,6 @@ class DripBasedZAxisTests(unittest.TestCase):
         self.assertEqual(2, self.calls)
         self.assertEqual(0, self.drips)
         self.assertEqual(0, self.height)
-        print("A"*20)
-        print(self.drips_per_mm)
         self.assertEqual(0, self.drips_per_mm)
 
     @patch('pyaudio.PyAudio')
@@ -285,13 +283,7 @@ class DripDetectorTest(unittest.TestCase):
         pass
 
     def test_audio_samples(self):
-        files = [
-        ['1_drip.wav',1,'1 Drip'],
-        ['1_drip_fast.wav',1,'1 Fast Drip'],
-        ['14_drips.wav',14,'14 Drips'],
-        ['22_drips_speeding_up.wav',22,"22 Drips increading in speed"],
-        ['half_and_1_drips.wav',1,"Half a Drip then One"],
-        ]
+        files = [ [file_name, int(file_name.split('_')[0])] for file_name in os.listdir(self.test_file_path) if file_name.endswith('.wav') ]
 
         for a_file in files:
             full_path = os.path.join(self.test_file_path, a_file[0])
@@ -301,11 +293,11 @@ class DripDetectorTest(unittest.TestCase):
             bit_depth = data_file.getsampwidth()
             no_frames = data_file.getnframes()
             frames = data_file.readframes(no_frames)
-            print('Processing %s at %s, %s' % (a_file[2], sample_rate, bit_depth ))
+            print('Processing %s at %s, %s' % (a_file[0], sample_rate, bit_depth ))
             dd = DripDetector(sample_rate)
             dd.process_frames(frames)
+            print('Processed %s' % a_file[0])
             self.assertEqual(expected_drips, dd.drips())
-            print('Processed %s' % a_file[2])
 
     def test_should_process_quickly(self):
         a_file = '22_drips_speeding_up.wav'

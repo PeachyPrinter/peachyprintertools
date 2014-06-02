@@ -177,7 +177,7 @@ class DripBasedZAxis(ZAxis, threading.Thread):
 class Threshold(object):
     def __init__(self, sample_rate):
         self._samples = np.array([0])
-        self._max_samples = sample_rate
+        self._max_samples = sample_rate / 2
 
     def threshold(self):
         self._samples = self._samples[-1 * self._max_samples:]
@@ -195,23 +195,42 @@ class DripDetector(object):
         self._drips = 0
         self._threshold = Threshold(self.sample_rate)
         self._indrip = 0
-        self._min_sample_size = 10
+        self._debounce = 0
+        self._min_sample_size = sample_rate * 0.005
+        self._debounce_time = sample_rate * 0.08
         self._this_drip_recorded = False
+        self._peak = 0
+        self._min_value = 0
+
+    def _get_value_chunk(self,seq):
+        return (seq[pos:pos + self.sample_rate] for pos in xrange(0, len(seq), self.sample_rate ))
 
     def process_frames(self, frames):
         values = [ self.MONO_WAVE_STRUCT.unpack_from(frames, offset)[0] for offset in range(0, len(frames), self.MONO_WAVE_STRUCT.size) ]
+        for chunk in self._get_value_chunk(values):
+            self._process_value_chunk(chunk)
+
+    def _process_value_chunk(self,values):
         self._threshold.add_value(values)
         current_threshold = -1 * self._threshold.threshold()
+        
         for value in values:
             if value < current_threshold:
+                if self._peak > value:
+                    self._peak = value
                 self._indrip += 1
             else:
                 self._indrip = 0
-                self._this_drip_recorded = False
+                if self._this_drip_recorded:
+                    self._debounce += 1
+                    if self._debounce > self._debounce_time:
+                        self._debounce = 0
+                        self._this_drip_recorded = False
 
             if self._indrip >= self._min_sample_size:
-                if  self._this_drip_recorded == False:
+                if value <= self._peak * 0.5 and self._this_drip_recorded == False:
                     self._drips += 1
+                    self._peak = self._peak * 0.5
                     self._this_drip_recorded = True
 
     def drips(self):
