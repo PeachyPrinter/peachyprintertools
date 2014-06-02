@@ -1,10 +1,12 @@
 import threading
+import sys
 import pyaudio
 import math
 import struct
 import time
 import datetime
 import logging
+import numpy as np
 
 from audio import audio_formats
 from domain.zaxis import ZAxis
@@ -141,8 +143,8 @@ class DripBasedZAxis(ZAxis, threading.Thread):
             return 0.0
         else:
             time_delta = time.time() - self._drips[0]
-            if time_delta == 0:
-                return 0.0
+            if time_delta == 0.0:
+                return sys.float_info.max
             return (len(self._drips) * 1.0) / time_delta
 
     def _drips_happened(self):
@@ -150,7 +152,6 @@ class DripBasedZAxis(ZAxis, threading.Thread):
 
         if len(self._drips) > 10:
             self._drips = self._drips[-10:]
-
 
     def _add_frames(self, frames):
         hold_samples_c = 250
@@ -172,3 +173,49 @@ class DripBasedZAxis(ZAxis, threading.Thread):
                         logging.debug("Drips: %d" % self._num_drips)
                         self._indrip = False
                         self._hold_samples = self._release
+
+class Threshold(object):
+    def __init__(self, sample_rate):
+        self._samples = np.array([0])
+        self._max_samples = sample_rate
+
+    def threshold(self):
+        self._samples = self._samples[-1 * self._max_samples:]
+        return np.mean(self._samples)
+
+    def add_value(self, values):
+        self._samples = np.append(self._samples,np.absolute(values))
+
+
+class DripDetector(object):
+    def __init__(self, sample_rate):
+        self.MONO_WAVE_STRUCT = struct.Struct("h")
+        self.sample_rate = sample_rate
+
+        self._drips = 0
+        self._threshold = Threshold(self.sample_rate)
+        self._indrip = 0
+        self._min_sample_size = 10
+        self._this_drip_recorded = False
+
+    def process_frames(self, frames):
+        values = [ self.MONO_WAVE_STRUCT.unpack_from(frames, offset)[0] for offset in range(0, len(frames), self.MONO_WAVE_STRUCT.size) ]
+        self._threshold.add_value(values)
+        current_threshold = -1 * self._threshold.threshold()
+        for value in values:
+            if value < current_threshold:
+                self._indrip += 1
+            else:
+                self._indrip = 0
+                self._this_drip_recorded = False
+
+            if self._indrip >= self._min_sample_size:
+                if  self._this_drip_recorded == False:
+                    self._drips += 1
+                    self._this_drip_recorded = True
+
+    def drips(self):
+        return self._drips
+
+
+
