@@ -140,7 +140,9 @@ class DripBasedZAxis(ZAxis, threading.Thread):
         if len(self._drips) <= 0.0:
             return 0.0
         else:
-            time_delta = time.time() - self._drips[0] 
+            time_delta = time.time() - self._drips[0]
+            if time_delta == 0:
+                return 0.0
             return (len(self._drips) * 1.0) / time_delta
 
     def _drips_happened(self):
