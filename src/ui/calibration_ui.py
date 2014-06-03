@@ -258,8 +258,8 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
     def _save_click(self):
         height = self.upper_z.get()
-        lower_points = [ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == 0.0 ]
-        upper_points = [ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == self.upper_z.get() ]
+        lower_points = dict([ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == 0.0 ])
+        upper_points = dict([ ((float(point.ref_x.get()),float(point.ref_y.get())),(float(point.actual_x.get()),float(point.actual_y.get()))) for point in self.data_points if point.ref_z.get() == self.upper_z.get() ])
 
         self._calibrationAPI.save_points(height,lower_points,upper_points)
 
