@@ -2,7 +2,7 @@ import types
 import logging
 
 from infrastructure.audio import AudioSetup
-from infrastructure.drip_based_zaxis import DripBasedZAxis
+from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.layer_generators import CureTestGenerator
 
 '''Details the audio settings'''
@@ -176,10 +176,10 @@ class ConfigurationAPI(object):
 
     '''Turns on the counting of drips. Stop must be called to end this.'''
     def start_counting_drips(self, drip_call_back = None):
-        self._drip_detector = DripBasedZAxis(
+        self._drip_detector = AudioDripZAxis(
             1,
-            sample_rate = self._current_config.audio.input.sample_rate, 
-            bit_depth = self._current_config.audio.input.bit_depth,
+            self._current_config.audio.input.sample_rate, 
+            self._current_config.audio.input.bit_depth, 
             drip_call_back = drip_call_back
             )
         self._drip_detector.start()

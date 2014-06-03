@@ -13,7 +13,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 from api.configuration_api import ConfigurationAPI, AudioSetting
 from domain.configuration_manager import ConfigurationManager
 from infrastructure.audio import AudioSetup
-from infrastructure.drip_based_zaxis import DripBasedZAxis
+from infrastructure.drip_based_zaxis import AudioDripZAxis
 import pyaudio
 import test_helpers
 
@@ -296,7 +296,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(DripBasedZAxis, 'start')
+    @patch.object(AudioDripZAxis, 'start')
     def test_start_counting_drips_should_start_getting_drips(self, mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
@@ -308,9 +308,9 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(DripBasedZAxis, 'start')
-    @patch('api.configuration_api.DripBasedZAxis')
-    def test_start_counting_drips_should_pass_call_back_function(self, mock_DripBasedZAxis, mock_start,mock_load,mock_save):
+    @patch.object(AudioDripZAxis, 'start')
+    @patch('api.configuration_api.AudioDripZAxis')
+    def test_start_counting_drips_should_pass_call_back_function(self, mock_AudioDripZAxis, mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
@@ -321,17 +321,17 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         configuration_API.start_counting_drips(drip_call_back = callback)
 
 
-        mock_DripBasedZAxis.assert_called_with(
+        mock_AudioDripZAxis.assert_called_with(
             1,
-            sample_rate = self.default_config.audio.input.sample_rate, 
-            bit_depth = self.default_config.audio.input.bit_depth,
+            self.default_config.audio.input.sample_rate, 
+            self.default_config.audio.input.bit_depth,
             drip_call_back = callback
             )
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(DripBasedZAxis, 'start')
-    @patch.object(DripBasedZAxis, 'stop')
+    @patch.object(AudioDripZAxis, 'start')
+    @patch.object(AudioDripZAxis, 'stop')
     def test_stop_counting_drips_should_stop_getting_drips(self, mock_stop,mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
@@ -344,8 +344,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(DripBasedZAxis, 'start')
-    @patch.object(DripBasedZAxis, 'current_z_location_mm')
+    @patch.object(AudioDripZAxis, 'start')
+    @patch.object(AudioDripZAxis, 'current_z_location_mm')
     def test_get_drips_should_return_correct_number_of_drips(self, mock_current_z_location_mm,mock_start,mock_load,mock_save):
         
         fake_drip_counter = 77
@@ -362,8 +362,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(DripBasedZAxis, 'start')
-    @patch.object(DripBasedZAxis, 'reset')
+    @patch.object(AudioDripZAxis, 'start')
+    @patch.object(AudioDripZAxis, 'reset')
     def test_drip_calibration_should_call_reset_when_reset_requested(self, mock_reset,mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
@@ -400,8 +400,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(DripBasedZAxis, 'start')
-    @patch.object(DripBasedZAxis, 'current_z_location_mm')
+    @patch.object(AudioDripZAxis, 'start')
+    @patch.object(AudioDripZAxis, 'current_z_location_mm')
     def test_mark_drips_should_when_target_specified(self, mock_current_z_location_mm, mock_start,mock_load,mock_save):
         fake_drip_counter = 70
         target_height = 10.0
@@ -419,23 +419,22 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_drips_per_mm, configuration_API.get_drips_per_mm())
         self.assertFalse(mock_save.called)
 
-    @patch('api.configuration_api.DripBasedZAxis')
+    @patch('api.configuration_api.AudioDripZAxis')
     @patch.object(ConfigurationManager, 'save' )
     @patch.object(ConfigurationManager, 'load' )
-    def test_start_counting_drips_should_use_audio_input_settings(self, mock_load, mock_save, mock_DripBasedZAxis):
-        mock_drip_based_zaxis = mock_DripBasedZAxis
+    def test_start_counting_drips_should_use_audio_input_settings(self, mock_load, mock_save, mock_AudioDripZAxis):
+        mock_drip_based_zaxis = mock_AudioDripZAxis
         mock_load.return_value =  self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer('printer')
         expected_sample_rate = self.default_config.audio.input.sample_rate
-        expected_bit_depth = self.default_config.audio.input.bit_depth
 
         configuration_API.start_counting_drips()
 
-        mock_DripBasedZAxis.assert_called_with(
+        mock_AudioDripZAxis.assert_called_with(
             1, 
-            sample_rate=expected_sample_rate, 
-            bit_depth=expected_bit_depth,
+            expected_sample_rate, 
+            self.default_config.audio.input.bit_depth,
             drip_call_back = None
         )
 

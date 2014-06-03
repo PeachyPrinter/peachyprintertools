@@ -14,7 +14,7 @@ import infrastructure
 from infrastructure.controller import Controller, MachineStatus, MachineError
 from domain.commands import *
 from infrastructure.layer_generators import StubLayerGenerator, SinglePointGenerator
-from infrastructure.drip_based_zaxis import DripBasedZAxis
+from infrastructure.drip_based_zaxis import AudioDripZAxis
 
 @patch('domain.laser_control.LaserControl')
 @patch('domain.zaxis.ZAxis')

@@ -22,11 +22,11 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioWriter')
     @patch('api.print_api.GCodeReader')
     @patch('api.print_api.AudioModulationLaserControl')
-    @patch('api.print_api.DripBasedZAxis')
+    @patch('api.print_api.AudioDripZAxis')
     @patch('api.print_api.SubLayerGenerator')
     def test_print_gcode_should_create_required_classes_and_start_it(self,
             mock_SubLayerGenerator, 
-            mock_DripBasedZAxis,
+            mock_AudioDripZAxis,
             mock_AudioModulationLaserControl,
             mock_GCodeReader,
             mock_AudioWriter,
@@ -37,7 +37,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         gcode_path = "FakeFile"
         actual_samples_per_second = 7
         fake_layers = "Fake Layers"
-        mock_dripbasedzaxis = mock_DripBasedZAxis.return_value
+        mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
         mock_sublayergenerator = mock_SubLayerGenerator.return_value
@@ -59,11 +59,10 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             test_config.options.sublayer_height_mm
             )
 
-        mock_DripBasedZAxis.assert_called_with(
-            drips_per_mm = test_config.dripper.drips_per_mm,
-            initial_height = 0.0,
-            sample_rate =  test_config.audio.input.sample_rate,
-            bit_depth = test_config.audio.input.bit_depth
+        mock_AudioDripZAxis.assert_called_with(
+            test_config.dripper.drips_per_mm,
+            test_config.audio.input.sample_rate,
+            test_config.audio.input.bit_depth
             )
         mock_AudioModulationLaserControl.assert_called_with(
             test_config.audio.output.sample_rate,
@@ -104,11 +103,11 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioWriter')
     @patch('api.print_api.GCodeReader')
     @patch('api.print_api.AudioModulationLaserControl')
-    @patch('api.print_api.DripBasedZAxis')
+    @patch('api.print_api.AudioDripZAxis')
     @patch('api.print_api.SubLayerGenerator')
     def test_verify_gcode_should_create_required_classes_and_start_it_and_return_errors(self,
             mock_SubLayerGenerator, 
-            mock_DripBasedZAxis,
+            mock_AudioDripZAxis,
             mock_AudioModulationLaserControl,
             mock_GCodeReader,
             mock_AudioWriter,
@@ -119,7 +118,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         gcode_path = "FakeFile"
         actual_samples_per_second = 7
         fake_layers = "Fake Layers"
-        mock_dripbasedzaxis = mock_DripBasedZAxis.return_value
+        mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
         mock_sublayergenerator = mock_SubLayerGenerator.return_value
@@ -143,7 +142,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             test_config.options.sublayer_height_mm
             )
 
-        self.assertEquals(0, mock_DripBasedZAxis.call_count)
+        self.assertEquals(0, mock_AudioDripZAxis.call_count)
         mock_AudioModulationLaserControl.assert_called_with(
             test_config.audio.output.sample_rate,
             test_config.audio.output.modulation_on_frequency,
@@ -182,11 +181,11 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioWriter')
     @patch('api.print_api.GCodeReader')
     @patch('api.print_api.AudioModulationLaserControl')
-    @patch('api.print_api.DripBasedZAxis')
+    @patch('api.print_api.AudioDripZAxis')
     @patch('api.print_api.SubLayerGenerator')
     def test_print_gcode_should_not_print_sublayers_if_option_flase(self,
             mock_SubLayerGenerator, 
-            mock_DripBasedZAxis,
+            mock_AudioDripZAxis,
             mock_AudioModulationLaserControl,
             mock_GCodeReader,
             mock_AudioWriter,
@@ -197,7 +196,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         gcode_path = "FakeFile"
         actual_samples_per_second = 7
         fake_layers = "Fake Layers"
-        mock_dripbasedzaxis = mock_DripBasedZAxis.return_value
+        mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
         mock_sublayergenerator = mock_SubLayerGenerator.return_value
@@ -233,9 +232,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioWriter')
     @patch('api.print_api.GCodeReader')
     @patch('api.print_api.AudioModulationLaserControl')
-    @patch('api.print_api.DripBasedZAxis')
+    @patch('api.print_api.AudioDripZAxis')
     def test_get_status_calls_controller_status(self, 
-            mock_DripBasedZAxis,
+            mock_AudioDripZAxis,
             mock_AudioModulationLaserControl,
             mock_GCodeReader,
             mock_AudioWriter,
@@ -259,13 +258,13 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioWriter')
     @patch('api.print_api.GCodeReader')
     @patch('api.print_api.AudioModulationLaserControl')
-    @patch('api.print_api.DripBasedZAxis')
+    @patch('api.print_api.AudioDripZAxis')
     @patch('api.print_api.SubLayerGenerator')
     @patch('api.print_api.SerialZAxisControl')
     def test_print_gcode_should_create_serial_control_if_specified_in_config(self,
             mock_SerialZAxisControl,
             mock_SubLayerGenerator, 
-            mock_DripBasedZAxis,
+            mock_AudioDripZAxis,
             mock_AudioModulationLaserControl,
             mock_GCodeReader,
             mock_AudioWriter,
@@ -276,7 +275,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         gcode_path = "FakeFile"
         actual_samples_per_second = 7
         fake_layers = "Fake Layers"
-        mock_dripbasedzaxis = mock_DripBasedZAxis.return_value
+        mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
         mock_sublayergenerator = mock_SubLayerGenerator.return_value

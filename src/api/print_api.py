@@ -4,7 +4,7 @@ import threading
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
-from infrastructure.drip_based_zaxis import DripBasedZAxis
+from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
@@ -56,11 +56,10 @@ class PrintAPI(object):
                 self._configuration.audio.output.sample_rate, 
                 self._configuration.audio.output.bit_depth,
                 )
-            zaxis = DripBasedZAxis(
-                drips_per_mm = self._configuration.dripper.drips_per_mm, 
-                initial_height = 0.0, 
-                sample_rate = self._configuration.audio.input.sample_rate,
-                bit_depth = self._configuration.audio.input.bit_depth,
+            zaxis = AudioDripZAxis(
+                self._configuration.dripper.drips_per_mm, 
+                self._configuration.audio.input.sample_rate,
+                self._configuration.audio.input.bit_depth
                 )
             if self._configuration.serial.on:
                 zaxis_control = SerialZAxisControl(
