@@ -228,8 +228,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         mock_load.return_value = self.default_config
         capi = ConfigurationAPI(ConfigurationManager())
         expected = self.default_config
-        expected.audio.output.on_modulation_frequency = 11025
-        expected.audio.output.off_modulation_frequency = 2205
+        expected.audio.output.modulation_on_frequency = 11025
+        expected.audio.output.modulation_off_frequency = 2205
         expected.audio.output.bit_depth = '16 bit'
         expected.audio.output.sample_rate =  44100
 
@@ -246,8 +246,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         mock_load.return_value = config
         capi = ConfigurationAPI(ConfigurationManager())
         expected = self.default_config
-        expected.audio.output.on_modulation_frequency = 12000
-        expected.audio.output.off_modulation_frequency = 2000
+        expected.audio.output.modulation_on_frequency = 12000
+        expected.audio.output.modulation_off_frequency = 2000
         expected.audio.output.bit_depth = '32 bit Floating Point'
         expected.audio.output.sample_rate =  48000
 
