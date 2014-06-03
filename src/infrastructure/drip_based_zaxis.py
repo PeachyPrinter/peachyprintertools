@@ -186,7 +186,6 @@ class Threshold(object):
     def add_value(self, values):
         self._samples = np.append(self._samples,np.absolute(values))
 
-
 class DripDetector(object):
     def __init__(self, sample_rate, call_back = None, calls_backs_per_second = 15):
         self.MONO_WAVE_STRUCT = struct.Struct("h")
@@ -244,6 +243,55 @@ class DripDetector(object):
 
     def drips(self):
         return self._drips
+
+class AudioDripZAxis(ZAxis, threading.Thread):
+    def __init__(self, 
+                drips_per_mm, 
+                sample_rate, 
+                bit_depth,
+                drip_call_back = None):
+        threading.Thread.__init__(self)
+        self._sample_rate = sample_rate
+        self._format = audio_formats[bit_depth]
+        self._buffer_size = self._sample_rate / 2
+        self._min_buffer_size = self._sample_rate / 8
+        self._min_buffer_time = self._min_buffer_size / self._sample_rate
+
+        self.running = True
+        self.shutdown = False
+        self.pa = pyaudio.PyAudio()
+        self.drip_detector = DripDetector(self._sample_rate)
+    
+    def run(self):
+        stream = self._get_stream()
+        while self.running:
+            self.drip_detector.process_frames(self._get_frames(stream))
+        stream.stop_stream()
+        stream.close()
+        self.shutdown = True
+
+    def _get_frames(self,stream):
+        if stream.get_read_available() < self._min_buffer_size:
+            time.sleep(self._min_buffer_time)
+        return stream.read(stream.get_read_available())
+
+    def _get_stream(self):
+        stream = self.pa.open(
+                 format=self._format,
+                 channels=1,
+                 rate=self._sample_rate,
+                 input=True,
+                 frames_per_buffer=self._buffer_size
+                 )
+        stream.start_stream()
+        return stream
+
+    def stop(self):
+        self.running = False
+        while not self.shutdown:
+            time.sleep(0.1)
+        self.pa.terminate()
+
 
 
 
