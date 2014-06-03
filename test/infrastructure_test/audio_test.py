@@ -107,7 +107,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
         expected_format = pyaudio.paInt16
         expected_channels = 2
         expected_rate = 48000
-        expected_frames_per_buffer = expected_rate / 8
+        expected_frames_per_buffer = expected_rate / 2
         expected_output = True
 
         audio_writer = AudioWriter(sampling_frequency,bit_depth)
@@ -221,7 +221,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
 
         actual = ""
 
-        self.assertEquals(4, mock_outstream.write.call_count)
+        self.assertEquals(1, mock_outstream.write.call_count)
         for h in range(0, len(mock_outstream.write.call_args_list)):
             for i in range(0, len(mock_outstream.write.call_args_list[h])):
                 for j in range(0, len(mock_outstream.write.call_args_list[h][i])):
@@ -248,7 +248,7 @@ class AudioWriterTests(unittest.TestCase, test_helpers.TestHelpers):
 
         actual = ""
 
-        self.assertEquals(4, mock_outstream.write.call_count)
+        self.assertEquals(1, mock_outstream.write.call_count)
         for h in range(0, len(mock_outstream.write.call_args_list)):
             for i in range(0, len(mock_outstream.write.call_args_list[h])):
                 for j in range(0, len(mock_outstream.write.call_args_list[h][i])):
