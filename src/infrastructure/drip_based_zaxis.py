@@ -188,7 +188,7 @@ class Threshold(object):
 
 
 class DripDetector(object):
-    def __init__(self, sample_rate):
+    def __init__(self, sample_rate, call_back = None, calls_backs_per_second = 15):
         self.MONO_WAVE_STRUCT = struct.Struct("h")
         self.sample_rate = sample_rate
 
@@ -201,6 +201,9 @@ class DripDetector(object):
         self._this_drip_recorded = False
         self._peak = 0
         self._min_value = 0
+        self._call_back = call_back
+        self._call_back_samples = self.sample_rate / calls_backs_per_second
+        self._samples_since_call_back = 0
 
     def _get_value_chunk(self,seq):
         return (seq[pos:pos + self.sample_rate] for pos in xrange(0, len(seq), self.sample_rate ))
@@ -232,6 +235,12 @@ class DripDetector(object):
                     self._drips += 1
                     self._peak = self._peak * 0.5
                     self._this_drip_recorded = True
+
+            if self._call_back:
+                self._samples_since_call_back += 1
+                if self._samples_since_call_back >= self._call_back_samples:
+                    self._samples_since_call_back = 0
+                    self._call_back(self._drips)
 
     def drips(self):
         return self._drips

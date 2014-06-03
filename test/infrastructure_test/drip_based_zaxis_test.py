@@ -5,6 +5,8 @@ from mock import patch, Mock
 import wave
 import pyaudio 
 import time
+import random
+import struct
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
@@ -278,9 +280,15 @@ class DripDetectorTest(unittest.TestCase):
 
     def setUp(self):
         self.test_file_path = os.path.join(os.path.dirname(__file__), 'test_data')
+        self.calls = 0
+        self.drips = 0
 
     def teardown(self):
         pass
+
+    def call_back(self, drips):
+        self.calls += 1
+        self.drips = drips
 
     def test_audio_samples(self):
         files = [ [file_name, int(file_name.split('_')[0])] for file_name in os.listdir(self.test_file_path) if file_name.endswith('.wav') ]
@@ -293,10 +301,10 @@ class DripDetectorTest(unittest.TestCase):
             bit_depth = data_file.getsampwidth()
             no_frames = data_file.getnframes()
             frames = data_file.readframes(no_frames)
-            print('Processing %s at %s, %s' % (a_file[0], sample_rate, bit_depth ))
+            # print('Processing %s at %s, %s' % (a_file[0], sample_rate, bit_depth ))
             dd = DripDetector(sample_rate)
             dd.process_frames(frames)
-            print('Processed %s' % a_file[0])
+            # print('Processed %s' % a_file[0])
             self.assertEqual(expected_drips, dd.drips())
 
     def test_should_process_quickly(self):
@@ -305,7 +313,6 @@ class DripDetectorTest(unittest.TestCase):
 
         data_file = wave.open(full_path, 'rb')
         sample_rate = data_file.getframerate()
-        bit_depth = data_file.getsampwidth()
         no_frames = data_file.getnframes()
         frames = data_file.readframes(no_frames)
         dd = DripDetector(sample_rate)
@@ -315,9 +322,24 @@ class DripDetectorTest(unittest.TestCase):
         delta = endtime - starttime
         self.assertTrue(delta < 0.5, delta)
 
+    def test_should_call_back_every_x_samples_if_call_back_provided(self):
+        a_file = '22_drips_speeding_up.wav'
+        full_path = os.path.join(self.test_file_path, a_file)
 
+        data_file = wave.open(full_path, 'rb')
+        sample_rate = data_file.getframerate()
+        no_frames = data_file.getnframes()
+        frames = data_file.readframes(no_frames)
+        call_backs_per_second = 15
+        samples = len([ struct.Struct("h").unpack_from(frames, offset)[0] for offset in range(0, len(frames), struct.Struct("h").size) ])
+        expected_call_backs = int((samples * 1.0 / sample_rate * 1.0) * call_backs_per_second)
 
-import random
+        dd = DripDetector(sample_rate, call_back = self.call_back, calls_backs_per_second = call_backs_per_second)
+        
+        dd.process_frames(frames)
+        
+        self.assertEquals(expected_call_backs, self.calls)
+
 class ThresholdTest(unittest.TestCase):
     def test_threshold_is_fast(self):
         data_set = [ random.randrange(-32768, 32766) for i in range(0,48000 * 10) ]
