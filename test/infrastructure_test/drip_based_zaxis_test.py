@@ -277,106 +277,110 @@ class DripBasedZAxisTests(unittest.TestCase):
         drip_zaxis.stop()
         self.assertEqual(24, drip_zaxis.current_z_location_mm())
 
-# class DripDetectorTests(unittest.TestCase):
+class DripDetectorTests(unittest.TestCase):
 
-#     def setUp(self):
-#         self.test_file_path = os.path.join(os.path.dirname(__file__), 'test_data')
-#         self.calls = 0
-#         self.drips = 0
+    def setUp(self):
+        self.test_file_path = os.path.join(os.path.dirname(__file__), 'test_data')
+        self.calls = 0
+        self.drips = 0
+        self.average_drips = 0
 
-#     def teardown(self):
-#         pass
+    def teardown(self):
+        pass
 
-#     def call_back(self, drips):
-#         self.calls += 1
-#         self.drips = drips
+    def call_back(self, drips, average_drips):
+        self.calls += 1
+        self.drips = drips
+        self.average_drips = average_drips
 
-#     def test_audio_samples(self):
-#         files = [ [file_name, int(file_name.split('_')[0])] for file_name in os.listdir(self.test_file_path) if file_name.endswith('.wav') ]
+    def test_audio_samples(self):
+        files = [ [file_name, int(file_name.split('_')[0])] for file_name in os.listdir(self.test_file_path) if file_name.endswith('.wav') ]
 
-#         for a_file in files:
-#             full_path = os.path.join(self.test_file_path, a_file[0])
-#             expected_drips = a_file[1]
-#             data_file = wave.open(full_path, 'rb')
-#             sample_rate = data_file.getframerate()
-#             bit_depth = data_file.getsampwidth()
-#             no_frames = data_file.getnframes()
-#             frames = data_file.readframes(no_frames)
-#             # print('Processing %s at %s, %s' % (a_file[0], sample_rate, bit_depth ))
-#             dd = DripDetector(sample_rate)
-#             dd.process_frames(frames)
-#             # print('Processed %s' % a_file[0])
-#             self.assertEqual(expected_drips, dd.drips())
+        for a_file in files:
+            full_path = os.path.join(self.test_file_path, a_file[0])
+            expected_drips = a_file[1]
+            data_file = wave.open(full_path, 'rb')
+            sample_rate = data_file.getframerate()
+            bit_depth = data_file.getsampwidth()
+            no_frames = data_file.getnframes()
+            frames = data_file.readframes(no_frames)
+            # print('Processing %s at %s, %s' % (a_file[0], sample_rate, bit_depth ))
+            dd = DripDetector(sample_rate)
+            dd.process_frames(frames)
+            # print('Processed %s' % a_file[0])
+            self.assertEqual(expected_drips, dd.drips())
 
-#     def test_should_process_quickly(self):
-#         a_file = '22_drips_speeding_up.wav'
-#         full_path = os.path.join(self.test_file_path, a_file)
+    def test_should_process_quickly(self):
+        a_file = '22_drips_speeding_up.wav'
+        full_path = os.path.join(self.test_file_path, a_file)
 
-#         data_file = wave.open(full_path, 'rb')
-#         sample_rate = data_file.getframerate()
-#         no_frames = data_file.getnframes()
-#         frames = data_file.readframes(no_frames)
-#         dd = DripDetector(sample_rate,call_back = self.call_back)
-#         starttime = time.time()
-#         dd.process_frames(frames)
-#         endtime = time.time()
-#         delta = endtime - starttime
-#         self.assertTrue(delta < 0.5, delta)
+        data_file = wave.open(full_path, 'rb')
+        sample_rate = data_file.getframerate()
+        no_frames = data_file.getnframes()
+        frames = data_file.readframes(no_frames)
+        dd = DripDetector(sample_rate,call_back = self.call_back)
+        starttime = time.time()
+        dd.process_frames(frames)
+        endtime = time.time()
+        delta = endtime - starttime
+        self.assertTrue(delta < 0.5, delta)
 
-#     def test_should_call_back_every_x_samples_if_call_back_provided(self):
-#         a_file = '22_drips_speeding_up.wav'
-#         full_path = os.path.join(self.test_file_path, a_file)
+    def test_should_call_back_every_x_samples_if_call_back_provided(self):
+        a_file = '22_drips_speeding_up.wav'
+        full_path = os.path.join(self.test_file_path, a_file)
 
-#         data_file = wave.open(full_path, 'rb')
-#         sample_rate = data_file.getframerate()
-#         no_frames = data_file.getnframes()
-#         frames = data_file.readframes(no_frames)
-#         call_backs_per_second = 15
-#         samples = len([ struct.Struct("h").unpack_from(frames, offset)[0] for offset in range(0, len(frames), struct.Struct("h").size) ])
-#         expected_call_backs = int((samples * 1.0 / sample_rate * 1.0) * call_backs_per_second)
-
-#         dd = DripDetector(sample_rate, call_back = self.call_back, calls_backs_per_second = call_backs_per_second)
+        data_file = wave.open(full_path, 'rb')
+        sample_rate = data_file.getframerate()
+        no_frames = data_file.getnframes()
+        frames = data_file.readframes(no_frames)
+        call_backs_per_second = 15
+        samples = len([ struct.Struct("h").unpack_from(frames, offset)[0] for offset in range(0, len(frames), struct.Struct("h").size) ])
+        expected_call_backs = int((samples * 1.0 / sample_rate * 1.0) * call_backs_per_second)
+        expected_average = 7.6
+        dd = DripDetector(sample_rate, call_back = self.call_back, calls_backs_per_second = call_backs_per_second)
         
-#         dd.process_frames(frames)
+        dd.process_frames(frames)
         
-#         self.assertEquals(expected_call_backs, self.calls)
+        self.assertEquals(expected_call_backs, self.calls)
+        self.assertEquals(22, self.drips)
+        self.assertAlmostEquals(expected_average,self.average_drips, places = 1)
 
-# class ThresholdTests(unittest.TestCase):
-#     def test_threshold_is_fast(self):
-#         data_set = [ random.randrange(-32768, 32766) for i in range(0,48000 * 10) ]
-#         t = Threshold(48000)
-#         starttime = time.time()
-#         t.add_value(data_set)
-#         a = t.threshold()
-#         endtime = time.time()
-#         delta = endtime - starttime
-#         self.assertTrue(delta < 0.5, delta)
+class ThresholdTests(unittest.TestCase):
+    def test_threshold_is_fast(self):
+        data_set = [ random.randrange(-32768, 32766) for i in range(0,48000 * 10) ]
+        t = Threshold(48000)
+        starttime = time.time()
+        t.add_value(data_set)
+        a = t.threshold()
+        endtime = time.time()
+        delta = endtime - starttime
+        self.assertTrue(delta < 0.5, delta)
 
-#     def test_returns_the_average_floor(self):
-#         expected_floor = 1200
-#         data_set = [ expected_floor for i in range(0,48000) ]
-#         t = Threshold(48000)
-#         t.add_value(data_set)
-#         actual = t.threshold()
-#         self.assertEquals(expected_floor,actual)
+    def test_returns_the_average_floor(self):
+        expected_floor = 1200
+        data_set = [ expected_floor for i in range(0,48000) ]
+        t = Threshold(48000)
+        t.add_value(data_set)
+        actual = t.threshold()
+        self.assertEquals(expected_floor,actual)
 
-#     def test_returns_the_average_floor_when_negitive(self):
-#         floor = -1200
-#         expected_floor = 1200.0
-#         data_set = [ floor for i in range(0,48000) ]
-#         t = Threshold(48000)
-#         t.add_value(data_set)
-#         actual = t.threshold()
-#         self.assertEquals(expected_floor,actual)
+    def test_returns_the_average_floor_when_negitive(self):
+        floor = -1200
+        expected_floor = 1200.0
+        data_set = [ floor for i in range(0,48000) ]
+        t = Threshold(48000)
+        t.add_value(data_set)
+        actual = t.threshold()
+        self.assertEquals(expected_floor,actual)
 
-#     def test_returns_the_average_for_one_second(self):
-#         expected_floor = 1200.0
-#         data_set = [ 0 for i in range(0,48000) ]
-#         [ data_set.append(expected_floor)  for i in range(0,48000) ]
-#         t = Threshold(48000)
-#         t.add_value(data_set)
-#         actual = t.threshold()
-#         self.assertEquals(expected_floor,actual)
+    def test_returns_the_average_for_one_second(self):
+        expected_floor = 1200.0
+        data_set = [ 0 for i in range(0,48000) ]
+        [ data_set.append(expected_floor)  for i in range(0,48000) ]
+        t = Threshold(48000)
+        t.add_value(data_set)
+        actual = t.threshold()
+        self.assertEquals(expected_floor,actual)
 
 class MockPyAudioInStream(object):
     _read_frames = 0
@@ -413,6 +417,11 @@ class AudioDripZAxisTests(unittest.TestCase, ):
     def setUp(self):
         self.adza = None
         self.stream = None
+        # Call Back 
+        self.calls = 0
+        self.drips = 0
+        self.height = 0
+        self.drips_per_second = 0
     
     def tearDown(self):
         if self.adza:
@@ -433,6 +442,12 @@ class AudioDripZAxisTests(unittest.TestCase, ):
     def wait_for_stream(self):
         while self.stream.get_read_available() > 0:
             time.sleep(0.1)
+
+    def call_back(self, drips, height, drips_per_second):
+        self.calls += 1
+        self.drips = drips
+        self.height = height
+        self.drips_per_second = drips_per_second
 
     def test_shuts_down_correctly(self,mock_PyAudio):
         mock_pyaudio = self.setup_mock(mock_PyAudio)
@@ -482,6 +497,23 @@ class AudioDripZAxisTests(unittest.TestCase, ):
 
         self.assertTrue(expected_call_count < mock_process_frames.call_count)
         self.assertTrue(14, self.adza.drip_detector.drips())
+
+    def test_should_call_back_when_DripDetector_calls_back(self,mock_PyAudio):
+        mock_pyaudio = self.setup_mock(mock_PyAudio)
+
+        drips_per_mm = 1
+        sample_rate = 48000
+        bit_depth = '16 bit'
+        self.adza = AudioDripZAxis(drips_per_mm,sample_rate,bit_depth, self.call_back)
+        
+        self.adza.start()
+        self.wait_for_stream()
+        self.adza.stop()
+
+        self.assertEquals(2, self.calls)
+        self.assertEquals(1, self.drips)
+        self.assertEquals(1, self.height)
+        self.assertAlmostEquals(55.3, self.drips_per_second, places =1)
 
 
 if __name__ == '__main__':

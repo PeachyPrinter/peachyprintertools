@@ -203,6 +203,8 @@ class DripDetector(object):
         self._call_back = call_back
         self._call_back_samples = self.sample_rate / calls_backs_per_second
         self._samples_since_call_back = 0
+        self._samples_since_drip = 0
+        self._drips_per_second = 0.0
 
     def _get_value_chunk(self,seq):
         return (seq[pos:pos + self.sample_rate] for pos in xrange(0, len(seq), self.sample_rate ))
@@ -217,6 +219,7 @@ class DripDetector(object):
         current_threshold = -1 * self._threshold.threshold()
         
         for value in values:
+            self._samples_since_drip +=1
             if value < current_threshold:
                 if self._peak > value:
                     self._peak = value
@@ -232,6 +235,7 @@ class DripDetector(object):
             if self._indrip >= self._min_sample_size:
                 if value <= self._peak * 0.5 and self._this_drip_recorded == False:
                     self._drips += 1
+                    self.update_average()
                     self._peak = self._peak * 0.5
                     self._this_drip_recorded = True
 
@@ -239,7 +243,15 @@ class DripDetector(object):
                 self._samples_since_call_back += 1
                 if self._samples_since_call_back >= self._call_back_samples:
                     self._samples_since_call_back = 0
-                    self._call_back(self._drips)
+                    self._call_back(self._drips, self._drips_per_second)
+
+    def update_average(self):
+        dripsec = self.sample_rate * 1.0 / self._samples_since_drip * 1.00
+        if self._drips_per_second > 0.0:
+            self._drips_per_second = (self._drips_per_second * 0.5 )+  (dripsec * 0.5)
+        else:
+            self._drips_per_second = dripsec
+        self._samples_since_drip = 0
 
     def drips(self):
         return self._drips
@@ -251,6 +263,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
                 bit_depth,
                 drip_call_back = None):
         threading.Thread.__init__(self)
+        self._drips_per_mm = drips_per_mm
         self._sample_rate = sample_rate
         self._format = audio_formats[bit_depth]
         self._buffer_size = self._sample_rate / 2
@@ -260,8 +273,17 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self.running = True
         self.shutdown = False
         self.pa = pyaudio.PyAudio()
-        self.drip_detector = DripDetector(self._sample_rate)
+        self.drip_call_back = drip_call_back
+        if drip_call_back:
+            self.drip_detector = DripDetector(self._sample_rate, self.call_back)
+        else:
+            self.drip_detector = DripDetector(self._sample_rate)
     
+    def call_back(self, drips, average_drips):
+        height = drips / self._drips_per_mm
+        self.drip_call_back(drips,height,average_drips)
+
+
     def run(self):
         stream = self._get_stream()
         while self.running:
