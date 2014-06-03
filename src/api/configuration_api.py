@@ -123,12 +123,12 @@ class ConfigurationAPI(object):
     '''Sets the output audio based on the AudioSetting passed in'''
     def set_audio_output_options(self, audio_setting):
         #TODO JT 2014-04-30 - The modulation stuff may not belong here.
-        if (audio_setting.sample_frequency == 44100):
-            self._current_config.audio.output.on_modulation_frequency = 11025
-            self._current_config.audio.output.off_modulation_frequency = 2205
+        if (audio_setting.sample_rate == 44100):
+            self._current_config.audio.output.modulation_on_frequency = 11025
+            self._current_config.audio.output.modulation_off_frequency = 2205
         else:
-            self._current_config.audio.output.on_modulation_frequency = 12000
-            self._current_config.audio.output.off_modulation_frequency = 2000
+            self._current_config.audio.output.modulation_on_frequency = 12000
+            self._current_config.audio.output.modulation_off_frequency = 2000
         self._current_config.audio.output.bit_depth = audio_setting.bit_depth
         self._current_config.audio.output.sample_rate = audio_setting.sample_frequency
         self.save()
