@@ -19,6 +19,7 @@ class CalibrationAPI(object):
         self._point_generator = SinglePointGenerator()
         self._blink_generator = BlinkGenerator()
         self._alignment_generator = CalibrationLineGenerator()
+        self._scale_generator = SquareGenerator(speed = 1, radius = 1)
 
         self._test_patterns = { 
             'Hilbert Space Filling Curve' : HilbertGenerator(),
@@ -110,7 +111,7 @@ class CalibrationAPI(object):
     '''Shows the scale square'''
     def show_scale(self):
         self._unapply_calibration()
-        self._update_generator(self._test_patterns['Square'])
+        self._update_generator(self._scale_generator)
 
     '''returns a list of test patterns'''
     def get_test_patterns(self):
