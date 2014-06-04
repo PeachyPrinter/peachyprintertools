@@ -62,7 +62,7 @@ class DripDetectorTests(unittest.TestCase):
         dd.process_frames(frames)
         endtime = time.time()
         delta = endtime - starttime
-        self.assertTrue(delta < 0.5, delta)
+        self.assertTrue(delta < 2.0, delta)
 
     def test_should_call_back_every_x_samples_if_call_back_provided(self):
         a_file = '22_drips_speeding_up.wav'
