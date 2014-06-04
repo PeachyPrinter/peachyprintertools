@@ -17,6 +17,15 @@ class ConfigurationBase(object):
         else:
             return default
 
+    def toDict(self):
+        d = {}
+        for key, value in self.__dict__.items():
+            if issubclass(value.__class__,ConfigurationBase):
+                d[unicode(key)[1:]] = value.toDict()
+            else:
+                d[unicode(key)[1:]] = value
+        return d
+
 
 class OptionsConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -89,17 +98,13 @@ class DripperConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._max_lead_distance_mm = self.get(source, u'max_lead_distance_mm')
         self._drips_per_mm = self.get(source, u'drips_per_mm')
-
-    def toDict(self):
-        return { 
-        u'max_lead_distance_mm': self._max_lead_distance_mm,
-        u'drips_per_mm' : self._drips_per_mm,
-        }
-
+        self._dripper_type = self.get(source, u'dripper_type')
+        self._emulated_drips_per_second = self.get(source,u'emulated_drips_per_second')
+    
     @property
     def max_lead_distance_mm(self):
         return self._max_lead_distance_mm
-
+    
     @max_lead_distance_mm.setter
     def max_lead_distance_mm(self, value):
         _type = types.FloatType
@@ -107,11 +112,35 @@ class DripperConfiguration(ConfigurationBase):
             self._max_lead_distance_mm = value
         else:
             raise ValueError("Max Lead distance must be of %s" % (str(_type)))
-
+    
+    @property
+    def dripper_type(self):
+        return self._dripper_type
+    
+    @dripper_type.setter
+    def dripper_type(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._dripper_type = value
+        else:
+            raise ValueError("Dripper Type must be of %s" % (str(_type)))
+    
+    @property
+    def emulated_drips_per_second(self):
+        return self._emulated_drips_per_second
+    
+    @emulated_drips_per_second.setter
+    def emulated_drips_per_second(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._emulated_drips_per_second = value
+        else:
+            raise ValueError("Emulated Drips Per Second must be of %s" % (str(_type)))
+    
     @property
     def drips_per_mm(self):
         return self._drips_per_mm
-
+    
     @drips_per_mm.setter
     def drips_per_mm(self, value):
         _type = types.FloatType
@@ -124,17 +153,8 @@ class CalibrationConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._max_deflection = self.get(source, u'max_deflection')
         self._height = self.get(source, u'height')
-        self._lower_points = dict([ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in source.get(u'lower_points', []) ] )
-        self._upper_points = dict([ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in source.get(u'upper_points', []) ] )
-
-
-    def toDict(self):
-        return { 
-            u'max_deflection': self._max_deflection,
-            u'height' : self._height,
-            u'lower_points' : self._lower_points.items(),
-            u'upper_points' : self._upper_points.items(),
-        }
+        self._lower_points = [ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in source.get(u'lower_points', []) ]
+        self._upper_points = [ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in source.get(u'upper_points', []) ]
 
     @property
     def height(self):
@@ -150,25 +170,25 @@ class CalibrationConfiguration(ConfigurationBase):
     
     @property
     def lower_points(self):
-        return self._lower_points
+        return dict(self._lower_points)
 
     @lower_points.setter
     def lower_points(self, value):
         _type = types.DictType
         if type(value) == _type:
-            self._lower_points = value
+            self._lower_points = [ (k,v) for k,v in value.items() ]
         else:
             raise ValueError("Data must be of %s" % (str(_type)))
     
     @property
     def upper_points(self):
-        return self._upper_points
+        return dict(self._upper_points)
 
     @upper_points.setter
     def upper_points(self, value):
         _type = types.DictType
         if type(value) == _type:
-            self._upper_points = value
+            self._upper_points = [ (k,v) for k,v in value.items() ]
         else:
             raise ValueError("Data must be of %s" % (str(_type)))
 
@@ -190,15 +210,6 @@ class SerialZAxisConfiguration(ConfigurationBase):
         self._port = self.get(source, u'port')
         self._on_command = self.get(source, u'on_command')
         self._off_command = self.get(source, u'off_command')
-
-    def toDict(self):
-        return { 
-        u'on': self._on,
-        u'port' : self._port,
-        u'on_command': self._on_command,
-        u'off_command' : self._off_command
-        }
-
 
     @property
     def on(self):
@@ -253,14 +264,6 @@ class AudioInputConfiguration(ConfigurationBase):
         self._bit_depth = self.get(source, u'bit_depth')
         self._sample_rate = self.get(source, u'sample_rate')
 
-
-    def toDict(self):
-        return { 
-        u'bit_depth': self._bit_depth,
-        u'sample_rate' : self._sample_rate
-        }
-
-
     @property
     def bit_depth(self):
         return self._bit_depth
@@ -292,14 +295,6 @@ class AudioOutputConfiguration(ConfigurationBase):
         self._modulation_on_frequency = self.get(source, u'modulation_on_frequency')
         self._modulation_off_frequency = self.get(source, u'modulation_off_frequency')
 
-    def toDict(self):
-        return { 
-        u'bit_depth': self._bit_depth,
-        u'sample_rate' : self._sample_rate,
-        u'modulation_on_frequency': self._modulation_on_frequency,
-        u'modulation_off_frequency' : self._modulation_off_frequency
-        }
-
     @property
     def bit_depth(self):
         return self._bit_depth
@@ -323,7 +318,6 @@ class AudioOutputConfiguration(ConfigurationBase):
             self._sample_rate = value
         else:
             raise ValueError("Sample Rate must be of %s" % (str(_type)))
-
 
     @property
     def modulation_on_frequency(self):
@@ -355,12 +349,6 @@ class AudioConfiguration(ConfigurationBase):
         self._input = AudioInputConfiguration(source.get(u'input', {}))
         self._output = AudioOutputConfiguration(source.get(u'output', {}))
 
-    def toDict(self):
-        return { 
-        u'input': self._input.toDict(),
-        u'output' : self._output.toDict()
-        }
-
     @property
     def input(self):
         return self._input
@@ -377,19 +365,6 @@ class Configuration(ConfigurationBase):
         self._calibration = CalibrationConfiguration(source = source.get(u'calibration', {}))
         self._dripper = DripperConfiguration(source = source.get(u'dripper', {}))
         self._options = OptionsConfiguration(source = source.get(u'options', {}))
-
-
-
-
-    def toDict(self):
-        return { 
-        u'name': self._name,
-        u'audio' : self._audio.toDict(),
-        u'serial' : self._serial.toDict(),
-        u'calibration' : self._calibration.toDict(),
-        u'dripper' : self._dripper.toDict(),
-        u'options' : self._options.toDict(),
-        }
 
     def toJson(self):
         di = self.toDict()

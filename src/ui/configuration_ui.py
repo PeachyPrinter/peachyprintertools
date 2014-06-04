@@ -206,30 +206,52 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._average_drips = StringVar()
         self._average_drips.set(0)
 
+        self._dripper_type = IntVar()
+
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
         Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
         
         Label(self).grid(column=1,row=15)
 
-        Label(self,text='Drips', anchor="w").grid(column=0,row=20,sticky=N+S+E+W)
-        Label(self,textvariable=self._drip_count,  anchor="w").grid(column=1,row=20,sticky=N+S+E+W)
-        Label(self,text='Drips/Second (last 10 drips)', anchor="w").grid(column=0,row=25,sticky=N+S+E+W)
-        Label(self,textvariable=self._average_drips,  anchor="w").grid(column=1,row=25,sticky=N+S+E+W)
-        Button(self,text=u"Reset Counter", command=self._reset).grid(column=2,row=20,sticky=N+S+E+W)
+        Radiobutton(self, text="Microphone Dripper", variable=self._dripper_type, value=1).grid(column=0,row=20,sticky=N+S+E+W)
+        Radiobutton(self, text="Emulated Dripper ", variable=self._dripper_type, value=2).grid(column=1,row=20,sticky=N+S+E+W)
 
-        Label(self,text="End Height in Millimeters", anchor="w",justify="right").grid(column=0,row=30,sticky=N+S+E+W)
-        Entry(self, width=5, justify="left", textvariable=self._height_mm_entry, validate = 'key', validatecommand=self.validate_int_command()).grid(column=1,row=30,sticky=N+S+E+W)
+        
+        # ---------------- Microphone Dripper Frame Start -------------------------
+        self.real_dripper_frame = LabelFrame(self, text="Microphone Dripper Setup", padx=5, pady=5)
+        self.real_dripper_frame.grid(column=0,row=30, columnspan=3)
 
-        Label(self,text="Drips per mm", anchor="w", justify="right").grid(column=0,row=40,sticky=N+S+E+W)
-        Label(self,textvariable=self.drips_per_mm_field_text, anchor="w").grid(column=1,row=40,sticky=N+S+E+W)
-        Button(self,text=u"Mark", command=self._mark).grid(column=2,row=40,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,text='Drips', anchor="w").grid(column=0,row=20,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,textvariable=self._drip_count,  anchor="w").grid(column=1,row=20,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,text='Drips/Second (last 10 drips)', anchor="w").grid(column=0,row=25,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,textvariable=self._average_drips,  anchor="w").grid(column=1,row=25,sticky=N+S+E+W)
+        Button(self.real_dripper_frame,text=u"Reset Counter", command=self._reset).grid(column=2,row=20,sticky=N+S+E+W)
 
-        Label(self).grid(column=1,row=45)
+        Label(self.real_dripper_frame,text="End Height in Millimeters", anchor="w",justify="right").grid(column=0,row=30,sticky=N+S+E+W)
+        Entry(self.real_dripper_frame, width=5, justify="left", textvariable=self._height_mm_entry, validate = 'key', validatecommand=self.validate_int_command()).grid(column=1,row=30,sticky=N+S+E+W)
 
-        self._save_button = Button(self,text=u"Save", command=self._save, state=DISABLED)
+        Label(self.real_dripper_frame,text="Drips per mm", anchor="w", justify="right").grid(column=0,row=40,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,textvariable=self.drips_per_mm_field_text, anchor="w").grid(column=1,row=40,sticky=N+S+E+W)
+        Button(self.real_dripper_frame,text=u"Mark", command=self._mark).grid(column=2,row=40,sticky=N+S+E+W)
+
+        Label(self.real_dripper_frame).grid(column=1,row=45)
+
+        self._save_button = Button(self.real_dripper_frame,text=u"Save", command=self._save, state=DISABLED)
         self._save_button.grid(column=2,row=50,sticky=NSEW) 
+        # ---------------- Microphone Dripper Frame Stop -------------------------
+        # ---------------- Manual Dripper Frame Start ----------------------------
+        self.fake_dripper_frame = LabelFrame(self, text="Emulated Dripper Setup", padx=5, pady=5)
+        self.fake_dripper_frame.grid(column=0,row=40, columnspan=3,sticky=N+S+E+W)
+        self._drips_per_second = DoubleVar()
+        self._drips_per_second.set(1.0)
+        Label(self.fake_dripper_frame, text="Drips per second").grid(column=1,row=10)
+        Entry(self.fake_dripper_frame, textvariable=self._drips_per_second).grid(column=2,row=10)
+        # ---------------- Manual Dripper Frame Stop ----------------------------
+
         Button(self,text=u"Back", command=self._back).grid(column=0,row=50,sticky=N+S+E+W)
+        
+        ## destory Automaticness
         self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
         self.update()
 
@@ -346,6 +368,7 @@ class SetupAudioUI(PeachyFrame):
         pass
 
 class CureTestUI(PeachyFrame):
+
     def initialize(self):
         self.grid()
         self._current_printer = self.kwargs['printer']
