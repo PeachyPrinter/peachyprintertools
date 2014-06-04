@@ -191,11 +191,25 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._current_printer = self.kwargs['printer']
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._configuration_api.load_printer(self._current_printer)
+        self.grid()
 
+        self._dripper_type = StringVar()
+        self._dripper_type.set(self._configuration_api.get_dripper_type())
+
+        Label(self, text = 'Printer: ').grid(column=0,row=10)
+        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
+        Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
+        
+        Label(self).grid(column=1,row=15)
+
+        Radiobutton(self, text="Microphone Dripper", variable=self._dripper_type, value="audio", command = self._dripper_type_changed).grid(column=0,row=20,sticky=N+S+E+W)
+        Radiobutton(self, text="Emulated Dripper ", variable=self._dripper_type, value="emulated", command = self._dripper_type_changed).grid(column=1,row=20,sticky=N+S+E+W)
+
+        
+        # ---------------- Microphone Dripper Frame Start -------------------------
         self.update_drips_job = None
         self.drips = 0
         self._drip_count = IntVar()
-        self.grid()
 
         self.drips_per_mm_field_text = DoubleVar()
         self.drips_per_mm_field_text.set(self._configuration_api.get_drips_per_mm())
@@ -206,19 +220,6 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._average_drips = StringVar()
         self._average_drips.set(0)
 
-        self._dripper_type = IntVar()
-
-        Label(self, text = 'Printer: ').grid(column=0,row=10)
-        Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
-        Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
-        
-        Label(self).grid(column=1,row=15)
-
-        Radiobutton(self, text="Microphone Dripper", variable=self._dripper_type, value=1).grid(column=0,row=20,sticky=N+S+E+W)
-        Radiobutton(self, text="Emulated Dripper ", variable=self._dripper_type, value=2).grid(column=1,row=20,sticky=N+S+E+W)
-
-        
-        # ---------------- Microphone Dripper Frame Start -------------------------
         self.real_dripper_frame = LabelFrame(self, text="Microphone Dripper Setup", padx=5, pady=5)
         self.real_dripper_frame.grid(column=0,row=30, columnspan=3)
 
@@ -237,23 +238,40 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         Label(self.real_dripper_frame).grid(column=1,row=45)
 
-        self._save_button = Button(self.real_dripper_frame,text=u"Save", command=self._save, state=DISABLED)
-        self._save_button.grid(column=2,row=50,sticky=NSEW) 
+        self.real_dripper_frame.grid_remove()
         # ---------------- Microphone Dripper Frame Stop -------------------------
         # ---------------- Manual Dripper Frame Start ----------------------------
+        self._drips_per_second = DoubleVar()
+        self._drips_per_second.set(self._configuration_api.get_emulated_drips_per_second())
+
         self.fake_dripper_frame = LabelFrame(self, text="Emulated Dripper Setup", padx=5, pady=5)
         self.fake_dripper_frame.grid(column=0,row=40, columnspan=3,sticky=N+S+E+W)
-        self._drips_per_second = DoubleVar()
-        self._drips_per_second.set(1.0)
+        self.fake_dripper_frame.grid_remove()
+
         Label(self.fake_dripper_frame, text="Drips per second").grid(column=1,row=10)
         Entry(self.fake_dripper_frame, textvariable=self._drips_per_second).grid(column=2,row=10)
         # ---------------- Manual Dripper Frame Stop ----------------------------
 
+        Button(self,text=u"Save", command=self._save).grid(column=2,row=50,sticky=NSEW) 
         Button(self,text=u"Back", command=self._back).grid(column=0,row=50,sticky=N+S+E+W)
         
         ## destory Automaticness
-        self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
+        self._dripper_type_changed()
         self.update()
+
+    def _dripper_type_changed(self):
+        if self._dripper_type.get() == 'audio':
+            self._configuration_api.set_dripper_type('audio')
+            self.fake_dripper_frame.grid_remove()
+            self.real_dripper_frame.grid()
+            self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
+        elif self._dripper_type.get() == 'emulated':
+            self._configuration_api.set_dripper_type('emulated')
+            self._configuration_api.stop_counting_drips()
+            self.real_dripper_frame.grid_remove()
+            self.fake_dripper_frame.grid()
+        else:
+            raise Exception('Unsupported Dripper: %s ' % self._dripper_type.get() )
 
     def _drips_updated(self, drips, height, drips_per_second):
         self._drip_count.set(drips)
@@ -273,7 +291,6 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
             self._configuration_api.set_target_height(self._height_mm_entry.get())
             self._configuration_api.mark_drips_at_target()
             self.drips_per_mm_field_text.set(self._configuration_api.get_drips_per_mm())
-            self._save_button.config(state = NORMAL)
         except Exception as ex:
             tkMessageBox.showwarning(
             "Error",
@@ -281,6 +298,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         )
 
     def _save(self):
+        self._configuration_api.set_emulated_drips_per_second(self._drips_per_second.get())
         self._configuration_api.stop_counting_drips()
         self._configuration_api.save()
         self.navigate(SetupUI)

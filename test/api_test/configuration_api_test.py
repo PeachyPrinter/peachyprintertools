@@ -449,6 +449,49 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertEquals(self.default_config.dripper.drips_per_mm, actual)
 
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_dripper_type_should_return_current_type(self, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        mock_load.return_value = self.default_config
+        configuration_API.load_printer('Printer')
+
+        actual = configuration_API.get_dripper_type()
+
+        self.assertEquals(self.default_config.dripper.dripper_type, actual)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_set_dripper_type_should_return_current_type(self, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        mock_load.return_value = self.default_config
+        configuration_API.load_printer('Printer')
+        expected = 'emulated'
+        configuration_API.set_dripper_type(expected)
+        actual = configuration_API.get_dripper_type()
+
+        self.assertEquals(expected, actual)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_emulated_drips_per_second_should_return(self, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        mock_load.return_value = self.default_config
+        configuration_API.load_printer('Printer')
+
+        actual = configuration_API.get_emulated_drips_per_second()
+
+        self.assertEquals(self.default_config.dripper.emulated_drips_per_second, actual)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_set_emulated_drips_per_second_should_return(self, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        mock_load.return_value = self.default_config
+        configuration_API.load_printer('Printer')
+        expected = 302.0
+        configuration_API.set_emulated_drips_per_second(expected)
+        actual = configuration_API.get_emulated_drips_per_second()
+
+        self.assertEquals(expected, actual)
+
     # ----------------------------- General Setup --------------------------------------
 
     @patch.object(ConfigurationManager, 'load' )

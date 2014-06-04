@@ -190,6 +190,19 @@ class ConfigurationAPI(object):
             self._drip_detector.stop()
             self._drip_detector = None
 
+    def get_dripper_type(self):
+        return self._current_config.dripper.dripper_type
+
+    def set_dripper_type(self,value):
+        self._current_config.dripper.dripper_type = value
+
+    def get_emulated_drips_per_second(self):
+        return self._current_config.dripper.emulated_drips_per_second
+
+    def set_emulated_drips_per_second(self, value):
+        self._current_config.dripper.emulated_drips_per_second = value
+
+
     # ----------------------------- Cure Test Setup ------------------------------------
     '''Returns a layer generator that can be used with the print API to print a cure test.'''
     def get_cure_test(self, base_height, total_height, start_speed, stop_speed):

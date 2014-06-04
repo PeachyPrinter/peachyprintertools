@@ -422,6 +422,8 @@ class ConfigurationGenerator(object):
 
         configuration.dripper.drips_per_mm                 = 100.0
         configuration.dripper.max_lead_distance_mm         = 1.0
+        configuration.dripper.dripper_type                 = 'audio'
+        configuration.dripper.emulated_drips_per_second    = 1.0
 
         configuration.calibration.max_deflection           = 0.75
         configuration.calibration.height                   = 40.0
