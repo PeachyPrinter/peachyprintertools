@@ -107,7 +107,8 @@ class AudioWriter(object):
             raise Exception("Bit depth ![%s]! specified is not supported" % depth)
 
     def write_chunk(self, chunk):
-        frames = self._to_frame(np.array(chunk))
+        data = np.array(list(chunk))
+        frames = self._to_frame(data)
         self._outstream.write(frames)
 
     def _to_frame(self, values):

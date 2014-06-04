@@ -5,6 +5,7 @@ from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
 from infrastructure.drip_based_zaxis import AudioDripZAxis
+from infrastructure.timed_drip_zaxis import TimedDripZAxis
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
@@ -29,6 +30,18 @@ class PrintAPI(object):
             layer_generator = gcode_layer_generator
         self.print_layers(layer_generator, dry_run)
 
+    def _get_zaxis(self):
+        if self._configuration.dripper.dripper_type == 'audio':
+            return AudioDripZAxis(
+                self._configuration.dripper.drips_per_mm, 
+                self._configuration.audio.input.sample_rate,
+                self._configuration.audio.input.bit_depth
+                )
+        elif self._configuration.dripper.dripper_type == 'emulated':
+            return TimedDripZAxis(
+                self._configuration.dripper.drips_per_mm, 
+                drips_per_second = self._configuration.dripper.emulated_drips_per_second
+                )
     def print_layers(self, layer_generator, dry_run = False):
         laser_control = AudioModulationLaserControl(
             self._configuration.audio.output.sample_rate,
@@ -56,11 +69,7 @@ class PrintAPI(object):
                 self._configuration.audio.output.sample_rate, 
                 self._configuration.audio.output.bit_depth,
                 )
-            zaxis = AudioDripZAxis(
-                self._configuration.dripper.drips_per_mm, 
-                self._configuration.audio.input.sample_rate,
-                self._configuration.audio.input.bit_depth
-                )
+            zaxis = self._get_zaxis()
             if self._configuration.serial.on:
                 zaxis_control = SerialZAxisControl(
                                     self._configuration.serial.port, 

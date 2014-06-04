@@ -309,5 +309,60 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             abort_on_error = True
         )
 
+
+    @patch('api.print_api.Controller')
+    @patch('api.print_api.PathToAudio')
+    @patch('api.print_api.HomogenousTransformer')
+    @patch('api.print_api.AudioWriter')
+    @patch('api.print_api.GCodeReader')
+    @patch('api.print_api.AudioModulationLaserControl')
+    @patch('api.print_api.TimedDripZAxis')
+    @patch('api.print_api.SubLayerGenerator')
+    @patch('api.print_api.SerialZAxisControl')
+    def test_print_gcode_should_use_specified_dripper_if_specified_in_config(self,
+            mock_SerialZAxisControl,
+            mock_SubLayerGenerator, 
+            mock_TimedDripZAxis,
+            mock_AudioModulationLaserControl,
+            mock_GCodeReader,
+            mock_AudioWriter,
+            mock_Transformer,
+            mock_PathToAudio,
+            mock_Controller,
+            ):
+        gcode_path = "FakeFile"
+        actual_samples_per_second = 7
+        fake_layers = "Fake Layers"
+        mock_timeddripzaxis = mock_TimedDripZAxis.return_value
+        mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
+        mock_gcodereader = mock_GCodeReader.return_value
+        mock_sublayergenerator = mock_SubLayerGenerator.return_value
+        mock_audiowriter = mock_AudioWriter.return_value
+        mock_transformer = mock_Transformer.return_value
+        mock_pathtoaudio = mock_PathToAudio.return_value
+        mock_controller = mock_Controller.return_value
+        mock_serialzaxiscontrol = mock_SerialZAxisControl.return_value
+
+        mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
+        mock_gcodereader.get_layers.return_value = fake_layers
+
+        config = self.default_config
+        config.dripper.dripper_type = 'emulated'
+        api = PrintAPI(config)
+        api.print_gcode(gcode_path)
+
+        mock_TimedDripZAxis.assert_called_with(config.dripper.drips_per_mm, drips_per_second = config.dripper.emulated_drips_per_second )
+        mock_Controller.assert_called_with(
+            mock_audiomodulationlasercontrol,
+            mock_pathtoaudio,
+            mock_audiowriter,
+            mock_sublayergenerator,
+            zaxis = mock_timeddripzaxis,
+            zaxis_control = None,
+            status_call_back = None,
+            max_lead_distance = config.dripper.max_lead_distance_mm,
+            abort_on_error = True
+        )
+
 if __name__ == '__main__':
     unittest.main()
