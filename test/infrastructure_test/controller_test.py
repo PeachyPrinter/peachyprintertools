@@ -493,7 +493,7 @@ class ControllerTests(unittest.TestCase):
         mock_zaxis = mock_ZAxis.return_value
         Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator, mock_zaxis)
 
-        self.assertTrue(mock_zaxis.set_drip_call_back.called)
+        self.assertTrue(mock_zaxis.set_call_back.called)
 
     #TODO JT
     #Skip layers if z at next layer

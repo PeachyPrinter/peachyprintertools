@@ -115,7 +115,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self._drip_call_back = drip_call_back
         self.drip_detector = DripDetector(self._sample_rate, self._call_back)
     
-    def set_drip_call_back(self, call_back):
+    def set_call_back(self, call_back):
         self._drip_call_back = call_back
 
     def _call_back(self, drips, average_drips):

@@ -148,7 +148,7 @@ class Controller(threading.Thread,):
         self._status = MachineStatus(status_call_back)
         self._zaxis = zaxis
         if self._zaxis:
-            self._zaxis.set_drip_call_back(self._status.drip_call_back)
+            self._zaxis.set_call_back(self._status.drip_call_back)
         self._abort_current_command = False
         logging.info("Starting print")
 

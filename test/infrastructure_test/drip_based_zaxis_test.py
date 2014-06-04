@@ -261,7 +261,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         sample_rate = 48000
         bit_depth = '16 bit'
         self.adza = AudioDripZAxis(drips_per_mm,sample_rate,bit_depth)
-        self.adza.set_drip_call_back(self.call_back)
+        self.adza.set_call_back(self.call_back)
         
         self.adza.start()
         self.wait_for_stream()

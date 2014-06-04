@@ -7,7 +7,7 @@ class ZAxis(object):
     def reset(z_height_mm = 0):
         raise NotImplementedError()
 
-    def set_drip_call_back(self, call_back):
+    def set_call_back(self, call_back):
         raise NotImplementedError()
 
 
