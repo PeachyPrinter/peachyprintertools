@@ -108,9 +108,7 @@ class AudioWriter(object):
 
     def write_chunk(self, chunk):
         frames = self._to_frame(np.array(chunk))
-        # print(frames)
         self._outstream.write(frames)
-        # logging.debug("Done write frames")
 
     def _to_frame(self, values):
         if (self._format == pyaudio.paFloat32):

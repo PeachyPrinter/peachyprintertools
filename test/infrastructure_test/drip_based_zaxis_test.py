@@ -76,7 +76,7 @@ class DripDetectorTests(unittest.TestCase):
         samples = len([ struct.Struct("h").unpack_from(frames, offset)[0] for offset in range(0, len(frames), struct.Struct("h").size) ])
         expected_call_backs = int((samples * 1.0 / sample_rate * 1.0) * call_backs_per_second)
         expected_average = 7.6
-        dd = DripDetector(sample_rate, call_back = self.call_back, calls_backs_per_second = call_backs_per_second)
+        dd = DripDetector(sample_rate, call_back = self.call_back, calls_back_per_second = call_backs_per_second)
         
         dd.process_frames(frames)
         

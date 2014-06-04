@@ -24,7 +24,7 @@ class Threshold(object):
         self._samples = np.append(self._samples,np.absolute(values))
 
 class DripDetector(object):
-    def __init__(self, sample_rate, call_back = None, calls_backs_per_second = 15):
+    def __init__(self, sample_rate, call_back = None, calls_back_per_second = 15):
         self.MONO_WAVE_STRUCT = struct.Struct("h")
         self.sample_rate = sample_rate
 
@@ -38,7 +38,7 @@ class DripDetector(object):
         self._peak = 0
         self._min_value = 0
         self._call_back = call_back
-        self._call_back_samples = self.sample_rate / calls_backs_per_second
+        self._call_back_samples = self.sample_rate / calls_back_per_second
         self._samples_since_call_back = 0
         self._samples_since_drip = 0
         self._drips_per_second = 0.0
@@ -113,12 +113,12 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self.shutdown = False
         self.pa = pyaudio.PyAudio()
         self._drip_call_back = drip_call_back
-        self.drip_detector = DripDetector(self._sample_rate, self.call_back)
+        self.drip_detector = DripDetector(self._sample_rate, self._call_back)
     
     def set_drip_call_back(self, call_back):
         self._drip_call_back = call_back
 
-    def call_back(self, drips, average_drips):
+    def _call_back(self, drips, average_drips):
         self._drips = drips
         if self._drip_call_back:
             self._drip_call_back(drips,self.current_z_location_mm(),average_drips)
