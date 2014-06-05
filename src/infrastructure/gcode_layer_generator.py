@@ -32,7 +32,6 @@ class GCodeToLayerGenerator(LayerGenerator):
     def __iter__(self):
         return self
 
-    # Python 3 compatibility
     def __next__(self):
         return self.next()
 

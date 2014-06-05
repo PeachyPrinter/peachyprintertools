@@ -14,29 +14,15 @@ import test_helpers
 # ----------------- Calibration Generators -----------------------------
 
 class BlinkGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
-    def test_can_call_next_and_get_specified_command(self):
-        layer_generator = BlinkGenerator([0.0,0.0])
-        expected = Layer(0.0, commands = [LateralDraw([0.0,0.0],[0.0,0.0],100.0)])
-        actual = layer_generator.next()
-        self.assertLayerEquals(expected,actual)
-
-    def test_can_call_next_after_updating_point(self):
-        layer_generator = BlinkGenerator([0.0,0.0])
-        expected = Layer(0.0, commands = [LateralMove([1.0,1.0],[1.0,1.0],100.0)])
-        layer_generator.next()
-        layer_generator.set([1.0,1.0])
-        actual = layer_generator.next()
-        self.assertLayerEquals(expected,actual)
-
     def test_alernates_between_points(self):
         layer_generator = BlinkGenerator([0.0,0.0])
-        expected1 = Layer(0.0, commands = [LateralDraw([0.0,0.0],[0.0,0.0],100.0)])
-        expected2 = Layer(0.0, commands = [LateralMove([0.0,0.0],[0.0,0.0],100.0)])
-        self.assertLayerEquals(expected1,layer_generator.next())
-        self.assertLayerEquals(expected2,layer_generator.next())
-        self.assertLayerEquals(expected1,layer_generator.next())
-        self.assertLayerEquals(expected2,layer_generator.next())
-
+        expected_draw = True
+        for command in layer_generator.next().commands:
+            if expected_draw:
+                self.assertEquals(type(command), LateralDraw)
+            else:
+                self.assertEquals(type(command), LateralMove)
+            expected_draw = not expected_draw
 
 class SinglePointGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_can_call_next_and_get_specified_command(self):

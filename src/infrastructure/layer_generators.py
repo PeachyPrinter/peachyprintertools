@@ -34,22 +34,33 @@ class CalibrationLineGenerator(LayerGenerator):
         return Layer(0.0, commands = [LateralDraw([0.0,0.5],[1.0,0.5],self._speed),LateralDraw([1.0,0.5],[0.0,0.5],self._speed)])
 
 class BlinkGenerator(TestLayerGenerator):
-    def __init__(self, starting_xy = [0.0,0.0]):
+    def __init__(self, starting_xy = [0.0,0.0],radius = 0.5 ,speed = 1.0,steps = 80):
         self.xy = starting_xy
-        self.speed = 100.0
         self._state = True
-
-    def set(self,xy):
-        self.xy = xy
+        self.set_speed(speed)
+        self.set_radius(radius)
+        self._steps = steps
+        self.last_xy = [0.0,0.0]
+        self._points = list(self.points())
 
     def next(self):
         layer = Layer(0.0)
-        if self._state:
-            layer.commands.append(LateralDraw(self.xy,self.xy,self.speed))
-        else:
-            layer.commands.append(LateralMove(self.xy,self.xy,self.speed))
-        self._state = not self._state
+        for point in self._points:
+            if self._state:
+                layer.commands.append(LateralDraw(self.last_xy,point, self._speed))
+            else:
+                layer.commands.append(LateralMove(self.last_xy,point, self._speed))
+            self._state = not self._state
+            self.last_xy = point
         return layer
+
+    def points(self):
+        angle_step =  (2 * math.pi / self._steps)
+        for i in range(0,self._steps):
+            theta =  angle_step * i
+            x = math.sin(theta) * self._radius + 0.5
+            y = math.cos(theta) * self._radius + 0.5
+            yield [x,y]
 
 class SubLayerGenerator(LayerGenerator):
     def __init__(self,layer_generator,sub_layer_height, tollerance = 0.001):
