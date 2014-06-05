@@ -42,6 +42,7 @@ class PrintAPI(object):
                 self._configuration.dripper.drips_per_mm, 
                 drips_per_second = self._configuration.dripper.emulated_drips_per_second
                 )
+
     def print_layers(self, layer_generator, dry_run = False):
         laser_control = AudioModulationLaserControl(
             self._configuration.audio.output.sample_rate,
@@ -61,7 +62,7 @@ class PrintAPI(object):
             )
         if dry_run:
             audio_writer = None
-            zaxis = None
+            self.zaxis = None
             zaxis_control = None
             abort_on_error = False
         else:
@@ -69,7 +70,7 @@ class PrintAPI(object):
                 self._configuration.audio.output.sample_rate, 
                 self._configuration.audio.output.bit_depth,
                 )
-            zaxis = self._get_zaxis()
+            self.zaxis = self._get_zaxis()
             if self._configuration.serial.on:
                 zaxis_control = SerialZAxisControl(
                                     self._configuration.serial.port, 
@@ -85,7 +86,7 @@ class PrintAPI(object):
             path_to_audio,
             audio_writer,
             layer_generator,
-            zaxis = zaxis,
+            zaxis = self.zaxis,
             zaxis_control = zaxis_control,
             status_call_back = self._status_call_back,
             max_lead_distance = self._configuration.dripper.max_lead_distance_mm,
@@ -93,9 +94,28 @@ class PrintAPI(object):
             )
         self._controller.start()
 
-
     def get_status(self):
         return self._controller.get_status()
+
+    def can_set_drips_per_second(self):
+        if getattr(self.zaxis, 'set_drips_per_second', False):
+            return True
+        else:
+            return False
+
+    def set_drips_per_second(self, drips_per_second):
+        if getattr(self.zaxis, 'set_drips_per_second', False):
+            self.zaxis.set_drips_per_second(drips_per_second)
+        else:
+            logging.error('Cannot change drips per second on %s' % type(self.zaxis))
+            raise Exception('Cannot change drips per second on %s' % type(self.zaxis))
+
+    def get_drips_per_second(self):
+        if getattr(self.zaxis, 'get_drips_per_second'):
+            return self.zaxis.get_drips_per_second()
+        else:
+            logging.warning("Drips per second requested but does not exist")
+            return 0.0
 
     def verify_gcode(self, g_code_file_like_object):
         self.print_gcode(g_code_file_like_object, dry_run = True)

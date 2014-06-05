@@ -49,6 +49,8 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self._scale_value = IntVar()
         self._scale_value.set(int(self._calibrationAPI.get_max_deflection() * 100.0))
         self._current_pattern.set(self._test_patterns[0])
+        self._test_speed = DoubleVar()
+        self._test_speed.set(100.0)
 
         self.grid()
 
@@ -77,8 +79,14 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self._y_offset_setting.grid(column=3, row=37,sticky=W)
         self._y_offset_setting.bind('<Return>', self._offset_changed)
 
-        self.pattern_options = OptionMenu(self, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
-        self.pattern_options.grid(column=2,row=60,sticky=W)
+        self.pattern_frame = LabelFrame(self, text="Patterns", padx=5, pady =5)
+        self.pattern_frame.grid(column =1 , row = 65, columnspan=4,sticky=N+S+E+W)
+        self.pattern_frame.grid_remove()
+        self.pattern_options = OptionMenu(self.pattern_frame, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
+        self.pattern_options.grid(column=2,row=10,sticky=W)
+        self.pattern_speed_spin = Spinbox(self.pattern_frame, from_= 1, to = 1000, command = self._speed_changed, textvariable=self._test_speed)
+        self.pattern_speed_spin.grid(column=2,row=20)
+        Scale(self.pattern_frame, from_=1, to = 1000, orient=HORIZONTAL,variable = self._test_speed, length=500, command=self._speed_changed).grid(column=2,row=30)
 
         Label(self).grid(column=1,row=70)
 
@@ -93,7 +101,7 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
     def _setup_calibration_grid(self):
         options = {'borderwidth':2 }
         data = self._calibrationAPI.current_calibration()
-        
+
         for ((rx,ry),(ax,ay)) in data.upper_points.items():
             self.data_points.append(CalibrationPoint(rx,ry,data.height,ax,ay,data.height))
         for ((rx,ry),(ax,ay)) in data.lower_points.items():
@@ -147,9 +155,8 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
             self.calibration_fields['r_z_%s' % index] = Label(self.calibration_frame,textvariable=self.data_points[index].ref_z, width=8 ,**options)
             self.calibration_fields['r_z_%s' % index].grid(column=3,row=current_row)
 
-
         self.save_button = Button(self.calibration_frame,text=u"Save", command=self._save_click,**options)
-        self.save_button.grid(column=4,row=(start_row + len(self.data_points) * 2 + 1))
+        self.save_button.grid(column=4,row=(start_row + len(self.data_points) * 2 + 10))
 
     def _point_change(self,data):
         self._calibrationAPI.show_point(data.ref_xyz_float)
@@ -184,10 +191,10 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self.save_button.grid()
 
     def _hide_patterns(self):
-        self.pattern_options.grid_remove()
+        self.pattern_frame.grid_remove()
 
     def _show_patterns(self):
-        self.pattern_options.grid()
+        self.pattern_frame.grid()
 
     def _hide_scale(self):
         self._scale_setting.grid_remove()
@@ -213,6 +220,9 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
     def _offset_changed(self, event = None):
         offset = [ self._x_offset_value.get() / 1000.0 , self._y_offset_value.get() / 1000.0 ]
         self._calibrationAPI.set_laser_offset(offset)
+
+    def _speed_changed(self, event= None):
+        self._calibrationAPI.set_test_pattern_speed(self._test_speed.get())
 
     def _option_changed(self):
         if self._current_selection.get() == 0:

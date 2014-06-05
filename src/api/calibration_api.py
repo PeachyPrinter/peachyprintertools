@@ -103,10 +103,14 @@ class CalibrationAPI(object):
         if pattern in self._test_patterns.keys():
             self._apply_calibration()
             self._update_generator(self._test_patterns[pattern])
-
         else:
             logging.error('Pattern: %s does not exist' % pattern)
             raise Exception('Pattern: %s does not exist' % pattern)
+
+    '''Changes the speed at which the test pattern is drawn in mm/sec'''
+    def set_test_pattern_speed(self,speed):
+        [ pattern.set_speed(speed) for pattern in self._test_patterns.values() ]
+
 
     '''Shows the scale square'''
     def show_scale(self):

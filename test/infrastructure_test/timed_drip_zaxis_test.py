@@ -107,5 +107,19 @@ class TimedDripZaxisTests(unittest.TestCase):
 
         self.assertTrue(self.calls > 0 )
 
+    def test_set_drips_per_second(self):
+        expected_drips_per_second = 12
+        self.tdza = TimedDripZAxis(
+            1, 
+            drips_per_second = expected_drips_per_second, 
+            calls_back_per_second = 100
+            )
+        
+        self.tdza.start()
+        actual = self.tdza.get_drips_per_second()
+        self.tdza.stop()
+
+        self.assertEquals(expected_drips_per_second, actual )
+
 if __name__ == '__main__':
     unittest.main()

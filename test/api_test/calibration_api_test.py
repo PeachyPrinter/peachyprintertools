@@ -349,10 +349,35 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_controller.change_generator.assert_called_with(mock_squaregenerator)
         mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)
 
-    # def test_get_calibration_points_returns_pattern_if_the_existing_configuration_empty(self,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
-    #     calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-    #     expected
-    #     self.assertEquals(calibration_api.get_calibration_points(), [])
+    @patch('api.calibration_api.HilbertGenerator')
+    @patch('api.calibration_api.SquareGenerator')
+    @patch('api.calibration_api.CircleGenerator')
+    @patch('api.calibration_api.SpiralGenerator')
+    @patch('api.calibration_api.MemoryHourglassGenerator')
+    def test_set_test_pattern_speed_changes_speeds(self,mock_HilbertGenerator,mock_SquareGenerator,mock_CircleGenerator,mock_SpiralGenerator,mock_MemoryHourglassGenerator, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_hilbertgenerator = mock_HilbertGenerator.return_value
+        mock_squaregenerator = mock_SquareGenerator.return_value
+        mock_circlegenerator = mock_CircleGenerator.return_value
+        mock_spiralgenerator = mock_SpiralGenerator.return_value
+        mock_memoryhourglassgenerator = mock_MemoryHourglassGenerator.return_value
+
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        mock_configuration_manager.load.return_value = self.default_config
+        mock_controller = mock_Controller.return_value
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+        calibration_api.set_test_pattern_speed(150.0)
+
+        mock_hilbertgenerator.set_speed.assert_called_with(150.0)
+        mock_squaregenerator.set_speed.assert_called_with(150.0)
+        mock_circlegenerator.set_speed.assert_called_with(150.0)
+        mock_spiralgenerator.set_speed.assert_called_with(150.0)
+        mock_memoryhourglassgenerator.set_speed.assert_called_with(150.0)
+
+
+
+
+
 
 
 if __name__ == '__main__':

@@ -364,5 +364,76 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             abort_on_error = True
         )
 
+    @patch('api.print_api.Controller')
+    @patch('api.print_api.PathToAudio')
+    @patch('api.print_api.HomogenousTransformer')
+    @patch('api.print_api.AudioWriter')
+    @patch('api.print_api.GCodeReader')
+    @patch('api.print_api.AudioModulationLaserControl')
+    @patch('api.print_api.AudioDripZAxis')
+    @patch('api.print_api.SubLayerGenerator')
+    @patch('api.print_api.SerialZAxisControl')
+    def test_set_drips_per_second_throws_error_if_not_using_emulated_drips(self,
+            mock_SerialZAxisControl,
+            mock_SubLayerGenerator, 
+            mock_AudioDripZAxis,
+            mock_AudioModulationLaserControl,
+            mock_GCodeReader,
+            mock_AudioWriter,
+            mock_Transformer,
+            mock_PathToAudio,
+            mock_Controller,
+            ):
+        gcode_path = "FakeFile"
+
+        mock_audiodripzaxis = mock_AudioDripZAxis.return_value
+        mock_audiodripzaxis.set_drips_per_second.side_effect = Exception()
+
+        config = self.default_config
+
+        api = PrintAPI(config)
+        api.print_gcode(gcode_path)
+
+        with self.assertRaises(Exception):
+            api.set_drips_per_second(12)
+
+    @patch('api.print_api.Controller')
+    @patch('api.print_api.PathToAudio')
+    @patch('api.print_api.HomogenousTransformer')
+    @patch('api.print_api.AudioWriter')
+    @patch('api.print_api.GCodeReader')
+    @patch('api.print_api.AudioModulationLaserControl')
+    @patch('api.print_api.TimedDripZAxis')
+    @patch('api.print_api.SubLayerGenerator')
+    @patch('api.print_api.SerialZAxisControl')
+    def test_get_and_set_drips_per_second(self,
+            mock_SerialZAxisControl,
+            mock_SubLayerGenerator, 
+            mock_TimedDripZAxis,
+            mock_AudioModulationLaserControl,
+            mock_GCodeReader,
+            mock_AudioWriter,
+            mock_Transformer,
+            mock_PathToAudio,
+            mock_Controller,
+            ):
+        gcode_path = "FakeFile"
+        expected_drips_per_second = 12
+        mock_timeddripzaxis = mock_TimedDripZAxis.return_value
+        mock_timeddripzaxis.get_drips_per_second.return_value = expected_drips_per_second
+        
+        config = self.default_config
+        config.dripper.dripper_type = 'emulated'
+        api = PrintAPI(config)
+        api.print_gcode(gcode_path)
+
+
+        mock_TimedDripZAxis.assert_called_with(config.dripper.drips_per_mm, drips_per_second = config.dripper.emulated_drips_per_second)
+        self.assertTrue(api.can_set_drips_per_second())
+        api.set_drips_per_second(expected_drips_per_second)
+        self.assertEquals(expected_drips_per_second, api.get_drips_per_second())
+
+        mock_timeddripzaxis.set_drips_per_second.assert_called_with(expected_drips_per_second)
+
 if __name__ == '__main__':
     unittest.main()

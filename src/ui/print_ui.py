@@ -130,7 +130,7 @@ class PrintStatusUI(PeachyFrame):
 
     def initialize(self):
         self.grid()
-        
+        self._print_api = None
         self._elapsed_time = StringVar()
         self._current_layer = IntVar()
         self._current_height = StringVar()
@@ -141,14 +141,7 @@ class PrintStatusUI(PeachyFrame):
         self._status = StringVar()
         self._stop_button_text = StringVar()
         self._stop_button_text.set("Abort Print")
-
-        self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
-        if 'filename' in self.kwargs:
-            file_to_print = self.kwargs['filename']
-            self._print_api.print_gcode(file_to_print)
-        else:
-            self._print_api.print_layers(self.kwargs['layer_generator'])
-
+        self._drips_per_second_setting = DoubleVar()
 
         Label(self, text = "Elapsed Time" ).grid(column=0,row=10)
         Label(self, textvariable = self._elapsed_time ).grid(column=1,row=10)
@@ -174,9 +167,26 @@ class PrintStatusUI(PeachyFrame):
         Label(self, text = "Status").grid(column=0,row=60)
         Label(self, textvariable = self._status).grid(column=1,row=60)
 
+        self.options_frame = LabelFrame(self, text="In Print Options", padx=5, pady=5)
+        self.options_frame.grid(column=12,row=10,rowspan = 60,sticky=N+S+E+W)
+        self.options_frame.grid_remove()
+
+        Label(self.options_frame, text = 'Drips Per Second').grid(column=0,row=10)
+        Spinbox(self.options_frame, from_=0.0, to=100.0, increment= 0.1, command = self._dps_changed, textvariable = self._drips_per_second_setting).grid(column=1,row=10)
+
         Label(self).grid(column=0,row=70)
         
         Button(self,textvariable=self._stop_button_text, command=self._stop_button_click).grid(column=2,row=80)
+
+        self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
+        if 'filename' in self.kwargs:
+            file_to_print = self.kwargs['filename']
+            self._print_api.print_gcode(file_to_print)
+        else:
+            self._print_api.print_layers(self.kwargs['layer_generator'])
+        if self._print_api.can_set_drips_per_second():
+            self.options_frame.grid()
+            self._drips_per_second_setting.set(self._print_api.get_drips_per_second())
         
         self.update()
 
@@ -200,5 +210,9 @@ class PrintStatusUI(PeachyFrame):
         if (status['status'] == "Complete"):
             self._stop_button_text.set("Finished")
 
+    def _dps_changed(self):
+        self._print_api.set_drips_per_second(self._drips_per_second_setting.get())
+
     def close(self):
-        self._print_api.stop()
+        if self._print_api:
+            self._print_api.stop()
