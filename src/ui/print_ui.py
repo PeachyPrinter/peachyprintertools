@@ -172,7 +172,7 @@ class PrintStatusUI(PeachyFrame):
         self.options_frame.grid_remove()
 
         Label(self.options_frame, text = 'Drips Per Second').grid(column=0,row=10)
-        Spinbox(self.options_frame, from_=0.0, to=100.0, increment= 0.1, command = self._dps_changed, textvariable = self._drips_per_second_setting).grid(column=1,row=10)
+        RylanSpinbox(self.options_frame, from_=0.0, to=100.0, increment= 0.1, command = self._dps_changed, textvariable = self._drips_per_second_setting).grid(column=1,row=10)
 
         Label(self).grid(column=0,row=70)
         

@@ -30,22 +30,10 @@ class CalibrationPoint(object):
     def actual_xyz_float(self):
         return  [float(self.actual_x.get()),float(self.actual_y.get()),float(self.actual_z.get())]
 
+
 class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
-    def mouse_wheel(self,event):
-        if event.num == 5 or event.delta == -120:
-            self._test_speed.set(self._test_speed.get() - 1 )
-        if event.num == 4 or event.delta == 120:
-             self._test_speed.set(self._test_speed.get() + 1)
-        self._speed_changed()
-
-    def bind_mouse(self):
-        self.parent.bind("<MouseWheel>", self.mouse_wheel)
-        self.parent.bind("<Button-4>", self.mouse_wheel)
-        self.parent.bind("<Button-5>", self.mouse_wheel)
-
     def initialize(self):
-        self.bind_mouse()
         self._printer = self.kwargs['printer']
         self._zero = [0.5,0.5,0.0]
         self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._printer )
@@ -80,15 +68,15 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value=2).grid(column = 1, row = 40, sticky=W)
         Radiobutton(self, command = self._option_changed, text="Calibrated Patterns", variable=self._current_selection, value=3).grid(column = 1, row = 60, sticky=W)
 
-        self._scale_setting = Spinbox(self, from_=1, to=75, command =self._scale_changed, textvariable=self._scale_value)
+        self._scale_setting = RylanSpinbox(self, from_=1, to=75, command =self._scale_changed, textvariable=self._scale_value)
         self._scale_setting.bind('<Return>', self._scale_changed)
         self._scale_setting.grid(column=2, row=35,sticky=W)
 
-        self._x_offset_setting = Spinbox(self, from_=-1000, to=1000, command = self._offset_changed, textvariable=self._x_offset_value)
+        self._x_offset_setting = RylanSpinbox(self, from_=-1000, to=1000, command = self._offset_changed, textvariable=self._x_offset_value)
         self._x_offset_setting.grid(column=2, row=37,sticky=W)
         self._x_offset_setting.bind('<Return>', self._offset_changed)
 
-        self._y_offset_setting = Spinbox(self, from_=-1000, to=1000, command =self._offset_changed, textvariable=self._y_offset_value)
+        self._y_offset_setting = RylanSpinbox(self, from_=-1000, to=1000, command =self._offset_changed, textvariable=self._y_offset_value)
         self._y_offset_setting.grid(column=3, row=37,sticky=W)
         self._y_offset_setting.bind('<Return>', self._offset_changed)
 
@@ -97,7 +85,7 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self.pattern_frame.grid_remove()
         self.pattern_options = OptionMenu(self.pattern_frame, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
         self.pattern_options.grid(column=2,row=10,sticky=W)
-        self.pattern_speed_spin = Spinbox(self.pattern_frame, from_= 5, to = 1000, command = self._speed_changed, textvariable=self._test_speed)
+        self.pattern_speed_spin = RylanSpinbox(self.pattern_frame, from_= 5, to = 1000, command = self._speed_changed, textvariable=self._test_speed)
         self.pattern_speed_spin.grid(column=2,row=20)
         Scale(self.pattern_frame, from_=5, to = 1000, orient=HORIZONTAL,variable = self._test_speed, length=500, command=self._speed_changed).grid(column=2,row=30)
 

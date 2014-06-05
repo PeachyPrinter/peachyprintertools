@@ -5,6 +5,58 @@ import logging
 import sys
 import re
 
+class RylanSpinbox(Spinbox):
+    def __init__(self, parent, 
+            to = None, 
+            from_ = None, 
+            command = None, 
+            textvariable = None, 
+            increment= 1.0,
+            **kwargs):
+        self.root = self.find_root(parent)
+
+        self._mouse_command = command
+        self._mouse_variable = textvariable
+        self._to = to
+        self._frm = from_
+        self._increment = increment
+        Spinbox.__init__(self, parent, 
+            to =  self._to, 
+            from_ = self._frm, 
+            command = command, 
+            textvariable = textvariable, 
+            increment= self._increment,
+            **kwargs)
+        self.bind('<FocusIn>', self.on_focus)
+        self.bind('<FocusOut>', self.off_focus)
+        
+    def find_root(self,start):
+        if hasattr(start,'parent') and start.parent != None:
+            return self.find_root(start.parent)
+        elif hasattr(start, 'master') and start.master != None:
+            return self.find_root(start.master)
+        else:
+            return start
+
+    def on_focus(self,event = None):
+        self.root.bind("<MouseWheel>", self.mouse_wheel)
+        self.root.bind("<Button-4>", self.mouse_wheel)
+        self.root.bind("<Button-5>", self.mouse_wheel)
+
+    def off_focus(self,event = None):
+        self.root.unbind("<MouseWheel>")
+        self.root.unbind("<Button-4>")
+        self.root.unbind("<Button-5>")
+
+    def mouse_wheel(self,event):
+        if event.num == 5 or event.delta == -120:
+            if self._frm != None and self._mouse_variable.get() > self._frm:
+                    self._mouse_variable.set(self._mouse_variable.get() - self._increment )
+        if event.num == 4 or event.delta == 120:
+            if self._to != None and self._mouse_variable.get() < self._to:
+                self._mouse_variable.set(self._mouse_variable.get() + self._increment)
+        self._mouse_command()
+
 class UIHelpers(object):
     def strip_margin(self, text):
         return re.sub('\n[ \t]*\|', '\n', text)
