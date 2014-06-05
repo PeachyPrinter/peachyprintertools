@@ -32,7 +32,20 @@ class CalibrationPoint(object):
 
 class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
+    def mouse_wheel(self,event):
+        if event.num == 5 or event.delta == -120:
+            self._test_speed.set(self._test_speed.get() - 1 )
+        if event.num == 4 or event.delta == 120:
+             self._test_speed.set(self._test_speed.get() + 1)
+        self._speed_changed()
+
+    def bind_mouse(self):
+        self.parent.bind("<MouseWheel>", self.mouse_wheel)
+        self.parent.bind("<Button-4>", self.mouse_wheel)
+        self.parent.bind("<Button-5>", self.mouse_wheel)
+
     def initialize(self):
+        self.bind_mouse()
         self._printer = self.kwargs['printer']
         self._zero = [0.5,0.5,0.0]
         self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._printer )
@@ -84,9 +97,9 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self.pattern_frame.grid_remove()
         self.pattern_options = OptionMenu(self.pattern_frame, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
         self.pattern_options.grid(column=2,row=10,sticky=W)
-        self.pattern_speed_spin = Spinbox(self.pattern_frame, from_= 1, to = 1000, command = self._speed_changed, textvariable=self._test_speed)
+        self.pattern_speed_spin = Spinbox(self.pattern_frame, from_= 5, to = 1000, command = self._speed_changed, textvariable=self._test_speed)
         self.pattern_speed_spin.grid(column=2,row=20)
-        Scale(self.pattern_frame, from_=1, to = 1000, orient=HORIZONTAL,variable = self._test_speed, length=500, command=self._speed_changed).grid(column=2,row=30)
+        Scale(self.pattern_frame, from_=5, to = 1000, orient=HORIZONTAL,variable = self._test_speed, length=500, command=self._speed_changed).grid(column=2,row=30)
 
         Label(self).grid(column=1,row=70)
 
