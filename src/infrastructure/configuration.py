@@ -34,14 +34,6 @@ class OptionsConfiguration(ConfigurationBase):
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm')
         self._laser_thickness_mm = self.get(source, u'laser_thickness_mm')
 
-    def toDict(self):
-        return { 
-        u'draw_speed': self._draw_speed,
-        u'laser_offset' : self._laser_offset,
-        u'sublayer_height_mm': self._sublayer_height_mm,
-        u'laser_thickness_mm' : self._laser_thickness_mm,
-        }
-
     @property
     def draw_speed(self):
         return self._draw_speed
