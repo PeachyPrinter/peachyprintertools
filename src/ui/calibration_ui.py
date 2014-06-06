@@ -37,22 +37,9 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self._printer = self.kwargs['printer']
         self._zero = [0.5,0.5,0.0]
         self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._printer )
-
-        self._index = 0
-        self._test_patterns = self._calibrationAPI.get_test_patterns()
-        self.data_points = []
-        self._current_selection = IntVar()
-        self._current_pattern = StringVar()
-        self._x_offset_value = IntVar()
-        self._x_offset_value.set(self._calibrationAPI.get_laser_offset()[0] * 1000.0)
-        self._y_offset_value = IntVar()
-        self._y_offset_value.set(self._calibrationAPI.get_laser_offset()[1] * 1000.0)
-        self._scale_value = IntVar()
-        self._scale_value.set(int(self._calibrationAPI.get_max_deflection() * 100.0))
-        self._current_pattern.set(self._test_patterns[0])
-        self._test_speed = DoubleVar()
-        self._test_speed.set(100.0)
-
+        self._current_selection = StringVar()
+        self._current_selection.set('Center Point')
+        
         self.grid()
 
         Label(self, text = 'Printer: ').grid(column=1,row=5)
@@ -61,37 +48,32 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
         Label(self).grid(column=1,row=7)
 
-        Radiobutton(self, command = self._option_changed, text="Center Point", variable=self._current_selection, value=0).grid(column = 1, row = 20, sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Alignment", variable=self._current_selection, value=1).grid(column = 1, row = 30, sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Scale", variable=self._current_selection, value=4).grid(column = 1, row = 35,sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Offset", variable=self._current_selection, value=5).grid(column = 1, row = 37,sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value=2).grid(column = 1, row = 40, sticky=W)
-        Radiobutton(self, command = self._option_changed, text="Calibrated Patterns", variable=self._current_selection, value=3).grid(column = 1, row = 60, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Center Point", variable=self._current_selection, value='Center Point').grid(column = 1, row = 20, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Alignment", variable=self._current_selection, value='Alignment').grid(column = 1, row = 30, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Scale", variable=self._current_selection, value='Scale').grid(column = 1, row = 40,sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Offset", variable=self._current_selection, value='Offset').grid(column = 1, row = 50,sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Calibrate",  variable=self._current_selection, value='Calibrate').grid(column = 1, row = 60, sticky=W)
+        Radiobutton(self, command = self._option_changed, text="Calibrated Patterns", variable=self._current_selection, value='Calibrated Patterns').grid(column = 1, row = 70, sticky=W)
 
-        self._scale_setting = RylanSpinbox(self, from_=1, to=75, command =self._scale_changed, textvariable=self._scale_value)
-        self._scale_setting.bind('<Return>', self._scale_changed)
-        self._scale_setting.grid(column=2, row=35,sticky=W)
+        self.scale_frame = LabelFrame(self, text="Scale", padx=5, pady =5)
+        self.scale_frame.grid(column =1 , row = 45, columnspan=4,sticky=N+S+E+W)
+        self.scale_frame.grid_remove()
+        self._setup_scale_grid(self.scale_frame)
 
-        self._x_offset_setting = RylanSpinbox(self, from_=-1000, to=1000, command = self._offset_changed, textvariable=self._x_offset_value)
-        self._x_offset_setting.grid(column=2, row=37,sticky=W)
-        self._x_offset_setting.bind('<Return>', self._offset_changed)
+        self.offset_frame = LabelFrame(self, text="Offset", padx=5, pady =5)
+        self.offset_frame.grid(column =1 , row = 55, columnspan=4,sticky=N+S+E+W)
+        self.offset_frame.grid_remove()
+        self._setup_offset_grid(self.offset_frame)
 
-        self._y_offset_setting = RylanSpinbox(self, from_=-1000, to=1000, command =self._offset_changed, textvariable=self._y_offset_value)
-        self._y_offset_setting.grid(column=3, row=37,sticky=W)
-        self._y_offset_setting.bind('<Return>', self._offset_changed)
+        self.calibration_frame = LabelFrame(self,text="Calibration", padx=5, pady=5)
+        self.calibration_frame.grid(column=1,row=65,columnspan=4,sticky=N+S+E+W)
+        self.calibration_frame.grid_remove()
+        self._setup_calibration_grid(self.calibration_frame)
 
         self.pattern_frame = LabelFrame(self, text="Patterns", padx=5, pady =5)
-        self.pattern_frame.grid(column =1 , row = 65, columnspan=4,sticky=N+S+E+W)
+        self.pattern_frame.grid(column =1 , row = 75, columnspan=4,sticky=N+S+E+W)
         self.pattern_frame.grid_remove()
-        self.pattern_options = OptionMenu(self.pattern_frame, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
-        self.pattern_options.grid(column=2,row=10,sticky=W)
-        self.pattern_speed_spin = RylanSpinbox(self.pattern_frame, from_= 5, to = 1000, command = self._speed_changed, textvariable=self._test_speed)
-        self.pattern_speed_spin.grid(column=2,row=20)
-        Scale(self.pattern_frame, from_=5, to = 1000, orient=HORIZONTAL,variable = self._test_speed, length=500, command=self._speed_changed).grid(column=2,row=30)
-
-        Label(self).grid(column=1,row=70)
-
-        self._setup_calibration_grid()
+        self._setup_patterns_grid(self.pattern_frame)
 
         Label(self).grid(column=1,row=80)
         Button(self,text=u"Back", command=self._back_button_click).grid(column=1,row=90, sticky=N+S+W)
@@ -99,8 +81,48 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self._option_changed()
         self.update()
 
-    def _setup_calibration_grid(self):
+    def _setup_scale_grid(self,frame):
+        self._scale_value = IntVar()
+        self._scale_value.set(int(self._calibrationAPI.get_max_deflection() * 100.0))
+
+        self._scale_setting = RylanSpinbox(frame, width= 4,from_=1, to=75, command =self._scale_changed, textvariable=self._scale_value)
+        self._scale_setting.bind('<Return>', self._scale_changed)
+        self._scale_setting.grid(column=1, row=10,sticky=W)
+
+    def _setup_offset_grid(self,frame):
+        self._x_offset_value = IntVar()
+        self._x_offset_value.set(self._calibrationAPI.get_laser_offset()[0] * 1000.0)
+        self._y_offset_value = IntVar()
+        self._y_offset_value.set(self._calibrationAPI.get_laser_offset()[1] * 1000.0)
+
+        Label(frame, text="X Axis Offset").grid(column=1, row=10,sticky=W)
+        self._x_offset_setting = RylanSpinbox(frame, width = 6, from_=-1000, to=1000, command = self._offset_changed, textvariable=self._x_offset_value)
+        self._x_offset_setting.grid(column=2, row=10,sticky=W)
+        self._x_offset_setting.bind('<Return>', self._offset_changed)
+
+        Label(frame, text="Y Axis Offset").grid(column=1, row=20,sticky=W)
+        self._y_offset_setting = RylanSpinbox(frame, width = 6, from_=-1000, to=1000, command =self._offset_changed, textvariable=self._y_offset_value)
+        self._y_offset_setting.grid(column=2, row=20,sticky=W)
+        self._y_offset_setting.bind('<Return>', self._offset_changed)
+
+    def _setup_patterns_grid(self, frame):
+        self._test_speed = DoubleVar()
+        self._test_speed.set(100.0)
+        self._test_patterns = self._calibrationAPI.get_test_patterns()
+        self._current_pattern = StringVar()
+        self._current_pattern.set(self._test_patterns[0])
+
+        self.pattern_options = OptionMenu(frame, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
+        self.pattern_options.grid(column=1,row=10,sticky=W)
+        Label(frame, text ="Speed mm/second").grid(column=1, row = 20, sticky=N+S+W)
+        self.pattern_speed_spin = RylanSpinbox(frame, width= 6, from_= 5, to = 1000, command = self._speed_changed, textvariable=self._test_speed)
+        self.pattern_speed_spin.grid(column=2,row=20,sticky=W+S)
+        Scale(frame, from_=5, to = 1000, orient=HORIZONTAL,variable = self._test_speed, length=300, command=self._speed_changed).grid(column=3,row=20)
+
+
+    def _setup_calibration_grid(self, frame):
         options = {'borderwidth':2 }
+        self.data_points = []
         data = self._calibrationAPI.current_calibration()
 
         for ((rx,ry),(ax,ay)) in data.upper_points.items():
@@ -108,16 +130,13 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         for ((rx,ry),(ax,ay)) in data.lower_points.items():
             self.data_points.append(CalibrationPoint(rx,ry,0.0,ax,ay,0.0))
 
-
         self.calibration_fields = {}
         self.upper_z = DoubleVar()
         self.upper_z.set(data.height)
-        self.calibration_frame = LabelFrame(self,text="Calibration", padx=5, pady=5)
-        self.calibration_frame.grid(column=2,row=50,columnspan=4)
 
-        self.calibration_fields['r_z_h'] = Label(self.calibration_frame,text="Upper Calibration Height (mm)" ,**options )
+        self.calibration_fields['r_z_h'] = Label(frame,text="Upper Calibration Height (mm)" ,**options )
         self.calibration_fields['r_z_h'].grid(column=1,row=10,columnspan=2)
-        self.calibration_fields['a_z'] = Entry(self.calibration_frame, 
+        self.calibration_fields['a_z'] = Entry(frame, 
                 validate = 'key', validatecommand=self.validate_float_command(), 
                 textvariable=self.upper_z, width=8 ,**options)
         self.calibration_fields['a_z'].grid(column=3,row=10)
@@ -126,27 +145,27 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
         Label(self).grid(column=0, row=20)
 
-        self.calibration_fields['a_x_h'] = Label(self.calibration_frame,text="Actual X (mm)",**options)
+        self.calibration_fields['a_x_h'] = Label(frame,text="Actual X (mm)",**options)
         self.calibration_fields['a_x_h'].grid(column=1,row=30)
-        self.calibration_fields['a_y_h'] = Label(self.calibration_frame,text="Actual Y (mm)",**options)
+        self.calibration_fields['a_y_h'] = Label(frame,text="Actual Y (mm)",**options)
         self.calibration_fields['a_y_h'].grid(column=2,row=30)
-        self.calibration_fields['a_z_h'] = Label(self.calibration_frame,text="Actual Z (mm)",**options)
+        self.calibration_fields['a_z_h'] = Label(frame,text="Actual Z (mm)",**options)
         self.calibration_fields['a_z_h'].grid(column=3,row=30)
 
         start_row = 40
         for index in range(0,len(self.data_points)):
             current_row = start_row + index * 2
             if (index == len(self.data_points) / 2):
-                Label(self.calibration_frame).grid(column=1,row=current_row-1)
+                Label(frame).grid(column=1,row=current_row-1)
             
-            self.calibration_fields['a_x_%s' % index] = Entry(self.calibration_frame, 
+            self.calibration_fields['a_x_%s' % index] = Entry(frame, 
                 validate = 'key', validatecommand=self.validate_float_command(), 
                 textvariable=self.data_points[index].actual_x, width=8 ,**options)
             self.calibration_fields['a_x_%s' % index].grid(column=1,row=current_row)
             self.calibration_fields['a_x_%s' % index].bind('<FocusIn>', 
                 lambda event, point=self.data_points[index]: 
                     self._point_change(point))
-            self.calibration_fields['a_y_%s' % index] = Entry(self.calibration_frame,
+            self.calibration_fields['a_y_%s' % index] = Entry(frame,
                 validate = 'key', validatecommand=self.validate_float_command(), 
                 textvariable=self.data_points[index].actual_y, width=8 ,**options)
             self.calibration_fields['a_y_%s' % index].grid(column=2,row=current_row)
@@ -156,7 +175,7 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
             self.calibration_fields['r_z_%s' % index] = Label(self.calibration_frame,textvariable=self.data_points[index].ref_z, width=8 ,**options)
             self.calibration_fields['r_z_%s' % index].grid(column=3,row=current_row)
 
-        self.save_button = Button(self.calibration_frame,text=u"Save", command=self._save_click,**options)
+        self.save_button = Button(frame,text=u"Save", command=self._save_click,**options)
         self.save_button.grid(column=4,row=(start_row + len(self.data_points) * 2 + 10))
 
     def _point_change(self,data):
@@ -164,12 +183,6 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
     def _help(self):
         PopUp(self,'Help', help_text.calibration_help)
-
-    def _hide_calibration(self):
-        self.calibration_frame.grid_remove()
-        for (key,value) in self.calibration_fields.items():
-            value.grid_remove()
-        self.save_button.grid_remove()
 
     def _upper_z_change(self,field):
         if self.upper_z.get() > 0.0:
@@ -184,32 +197,6 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
             '"Upper Calibration Height" must be a postive value in mm'
             )
             self._upper_z_change(None)
-
-    def _show_calibration(self):
-        self.calibration_frame.grid()
-        for key,value in self.calibration_fields.items():
-            value.grid()
-        self.save_button.grid()
-
-    def _hide_patterns(self):
-        self.pattern_frame.grid_remove()
-
-    def _show_patterns(self):
-        self.pattern_frame.grid()
-
-    def _hide_scale(self):
-        self._scale_setting.grid_remove()
-
-    def _show_scale(self):
-        self._scale_setting.grid()
-
-    def _hide_offset(self):
-        self._x_offset_setting.grid_remove()
-        self._y_offset_setting.grid_remove()
-
-    def _show_offset(self):
-        self._x_offset_setting.grid()
-        self._y_offset_setting.grid()
 
     def _pattern_changed(self, pattern):
         self._calibrationAPI.show_test_pattern(pattern)
@@ -226,43 +213,27 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self._calibrationAPI.set_test_pattern_speed(self._test_speed.get())
 
     def _option_changed(self):
-        if self._current_selection.get() == 0:
-            self._hide_patterns()
-            self._hide_scale()
-            self._hide_calibration()
-            self._hide_offset()
+        self.pattern_frame.grid_remove()
+        self.scale_frame.grid_remove()
+        self.calibration_frame.grid_remove()
+        self.offset_frame.grid_remove()
+        
+        if self._current_selection.get() == 'Center Point':
             self._calibrationAPI.show_point(self._zero)
-        elif self._current_selection.get() == 1:
-            self._hide_calibration()
-            self._hide_scale()
-            self._hide_patterns()
-            self._hide_offset()
+        elif self._current_selection.get() == 'Alignment':
             self._calibrationAPI.show_line()
-        elif self._current_selection.get() == 2:
-            self._hide_patterns()
-            self._hide_scale()
-            self._show_calibration()
-            self._hide_offset()
+        elif self._current_selection.get() == 'Calibrate':
+            self.calibration_frame.grid()
             self._calibrationAPI.show_point(self._zero)
-        elif self._current_selection.get() == 3:
-            self._show_patterns()
-            self._hide_scale()
-            self._hide_calibration()
-            self._hide_offset()
+        elif self._current_selection.get() == 'Calibrated Patterns':
+            self.pattern_frame.grid()
             self._pattern_changed(self._current_pattern.get())
-        elif self._current_selection.get() == 4:
-            self._hide_patterns()
-            self._hide_calibration()
-            self._show_scale()
-            self._hide_offset()
+        elif self._current_selection.get() == 'Scale':
+            self.scale_frame.grid()
             self._calibrationAPI.show_scale()
-        elif self._current_selection.get() == 5:
-            self._hide_patterns()
-            self._hide_calibration()
-            self._hide_scale()
-            self._show_offset()
+        elif self._current_selection.get() == 'Offset':
+            self.offset_frame.grid()
             self._calibrationAPI.show_blink()
-
         else:
             raise Exception("Programmer Error")
 
