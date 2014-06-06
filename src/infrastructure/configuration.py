@@ -26,7 +26,6 @@ class ConfigurationBase(object):
                 d[unicode(key)[1:]] = value
         return d
 
-
 class OptionsConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._draw_speed = self.get(source, u'draw_speed')

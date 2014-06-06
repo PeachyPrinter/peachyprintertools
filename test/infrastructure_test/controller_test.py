@@ -152,31 +152,6 @@ class ControllerTests(unittest.TestCase):
         self.assertEquals(1, self.controller.get_status()['skipped_layers'])
         self.assertEquals(5, mock_audio_writer.write_chunk.call_count)
 
-    @patch('infrastructure.zaxis_control.ZAxisControl')
-    def test_if_zaxis_control_specifed_should_call_start_and_stop_correctly(self, mock_ZAxisControl, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
-        mock_zaxis_control = mock_ZAxisControl.return_value
-        mock_laser_control = mock_LaserControl.return_value
-        mock_path_to_audio = mock_PathToAudio.return_value
-        mock_audio_writer = mock_AudioWriter.return_value
-        mock_zaxis = mock_ZAxis.return_value
-        zaxis_return_values = [ 0.0, 0.0, 2.0, 2.0,2.0,2.0 ]
-        def z_axis_side_effect():
-            return zaxis_return_values.pop(0)
-        mock_zaxis.current_z_location_mm = z_axis_side_effect
-        test_layer1 = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
-        test_layer2 = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
-        test_layer3 = Layer(2.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
-        stub_layer_generator = StubLayerGenerator([test_layer1, test_layer2, test_layer3])
-        mock_path_to_audio.process.return_value = "SomeAudio"
-        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-
-        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator,zaxis = mock_zaxis, zaxis_control = mock_zaxis_control, max_lead_distance = 0)
-        self.controller.start()
-        self.wait_for_controller()
-        expected_calls = [ call.move_up(), call.stop(), call.stop(), call.close()]
-        actual = [ c for c in mock_zaxis_control.mock_calls if c != call.__nonzero__() ]
-        self.assertEquals(expected_calls, actual)
-
     def test_if_draw_command_start_and_current_pos_are_not_the_same_should_move_to_new_posisition(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value

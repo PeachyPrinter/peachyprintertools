@@ -4,6 +4,7 @@ import logging
 from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.layer_generators import CureTestGenerator
+from infrastructure.commander import NullCommander
 
 '''Details the audio settings'''
 class AudioSetting(object):
@@ -180,6 +181,9 @@ class ConfigurationAPI(object):
             1,
             self._current_config.audio.input.sample_rate, 
             self._current_config.audio.input.bit_depth, 
+            NullCommander(),
+            '',
+            '',
             drip_call_back = drip_call_back
             )
         self._drip_detector.start()

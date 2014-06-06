@@ -310,7 +310,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'load')
     @patch.object(AudioDripZAxis, 'start')
     @patch('api.configuration_api.AudioDripZAxis')
-    def test_start_counting_drips_should_pass_call_back_function(self, mock_AudioDripZAxis, mock_start,mock_load,mock_save):
+    @patch('api.configuration_api.NullCommander')
+    def test_start_counting_drips_should_pass_call_back_function(self, mock_NullCommander, mock_AudioDripZAxis, mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
@@ -325,6 +326,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             1,
             self.default_config.audio.input.sample_rate, 
             self.default_config.audio.input.bit_depth,
+            mock_NullCommander.return_value,
+            '','',
             drip_call_back = callback
             )
 
@@ -422,7 +425,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.configuration_api.AudioDripZAxis')
     @patch.object(ConfigurationManager, 'save' )
     @patch.object(ConfigurationManager, 'load' )
-    def test_start_counting_drips_should_use_audio_input_settings(self, mock_load, mock_save, mock_AudioDripZAxis):
+    @patch('api.configuration_api.NullCommander')
+    def test_start_counting_drips_should_use_audio_input_settings(self, mock_NullCommander, mock_load, mock_save, mock_AudioDripZAxis):
         mock_drip_based_zaxis = mock_AudioDripZAxis
         mock_load.return_value =  self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
@@ -435,6 +439,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             1, 
             expected_sample_rate, 
             self.default_config.audio.input.bit_depth,
+            mock_NullCommander.return_value,
+            '','',
             drip_call_back = None
         )
 

@@ -10,6 +10,9 @@ class ZAxis(object):
     def set_call_back(self, call_back):
         raise NotImplementedError()
 
+    def move_to(self, height_mm):
+        raise NotImplementedError()
+
 
 class ZAxisControl(object):
     

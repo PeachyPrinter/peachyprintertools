@@ -10,7 +10,7 @@ from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
 from infrastructure.layer_generators import SubLayerGenerator
-from infrastructure.zaxis_control import SerialZAxisControl
+from infrastructure.commander import SerialCommander, NullCommander
 
 
 '''TODO'''
@@ -35,7 +35,10 @@ class PrintAPI(object):
             return AudioDripZAxis(
                 self._configuration.dripper.drips_per_mm, 
                 self._configuration.audio.input.sample_rate,
-                self._configuration.audio.input.bit_depth
+                self._configuration.audio.input.bit_depth,
+                self._commander,
+                self._configuration.serial.on_command, 
+                self._configuration.serial.off_command
                 )
         elif self._configuration.dripper.dripper_type == 'emulated':
             return TimedDripZAxis(
@@ -44,6 +47,11 @@ class PrintAPI(object):
                 )
 
     def print_layers(self, layer_generator, dry_run = False):
+        if self._configuration.serial.on:
+            self._commander = SerialCommander( self._configuration.serial.port )
+        else:
+            self._commander = NullCommander()
+
         laser_control = AudioModulationLaserControl(
             self._configuration.audio.output.sample_rate,
             self._configuration.audio.output.modulation_on_frequency,
@@ -71,14 +79,6 @@ class PrintAPI(object):
                 self._configuration.audio.output.bit_depth,
                 )
             self.zaxis = self._get_zaxis()
-            if self._configuration.serial.on:
-                zaxis_control = SerialZAxisControl(
-                                    self._configuration.serial.port, 
-                                    on_command = self._configuration.serial.on_command, 
-                                    off_command = self._configuration.serial.off_command
-                                    )
-            else:
-                zaxis_control = None
             abort_on_error = True
 
         self._controller = Controller(
@@ -87,7 +87,6 @@ class PrintAPI(object):
             audio_writer,
             layer_generator,
             zaxis = self.zaxis,
-            zaxis_control = zaxis_control,
             status_call_back = self._status_call_back,
             max_lead_distance = self._configuration.dripper.max_lead_distance_mm,
             abort_on_error = abort_on_error

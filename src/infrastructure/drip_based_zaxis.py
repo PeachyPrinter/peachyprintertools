@@ -94,25 +94,37 @@ class DripDetector(object):
         return self._drips
 
 class AudioDripZAxis(ZAxis, threading.Thread):
-    def __init__(self, 
+    def __init__(self,
                 drips_per_mm, 
                 sample_rate, 
                 bit_depth,
-                drip_call_back = None):
+                commander,
+                dripper_on_command,
+                dripper_off_command,
+                drip_call_back = None,):
         threading.Thread.__init__(self)
         self._drips_per_mm = drips_per_mm
         self._sample_rate = sample_rate
         self._format = audio_formats[bit_depth]
 
+        self._drip_call_back = drip_call_back
+
+        self._commander = commander
+        self._dripper_on_command = dripper_on_command
+        self._dripper_off_command = dripper_off_command
+
         self._buffer_size = self._sample_rate / 2
         self._min_buffer_size = self._sample_rate / 8
         self._min_buffer_time = self._min_buffer_size / self._sample_rate
         self._drips = 0
+        self._destination_height = 0.0
+        self._dripping = False
+
 
         self.running = True
         self.shutdown = False
+
         self.pa = pyaudio.PyAudio()
-        self._drip_call_back = drip_call_back
         self.drip_detector = DripDetector(self._sample_rate, self._call_back)
     
     def set_call_back(self, call_back):
@@ -126,9 +138,24 @@ class AudioDripZAxis(ZAxis, threading.Thread):
     def current_z_location_mm(self):
         return self._drips * 1.0 / self._drips_per_mm
 
+    def move_to(self, height_mm):
+        self._destination_height = height_mm
+
+    def _update_state(self):
+        if self._destination_height >= self.current_z_location_mm():
+            if not self._dripping:
+                self._dripping = True
+                self._commander.send_command(self._dripper_on_command)
+        else:
+            if self._dripping:
+                self._dripping = False
+                self._commander.send_command(self._dripper_off_command)
+
+
     def run(self):
         stream = self._get_stream()
         while self.running:
+            self._update_state()
             self.drip_detector.process_frames(self._get_frames(stream))
         stream.stop_stream()
         stream.close()
@@ -154,6 +181,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self.running = False
         while not self.shutdown:
             time.sleep(0.1)
+        self._commander.send_command(self._dripper_off_command)
         self.pa.terminate()
 
 

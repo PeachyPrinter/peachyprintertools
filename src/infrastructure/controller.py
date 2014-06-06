@@ -124,7 +124,6 @@ class Controller(threading.Thread,):
                     audio_writer,
                     layer_generator,
                     zaxis = None,
-                    zaxis_control = None,
                     status_call_back = None, 
                     max_lead_distance = sys.float_info.max, 
                     abort_on_error=True
@@ -133,7 +132,6 @@ class Controller(threading.Thread,):
         self.deamon = True
         self._abort_on_error = abort_on_error
         self._max_lead_distance = max_lead_distance
-        self._zaxis_control = zaxis_control
 
         self._shutting_down = False
         self.running = False
@@ -157,8 +155,6 @@ class Controller(threading.Thread,):
         self.running = True
         if self._zaxis:
             self._zaxis.start()
-        if self._zaxis_control:
-            self._zaxis_control.move_up()
         self.starting = False
         self._process_layers()
         self._status.set_complete()
@@ -185,12 +181,10 @@ class Controller(threading.Thread,):
                 self._status.add_layer()
                 self._status.set_model_height(layer.z)
                 if self._zaxis:
+                    self._zaxis.move_to(layer.z)
                     self._wait_till(layer.z)
                     ahead_by = self._zaxis.current_z_location_mm() - layer.z
-
                 if self._should_process(ahead_by):
-                    if self._zaxis_control and ahead_by and ahead_by >= self._max_lead_distance:
-                        self._zaxis_control.stop()
                     self._process_layer(layer)
                 else:
                     logging.warning("Dripping too fast, Skipping layer")
@@ -207,9 +201,6 @@ class Controller(threading.Thread,):
             return True
         if (ahead_by_distance <= self._max_lead_distance):
             return True
-        else:
-            if self._zaxis_control:
-                return True
         return False
 
     def _process_layer(self, layer):
@@ -239,8 +230,6 @@ class Controller(threading.Thread,):
 
     def _wait_till(self, height):
         while self._zaxis.current_z_location_mm() < height:
-            if self._zaxis_control:
-                self._zaxis_control.move_up()
             logging.debug("Controller: Waiting for drips")
             self._status.set_waiting_for_drips()
             logging.debug("Checking for shutdown")
@@ -264,8 +253,5 @@ class Controller(threading.Thread,):
             self._audio_writer.close()
         except Exception as ex:
             logging.error(ex)
-        if self._zaxis_control:
-            self._zaxis_control.stop()
-            self._zaxis_control.close()
         self.running = False
 
