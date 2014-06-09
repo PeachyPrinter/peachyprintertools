@@ -212,15 +212,22 @@ class Controller(threading.Thread,):
                 break
             if type(command) == LateralDraw:
                 if self.state.xy != command.start:
-                    self._laser_control.set_laser_off()
+                    
                     self._move_lateral(command.start,layer.z,command.speed)
-                self._laser_control.set_laser_on()
-                self._move_lateral(command.end, layer.z, command.speed )
+                
+                self._draw_lateral(command.end, layer.z, command.speed )
             elif type(command) == LateralMove:
-                self._laser_control.set_laser_off()
                 self._move_lateral(command.end, layer.z, command.speed)
 
     def _move_lateral(self,(to_x,to_y), to_z,speed):
+        self._laser_control.set_laser_off()
+        self._write_lateral(to_x,to_y,to_z,speed)
+
+    def _draw_lateral(self,(to_x,to_y), to_z,speed):
+        self._laser_control.set_laser_on()
+        self._write_lateral(to_x,to_y,to_z,speed)
+    
+    def _write_lateral(self,to_x,to_y, to_z,speed):
         to_xyz = [to_x,to_y,to_z]
         path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
         modulated_path = self._laser_control.modulate(path)
@@ -230,14 +237,9 @@ class Controller(threading.Thread,):
 
     def _wait_till(self, height):
         while self._zaxis.current_z_location_mm() < height:
-            logging.debug("Controller: Waiting for drips")
-            self._status.set_waiting_for_drips()
-            logging.debug("Checking for shutdown")
             if self._shutting_down:
                 return
-            logging.debug("Setting laser off")
-            self._laser_control.set_laser_off()
-            logging.debug("Moving")
+            self._status.set_waiting_for_drips()
             self._move_lateral(self.state.xy, self.state.z,self.state.speed)
         self._status.set_not_waiting_for_drips()
 

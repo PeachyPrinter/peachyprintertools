@@ -5,6 +5,7 @@ from ui.main_ui import MainUI
 from api.calibration_api import CalibrationAPI
 import numpy as np
 import help_text
+from config import devmode
 
 class CalibrationPoint(object):
     def __init__(self,ref_x,ref_y,ref_z,actual_x,actual_y,actual_z):
@@ -45,6 +46,8 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         Label(self, text = 'Printer: ').grid(column=1,row=5)
         Label(self, text = self._printer, width=30 ).grid(column=2,row=5)
         Button(self, text='?', command=self._help).grid(column=3, row=5,stick=N+E)
+        if devmode:
+             Label(self, text="DEVMODE").grid(column=4,row=5)
 
         Label(self).grid(column=1,row=7)
 
@@ -115,9 +118,9 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self.pattern_options = OptionMenu(frame, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
         self.pattern_options.grid(column=1,row=10,sticky=W)
         Label(frame, text ="Speed mm/second").grid(column=1, row = 20, sticky=N+S+W)
-        self.pattern_speed_spin = RylanSpinbox(frame, width= 6, from_= 5, to = 1000, command = self._speed_changed, textvariable=self._test_speed)
+        self.pattern_speed_spin = RylanSpinbox(frame, width= 6, from_= 25, to = 8000, increment=5, command = self._speed_changed, textvariable=self._test_speed)
         self.pattern_speed_spin.grid(column=2,row=20,sticky=W+S)
-        Scale(frame, from_=5, to = 1000, orient=HORIZONTAL,variable = self._test_speed, length=300, command=self._speed_changed).grid(column=3,row=20)
+        Scale(frame, from_=25, to = 8000, orient=HORIZONTAL,variable = self._test_speed, length=300, command=self._speed_changed).grid(column=3,row=20)
 
 
     def _setup_calibration_grid(self, frame):

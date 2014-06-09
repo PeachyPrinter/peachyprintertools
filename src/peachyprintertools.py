@@ -61,9 +61,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser("Configure and print with Peachy Printer")
     parser.add_argument('-l', '--log',     dest='loglevel', action='store',      required=False, default="WARNING", help="Enter the loglevel [DEBUG|INFO|WARNING|ERROR] default: WARNING" )
     parser.add_argument('-c', '--console', dest='console',  action='store_true', required=False, help="Logs to console not file" )
+    parser.add_argument('-d', '--development', dest='devmode',  action='store_true', required=False, help="Enable Developer Testing Mode" )
     args, unknown = parser.parse_known_args()
 
     setup_logging(args)
+    if args.devmode:
+        config.devmode = True
 
     if getattr(sys, 'frozen', False):
         path = os.path.dirname(sys.executable)
