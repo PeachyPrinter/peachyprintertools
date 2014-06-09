@@ -5,6 +5,8 @@ import logging
 
 from domain.commands import *
 
+import time
+
 class MachineState(object):
     def __init__(self,xyz = [0.0,0.0,0.0], speed = 1.0):
         self.x, self.y, self.z = xyz
@@ -149,10 +151,9 @@ class Controller(threading.Thread,):
         if self._zaxis:
             self._zaxis.set_call_back(self._status.drip_call_back)
         self._abort_current_command = False
-        logging.info("Starting print")
-
 
     def run(self):
+        logging.info('Running Controller')
         self.running = True
         if self._zaxis:
             self._zaxis.start()
@@ -162,8 +163,8 @@ class Controller(threading.Thread,):
         self._terminate()
 
     def change_generator(self, layer_generator):
-        self._layer_generator = layer_generator
         self._abort_current_command = True
+        self._layer_generator = layer_generator
 
     def get_status(self):
         return self._status.status()
@@ -175,9 +176,12 @@ class Controller(threading.Thread,):
     def _process_layers(self):
         ahead_by = None
         layer_count  = 0
+        logging.info('Start Processing Layers')
         while not self._shutting_down:
             try:
+                start = time.time()
                 layer = self._layer_generator.next()
+                logging.info("Layer Generator Time: %.2f" % (time.time()-start))
                 layer_count += 1
                 self._status.add_layer()
                 self._status.set_model_height(layer.z)
@@ -190,10 +194,13 @@ class Controller(threading.Thread,):
                 else:
                     logging.warning("Dripping too fast, Skipping layer")
                     self._status.skipped_layer()
+                logging.info("Layer Total Time: %.2f" % (time.time()-start))
             except StopIteration:
+                logging.info('Layers Complete')
                 self._shutting_down = True
             except Exception as ex:
                 self._status.add_error(MachineError(str(ex),layer_count))
+                logging.error(ex)
                 if self._abort_on_error:
                     self._terminate()
 
@@ -210,7 +217,7 @@ class Controller(threading.Thread,):
                 return
             if self._abort_current_command:
                 self._abort_current_command = False
-                break
+                return
             if type(command) == LateralDraw:
                 if self.state.xy != command.start:
                     self._move_lateral(command.start,layer.z,command.speed)
@@ -245,17 +252,18 @@ class Controller(threading.Thread,):
             self._move_lateral(self.state.xy, self.state.z,self.state.speed)
         self._status.set_not_waiting_for_drips()
 
-
     def _terminate(self):
+        logging.info('Controller shutdown requested')
         self._shutting_down = True
+        try:
+            self._audio_writer.close()
+        except Exception as ex:
+            logging.error(ex)
         if self._zaxis:
             try:
                 self._zaxis.stop()
             except Exception as ex:
                 logging.error(ex)
-        try:
-            self._audio_writer.close()
-        except Exception as ex:
-            logging.error(ex)
+
         self.running = False
 
