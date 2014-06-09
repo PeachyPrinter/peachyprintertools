@@ -46,8 +46,6 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         Label(self, text = 'Printer: ').grid(column=1,row=5)
         Label(self, text = self._printer, width=30 ).grid(column=2,row=5)
         Button(self, text='?', command=self._help).grid(column=3, row=5,stick=N+E)
-        if devmode:
-             Label(self, text="DEVMODE").grid(column=4,row=5)
 
         Label(self).grid(column=1,row=7)
 
@@ -114,6 +112,8 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self._test_patterns = self._calibrationAPI.get_test_patterns()
         self._current_pattern = StringVar()
         self._current_pattern.set(self._test_patterns[0])
+        self._laser_off_override = BooleanVar()
+        self._laser_off_override.set(False)
 
         self.pattern_options = OptionMenu(frame, self._current_pattern, *self._test_patterns, command = self._pattern_changed)
         self.pattern_options.grid(column=1,row=10,sticky=W)
@@ -121,6 +121,9 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self.pattern_speed_spin = RylanSpinbox(frame, width= 6, from_= 25, to = 8000, increment=5, command = self._speed_changed, textvariable=self._test_speed)
         self.pattern_speed_spin.grid(column=2,row=20,sticky=W+S)
         Scale(frame, from_=25, to = 8000, orient=HORIZONTAL,variable = self._test_speed, length=300, command=self._speed_changed).grid(column=3,row=20)
+        if devmode:
+            Label(frame, text="Force Laser Off",background="#FF9966").grid(column=1,row=25,sticky=N+S+E+W)
+            Checkbutton(frame, variable=self._laser_off_override, background="#FF9966", command= self._set_laser_off_override ).grid(column=2,row=25,sticky=N+S+E+W)
 
 
     def _setup_calibration_grid(self, frame):
@@ -214,6 +217,9 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
     def _speed_changed(self, event= None):
         self._calibrationAPI.set_test_pattern_speed(self._test_speed.get())
+
+    def _set_laser_off_override(self):
+        self._calibrationAPI.set_laser_off_override(self._laser_off_override.get())
 
     def _option_changed(self):
         self.pattern_frame.grid_remove()

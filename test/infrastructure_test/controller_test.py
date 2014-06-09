@@ -62,7 +62,6 @@ class ControllerTests(unittest.TestCase):
 
         self.wait_for_controller()
 
-
     def test_should_turn_off_laser_for_move_commands(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
@@ -73,6 +72,24 @@ class ControllerTests(unittest.TestCase):
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
                 
         self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
+        self.controller.start()
+
+        self.wait_for_controller()
+
+        self.assertEqual(1,mock_laser_control.set_laser_off.call_count)
+        self.assertEqual(0,mock_laser_control.set_laser_on.call_count)
+
+    def test_should_turn_off_laser_for_draw_commands_when_forced_off(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
+        stub_layer_generator = StubLayerGenerator([test_layer])
+        mock_path_to_audio.process.return_value = "SomeAudio"
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+        
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
+        self.controller.laser_off_override = True
         self.controller.start()
 
         self.wait_for_controller()

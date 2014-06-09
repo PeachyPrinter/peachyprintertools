@@ -131,6 +131,19 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         mock_controller.change_generator.assert_called_with(mock_layer_generator)
 
+    def test_set_laser_override(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+        mock_configuration_manager = mock_ConfigurationManager.return_value
+        mock_configuration_manager.load.return_value = self.default_config
+        mock_controller = mock_Controller.return_value
+
+        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+        x,y,z = 1.0,0.2,1.0
+
+        calibration_api.set_laser_off_override(True)
+        self.assertTrue(mock_controller.laser_off_override)
+        calibration_api.set_laser_off_override(False)
+        self.assertFalse(mock_controller.laser_off_override)
+
     @patch('api.calibration_api.CalibrationLineGenerator')
     def test_show_line_should_use_CalibrationLineGenerator(self, mock_CalibrationLineGenerator,mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
         mock_configuration_manager = mock_ConfigurationManager.return_value
@@ -373,12 +386,6 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_circlegenerator.set_speed.assert_called_with(150.0)
         mock_spiralgenerator.set_speed.assert_called_with(150.0)
         mock_memoryhourglassgenerator.set_speed.assert_called_with(150.0)
-
-
-
-
-
-
 
 if __name__ == '__main__':
     unittest.main()

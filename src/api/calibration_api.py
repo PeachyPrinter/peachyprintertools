@@ -87,7 +87,11 @@ class CalibrationAPI(object):
         self._unapply_calibration()
         self._save()
 
-    '''Returns the currently configured offset for laser on and off'''
+    '''Allows user so force the laser on'''
+    def set_laser_off_override(self, state):
+        self._controller.laser_off_override = state
+
+    '''Gets the currently configured offset for laser on and off'''
     def get_laser_offset(self):
         return self._configuration.options.laser_offset
 
@@ -96,7 +100,6 @@ class CalibrationAPI(object):
         self._configuration.options.laser_offset = laser_offset
         self._laser_control.set_offset(laser_offset)
         self._save()
-
 
     '''Used to show a test pattern with calibration applied'''
     def show_test_pattern(self,pattern):
@@ -110,7 +113,6 @@ class CalibrationAPI(object):
     '''Changes the speed at which the test pattern is drawn in mm/sec'''
     def set_test_pattern_speed(self,speed):
         [ pattern.set_speed(speed) for pattern in self._test_patterns.values() ]
-
 
     '''Shows the scale square'''
     def show_scale(self):

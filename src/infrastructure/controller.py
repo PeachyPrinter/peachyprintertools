@@ -136,6 +136,7 @@ class Controller(threading.Thread,):
         self._shutting_down = False
         self.running = False
         self.starting = True
+        self.laser_off_override = False
         
         self._laser_control = laser_control
         self._path_to_audio = path_to_audio
@@ -212,9 +213,7 @@ class Controller(threading.Thread,):
                 break
             if type(command) == LateralDraw:
                 if self.state.xy != command.start:
-                    
                     self._move_lateral(command.start,layer.z,command.speed)
-                
                 self._draw_lateral(command.end, layer.z, command.speed )
             elif type(command) == LateralMove:
                 self._move_lateral(command.end, layer.z, command.speed)
@@ -224,7 +223,10 @@ class Controller(threading.Thread,):
         self._write_lateral(to_x,to_y,to_z,speed)
 
     def _draw_lateral(self,(to_x,to_y), to_z,speed):
-        self._laser_control.set_laser_on()
+        if self.laser_off_override:
+            self._laser_control.set_laser_off()
+        else:
+            self._laser_control.set_laser_on()
         self._write_lateral(to_x,to_y,to_z,speed)
     
     def _write_lateral(self,to_x,to_y, to_z,speed):
