@@ -15,11 +15,12 @@ class AudioModulationLaserControlTests(unittest.TestCase, TestHelpers):
     sample_rate = 1000
     on_frequency = sample_rate / 4
     off_frequency = sample_rate / 8
+    offset = [0,0]
     _MODULATION_AMPLITUDE_RATIO = 0.25
     _SOURCE_AMPLITUDE_RATIO = 1.0 - _MODULATION_AMPLITUDE_RATIO
     
     def test_when_laser_off_modulate_it_at_off_frequency(self):
-        laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency)
+        laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency,self.offset)
         laser_control.set_laser_off()
         sample_data_chunk = numpy.array([(0,0)])
         po1 = math.cos(0.0 / 8.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
@@ -57,7 +58,7 @@ class AudioModulationLaserControlTests(unittest.TestCase, TestHelpers):
 
     def test_offset_can_be_changed(self):
         offset = [0.1,0.1]
-        laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency, [0.0,0.0])
+        laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency, self.offset)
         laser_control.set_laser_off()
         laser_control.set_offset(offset)
         sample_data_chunk = numpy.array([(0,0)])
@@ -76,7 +77,7 @@ class AudioModulationLaserControlTests(unittest.TestCase, TestHelpers):
         self.assertNumpyArrayEquals(expected_data,actual_data)
 
     def test_when_laser_on_modulate_it_at_on_frequency(self):
-        laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency)
+        laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency, self.offset)
         laser_control.set_laser_on()
         sample_data_chunk = numpy.array([(0,0)])
         po1 = math.cos(0.0 / 4.0 * 2.0 * math.pi ) * self._MODULATION_AMPLITUDE_RATIO
@@ -117,14 +118,14 @@ class AudioModulationLaserControlTests(unittest.TestCase, TestHelpers):
         bad_on_frequency = 71
         off_frequency = 125
         with self.assertRaises(Exception):
-            AudioModulationLaserControl(sample_rate,bad_on_frequency,off_frequency)
+            AudioModulationLaserControl(sample_rate,bad_on_frequency,off_frequency, self.offset)
 
     def test_off_frequency_must_be_an_even_divisor_of_sample_rate(self):
         sample_rate = 1000
         on_frequency = 500
         bad_off_frequency = 99
         with self.assertRaises(Exception):
-            AudioModulationLaserControl(sample_rate,on_frequency,bad_off_frequency)
+            AudioModulationLaserControl(sample_rate,on_frequency,bad_off_frequency, self.offset)
 
     def test_number_of_sample_generated_for_on_and_off_should_be_consistant(self):
         sample_rate = 44100
@@ -132,7 +133,7 @@ class AudioModulationLaserControlTests(unittest.TestCase, TestHelpers):
         off_frequency = 7350
         sample_data_chunk = numpy.array([(0,0)])
 
-        laser_control = AudioModulationLaserControl(sample_rate,on_frequency,off_frequency)
+        laser_control = AudioModulationLaserControl(sample_rate,on_frequency,off_frequency, self.offset)
         laser_control.set_laser_on()
         laser_on = len(list(laser_control.modulate(sample_data_chunk)))
         laser_control.set_laser_off()
@@ -141,7 +142,7 @@ class AudioModulationLaserControlTests(unittest.TestCase, TestHelpers):
         self.assertEqual(laser_on,laser_off)
 
     def test_modualtion_should_be_25_percent_of_amplitude(self):
-        laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency)
+        laser_control = AudioModulationLaserControl(self.sample_rate,self.on_frequency,self.off_frequency, self.offset)
         laser_control.set_laser_on()
         sample_data_chunk = numpy.array([(1.0,1.0)])
         po1 = math.cos(0.0 / 4.0 * 2.0 * math.pi ) * ( self._MODULATION_AMPLITUDE_RATIO + 0.75 )

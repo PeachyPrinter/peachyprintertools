@@ -40,7 +40,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_AudioModulationLaserControl.assert_called_with(
             self.default_config.audio.output.sample_rate,
             self.default_config.audio.output.modulation_on_frequency,
-            self.default_config.audio.output.modulation_off_frequency
+            self.default_config.audio.output.modulation_off_frequency,
+            self.default_config.options.laser_offset
             )
         mock_Transformer.assert_called_with(
             scale = self.default_config.calibration.max_deflection

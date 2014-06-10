@@ -403,7 +403,7 @@ class ConfigurationGenerator(object):
         configuration.audio.output.sample_rate             = 48000
         configuration.audio.output.modulation_on_frequency = 8000
         configuration.audio.output.modulation_off_frequency= 2000
-        configuration.audio.input.bit_depth                = "8 bit"
+        configuration.audio.input.bit_depth                = "24 bit"
         configuration.audio.input.sample_rate              = 44100
 
         configuration.options.sublayer_height_mm           = 0.01

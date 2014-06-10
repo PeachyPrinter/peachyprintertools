@@ -33,7 +33,8 @@ class CalibrationAPI(object):
         self._laser_control = AudioModulationLaserControl(
             self._configuration.audio.output.sample_rate,
             self._configuration.audio.output.modulation_on_frequency,
-            self._configuration.audio.output.modulation_off_frequency
+            self._configuration.audio.output.modulation_off_frequency,
+            self._configuration.options.laser_offset
             )
         transformer = TuningTransformer(scale = self._configuration.calibration.max_deflection)
         self._path_to_audio= PathToAudio(
