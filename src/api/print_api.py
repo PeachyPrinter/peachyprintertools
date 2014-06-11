@@ -91,7 +91,8 @@ class PrintAPI(object):
             zaxis = self.zaxis,
             status_call_back = self._status_call_back,
             max_lead_distance = self._configuration.dripper.max_lead_distance_mm,
-            abort_on_error = abort_on_error
+            abort_on_error = abort_on_error,
+            max_speed = self._configuration.options.draw_speed
             )
         self._controller.start()
 
