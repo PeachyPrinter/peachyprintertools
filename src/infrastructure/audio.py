@@ -108,9 +108,11 @@ class AudioWriter(object):
             raise Exception("Bit depth ![%s]! specified is not supported" % depth)
 
     def write_chunk(self, chunk):
+        start = time.time()
         data = np.array(list(chunk))
         frames = self._to_frame(data)
         self._outstream.write(frames)
+        logging.debug('Wrote chunk: %s' % (time.time() - start))
 
     def _to_frame(self, values):
         if (self._format == pyaudio.paFloat32):

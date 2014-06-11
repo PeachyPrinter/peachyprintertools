@@ -151,6 +151,8 @@ class Controller(threading.Thread,):
         if self._zaxis:
             self._zaxis.set_call_back(self._status.drip_call_back)
         self._abort_current_command = False
+        self._pause = False
+        self._pausing = False
 
     def run(self):
         logging.info('Running Controller')
@@ -163,8 +165,13 @@ class Controller(threading.Thread,):
         self._terminate()
 
     def change_generator(self, layer_generator):
+        self._pause = True
         self._abort_current_command = True
+        while not self._pausing:
+            time.sleep(0.01)
+        self.state.set_state([0,0,0],100)
         self._layer_generator = layer_generator
+        self._pausing = False
 
     def get_status(self):
         return self._status.status()
@@ -180,6 +187,10 @@ class Controller(threading.Thread,):
         while not self._shutting_down:
             try:
                 start = time.time()
+                if self._pause:
+                    self._pausing = True
+                    time.sleep(0.01)
+                self._pausing = False
                 layer = self._layer_generator.next()
                 logging.info("Layer Generator Time: %.2f" % (time.time()-start))
                 layer_count += 1
