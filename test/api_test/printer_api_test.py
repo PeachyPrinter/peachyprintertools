@@ -226,7 +226,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             status_call_back = None,
             max_lead_distance = self.default_config.dripper.max_lead_distance_mm,
             abort_on_error = True,
-            max_speed = self.default_config.options.draw_speed
+        max_speed = self.default_config.options.draw_speed
             )
 
     def test_print_can_be_stopped_before_started(self):
