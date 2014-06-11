@@ -478,7 +478,11 @@ class FileBasedConfigurationManager(ConfigurationManager):
         new_printer_config = ConfigurationGenerator().default_configuration()
         new_printer_config.name = printer_name
         return new_printer_config
-
+        
+    def remove(self, printer_name):
+        filename = self._get_file_name(printer_name)
+    	os.remove(filename)
+    
     def _path(self):
         if not os.path.exists(config.PEACHY_PATH):
             os.makedirs(config.PEACHY_PATH)

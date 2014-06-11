@@ -11,6 +11,9 @@ class ConfigurationManager(object):
 
     def new(self, printer_name):
         raise NotImplementedException("Abstract Class")
+        
+    def remove(self, printer_name):
+        raise NotImplementedException("Abstract Class")
 
     def get_current_config(self):
         raise NotImplementedException("Abstract Class")

@@ -60,6 +60,9 @@ class ConfigurationAPI(object):
     def add_printer(self, name):
         self._current_config = self._configuration_manager.new(name)
         self.save()
+        
+    def remove_printer(self, name):
+    	self._current_config = self._configuration_manager.remove(name)
 
     '''Loads a previous configured printer by name'''
     def load_printer(self, name):

@@ -34,6 +34,7 @@ class SetupUI(PeachyFrame):
         Button(self,text=u"Setup Drip Calibration", command=self._drip_calibration).grid(column=1,row=40,sticky=NSEW)
         Button(self,text=u"Setup Calibration", command=self._calibration).grid(column=1,row=50,sticky=NSEW)
         Button(self,text=u"Run Cure Test", command=self._cure_test).grid(column=1,row=60,sticky=NSEW)
+        Button(self,text=u"Delete Selected Printer", command=self._Delete_Config).grid(column=1,row=90,sticky=NSEW)
         Label(self).grid(column=0,row=70)
         Button(self,text=u"Back", command=self._back).grid(column=0,row=100)
 
@@ -46,6 +47,9 @@ class SetupUI(PeachyFrame):
 
     def _add_printer(self):
         self.navigate(AddPrinterUI)
+        
+    def _Delete_Config(self):
+        self.navigate(DeleteSelectedConfig, printer = self._current_printer)
 
     def _setup_options(self):
         self.navigate(SetupOptionsUI, printer = self._current_printer)
@@ -81,12 +85,16 @@ class AddPrinterUI(PeachyFrame):
         Label(self).grid(column=1,row=20)
 
         Button(self, text ="Save", command = self._save).grid(column=1,row=30, sticky=N+S+E)
+        Button(self,text=u"Cancel", command=self._back).grid(column=0,row=100)
 
         self.update()
 
     def _save(self):
         printer_name = self._printer_name.get()
         self._configuration_api.add_printer(printer_name)
+        self.navigate(SetupUI)
+        
+    def _back(self):
         self.navigate(SetupUI)
 
     def close(self):
@@ -469,6 +477,29 @@ class CureTestUI(PeachyFrame):
             self.navigate(PrintStatusUI,layer_generator = cure_test, config = self._configuration_api.get_current_config(), calling_class = CureTestUI, printer = self._current_printer)
         except Exception as ex:
             tkMessageBox.showwarning("Error", ex.message)
+
+    def close(self):
+        pass
+    
+class DeleteSelectedConfig(PeachyFrame):
+    def initialize(self):
+        self.grid()
+
+	self._current_printer = self.kwargs['printer']
+	self._configuration_api = ConfigurationAPI(self._configuration_manager)
+	
+
+	Label(self, text = self._current_printer).grid(column=1,row=10)
+	Button(self, text ="Do not delete", command = self._back).grid(column=1,row=110)
+	Button(self, text ="Yes, delete" , command = self._remove_printer).grid(column=1,row=120)
+
+    def _back(self):
+        self.navigate(SetupUI)
+
+    def _remove_printer(self):
+	printer_name = self._current_printer
+	self._configuration_api.remove_printer(printer_name)
+	self.navigate(SetupUI)
 
     def close(self):
         pass
