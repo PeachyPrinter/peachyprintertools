@@ -18,8 +18,12 @@ class SetupUI(PeachyFrame):
             self._configuration_api.add_printer("Peachy Printer")
         available_printers = self._configuration_api.get_available_printers() 
 
-        printer_selection_current.set(available_printers[0])
-        self._printer_selected(available_printers[0])
+        if 'printer' in self.kwargs.keys():
+            printer = self.kwargs['printer']
+        else:
+            printer = available_printers[0]
+        printer_selection_current.set(printer)
+        self._printer_selected(printer)
         printer_selection_menu = OptionMenu(
             self,
             printer_selection_current, 
@@ -281,7 +285,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._configuration_api.reset_drips()
 
     def _back(self):
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def _help(self):
         PopUp(self,'Help', help_text.setup_drip_calibration_help)
