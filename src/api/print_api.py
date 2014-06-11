@@ -123,6 +123,8 @@ class PrintAPI(object):
         self.print_gcode(g_code_file_like_object, dry_run = True)
 
     def stop(self):
+        if self.zaxis:
+            self.zaxis.stop()   #Work around for windows not closing.
         if self._controller:
             self._controller.stop()
         else:
