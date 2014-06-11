@@ -26,7 +26,8 @@ class CalibrationAPI(object):
             'Square' : SquareGenerator(),
             'Circle' : CircleGenerator(),
             'Spiral' : SpiralGenerator(),
-            'Memory Hourglass' : MemoryHourglassGenerator()
+            'Memory Hourglass' : MemoryHourglassGenerator(),
+            'Damping Test' : DampingTestGenerator(),
             }
         self._current_generator = self._point_generator
 

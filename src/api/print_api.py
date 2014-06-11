@@ -16,8 +16,9 @@ from infrastructure.commander import SerialCommander, NullCommander
 '''TODO'''
 class PrintAPI(object):
     def __init__(self, configuration, status_call_back = None):
-        logging.info("Print API Startup")
+        logging.info('Print API Startup')
         self._configuration = configuration
+        logging.info('Printer Name: %s' % self._configuration.name)
         self._controller = None
         self._status_call_back = status_call_back
 

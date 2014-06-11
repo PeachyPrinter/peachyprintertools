@@ -169,7 +169,7 @@ class Controller(threading.Thread,):
         self._abort_current_command = True
         while not self._pausing:
             time.sleep(0.01)
-        self.state.set_state([0,0,0],100)
+        self.state.set_state([0.0,0.0,1.0],100)
         self._layer_generator = layer_generator
         self._pausing = False
 
@@ -192,7 +192,7 @@ class Controller(threading.Thread,):
                     time.sleep(0.01)
                 self._pausing = False
                 layer = self._layer_generator.next()
-                logging.info("Layer Generator Time: %.2f" % (time.time()-start))
+                logging.debug('Layer Generator Time: %.2f' % (time.time()-start))
                 layer_count += 1
                 self._status.add_layer()
                 self._status.set_model_height(layer.z)
@@ -203,15 +203,15 @@ class Controller(threading.Thread,):
                 if self._should_process(ahead_by):
                     self._process_layer(layer)
                 else:
-                    logging.warning("Dripping too fast, Skipping layer")
+                    logging.warning('Dripping too fast, Skipping layer')
                     self._status.skipped_layer()
-                logging.info("Layer Total Time: %.2f" % (time.time()-start))
+                logging.debug("Layer Total Time: %.2f" % (time.time()-start))
             except StopIteration:
                 logging.info('Layers Complete')
                 self._shutting_down = True
             except Exception as ex:
                 self._status.add_error(MachineError(str(ex),layer_count))
-                logging.error(ex)
+                logging.error('Unexpected Error: %s' % str(ex))
                 if self._abort_on_error:
                     self._terminate()
 

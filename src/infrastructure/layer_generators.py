@@ -153,6 +153,21 @@ class SquareGenerator(TestLayerGenerator):
         layer.commands.append(LateralDraw([-self._radius,-self._radius],[-self._radius, self._radius], self._speed))
         return layer
 
+class DampingTestGenerator(TestLayerGenerator):
+    def __init__(self, speed = 100.0, radius = 20.0):
+        self.set_speed(speed)
+        self.set_radius(radius)
+
+    def next(self):
+        layer = Layer(0.0)
+        layer.commands.append(LateralMove([ 0.0         , self._radius ],[ -self._radius,  self._radius ], self._speed))
+        layer.commands.append(LateralMove([-self._radius, self._radius ],[ -self._radius,  0.0          ], self._speed * 100))
+        layer.commands.append(LateralDraw([-self._radius, 0.0          ],[  self._radius,  0.0          ], self._speed))
+        layer.commands.append(LateralMove([ self._radius, 0.0          ],[  self._radius, -self._radius ], self._speed))
+        layer.commands.append(LateralMove([ self._radius,-self._radius ],[  0.0         , -self._radius ], self._speed * 100))
+        layer.commands.append(LateralDraw([ 0.0         ,-self._radius ],[  0.0         ,  self._radius ], self._speed))
+        return layer
+
 import math
 class CircleGenerator(TestLayerGenerator):
     def __init__(self, speed = 100.0, radius = 20.0, steps = 20):

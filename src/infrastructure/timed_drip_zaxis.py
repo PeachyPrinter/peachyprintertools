@@ -2,6 +2,7 @@ import threading
 import time
 import math
 from domain.zaxis import ZAxis
+import logging
 
 class TimedDripZAxis(ZAxis, threading.Thread):
     def __init__(self, 
@@ -55,6 +56,9 @@ class TimedDripZAxis(ZAxis, threading.Thread):
             delta = time.time() - start
             time.sleep(max(0, self._time_to_wait - delta))
         self.shutdown = True
+
+    def move_to(self, height_mm):
+        logging.info('Ignoring move to %s' % height_mm)
 
     def stop(self):
         self.running = False
