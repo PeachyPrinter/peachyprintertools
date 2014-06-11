@@ -322,7 +322,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.wait_for_stream()
         self.adza.stop()
 
-        commander.send_command.assert_has_calls([call(expected_drip_off_command), call(expected_drip_off_command)])
+        commander.send_command.assert_has_calls([call(expected_drip_off_command)])
 
 
     def test_stop_should_call_commander_with_dripper_off_command(self, mock_PyAudio):

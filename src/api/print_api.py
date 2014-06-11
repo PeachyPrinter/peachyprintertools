@@ -55,7 +55,8 @@ class PrintAPI(object):
         laser_control = AudioModulationLaserControl(
             self._configuration.audio.output.sample_rate,
             self._configuration.audio.output.modulation_on_frequency,
-            self._configuration.audio.output.modulation_off_frequency
+            self._configuration.audio.output.modulation_off_frequency,
+            self._configuration.options.laser_offset
             )
         transformer = HomogenousTransformer(
             self._configuration.calibration.max_deflection,

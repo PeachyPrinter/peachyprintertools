@@ -24,12 +24,10 @@ class PyAudioSetupTests(unittest.TestCase, test_helpers.TestHelpers):
         mock_py_audio.get_default_output_device_info.return_value = self.output_info
         mock_py_audio.is_format_supported.return_value = True
         all_options = [
-                { 'sample_rate' : 44100, 'depth': '8 bit' },
                 { 'sample_rate' : 44100, 'depth': '16 bit' },
                 { 'sample_rate' : 44100, 'depth': '24 bit' },
                 { 'sample_rate' : 44100, 'depth': '32 bit' },
                 { 'sample_rate' : 44100, 'depth': '32 bit Floating Point' },
-                { 'sample_rate' : 48000, 'depth': '8 bit'},
                 { 'sample_rate' : 48000, 'depth': '16 bit' },
                 { 'sample_rate' : 48000, 'depth': '24 bit' },
                 { 'sample_rate' : 48000, 'depth': '32 bit' },

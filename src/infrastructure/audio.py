@@ -10,7 +10,6 @@ audio_formats = {
             '32 bit': pyaudio.paInt32,
             '24 bit': pyaudio.paInt24,
             '16 bit': pyaudio.paInt16,
-            '8 bit' : pyaudio.paInt8,
 }
 
 class AudioSetup(object):
