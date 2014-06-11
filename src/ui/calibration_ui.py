@@ -35,16 +35,16 @@ class CalibrationPoint(object):
 class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
     def initialize(self):
-        self._printer = self.kwargs['printer']
+        self._current_printer = self.kwargs['printer']
         self._zero = [0.5,0.5,0.0]
-        self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._printer )
+        self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._current_printer )
         self._current_selection = StringVar()
         self._current_selection.set('Center Point')
         
         self.grid()
 
         Label(self, text = 'Printer: ').grid(column=1,row=5)
-        Label(self, text = self._printer, width=30 ).grid(column=2,row=5)
+        Label(self, text = self._current_printer, width=30 ).grid(column=2,row=5)
         Button(self, text='?', command=self._help).grid(column=3, row=5,stick=N+E)
 
         Label(self).grid(column=1,row=7)
@@ -234,6 +234,7 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         elif self._current_selection.get() == 'Calibrate':
             self.calibration_frame.grid()
             self._calibrationAPI.show_point(self._zero)
+            self.calibration_fields['a_z'].focus()
         elif self._current_selection.get() == 'Calibrated Patterns':
             self.pattern_frame.grid()
             self._pattern_changed(self._current_pattern.get())
@@ -256,7 +257,7 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
     def _back_button_click(self):
         from ui.configuration_ui import SetupUI
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def close(self):
         if hasattr(self, '_calibrationAPI') and self._calibrationAPI:

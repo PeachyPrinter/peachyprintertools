@@ -87,7 +87,7 @@ class AddPrinterUI(PeachyFrame):
     def _save(self):
         printer_name = self._printer_name.get()
         self._configuration_api.add_printer(printer_name)
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = printer_name)
 
     def close(self):
         pass
@@ -180,7 +180,7 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_serial_on_command(self._serial_on_command.get())
         self._configuration_api.set_serial_off_command(self._serial_off_command.get())
 
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def close(self):
         pass
@@ -301,7 +301,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._configuration_api.set_emulated_drips_per_second(self._drips_per_second.get())
         self._configuration_api.stop_counting_drips()
         self._configuration_api.save()
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def close(self):
         self._configuration_api.stop_counting_drips()
@@ -368,7 +368,7 @@ class SetupAudioUI(PeachyFrame):
         return 0
 
     def _back(self):
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def _help(self):
         PopUp(self,'Help', help_text.setup_audio_help)
@@ -439,7 +439,7 @@ class CureTestUI(PeachyFrame):
         self.update()
 
     def _back(self):
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def _help(self):
         PopUp(self,'Help', help_text.cure_test_help)
