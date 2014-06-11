@@ -173,7 +173,7 @@ class Controller(threading.Thread,):
             time.sleep(0.01)
         self.state.set_state([0.0,0.0,1.0],100)
         self._layer_generator = layer_generator
-        self._pausing = False
+        self._pause = False
 
     def get_status(self):
         return self._status.status()
