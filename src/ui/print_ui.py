@@ -19,12 +19,17 @@ class PrintUI(PeachyFrame):
 
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._printer_selection_current = StringVar()
+
         if not self._configuration_api.get_available_printers():
             self._configuration_api.add_printer("Peachy Printer")
         available_printers = self._configuration_api.get_available_printers() 
 
-        self._printer_selection_current.set(available_printers[0])
-        self._printer_selected(available_printers[0])
+        if 'printer' in self.kwargs.keys():
+            printer = self.kwargs['printer']
+        else:
+            printer = available_printers[0]
+        self._printer_selection_current.set(printer)
+        self._printer_selected(printer)
 
         OptionMenu(self, self._printer_selection_current, *available_printers, command = self._printer_selected).grid(column=1,row=10,sticky=N+S+E+W)
         Label(self).grid(column=1,row=20)
@@ -95,7 +100,7 @@ class VerifyStatusUI(PeachyFrame):
         Label(self, text = "Errors" ).grid(column=0,row=70)
         Label(self, textvariable = self._errors ).grid(column=1,row=70)
 
-        Label(self).grid(column=0,row=70)
+        Label(self).grid(column=0,row=75)
         
         Button(self,textvariable=self._stop_button_text, command=self._stop_button_click).grid(column=2,row=80)
         Button(self,text="Show Errors", command=self._show_errors).grid(column=3,row=80)

@@ -206,6 +206,7 @@ class Controller(threading.Thread,):
                     self._process_layer(layer)
                 else:
                     logging.warning('Dripping too fast, Skipping layer')
+                    print ("Skipped at: %s" % time.time())
                     self._status.skipped_layer()
                 logging.debug("Layer Total Time: %.2f" % (time.time()-start))
             except StopIteration:
