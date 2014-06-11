@@ -361,6 +361,31 @@ class ControllerTests(unittest.TestCase):
 
         self.assertEquals(expected_model_height,actual)
 
+    def test_should_use_max_speed_if_provided(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        expected_speed = 2.0
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_layer_generator = mock_LayerGenerator.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_laser_control = mock_LaserControl.return_value
+        mock_layer_generator.next.return_value = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0], expected_speed + 100.0) ])
+        mock_path_to_audio.process.return_value = "SomeAudio"
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+        self.controller = Controller(
+            mock_laser_control,
+            mock_path_to_audio,
+            mock_audio_writer,
+            mock_layer_generator,
+            None,
+            max_speed = expected_speed
+            )
+        self.controller.start()
+        time.sleep(0.01)
+        self.controller.stop()
+
+        self.wait_for_controller()
+        mock_path_to_audio.process.assert_called_with([0.0,0.0,0.0],[2.0,2.0,0.0],2.0)
+
+
     def test_set_waiting_while_not_wating_for_z(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
