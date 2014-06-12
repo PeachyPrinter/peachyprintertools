@@ -135,8 +135,15 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         if self._drip_call_back:
             self._drip_call_back(drips,self.current_z_location_mm(),average_drips)
 
+    def reset(self):
+        self.drip_detector = DripDetector(self._sample_rate, self._call_back)
+        self._drips = 0
+
     def current_z_location_mm(self):
         return self._drips * 1.0 / self._drips_per_mm
+
+    def set_drips_per_mm(self, drips_per_mm):
+        self._drips_per_mm = drips_per_mm
 
     def move_to(self, height_mm):
         self._destination_height = height_mm
@@ -150,7 +157,6 @@ class AudioDripZAxis(ZAxis, threading.Thread):
             if self._dripping:
                 self._dripping = False
                 self._commander.send_command(self._dripper_off_command)
-
 
     def run(self):
         stream = self._get_stream()

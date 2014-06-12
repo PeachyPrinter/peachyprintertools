@@ -142,38 +142,19 @@ class ConfigurationAPI(object):
 
     # ------------------------------- Drip Setup --------------------------------------
 
-    '''Returns the current number of drips that have been counted'''
-    def get_drips(self):
-        return self._drip_detector.current_z_location_mm()
-
-    '''Records the current of drips'''
-    def mark_drips_at_target(self):
-        if self._target_height != None:
-            self._marked_drips = self.get_drips()
-            self._current_config.dripper.drips_per_mm = self.get_drips_per_mm() 
-        else:
-            raise Exception("Target height must be specified before marking end point")
-
-    '''Sets the target height that the drips will be marked at'''
-    def set_target_height(self,height_mm):
-        try:
-            if float(height_mm) > 0.0:
-                self._target_height = float(height_mm)
-            else:
-                raise Exception("Target height must be a positive numeric value")
-        except:
-            raise Exception("Target height must be a positive numeric value")
-
     '''Sets the drip count back to 0'''
     def reset_drips(self):
-        self._drip_detector.reset(0)
+        self._drip_detector.reset()
 
-    '''Does the math based on set_target_height and mark_drips_at_target to return the drips per mm'''
+    '''Returns Drips Per mm'''
     def get_drips_per_mm(self):
-        if self._marked_drips:
-            return self._marked_drips / self._target_height
-        else:
-            return self._current_config.dripper.drips_per_mm
+        return self._current_config.dripper.drips_per_mm
+
+    '''Sets Drips Per mm'''
+    def set_drips_per_mm(self, drips):
+        self._current_config.dripper.drips_per_mm = drips
+        if self._drip_detector:
+            self._drip_detector.set_drips_per_mm(drips)
 
     '''Turns on the counting of drips. Stop must be called to end this.'''
     def start_counting_drips(self, drip_call_back = None):

@@ -44,6 +44,22 @@ class TimedDripZaxisTests(unittest.TestCase):
         result = self.tdza.current_z_location_mm()
         self.tdza.stop()
         self.assertAlmostEquals(expected_mm, result, places = 0)
+
+    def test_cset_drips_per_mm_returns_the_new_correct_height(self):
+        original_drips_per_mm = 1
+        new_drips_per_mm = 0.1
+        
+        self.tdza = TimedDripZAxis(original_drips_per_mm, drips_per_second = 100)
+        start = time.time()
+        self.tdza.start()
+        while time.time() - start < 0.1:
+            time.sleep(0.01)
+        self.tdza.stop()
+        time.sleep(0.01)
+        original_result = self.tdza.current_z_location_mm()
+        self.tdza.set_drips_per_mm(new_drips_per_mm)
+        new_result = self.tdza.current_z_location_mm()
+        self.assertAlmostEquals(original_result * 10 , new_result, places = 1)
         
     # TODO: JT 2014-06-04 -> There is a windows specific bug with this I need to look at this on windows
     # def test_call_back_calls_back_at_correct_rate(self):

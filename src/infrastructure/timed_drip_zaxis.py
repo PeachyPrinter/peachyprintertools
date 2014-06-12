@@ -36,6 +36,9 @@ class TimedDripZAxis(ZAxis, threading.Thread):
     def get_drips_per_second(self):
         return self._drips_per_second
 
+    def set_drips_per_mm(self, drips_per_mm):
+        self._drips_per_mm = drips_per_mm
+
     def current_z_location_mm(self):
         current_time = time.time() - self.start_time
         height = (current_time * self._drips_per_second) / self._drips_per_mm
