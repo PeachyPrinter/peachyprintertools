@@ -271,9 +271,8 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         emulated_drips_per_mm_field.bind('<Key>', self._drips_per_mm_changed)
         emulated_drips_per_mm_field.bind('<FocusOut>', self._drips_per_mm_changed)
         # ---------------- Manual Dripper Frame Stop ----------------------------
-
-        Button(self,text=u"Save", command=self._save).grid(column=2,row=50,sticky=NSEW) 
-        Button(self,text=u"Back", command=self._back).grid(column=0,row=50,sticky=N+S+E+W)
+        Label(self).grid(column=0,row=45)
+        Button(self,text=u"Back", command=self._back, width=10).grid(column=0,row=50,sticky=N+S+W)
         
         ## destory Automaticness
         self._dripper_type_changed()
@@ -302,6 +301,10 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._configuration_api.reset_drips()
 
     def _back(self):
+        self._configuration_api.set_emulated_drips_per_second(self._drips_per_second.get())
+        self._configuration_api.set_drips_per_mm(self._drips_per_mm.get())
+        self._configuration_api.stop_counting_drips()
+        self._configuration_api.save()
         self.navigate(SetupUI, printer = self._current_printer)
 
     def _help(self):
@@ -315,14 +318,8 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
     def _drips_per_mm_changed(self, event):
         drips_per_mm = self._drips_per_mm.get()
-        self._configuration_api.set_drips_per_mm(drips_per_mm)
-
-    def _save(self):
-        self._configuration_api.set_emulated_drips_per_second(self._drips_per_second.get())
-        self._configuration_api.set_drips_per_mm(self._drips_per_mm.get())
-        self._configuration_api.stop_counting_drips()
-        self._configuration_api.save()
-        self.navigate(SetupUI, printer = self._current_printer)
+        if drips_per_mm > 0.0:
+            self._configuration_api.set_drips_per_mm(drips_per_mm)
 
     def close(self):
         self._configuration_api.stop_counting_drips()
