@@ -4,7 +4,7 @@ import logging
 from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.layer_generators import CureTestGenerator
-from infrastructure.commander import NullCommander
+from infrastructure.commander import NullCommander, SerialCommander
 
 '''Details the audio settings'''
 class AudioSetting(object):
@@ -194,17 +194,31 @@ class ConfigurationAPI(object):
             self._drip_detector.stop()
             self._drip_detector = None
 
+    '''Returns the configured Dripper Type'''
     def get_dripper_type(self):
         return self._current_config.dripper.dripper_type
 
+    '''Sets the configured Dripper Type'''
     def set_dripper_type(self,value):
         self._current_config.dripper.dripper_type = value
 
+    '''Gets the drips per second to be emulated'''
     def get_emulated_drips_per_second(self):
         return self._current_config.dripper.emulated_drips_per_second
 
+    '''Sets the drips per second to be emulated'''
     def set_emulated_drips_per_second(self, value):
         self._current_config.dripper.emulated_drips_per_second = value
+
+    def send_dripper_on_command(self):
+        if self._current_config.serial.on:
+            commander = SerialCommander(self._current_config.serial.port)
+            commander.send_command(self._current_config.serial.on_command)
+        else:
+            raise Exception("Serial port not enabled")
+
+    def send_dripper_off_command(self):
+        pass
 
 
     # ----------------------------- Cure Test Setup ------------------------------------
