@@ -118,8 +118,6 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self._min_buffer_time = self._min_buffer_size / self._sample_rate
         self._drips = 0
         self._destination_height = 0.0
-        self._dripping = False
-
 
         self.running = True
         self.shutdown = False
@@ -150,13 +148,9 @@ class AudioDripZAxis(ZAxis, threading.Thread):
 
     def _update_state(self):
         if self._destination_height >= self.current_z_location_mm():
-            if not self._dripping:
-                self._dripping = True
-                self._commander.send_command(self._dripper_on_command)
+            self._commander.send_command(self._dripper_on_command)
         else:
-            if self._dripping:
-                self._dripping = False
-                self._commander.send_command(self._dripper_off_command)
+            self._commander.send_command(self._dripper_off_command)
 
     def run(self):
         stream = self._get_stream()

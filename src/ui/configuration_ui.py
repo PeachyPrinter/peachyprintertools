@@ -246,11 +246,18 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Label(self.real_dripper_frame,textvariable=self._current_height_mm,  anchor=CENTER, justify=CENTER).grid(column=5,row=30,sticky=N+S+E+W)
 
         Label(self.real_dripper_frame).grid(column=1,row=40)
-        
-        Button(self.real_dripper_frame,text=u"Reset", command=self._reset).grid(column=0,row=50,sticky=N+S+E+W)
-        Button(self.real_dripper_frame,text=u"Calculate", command=self._calculate , justify=CENTER).grid(column=2,row=50, columnspan=3)
+
+        Button(self.real_dripper_frame,text="Reset", command=self._reset).grid(column=0,row=50,sticky=N+S+E+W)
+        Button(self.real_dripper_frame,text="Calculate", command=self._calculate , justify=CENTER).grid(column=2,row=50, columnspan=3)
 
         Label(self.real_dripper_frame).grid(column=1,row=60)
+
+        if self._configuration_api.get_serial_enabled:
+            Label(self.real_dripper_frame, text="Serial Dripper Tests").grid(column = 0, row = 65)
+            Button(self.real_dripper_frame, text="Turn On dripper", command=self._dripper_on).grid(column = 1, row = 65)
+            Button(self.real_dripper_frame, text="Turn Off dripper", command=self._dripper_off).grid(column = 2, row = 65)
+            Label(self.real_dripper_frame).grid(column=1,row=70)
+
 
         self.real_dripper_frame.grid_remove()
         # ---------------- Microphone Dripper Frame Stop -------------------------
@@ -274,9 +281,9 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Label(self).grid(column=0,row=45)
         Button(self,text=u"Back", command=self._back, width=10).grid(column=0,row=50,sticky=N+S+W)
         
-        ## destory Automaticness
-        self._dripper_type_changed()
         self.update()
+        self._dripper_type_changed()
+        
 
     def _dripper_type_changed(self):
         if self._dripper_type.get() == 'audio':
@@ -296,6 +303,12 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._drip_count.set(drips)
         self._current_height_mm.set('%.2F' % height)
         self._average_drips.set("%0.2f" % drips_per_second)
+
+    def _dripper_on(self):
+        self._configuration_api.send_dripper_on_command()
+
+    def _dripper_off(self):
+        self._configuration_api.send_dripper_off_command()
 
     def _reset(self):
         self._configuration_api.reset_drips()

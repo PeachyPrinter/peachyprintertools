@@ -39,6 +39,7 @@ class ConfigurationAPI(object):
         self._audio_setup = AudioSetup()
         self._drip_detector = None
         self._marked_drips = None
+        self._commander = None
 
     '''Returns the currently loaded printer name'''
     def current_printer(self):
@@ -158,6 +159,8 @@ class ConfigurationAPI(object):
 
     '''Turns on the counting of drips. Stop must be called to end this.'''
     def start_counting_drips(self, drip_call_back = None):
+        if self._current_config.serial.on:
+            self._commander = SerialCommander(self._current_config.serial.port)
         self._drip_detector = AudioDripZAxis(
             1,
             self._current_config.audio.input.sample_rate, 
@@ -171,6 +174,8 @@ class ConfigurationAPI(object):
 
     '''Turns off the counting of drips if counting'''
     def stop_counting_drips(self):
+        if self._commander:
+            self._commander.close()
         if self._drip_detector:
             self._drip_detector.stop()
             self._drip_detector = None
@@ -192,19 +197,16 @@ class ConfigurationAPI(object):
         self._current_config.dripper.emulated_drips_per_second = value
 
     def send_dripper_on_command(self):
-        if self._current_config.serial.on:
-            commander = SerialCommander(self._current_config.serial.port)
-            commander.send_command(self._current_config.serial.on_command)
+        if self._commander:
+            self._commander.send_command(self._current_config.serial.on_command)
         else:
-            raise Exception("Serial port not enabled")
+            raise Exception("Serial not Started")
 
     def send_dripper_off_command(self):
-        if self._current_config.serial.on:
-            commander = SerialCommander(self._current_config.serial.port)
-            commander.send_command(self._current_config.serial.off_command)
+        if self._commander:
+            self._commander.send_command(self._current_config.serial.off_command)
         else:
-            raise Exception("Serial port not enabled")
-
+            raise Exception("Serial not Started")
 
     # ----------------------------- Cure Test Setup ------------------------------------
     '''Returns a layer generator that can be used with the print API to print a cure test.'''

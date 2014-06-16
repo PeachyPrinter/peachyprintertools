@@ -450,13 +450,15 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load')
     @patch('infrastructure.commander.SerialCommander')
-    def test_send_dripper_on_command_should_raise_exceptions_if_serial_not_configured(self, mock_SerialCommander, mock_load):
+    @patch('api.configuration_api.AudioDripZAxis')
+    def test_send_dripper_on_command_should_raise_exceptions_if_serial_not_configured(self, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
         config.serial.on = False
         mock_load.return_value = config
 
         configuration_API.load_printer('Printer')
+        configuration_API.start_counting_drips()
         with self.assertRaises(Exception):
             configuration_API.send_dripper_on_command()
 
@@ -464,7 +466,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load')
     @patch('api.configuration_api.SerialCommander')
-    def test_send_dripper_on_command_should(self, mock_SerialCommander, mock_load):
+    @patch('api.configuration_api.AudioDripZAxis')
+    def test_send_dripper_on_command_should(self, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
         config.serial.on = True
@@ -474,6 +477,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         mock_serial_commander = mock_SerialCommander.return_value
 
         configuration_API.load_printer('Printer')
+        configuration_API.start_counting_drips()
         configuration_API.send_dripper_on_command()
 
         mock_SerialCommander.assert_called_with("COM1")
@@ -482,13 +486,15 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load')
     @patch('infrastructure.commander.SerialCommander')
-    def test_send_dripper_off_command_should_raise_exceptions_if_serial_not_configured(self, mock_SerialCommander, mock_load):
+    @patch('api.configuration_api.AudioDripZAxis')
+    def test_send_dripper_off_command_should_raise_exceptions_if_serial_not_configured(self, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
         config.serial.on = False
         mock_load.return_value = config
 
         configuration_API.load_printer('Printer')
+        configuration_API.start_counting_drips()
         with self.assertRaises(Exception):
             configuration_API.send_dripper_off_command()
 
@@ -496,7 +502,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load')
     @patch('api.configuration_api.SerialCommander')
-    def test_send_dripper_off_command_should(self, mock_SerialCommander, mock_load):
+    @patch('api.configuration_api.AudioDripZAxis')
+    def test_send_dripper_off_command_should(self, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
         config.serial.on = True
@@ -506,10 +513,30 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         mock_serial_commander = mock_SerialCommander.return_value
 
         configuration_API.load_printer('Printer')
+        configuration_API.start_counting_drips()
         configuration_API.send_dripper_off_command()
 
         mock_SerialCommander.assert_called_with("COM1")
         mock_serial_commander.send_command.assert_called_with("0")
+
+    @patch.object(ConfigurationManager, 'load')
+    @patch('api.configuration_api.SerialCommander')
+    @patch('api.configuration_api.AudioDripZAxis')
+    def test_stop_counting_drips_should_stop_serial(self, mock_Zaxis, mock_SerialCommander, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        config = self.default_config
+        config.serial.on = True
+        config.serial.port = "COM1"
+        config.serial.off_command = "0"
+        mock_load.return_value = config
+        mock_serial_commander = mock_SerialCommander.return_value
+
+        configuration_API.load_printer('Printer')
+        configuration_API.start_counting_drips()
+        configuration_API.stop_counting_drips()
+
+        mock_SerialCommander.assert_called_with("COM1")
+        mock_serial_commander.close.assert_called_with()
 
     # ----------------------------- General Setup --------------------------------------
 
