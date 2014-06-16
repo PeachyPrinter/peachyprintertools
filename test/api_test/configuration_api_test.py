@@ -480,6 +480,37 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         mock_serial_commander.send_command.assert_called_with("1")
 
 
+    @patch.object(ConfigurationManager, 'load')
+    @patch('infrastructure.commander.SerialCommander')
+    def test_send_dripper_off_command_should_raise_exceptions_if_serial_not_configured(self, mock_SerialCommander, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        config = self.default_config
+        config.serial.on = False
+        mock_load.return_value = config
+
+        configuration_API.load_printer('Printer')
+        with self.assertRaises(Exception):
+            configuration_API.send_dripper_off_command()
+
+        self.assertEquals(0, mock_SerialCommander.call_count)
+
+    @patch.object(ConfigurationManager, 'load')
+    @patch('api.configuration_api.SerialCommander')
+    def test_send_dripper_off_command_should(self, mock_SerialCommander, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        config = self.default_config
+        config.serial.on = True
+        config.serial.port = "COM1"
+        config.serial.off_command = "0"
+        mock_load.return_value = config
+        mock_serial_commander = mock_SerialCommander.return_value
+
+        configuration_API.load_printer('Printer')
+        configuration_API.send_dripper_off_command()
+
+        mock_SerialCommander.assert_called_with("COM1")
+        mock_serial_commander.send_command.assert_called_with("0")
+
     # ----------------------------- General Setup --------------------------------------
 
     @patch.object(ConfigurationManager, 'load' )

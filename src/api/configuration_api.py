@@ -199,7 +199,11 @@ class ConfigurationAPI(object):
             raise Exception("Serial port not enabled")
 
     def send_dripper_off_command(self):
-        pass
+        if self._current_config.serial.on:
+            commander = SerialCommander(self._current_config.serial.port)
+            commander.send_command(self._current_config.serial.off_command)
+        else:
+            raise Exception("Serial port not enabled")
 
 
     # ----------------------------- Cure Test Setup ------------------------------------
