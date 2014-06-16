@@ -18,8 +18,12 @@ class SetupUI(PeachyFrame):
             self._configuration_api.add_printer("Peachy Printer")
         available_printers = self._configuration_api.get_available_printers() 
 
-        printer_selection_current.set(available_printers[0])
-        self._printer_selected(available_printers[0])
+        if 'printer' in self.kwargs.keys():
+            printer = self.kwargs['printer']
+        else:
+            printer = available_printers[0]
+        printer_selection_current.set(printer)
+        self._printer_selected(printer)
         printer_selection_menu = OptionMenu(
             self,
             printer_selection_current, 
@@ -87,7 +91,7 @@ class AddPrinterUI(PeachyFrame):
     def _save(self):
         printer_name = self._printer_name.get()
         self._configuration_api.add_printer(printer_name)
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = printer_name)
 
     def close(self):
         pass
@@ -180,7 +184,7 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_serial_on_command(self._serial_on_command.get())
         self._configuration_api.set_serial_off_command(self._serial_off_command.get())
 
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def close(self):
         pass
@@ -207,15 +211,17 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         
         # ---------------- Microphone Dripper Frame Start -------------------------
-        self.update_drips_job = None
-        self.drips = 0
         self._drip_count = IntVar()
 
-        self.drips_per_mm_field_text = DoubleVar()
-        self.drips_per_mm_field_text.set(self._configuration_api.get_drips_per_mm())
+        self._drips_per_mm = DoubleVar()
+        self._drips_per_mm.set(self._configuration_api.get_drips_per_mm())
 
-        self._height_mm_entry = IntVar()
-        self._height_mm_entry.set(10)
+        self._target_height_mm = IntVar()
+        self._target_height_mm.set(100)
+
+        self._current_height_mm = StringVar()
+        self._current_height_mm.set(0)
+
 
         self._average_drips = StringVar()
         self._average_drips.set(0)
@@ -223,20 +229,28 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self.real_dripper_frame = LabelFrame(self, text="Microphone Dripper Setup", padx=5, pady=5)
         self.real_dripper_frame.grid(column=0,row=30, columnspan=3)
 
-        Label(self.real_dripper_frame,text='Drips', anchor="w").grid(column=0,row=20,sticky=N+S+E+W)
-        Label(self.real_dripper_frame,textvariable=self._drip_count,  anchor="w").grid(column=1,row=20,sticky=N+S+E+W)
-        Label(self.real_dripper_frame,text='Drips/Second (last 10 drips)', anchor="w").grid(column=0,row=25,sticky=N+S+E+W)
-        Label(self.real_dripper_frame,textvariable=self._average_drips,  anchor="w").grid(column=1,row=25,sticky=N+S+E+W)
-        Button(self.real_dripper_frame,text=u"Reset Counter", command=self._reset).grid(column=2,row=20,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,text='Drips', anchor=CENTER).grid(column=0,row=20,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,text='Drips/Second', anchor=CENTER).grid(column=1,row=20,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,text='Target Height(mm)', anchor=W,justify="right").grid(column=2,row=20,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,text="Drips/mm", anchor=W, justify="right").grid(column=4,row=20,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,text="Current Height(mm)", anchor=W, justify="right").grid(column=5,row=20,sticky=N+S+E+W)
 
-        Label(self.real_dripper_frame,text="End Height in Millimeters", anchor="w",justify="right").grid(column=0,row=30,sticky=N+S+E+W)
-        Entry(self.real_dripper_frame, width=5, justify="left", textvariable=self._height_mm_entry, validate = 'key', validatecommand=self.validate_int_command()).grid(column=1,row=30,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,textvariable=self._drip_count,  anchor=CENTER, justify=CENTER).grid(column=0,row=30,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,textvariable=self._average_drips,  anchor=CENTER, justify=CENTER).grid(column=1,row=30,sticky=N+S+E+W)
+        Entry(self.real_dripper_frame, width=5, justify=LEFT, textvariable=self._target_height_mm, validate = 'key').grid(column=2,row=30,sticky=N+S+E+W)
+        Label(self.real_dripper_frame,text=" -> ", anchor=W, justify=RIGHT).grid(column=3,row=30,sticky=N+S+E+W)
+        dripper_drips_per_mm_field = Entry(self.real_dripper_frame,textvariable=self._drips_per_mm)
+        dripper_drips_per_mm_field.grid(column=4,row=30,sticky=N+S+E+W)
+        dripper_drips_per_mm_field.bind('<Key>', self._drips_per_mm_changed)
+        dripper_drips_per_mm_field.bind('<FocusOut>', self._drips_per_mm_changed)
+        Label(self.real_dripper_frame,textvariable=self._current_height_mm,  anchor=CENTER, justify=CENTER).grid(column=5,row=30,sticky=N+S+E+W)
 
-        Label(self.real_dripper_frame,text="Drips per mm", anchor="w", justify="right").grid(column=0,row=40,sticky=N+S+E+W)
-        Label(self.real_dripper_frame,textvariable=self.drips_per_mm_field_text, anchor="w").grid(column=1,row=40,sticky=N+S+E+W)
-        Button(self.real_dripper_frame,text=u"Mark", command=self._mark).grid(column=2,row=40,sticky=N+S+E+W)
+        Label(self.real_dripper_frame).grid(column=1,row=40)
+        
+        Button(self.real_dripper_frame,text=u"Reset", command=self._reset).grid(column=0,row=50,sticky=N+S+E+W)
+        Button(self.real_dripper_frame,text=u"Calculate", command=self._calculate , justify=CENTER).grid(column=2,row=50, columnspan=3)
 
-        Label(self.real_dripper_frame).grid(column=1,row=45)
+        Label(self.real_dripper_frame).grid(column=1,row=60)
 
         self.real_dripper_frame.grid_remove()
         # ---------------- Microphone Dripper Frame Stop -------------------------
@@ -250,10 +264,15 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         Label(self.fake_dripper_frame, text="Drips per second").grid(column=1,row=10)
         Entry(self.fake_dripper_frame, textvariable=self._drips_per_second).grid(column=2,row=10)
-        # ---------------- Manual Dripper Frame Stop ----------------------------
 
-        Button(self,text=u"Save", command=self._save).grid(column=2,row=50,sticky=NSEW) 
-        Button(self,text=u"Back", command=self._back).grid(column=0,row=50,sticky=N+S+E+W)
+        Label(self.fake_dripper_frame, text="Drips per mm").grid(column=1,row=20)
+        emulated_drips_per_mm_field = Entry(self.fake_dripper_frame, textvariable=self._drips_per_mm)
+        emulated_drips_per_mm_field.grid(column=2,row=20,sticky=N+S+E+W)
+        emulated_drips_per_mm_field.bind('<Key>', self._drips_per_mm_changed)
+        emulated_drips_per_mm_field.bind('<FocusOut>', self._drips_per_mm_changed)
+        # ---------------- Manual Dripper Frame Stop ----------------------------
+        Label(self).grid(column=0,row=45)
+        Button(self,text=u"Back", command=self._back, width=10).grid(column=0,row=50,sticky=N+S+W)
         
         ## destory Automaticness
         self._dripper_type_changed()
@@ -275,33 +294,32 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
     def _drips_updated(self, drips, height, drips_per_second):
         self._drip_count.set(drips)
+        self._current_height_mm.set('%.2F' % height)
         self._average_drips.set("%0.2f" % drips_per_second)
 
     def _reset(self):
         self._configuration_api.reset_drips()
 
     def _back(self):
-        self.navigate(SetupUI)
+        self._configuration_api.set_emulated_drips_per_second(self._drips_per_second.get())
+        self._configuration_api.set_drips_per_mm(self._drips_per_mm.get())
+        self._configuration_api.stop_counting_drips()
+        self._configuration_api.save()
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def _help(self):
         PopUp(self,'Help', help_text.setup_drip_calibration_help)
 
-    def _mark(self):
-        try:
-            self._configuration_api.set_target_height(self._height_mm_entry.get())
-            self._configuration_api.mark_drips_at_target()
-            self.drips_per_mm_field_text.set(self._configuration_api.get_drips_per_mm())
-        except Exception as ex:
-            tkMessageBox.showwarning(
-            "Error",
-            ex.message
-        )
+    def _calculate(self):
+        if self._drip_count.get() > 0:
+            drips_per_mm = (self._drip_count.get() * 1.0) / (self._target_height_mm.get() * 1.0)
+            self._configuration_api.set_drips_per_mm(drips_per_mm)
+            self._drips_per_mm.set(drips_per_mm)
 
-    def _save(self):
-        self._configuration_api.set_emulated_drips_per_second(self._drips_per_second.get())
-        self._configuration_api.stop_counting_drips()
-        self._configuration_api.save()
-        self.navigate(SetupUI)
+    def _drips_per_mm_changed(self, event):
+        drips_per_mm = self._drips_per_mm.get()
+        if drips_per_mm > 0.0:
+            self._configuration_api.set_drips_per_mm(drips_per_mm)
 
     def close(self):
         self._configuration_api.stop_counting_drips()
@@ -368,7 +386,7 @@ class SetupAudioUI(PeachyFrame):
         return 0
 
     def _back(self):
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def _help(self):
         PopUp(self,'Help', help_text.setup_audio_help)
@@ -439,7 +457,7 @@ class CureTestUI(PeachyFrame):
         self.update()
 
     def _back(self):
-        self.navigate(SetupUI)
+        self.navigate(SetupUI, printer = self._current_printer)
 
     def _help(self):
         PopUp(self,'Help', help_text.cure_test_help)

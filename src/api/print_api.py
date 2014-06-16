@@ -16,10 +16,12 @@ from infrastructure.commander import SerialCommander, NullCommander
 '''TODO'''
 class PrintAPI(object):
     def __init__(self, configuration, status_call_back = None):
-        logging.info("Print API Startup")
+        logging.info('Print API Startup')
         self._configuration = configuration
+        logging.info('Printer Name: %s' % self._configuration.name)
         self._controller = None
         self._status_call_back = status_call_back
+        self._zaxis = None
 
     def print_gcode(self, file_like_object, print_sub_layers = True, dry_run = False):
         gcode_reader = GCodeReader(file_like_object)
@@ -71,7 +73,7 @@ class PrintAPI(object):
             )
         if dry_run:
             audio_writer = None
-            self.zaxis = None
+            self._zaxis = None
             zaxis_control = None
             abort_on_error = False
         else:
@@ -79,7 +81,7 @@ class PrintAPI(object):
                 self._configuration.audio.output.sample_rate, 
                 self._configuration.audio.output.bit_depth,
                 )
-            self.zaxis = self._get_zaxis()
+            self._zaxis = self._get_zaxis()
             abort_on_error = True
 
         self._controller = Controller(
@@ -87,10 +89,11 @@ class PrintAPI(object):
             path_to_audio,
             audio_writer,
             layer_generator,
-            zaxis = self.zaxis,
+            zaxis = self._zaxis,
             status_call_back = self._status_call_back,
             max_lead_distance = self._configuration.dripper.max_lead_distance_mm,
-            abort_on_error = abort_on_error
+            abort_on_error = abort_on_error,
+            max_speed = self._configuration.options.draw_speed
             )
         self._controller.start()
 
@@ -98,21 +101,21 @@ class PrintAPI(object):
         return self._controller.get_status()
 
     def can_set_drips_per_second(self):
-        if getattr(self.zaxis, 'set_drips_per_second', False):
+        if getattr(self._zaxis, 'set_drips_per_second', False):
             return True
         else:
             return False
 
     def set_drips_per_second(self, drips_per_second):
-        if getattr(self.zaxis, 'set_drips_per_second', False):
-            self.zaxis.set_drips_per_second(drips_per_second)
+        if getattr(self._zaxis, 'set_drips_per_second', False):
+            self._zaxis.set_drips_per_second(drips_per_second)
         else:
-            logging.error('Cannot change drips per second on %s' % type(self.zaxis))
-            raise Exception('Cannot change drips per second on %s' % type(self.zaxis))
+            logging.error('Cannot change drips per second on %s' % type(self._zaxis))
+            raise Exception('Cannot change drips per second on %s' % type(self._zaxis))
 
     def get_drips_per_second(self):
-        if getattr(self.zaxis, 'get_drips_per_second'):
-            return self.zaxis.get_drips_per_second()
+        if getattr(self._zaxis, 'get_drips_per_second'):
+            return self._zaxis.get_drips_per_second()
         else:
             logging.warning("Drips per second requested but does not exist")
             return 0.0
@@ -121,6 +124,8 @@ class PrintAPI(object):
         self.print_gcode(g_code_file_like_object, dry_run = True)
 
     def stop(self):
+        if self._zaxis:
+            self._zaxis.stop()   #Work around for windows not closing.
         if self._controller:
             self._controller.stop()
         else:

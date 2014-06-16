@@ -79,6 +79,7 @@ class PeachyFrame(Frame):
     def __init__(self, parent, configuration_manager, **kwargs):
         logging.info("Peachy Frame kwargs: %s" % kwargs)
         Frame.__init__(self, parent)
+        self.config(padx = 5, pady =5)
         self.parent = parent
         self.kwargs = kwargs
         self.parent.protocol("WM_DELETE_WINDOW", self.quit)

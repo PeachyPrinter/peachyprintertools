@@ -347,24 +347,6 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
     @patch.object(AudioDripZAxis, 'start')
-    @patch.object(AudioDripZAxis, 'current_z_location_mm')
-    def test_get_drips_should_return_correct_number_of_drips(self, mock_current_z_location_mm,mock_start,mock_load,mock_save):
-        
-        fake_drip_counter = 77
-        mock_current_z_location_mm.return_value = fake_drip_counter 
-
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = self.default_config
-        configuration_API.load_printer('printer')
-
-        configuration_API.start_counting_drips()
-        result = configuration_API.get_drips()
-
-        self.assertEquals(fake_drip_counter, result)
-
-    @patch.object(ConfigurationManager, 'save')
-    @patch.object(ConfigurationManager, 'load')
-    @patch.object(AudioDripZAxis, 'start')
     @patch.object(AudioDripZAxis, 'reset')
     def test_drip_calibration_should_call_reset_when_reset_requested(self, mock_reset,mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
@@ -374,52 +356,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         configuration_API.start_counting_drips()
         configuration_API.reset_drips()
 
-        mock_reset.assert_called_with(0)
-        
-    def test_set_target_height_should_work_for__positive_numbers(self):
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-
-        configuration_API.set_target_height(10.0)
-        configuration_API.set_target_height(10)
-
-    def test_set_target_height_should_throw_when_0_or_below(self):
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        
-        with self.assertRaises(Exception):
-            configuration_API.set_target_height(0.0)
-
-    def test_set_target_height_should_throw_when_not_numeric(self):
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        
-        with self.assertRaises(Exception):
-            configuration_API.set_target_height('a')
-
-    def test_mark_drips_at_target_should_throw_when_target_not_specified(self):
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        
-        with self.assertRaises(Exception):
-            configuration_API.mark_drips_at_target()
-
-    @patch.object(ConfigurationManager, 'save')
-    @patch.object(ConfigurationManager, 'load')
-    @patch.object(AudioDripZAxis, 'start')
-    @patch.object(AudioDripZAxis, 'current_z_location_mm')
-    def test_mark_drips_should_when_target_specified(self, mock_current_z_location_mm, mock_start,mock_load,mock_save):
-        fake_drip_counter = 70
-        target_height = 10.0
-        expected_drips_per_mm = fake_drip_counter / target_height
-        
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        mock_load.return_value = self.default_config
-        configuration_API.load_printer('printer')
-        mock_current_z_location_mm.return_value = fake_drip_counter
-        
-        configuration_API.start_counting_drips()
-        configuration_API.set_target_height(target_height)
-        configuration_API.mark_drips_at_target()
-
-        self.assertEquals(expected_drips_per_mm, configuration_API.get_drips_per_mm())
-        self.assertFalse(mock_save.called)
+        mock_reset.assert_called_with()
 
     @patch('api.configuration_api.AudioDripZAxis')
     @patch.object(ConfigurationManager, 'save' )
@@ -444,7 +381,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         )
 
     @patch.object(ConfigurationManager, 'load')
-    def test_get_drips_per_mm_should_return_current_setting_if_unmarked(self, mock_load):
+    def test_get_drips_per_mm_should_return_current_setting(self, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
 
@@ -454,6 +391,20 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertEquals(self.default_config.dripper.drips_per_mm, actual)
 
+    @patch.object(ConfigurationManager, 'load')
+    @patch('api.configuration_api.AudioDripZAxis')
+    def test_set_drips_per_mm_should_overwrite_current_setting_and_update_zaxis(self, mock_AudioDripZAxis , mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        mock_load.return_value = self.default_config
+        mock_audiodripzaxis = mock_AudioDripZAxis.return_value
+        expected = 6534.0
+
+        configuration_API.load_printer('Printer')
+        configuration_API.start_counting_drips()
+        configuration_API.set_drips_per_mm(expected)
+        configuration_API.stop_counting_drips()
+
+        mock_audiodripzaxis.set_drips_per_mm.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_dripper_type_should_return_current_type(self, mock_load):

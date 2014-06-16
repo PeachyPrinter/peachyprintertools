@@ -26,7 +26,8 @@ class CalibrationAPI(object):
             'Square' : SquareGenerator(),
             'Circle' : CircleGenerator(),
             'Spiral' : SpiralGenerator(),
-            'Memory Hourglass' : MemoryHourglassGenerator()
+            'Memory Hourglass' : MemoryHourglassGenerator(),
+            'Damping Test' : DampingTestGenerator(),
             }
         self._current_generator = self._point_generator
 
@@ -54,13 +55,14 @@ class CalibrationAPI(object):
             self._laser_control,
             self._path_to_audio,
             self._audio_writer,
-            self._current_generator,
+            self._current_generator
             )
         self.make_pattern_fit()
         self._controller.start()
 
     '''Used to show a single point with no calibration applied'''
     def show_point(self,xyz = [0.5,0.5,0.5]):
+        logging.info('Showing point')
         x,y,z = xyz
         self._point_generator.xy = [x,y]
         if (self._current_generator != self._point_generator):
@@ -69,6 +71,7 @@ class CalibrationAPI(object):
 
     '''Used to show a blinking point with no calibration applied used for aligning on and off laser posisition'''
     def show_blink(self,xyz = [0.5,0.5,0.0]):
+        logging.info('Showing blink')
         x,y,z = xyz
         self._blink_generator.xy = [x,y]
         if (self._current_generator != self._blink_generator):
@@ -77,8 +80,25 @@ class CalibrationAPI(object):
 
     '''Used to show a single line on one axis used to line up calibration grid'''
     def show_line(self):
+        logging.info('Showing line')
         self._unapply_calibration()
         self._update_generator(self._alignment_generator)
+
+    '''Used to show a test pattern with calibration applied'''
+    def show_test_pattern(self,pattern):
+        logging.info('Showing test pattern %s' % pattern)
+        if pattern in self._test_patterns.keys():
+            self._apply_calibration()
+            self._update_generator(self._test_patterns[pattern])
+        else:
+            logging.error('Pattern: %s does not exist' % pattern)
+            raise Exception('Pattern: %s does not exist' % pattern)
+
+    '''Shows the scale square'''
+    def show_scale(self):
+        logging.info('Showing scale')
+        self._unapply_calibration()
+        self._update_generator(self._scale_generator)
 
     def get_max_deflection(self):
         return self._configuration.calibration.max_deflection
@@ -102,23 +122,9 @@ class CalibrationAPI(object):
         self._laser_control.set_offset(laser_offset)
         self._save()
 
-    '''Used to show a test pattern with calibration applied'''
-    def show_test_pattern(self,pattern):
-        if pattern in self._test_patterns.keys():
-            self._apply_calibration()
-            self._update_generator(self._test_patterns[pattern])
-        else:
-            logging.error('Pattern: %s does not exist' % pattern)
-            raise Exception('Pattern: %s does not exist' % pattern)
-
     '''Changes the speed at which the test pattern is drawn in mm/sec'''
     def set_test_pattern_speed(self,speed):
         [ pattern.set_speed(speed) for pattern in self._test_patterns.values() ]
-
-    '''Shows the scale square'''
-    def show_scale(self):
-        self._unapply_calibration()
-        self._update_generator(self._scale_generator)
 
     '''returns a list of test patterns'''
     def get_test_patterns(self):

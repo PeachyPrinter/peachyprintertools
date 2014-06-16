@@ -274,6 +274,36 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.assertAlmostEquals(55.3, self.drips_per_second, places =1)
         self.assertEqual(1, self.adza.current_z_location_mm())
 
+    def test_should_be_able_to_set_drips_per_mm(self,mock_PyAudio):
+        mock_pyaudio = self.setup_mock(mock_PyAudio)
+
+        original_drips_per_mm = 1
+        new_drips_per_mm = 0.1
+        sample_rate = 48000
+        bit_depth = '16 bit'
+        self.adza = AudioDripZAxis(original_drips_per_mm,sample_rate,bit_depth,NullCommander(),'','')
+        self.adza.set_drips_per_mm(new_drips_per_mm)
+        
+        self.adza.start()
+        self.wait_for_stream()
+        self.adza.stop()
+
+        self.assertEqual(10.0, self.adza.current_z_location_mm())
+
+    def test_reset_should_set_drips_to_0(self,mock_PyAudio):
+        mock_pyaudio = self.setup_mock(mock_PyAudio)
+
+        drips_per_mm = 1
+        sample_rate = 48000
+        bit_depth = '16 bit'
+        self.adza = AudioDripZAxis(drips_per_mm,sample_rate,bit_depth,NullCommander(),'','')        
+        self.adza.start()
+        self.wait_for_stream()
+        self.adza.stop()
+        self.adza.reset()
+
+        self.assertEqual(0.0, self.adza.current_z_location_mm())
+
     def test_move_to_should_call_commander_with_dripper_on_command(self, mock_PyAudio):
         mock_pyaudio = self.setup_mock(mock_PyAudio)
 
@@ -324,7 +354,6 @@ class AudioDripZAxisTests(unittest.TestCase, ):
 
         commander.send_command.assert_has_calls([call(expected_drip_off_command)])
 
-
     def test_stop_should_call_commander_with_dripper_off_command(self, mock_PyAudio):
         mock_pyaudio = self.setup_mock(mock_PyAudio)
 
@@ -349,5 +378,6 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.adza.stop()
 
         commander.send_command.assert_called_with(expected_drip_off_command)
+
 if __name__ == '__main__':
     unittest.main()
