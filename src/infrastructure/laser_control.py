@@ -14,7 +14,7 @@ class AudioModulationLaserControl(LaserControl):
         self._x_offset, self._y_offset = offset
         logging.info("Laser Control: Modulation On: %s" % on_frequency )
         logging.info("Laser Control: Modulation Off: %s" % off_frequency )
-        logging.info("Laser Offset: %2.f, %2.f" % (self._x_offset,self._y_offset))
+        logging.info("Laser Offset: %2.3f, %2.3f" % (self._x_offset,self._y_offset))
         if sampling_rate % on_frequency != 0:
             raise Exception("The on_frequency must divide evenly into sampling_rate")
         if sampling_rate % off_frequency != 0:
