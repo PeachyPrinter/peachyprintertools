@@ -239,6 +239,30 @@ class MemoryHourglassGenerator(TestLayerGenerator):
             last = scaled_point
         return layer
 
+class NESWGenerator(TestLayerGenerator):
+    def __init__(self, speed = 100.0, radius = 20.0):
+        self.set_speed(speed)
+        self.set_radius(radius)
+        self.path =  [
+                 ('m',[-0.1, 0.8]),('d',[-0.1, 1.0]),('d',[ 0.1, 0.8]),('d',[ 0.1, 1.0]),   #N
+                 ('m',[ 1.0, 0.1]),('d',[ 0.8, 0.1]),('d',[ 0.8, 0.0]),('d',[ 0.9, 0.0]),('d',[ 0.8, 0.0]),('d',[ 0.8,-0.1]),('d',[ 1.0,-0.1]),   #E
+                 ('m',[ 0.1,-0.8]),('d',[-0.1,-0.8]),('d',[-0.1,-0.9]),('d',[ 0.1,-0.9]),('d',[ 0.1,-1.0]),('d',[-0.1,-1.0]),   #S
+                 ('m',[-0.8, 0.1]),('d',[-0.8,-0.1]),('d',[-0.9, 0.0]),('d',[-1.0,-0.1]),('d',[-1.0, 0.1])   #W
+                ]
+
+    def next(self):
+        layer = Layer(0.0)
+        last = [ a * self._radius for a in self.path[1][-1:][0] ]
+        for (k, point) in self.path:
+            print(point)
+            scaled_point = [ a * self._radius for a in point ]
+            if k == 'd':
+                layer.commands.append(LateralDraw(last,scaled_point, self._speed))
+            else:
+                layer.commands.append(LateralMove(last,scaled_point, self._speed))
+            last = scaled_point
+        return layer
+
 class CureTestGenerator(LayerGenerator):
     def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height):
         base_height = float(base_height)

@@ -28,6 +28,7 @@ class CalibrationAPI(object):
             'Spiral' : SpiralGenerator(),
             'Memory Hourglass' : MemoryHourglassGenerator(),
             'Damping Test' : DampingTestGenerator(),
+            'NESW' : NESWGenerator(),
             }
         self._current_generator = self._point_generator
 
