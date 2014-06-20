@@ -29,6 +29,7 @@ class CalibrationAPI(object):
             'Memory Hourglass' : MemoryHourglassGenerator(),
             'Damping Test' : DampingTestGenerator(),
             'NESW' : NESWGenerator(),
+            'Twitch' : TwitchGenerator(),
             }
         self._current_generator = self._point_generator
 

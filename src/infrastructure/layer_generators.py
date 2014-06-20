@@ -239,6 +239,24 @@ class MemoryHourglassGenerator(TestLayerGenerator):
             last = scaled_point
         return layer
 
+class TwitchGenerator(TestLayerGenerator):
+    def __init__(self, speed = 100.0, radius = 20.0):
+        self.set_speed(speed)
+        self.set_radius(radius)
+        self.path =  [
+                 [ 0.625 ,  1.000 ], [  0.625 ,  0.500 ], [  0.125,  0.125 ], [  0.625, -0.500 ], [  0.625, -1.000 ], 
+                 [ 1.000,  -0.625 ], [  0.500,  -0.625 ], [ -0.125, -0.125 ], [ -0.500, -0.625 ], [ -1.000, -0.625 ], 
+                ]
+
+    def next(self):
+        layer = Layer(0.0)
+        last = [ a * self._radius for a in self.path[-1:][0] ]
+        for point in self.path:
+            scaled_point = [ a * self._radius for a in point ]
+            layer.commands.append(LateralDraw(last,scaled_point, self._speed))
+            last = scaled_point
+        return layer
+
 class NESWGenerator(TestLayerGenerator):
     def __init__(self, speed = 100.0, radius = 20.0):
         self.set_speed(speed)
