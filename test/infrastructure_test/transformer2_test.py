@@ -95,7 +95,7 @@ class LaserTest(unittest.TestCase,TestHelp):
         #Assert
         self.assertProjectiveCoordinatesEqual(expected_target_point1, laser.fire(1.0))
 
-    def test_should_throw_exception_laser_axis_is_parrell_to_point_at(self):
+    def test_should_throw_exception_when_laser_axis_is_parallel_to_point_at(self):
         #Setup
         laser_posisition = np.matrix([0.0,0.0,1.0,1.0])
         point_at = np.matrix([1.0,0.0,1.0,1.0])
