@@ -4,19 +4,19 @@ from math import cos, sin,acos,asin, atan, tan, pi
 np.seterr(all='raise')
 
 class Laser(object):
-    def __init__(self,laser_posisition, point_at):
-        self.laser_posisition=laser_posisition
+    def __init__(self,position, point_at):
+        self.position=position
         self.point_at=point_at
 
     def _current_y_slope(self):
-        return  (self.laser_posisition[0,1] - self.point_at[0,1]) / (self.laser_posisition[0,2] - self.point_at[0,2]) 
+        return  (self.position[0,1] - self.point_at[0,1]) / (self.position[0,2] - self.point_at[0,2]) 
 
     def _current_x_slope(self):
-        return (self.laser_posisition[0,0] - self.point_at[0,0]) /(self.laser_posisition[0,2] - self.point_at[0,2])
+        return (self.position[0,0] - self.point_at[0,0]) /(self.position[0,2] - self.point_at[0,2])
 
     def fire(self,z):
-        x =  self.laser_posisition[0,0] - (self.laser_posisition[0,2]  - z) * self._current_x_slope()
-        y =  self.laser_posisition[0,1] - (self.laser_posisition[0,2]  - z) * self._current_y_slope()
+        x =  self.position[0,0] - (self.position[0,2]  - z) * self._current_x_slope()
+        y =  self.position[0,1] - (self.position[0,2]  - z) * self._current_y_slope()
         return np.matrix([x,y,z,1])
 
 class Mirror(object):
@@ -57,22 +57,49 @@ class Galvo(object):
         pass
 
     def pos(self,signal):
-        return atan(signal)
+        return signal * pi / 8
 
 class PeachyPrinter(object):
-    def __init__(self,galvo1,galvo2,mirror1,mirror2,real_laser):
+    def __init__(self,mirror1,mirror2,real_laser):
         self._mirror1 = mirror1
         self._mirror2 = mirror2
         self._laser = real_laser
 
     def write(self,deflection1, deflection2, real_height_z):
-        position_1 = self._mirror1.reflect(self._laser.laser_position, deflection1)
+        position_1 = self._mirror1.reflect(self._laser.position, deflection1)
         look_at_1 = self._mirror1.reflect(self._laser.point_at,deflection1)
         phantom_laser1 = Laser(position_1,look_at_1)
 
-        position_2 = self._mirror2.reflect(phantom_laser1.laser_position, deflection2)
+        position_2 = self._mirror2.reflect(phantom_laser1.position, deflection2)
         look_at_2 = self._mirror2.reflect(phantom_laser1.point_at, deflection2)
         phantom_laser2 = Laser(position_2,look_at_2)
 
         return phantom_laser2.fire(real_height_z)
         
+
+class PeachyPrinterFactory(object):
+    def __init__(self):
+        pass
+
+    def new_peachy_printer(self):
+        galvo1 = Galvo()
+        galvo2 = Galvo()
+        mirror1 = Mirror(np.matrix([15.0,18.0,-70,1.0]),np.matrix([-1.0,1.0,0.0,0.0]),np.matrix([0.0,0.0,1.0,0.0]),galvo1.pos)
+        mirror2 = Mirror(np.matrix([15.0,18.0,-70,1.0]),np.matrix([0.0,-1.0,-1.0,0.0]),np.matrix([1.0,0.0,0.0,0.0]),galvo2.pos)
+        laser = Laser(np.matrix([-3.0,17.0,-70.0,1.0]), np.matrix([0.0,17.0,-70.0,1.0]))
+        return PeachyPrinter(mirror1, mirror2, laser)
+
+from Tkinter import *
+if __name__ == '__main__':
+    ppf = PeachyPrinterFactory()
+    pp = ppf.new_peachy_printer()
+    points = [ pp.write(i/100.0,i/100.0,-300).tolist()[0] for i in range(-100,100)] 
+    master = Tk()
+    w = Canvas(master, width=1600, height=800)
+    w.pack()
+    w.create_line(0, 400, 1600 ,400, fill="white",width=1)
+    w.create_line(800, 0, 800 ,800, fill="white",width=1)
+    for point in points:
+        w.create_line(point[0]+800, point[1]+401, point[0]+801 ,point[1]+400, fill="red",width=2)
+
+    mainloop()
