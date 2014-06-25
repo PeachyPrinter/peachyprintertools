@@ -4,6 +4,7 @@ import datetime
 import logging
 
 from domain.commands import *
+from transformer2 import MagicPrinter
 
 import time
 
@@ -130,8 +131,11 @@ class Controller(threading.Thread,):
                     max_lead_distance = sys.float_info.max, 
                     abort_on_error=True,
                     max_speed = None,
+                    magic = None
                     ):
         threading.Thread.__init__(self)
+        self.magic = magic
+        print("ASDF")
         self.deamon = True
         self._abort_on_error = abort_on_error
         self._max_lead_distance = max_lead_distance
@@ -254,6 +258,7 @@ class Controller(threading.Thread,):
         if self._max_speed and speed > self._max_speed:
             speed = self._max_speed
         to_xyz = [to_x,to_y,to_z]
+        self.magic.process(self.state.xyz,to_xyz,speed)
         path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
         modulated_path = self._laser_control.modulate(path)
         if self._audio_writer:

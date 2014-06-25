@@ -1,5 +1,6 @@
 import numpy as np
 from math import cos, sin,acos,asin, atan, tan, pi
+from math import atan as arctan
 
 np.seterr(all='raise')
 
@@ -76,6 +77,44 @@ class PeachyPrinter(object):
 
         return phantom_laser2.fire(real_height_z)
         
+from Tkinter import *
+import threading
+
+class MagicPrinter(object):
+    def __init__(self, parent):
+        print(str(parent))
+        # Tk.__init__(self,None)
+        self.width = 1600
+        self.height = 980
+        # self.laser = laser_control
+        self.pp = PeachyPrinterFactory().new_peachy_printer()
+        t = Toplevel(parent)
+        self.canvas = Canvas(t, width=self.width, height=self.height,)
+        self.canvas.create_line(0, self.height / 2, self.width ,self.height / 2 , fill="white",width=1)
+        self.canvas.create_line(self.width / 2, 0, self.width / 2 ,self.height, fill="white",width=1)
+        self.canvas.pack()
+        self.last = [0.0,0.0,0.0]
+
+        
+    def process(self,from_xyz,to_xyz,speed):
+        if self.last[2] != to_xyz[2]:
+            self.canvas.delete("all")
+            self.canvas.create_line(0, self.height / 2, self.width ,self.height / 2 , fill="white",width=1)
+            self.canvas.create_line(self.width / 2, 0, self.width / 2 ,self.height, fill="white",width=1)
+        # print('%s : %s' % (from_xyz, to_xyz))
+        _from = self.pp.write(self.last[0],self.last[1],self.last[2],).tolist()[0]
+        _to = self.pp.write(to_xyz[0],to_xyz[1],to_xyz[2]).tolist()[0]
+
+        x1 = _from[0]  + self.width / 2
+        y1 = _from[1]  + self.height / 2
+        x2 = _to[0]  + self.width / 2
+        y2 = _to[1]  + self.height / 2
+        # print('x: %s -> %s, y: %s -> %s' % (x1,y1,x2,y2))
+        self.canvas.create_line(x1, y1, x2, y2, fill="red",width=2)
+        self.canvas.pack()
+        self.last = to_xyz
+
+
 
 class PeachyPrinterFactory(object):
     def __init__(self):
@@ -93,13 +132,28 @@ from Tkinter import *
 if __name__ == '__main__':
     ppf = PeachyPrinterFactory()
     pp = ppf.new_peachy_printer()
-    points = [ pp.write(i/100.0,i/100.0,-300).tolist()[0] for i in range(-100,100)] 
+
     master = Tk()
     w = Canvas(master, width=1600, height=800)
     w.pack()
     w.create_line(0, 400, 1600 ,400, fill="white",width=1)
     w.create_line(800, 0, 800 ,800, fill="white",width=1)
-    for point in points:
-        w.create_line(point[0]+800, point[1]+401, point[0]+801 ,point[1]+400, fill="red",width=2)
+    
+    xr = [x / 50.0 for x in range(-50,0)]
+    yr = [y / 50.0 for y in range(-50,50)]
 
+    l = []
+
+    for x in xr:
+        p = []
+        for y in yr:
+            point  = pp.write(x,y,-300).tolist()[0]
+            p.append(((xr,yr),point[:2]))
+            w.create_line(point[0]+800, point[1]+401, point[0]+801 ,point[1]+400, fill="red",width=2)
+        l.append(p)
+
+    f = open('../../data.sage', 'w')
+    f.write("data ="),
+    f.write(str(l))
+    f.close()
     mainloop()

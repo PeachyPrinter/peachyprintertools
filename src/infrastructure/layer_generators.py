@@ -16,12 +16,14 @@ class SinglePointGenerator(LayerGenerator):
     def __init__(self, starting_xy = [0.0,0.0]):
         self.xy = starting_xy
         self.speed = 100.0
+        self.height = 0.0
 
     def set(self,xy):
         self.xy = xy
 
     def next(self):
-        layer = Layer(0.0)
+        self.height += 0.1
+        layer = Layer(self.height)
         layer.commands.append(LateralDraw(self.xy,self.xy,self.speed))
         return layer
 
@@ -108,11 +110,13 @@ class HilbertGenerator(TestLayerGenerator):
         self._last_xy = [0.0,0.0]
         self.set_speed(speed)
         self.set_radius(radius)
+        self.height = 0.0
 
     def next(self):
+        self.height += 0.1
         self._pattern = self._get_hilbert(self._order, [-self._radius,-self._radius], [self._radius,self._radius])
         logging.debug('Pattern: %s' % self._pattern)
-        layer = Layer(0.0)
+        layer = Layer(self.height)
         layer.commands.append(LateralMove(self._last_xy, self._pattern[0], self._speed))
         self._last_xy = self._pattern[0]
         for x,y in self._pattern[1:]:
@@ -175,9 +179,11 @@ class CircleGenerator(TestLayerGenerator):
         self.set_radius(radius)
         self._steps = steps
         self.last_xy = [0.0,0.0]
+        self.height = 0.0
 
     def next(self):
-        layer = Layer(0.0)
+        self.height += 0.1
+        layer = Layer(self.height)
         for point in self.points():
             layer.commands.append(LateralDraw(self.last_xy,point, self._speed))
             self.last_xy = point

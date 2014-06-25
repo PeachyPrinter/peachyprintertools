@@ -91,6 +91,14 @@ class PeachyFrame(Frame):
             tkMessageBox.showwarning( "Error",ex)
             raise ex
 
+    def find_root(self,start):
+        if hasattr(start,'parent') and start.parent != None:
+            return self.find_root(start.parent)
+        elif hasattr(start, 'master') and start.master != None:
+            return self.find_root(start.master)
+        else:
+            return start
+
     def navigate(self, next_frame , **kwargs):
         self.close()
         self.destroy()

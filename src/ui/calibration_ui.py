@@ -32,12 +32,15 @@ class CalibrationPoint(object):
         return  [float(self.actual_x.get()),float(self.actual_y.get()),float(self.actual_z.get())]
 
 
+from infrastructure.transformer2 import MagicPrinter
+
 class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
 
     def initialize(self):
         self._current_printer = self.kwargs['printer']
         self._zero = [0.5,0.5,0.0]
-        self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._current_printer )
+        self.magic = MagicPrinter(self.parent)
+        self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._current_printer, self.magic )
         self._current_selection = StringVar()
         self._current_selection.set('Center Point')
         

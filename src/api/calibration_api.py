@@ -10,7 +10,7 @@ from infrastructure.layer_generators import *
 
 '''The calibration API proivides the tools required to setup a Peacy Printer'''
 class CalibrationAPI(object):
-    def __init__(self, configuration_manager, printer):
+    def __init__(self, configuration_manager, printer, magic):
         logging.info("Calibartion API Startup")
         self._configuration_manager = configuration_manager
         self._printer = printer
@@ -53,12 +53,15 @@ class CalibrationAPI(object):
             self._configuration.audio.output.bit_depth,
             )
         self._current_generator = self._point_generator
+        print("Here")
         self._controller = Controller(
             self._laser_control,
             self._path_to_audio,
             self._audio_writer,
-            self._current_generator
+            self._current_generator,
+            magic = magic
             )
+        print("Here2")
         self.make_pattern_fit()
         self._controller.start()
 
