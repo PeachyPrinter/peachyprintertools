@@ -94,7 +94,6 @@ class MagicPrinter(object):
         self.canvas.create_line(self.width / 2, 0, self.width / 2 ,self.height, fill="white",width=1)
         self.canvas.pack()
         self.last = [0.0,0.0,0.0]
-
         
     def process(self,from_xyz,to_xyz,speed):
         if self.last[2] != to_xyz[2]:
@@ -116,9 +115,16 @@ class MagicPrinter(object):
 
 
 
+import numpy.random as rdm
 class PeachyPrinterFactory(object):
     def __init__(self):
         pass
+
+    def wrong(self,alist, millimeters=0.25):
+        for i in range(len(alist)-1):
+            alist[i] += millimeters*rdm.normal(1)
+
+        return np.matrix(alist)
 
     def new_peachy_printer(self):
         galvo1 = Galvo()
@@ -128,32 +134,33 @@ class PeachyPrinterFactory(object):
         laser = Laser(np.matrix([-3.0,17.0,-70.0,1.0]), np.matrix([0.0,17.0,-70.0,1.0]))
         return PeachyPrinter(mirror1, mirror2, laser)
 
+    def new_peachy_printer_with_err(self):
+        galvo1 = Galvo()
+        galvo2 = Galvo()
+        mirror1 = Mirror(self.wrong([15.0,18.0,-70,1.0]),self.wrong([-1.0,1.0,0.0,0.0]),self.wrong([0.0,0.0,1.0,0.0]),galvo1.pos)
+        mirror2 = Mirror(self.wrong([15.0,23.0,-70,1.0]),self.wrong([0.0,-1.0,-1.0,0.0]),self.wrong([1.0,0.0,0.0,0.0]),galvo2.pos)
+        laser = Laser(self.wrong([-3.0,17.0,-70.0,1.0]), self.wrong([0.0,17.0,-70.0,1.0]))
+        return PeachyPrinter(mirror1, mirror2, laser)
+
 from Tkinter import *
 if __name__ == '__main__':
     ppf = PeachyPrinterFactory()
-    pp = ppf.new_peachy_printer()
 
     master = Tk()
     w = Canvas(master, width=1600, height=800)
     w.pack()
     w.create_line(0, 400, 1600 ,400, fill="white",width=1)
     w.create_line(800, 0, 800 ,800, fill="white",width=1)
-    
-    xr = [x / 50.0 for x in range(-50,0)]
-    yr = [y / 50.0 for y in range(-50,50)]
+    colors = ["red","blue","yellow","pink","brown"]
+    for b in range(0,100):
+        pp = ppf.new_peachy_printer_with_err()
+        rangerx  = 10
+        rangery  = 10
+        xr = [x / (rangerx * 1.0) for x in range(-rangerx,rangerx)]
+        yr = [y / (rangery * 1.0) for y in range(-rangery,rangery)]
+        for x in xr:
+            for y in yr:
+                point  = pp.write(x,y,-300).tolist()[0]
+                w.create_line(point[0]+800, point[1]+401, point[0]+801 ,point[1]+400, fill="blue", width=3)
 
-    l = []
-
-    for x in xr:
-        p = []
-        for y in yr:
-            point  = pp.write(x,y,-300).tolist()[0]
-            p.append(((xr,yr),point[:2]))
-            w.create_line(point[0]+800, point[1]+401, point[0]+801 ,point[1]+400, fill="red",width=2)
-        l.append(p)
-
-    f = open('../../data.sage', 'w')
-    f.write("data ="),
-    f.write(str(l))
-    f.close()
     mainloop()
