@@ -194,21 +194,31 @@ class Spike(Tk):
         self.width = 1200
         self.height = 800
         self.master = Tk()
-        self.canvas = Canvas(self.master, width=1600, height=800)
+        self.canvas = Canvas(self.master, width=1600, height=800, background='black')
         self.canvas.pack()
         self.canvas.create_line(0, 400, 1600 ,400, fill="white",width=1)
         self.canvas.create_line(800, 0, 800 ,800, fill="white",width=1)
-        self.pp = self.ppf.new_peachy_printer_with_err()
+        self.pp = self.ppf.new_peachy_printer()
         self.transformer = self._get_transformer(self.pp)
         self.show_approximations()
 
 
     def _get_transformer(self, printer):
         deflection_points = [
-        [-1.0, 1.0],[ 0.0, 1.0],[ 1.0, 1.0],[-1.0, 0.0],[ 0.0, 0.0],
-        [ 1.0, 0.0],[-1.0, -1.0],[ 0.0, -1.0],[ 1.0, -1.0],[0.5, 0.5],
-        # [0.25, 0.25],[-0.25, 0.25],[-0.25, -0.25],[0.25, -0.25],
+        # [-0.3,0.2],[-0.1,0.2],[0.1,0.2],[0.3,0.2],
+        # [-0.3,0.0],[-0.1,0.0],[0.1,0.0],[0.3,0.0],
+        # [-0.3,-0.2],[-0.1,-0.2],[0.1,-0.2],[0.3,-0.2],
+        [ 0.3, 0.3 ],[-0.3,  0.3],[ -0.3,  -0.3], [0.3,  -0.3],
+        [ 0.1, 0.3 ],[-0.1,  0.3],[ -0.1,  -0.3], [0.1,  -0.3],
+        [ 0.3, 0.1 ],[-0.3,  0.1],[ -0.3,  -0.1], [0.3,  -0.1],
+        [ 0.1, 0.1 ],[-0.1,  0.1],[ -0.1,  -0.1], [0.1,  -0.1],
         ]
+
+        deflection_points = [ [x * 2.0 ,y * 2.0] for (x,y) in deflection_points ]
+        # deflection_points = [ [rdm.normal(1) *0.6,rdm.normal(1) * 0.6] for i in range(0,12) ]
+
+        for point in deflection_points:
+            self.canvas.create_line(self.xscale(point[0]),self.yscale(point[1]),self.xscale(point[0]) + 1,self.yscale(point[1]) + 1,fill="green", width=5)
 
         calibration_map = [(np.array(printer.write(point[0],point[1],-300))[0].tolist()[:2], point ) for point in deflection_points ]
         return SpikeTransfomer(calibration_map)
@@ -227,10 +237,10 @@ class Spike(Tk):
         for x in xr:
             for y in yr:
                 there = self.pp.write(x,y,-300).tolist()[0]
-                self.canvas.create_line(self.xscale(x),         self.yscale(y),         self.xscale(x) + 1,         self.yscale(y) + 1,         fill="blue", width=5)
+                self.canvas.create_line(self.xscale(x),         self.yscale(y),         self.xscale(x) + 1,         self.yscale(y) + 1,         fill="blue", width=2)
                 back = self.transformer.transform(there)
                 print('%s :=> %s' % (str((x,y)), back))
-                self.canvas.create_line(self.xscale(back[0]),   self.yscale(back[1]),   self.xscale(back[0]) + 1,   self.yscale(back[1]) + 1,   fill="red", width=5)
+                self.canvas.create_line(self.xscale(back[0]),   self.yscale(back[1]),   self.xscale(back[0]) + 1,   self.yscale(back[1]) + 1,   fill="red", width=2)
 
 
 from Tkinter import *
