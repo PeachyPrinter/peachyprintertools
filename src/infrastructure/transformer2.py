@@ -1,6 +1,12 @@
 import numpy as np
 from math import cos, sin,acos,asin, atan, tan, pi
 from math import atan as arctan
+import sys,os
+
+sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
+
+from domain.transformer import Transformer
+
 
 np.seterr(all='raise')
 
@@ -113,8 +119,6 @@ class MagicPrinter(object):
         self.canvas.pack()
         self.last = to_xyz
 
-
-
 import numpy.random as rdm
 class PeachyPrinterFactory(object):
     def __init__(self):
@@ -142,25 +146,68 @@ class PeachyPrinterFactory(object):
         laser = Laser(self.wrong([-3.0,17.0,-70.0,1.0]), self.wrong([0.0,17.0,-70.0,1.0]))
         return PeachyPrinter(mirror1, mirror2, laser)
 
-from Tkinter import *
-if __name__ == '__main__':
-    ppf = PeachyPrinterFactory()
+class SpikeTransfomer(Transformer):
+    def __init__(self, points):
+        pass
 
-    master = Tk()
-    w = Canvas(master, width=1600, height=800)
-    w.pack()
-    w.create_line(0, 400, 1600 ,400, fill="white",width=1)
-    w.create_line(800, 0, 800 ,800, fill="white",width=1)
-    colors = ["red","blue","yellow","pink","brown"]
-    for b in range(0,100):
-        pp = ppf.new_peachy_printer_with_err()
+    def transform(self,xyz):
+        return xyz[:2]
+
+
+class Spike(Tk):
+    def __init__(self):
+        Tk.__init__(self,None)
+        self.ppf = PeachyPrinterFactory()
+        self.width = 1200
+        self.height = 800
+        self.master = Tk()   
+        self.canvas = Canvas(self.master, width=1600, height=800)
+        self.canvas.pack()
+        self.canvas.create_line(0, 400, 1600 ,400, fill="white",width=1)
+        self.canvas.create_line(800, 0, 800 ,800, fill="white",width=1)
+        self.pp = self.ppf.new_peachy_printer_with_err()
+        self.transformer = self._get_transformer(self.pp)
+        self.show_approximations()
+
+
+    def _get_transformer(self, printer):
+        deflection_points = [
+        [-1.0, 1.0],
+        [ 0.0, 1.0],
+        [ 1.0, 1.0],
+        [-1.0, 0.0],
+        [ 0.0, 0.0],
+        [ 1.0, 0.0],
+        [-1.0, -1.0],
+        [ 0.0, -1.0],
+        [ 1.0, -1.0],
+        [0.5, 0.5],
+        ]
+
+        calibration_map = [(point, printer.write(point[0],point[1],-300)[:2] ) for point in deflection_points ]
+        return SpikeTransfomer(calibration_map)
+
+    def xscale(self,x):
+        return (x * self.width / 2) + self.width / 2
+
+    def yscale(self,y):
+        return (y * self.height / 2) + self.height /2
+
+    def show_approximations(self):
         rangerx  = 10
         rangery  = 10
         xr = [x / (rangerx * 1.0) for x in range(-rangerx,rangerx)]
         yr = [y / (rangery * 1.0) for y in range(-rangery,rangery)]
         for x in xr:
             for y in yr:
-                point  = pp.write(x,y,-300).tolist()[0]
-                w.create_line(point[0]+800, point[1]+401, point[0]+801 ,point[1]+400, fill="blue", width=3)
+                there = self.pp.write(x,y,-300).tolist()[0]
+                self.canvas.create_line(self.xscale(x),         self.yscale(y),         self.xscale(x) + 1,         self.yscale(y) + 1,         fill="blue", width=2)
+                back = self.transformer.transform(there)
+                self.canvas.create_line(self.xscale(back[0]),   self.yscale(back[1]),   self.xscale(back[0]) + 1,   self.yscale(back[1]) + 1,   fill="red", width=2)
 
-    mainloop()
+
+
+from Tkinter import *
+if __name__ == '__main__':
+    app = Spike()
+    app.mainloop()
