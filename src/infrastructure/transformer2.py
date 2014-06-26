@@ -1,6 +1,5 @@
 import numpy as np
 from math import *
-from math import atan as arctan
 import sys,os
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
@@ -153,38 +152,39 @@ class SpikeTransfomer(Transformer):
 
     def __init__(self, points):
         self.calibration_points = points
+        print(points)
+
         self.monomial = [
-        lambda x,y : x**3,  lambda x,y : x**2*y,   lambda x,y : x*y**2,   lambda x,y : y**3,
-        lambda x,y : x**2,  lambda x,y : x*y,       lambda x,y : y**2,
-        lambda x,y : x,  lambda x,y : y,
-        lambda x,y : 1
-    ]
-        print(np.array(points))
-        target_d1 = []
-        target_d2 = []
+        lambda x,y,z : z**2, lambda x,y,z : z,
+        lambda x,y,z : y**2, lambda x,y,z : y,
+        lambda x,y,z : x**2, lambda x,y,z : x,
+        lambda x,y,z : 1.0
+        ]
+        
+        target = []
         rows = []
-        for ((x,y),(d1,d2)) in self.calibration_points:
-            target_d1.append(d1)
-            target_d2.append(d2)
-            rows.append([ f(x,y) for f in self.monomial ])
+
+        for ((x,y,z),(d1,d2)) in self.calibration_points:
+            target.append(1.0)
+            rows.append([ f(x,y,z) for f in self.monomial ])
 
         coeffecient_matrix = np.matrix(rows)
-        target_vector_d1 = np.array(target_d1)
-        target_vector_d2 = np.array(target_d2)
+        coeffecient_vector = np.linalg.lstsq(coeffecient_matrix, np.array(target))[0]
 
-        coeffecient_vector_d1 = np.linalg.lstsq(coeffecient_matrix, target_vector_d1)[0]
-        coeffecient_vector_d2 = np.linalg.lstsq(coeffecient_matrix, target_vector_d2)[0]
+        self.b = coeffecient_vector[3] / 2
+        self.c = coeffecient_vector[1] / 2
 
-        print(coeffecient_vector_d1)
+        print ('cv: %s' % coeffecient_vector)
 
-
-        transform_d1 = lambda x,y : sum( [ m * a(x,y) for (m,a) in zip(coeffecient_vector_d1, self.monomial)] )
-        transform_d2 = lambda x,y : sum( [ m * a(x,y) for (m,a) in zip(coeffecient_vector_d2, self.monomial)] )
-
-        self.transformit = lambda x,y : [ transform_d1(x,y), transform_d2(x,y) ]
+        
+    def transformit(self,x,y,z):
+        g = (y - self.b) / (z - self.c)
+        return asinh( g )
 
     def transform(self,xyz):
-        return self.transformit(*xyz[:2])
+        result = self.transformit(*xyz[:3])
+
+        return (xyz[0], result, xyz[2])
 
 
 class Spike(Tk):
@@ -208,19 +208,17 @@ class Spike(Tk):
         # [-0.3,0.2],[-0.1,0.2],[0.1,0.2],[0.3,0.2],
         # [-0.3,0.0],[-0.1,0.0],[0.1,0.0],[0.3,0.0],
         # [-0.3,-0.2],[-0.1,-0.2],[0.1,-0.2],[0.3,-0.2],
-        [ 0.3, 0.3 ],[-0.3,  0.3],[ -0.3,  -0.3], [0.3,  -0.3],
-        [ 0.1, 0.3 ],[-0.1,  0.3],[ -0.1,  -0.3], [0.1,  -0.3],
-        [ 0.3, 0.1 ],[-0.3,  0.1],[ -0.3,  -0.1], [0.3,  -0.1],
-        [ 0.1, 0.1 ],[-0.1,  0.1],[ -0.1,  -0.1], [0.1,  -0.1],
+        [ 0.5, -1.0 ],[0.5, -0.5],[ 0.5, 0.0], [0.5, 0.5],[ 0.5, 1.0 ]
+        # [ 0.1, 0.1 ],[-0.1,  0.1],[ -0.1,  -0.1], [0.1,  -0.1],
         ]
 
-        deflection_points = [ [x * 2.0 ,y * 2.0] for (x,y) in deflection_points ]
+        # deflection_points = [ [x * 2.0 ,y * 2.0] for (x,y) in deflection_points ]
         # deflection_points = [ [rdm.normal(1) *0.6,rdm.normal(1) * 0.6] for i in range(0,12) ]
 
-        for point in deflection_points:
-            self.canvas.create_line(self.xscale(point[0]),self.yscale(point[1]),self.xscale(point[0]) + 1,self.yscale(point[1]) + 1,fill="green", width=5)
+        # for point in deflection_points:
+            # self.canvas.create_line(self.xscale(point[0]),self.yscale(point[1]),self.xscale(point[0]) + 1,self.yscale(point[1]) + 1,fill="green", width=5)
 
-        calibration_map = [(np.array(printer.write(point[0],point[1],-300))[0].tolist()[:2], point ) for point in deflection_points ]
+        calibration_map =  [ [(np.array(printer.write(point[0],point[1],z))[0].tolist()[:3], point ) for point in deflection_points ][0] for z in [ -250,-300 ] ]
         return SpikeTransfomer(calibration_map)
 
     def xscale(self,x):
@@ -230,15 +228,15 @@ class Spike(Tk):
         return (y * ((self.height - 10)  / 2)) + (self.height +10) / 2
 
     def show_approximations(self):
-        rangerx  = 6
+        rangerx  = 0
         rangery  = 6
-        xr = [x / (rangerx * 1.0) for x in range(-rangerx,rangerx + 1)]
+        xr = [0.5 for x in range(-rangerx,rangerx + 1)]
         yr = [y / (rangery * 1.0) for y in range(-rangery,rangery + 1)]
         for x in xr:
             for y in yr:
                 there = self.pp.write(x,y,-300).tolist()[0]
                 self.canvas.create_line(self.xscale(x),         self.yscale(y),         self.xscale(x) + 1,         self.yscale(y) + 1,         fill="blue", width=2)
-                back = self.transformer.transform(there)
+                back = self.transformer.transform([x,y,-300])
                 print('%s :=> %s' % (str((x,y)), back))
                 self.canvas.create_line(self.xscale(back[0]),   self.yscale(back[1]),   self.xscale(back[0]) + 1,   self.yscale(back[1]) + 1,   fill="red", width=2)
 
