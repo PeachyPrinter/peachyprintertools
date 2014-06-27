@@ -157,44 +157,44 @@ class SpikeTransfomer(Transformer):
             lambda x,y : x,  lambda x,y : y,
             lambda x,y : 1
         ]
-        # print(np.array(points))
+        
+        xbend, ybend, coeffecient_vector_d1, coeffecient_vector_d2 = self._get_best_bends(points,monomial)
 
-        best_bend = (0, 99999999999999999999999999999999999.0)
-        for i in range(0, 101):
-            xbend = i / 100.0
-            (coeffecient_vector_d1, error_d1), coeffecient_vector_d2 = self._get_co_vectors(points, monomial,xbend )
-            print("ERRORS: %s" % error_d1)
-            if best_bend[1] > error_d1:
-                best_bend = (i / 100.0, error_d1, coeffecient_vector_d1,coeffecient_vector_d2)
-
-        xbend, error_d1, coeffecient_vector_d1, coeffecient_vector_d2 = best_bend
-
-
-        transform_d1 = lambda x,y : sum( [ m * a(self._x_tweak(x,xbend),self._y_tweak(y) ) for (m,a) in zip(coeffecient_vector_d1, monomial)] )
-        transform_d2 = lambda x,y : sum( [ m * a(self._x_tweak(x,xbend),self._y_tweak(y) ) for (m,a) in zip(coeffecient_vector_d2, monomial)] )
+        transform_d1 = lambda x,y : sum( [ m * a(self._x_tweak(x,xbend),self._y_tweak(y,ybend) ) for (m,a) in zip(coeffecient_vector_d1, monomial)] )
+        transform_d2 = lambda x,y : sum( [ m * a(self._x_tweak(x,xbend),self._y_tweak(y,ybend) ) for (m,a) in zip(coeffecient_vector_d2, monomial)] )
 
         self.transformit = lambda x,y : [ transform_d1(x,y), transform_d2(x,y) ]
         self.go = True
 
-    # def _get_best_x_bend(self,points,monomial)
+    def _get_best_bends(self,points,monomial):
+        best_bend = (0, 0, 0 , 0,99999999999999999999999999999999999.0)
+        for y in range(0, 101):
+            for x in range(0, 101):
+                xbend = x / 100.0
+                ybend = y / 100.0
+                (coeffecient_vector_d1, error_d1), (coeffecient_vector_d2 , error_d2)= self._get_co_vectors(points, monomial,xbend,ybend )
+                error = error_d1 + error_d2
+                if best_bend[4] > error:
+                    best_bend = (x / 100.0, y / 100.0, coeffecient_vector_d1,coeffecient_vector_d2, error)
+        return best_bend[:4]
 
-    def _get_co_vectors(self, points, monomial, xbend):
+    def _get_co_vectors(self, points, monomial, xbend,ybend):
         target_d1 = []
         target_d2 = []
         rows = []
         for ((x,y),(d1,d2)) in self.calibration_points:
             target_d1.append(d1)
             target_d2.append(d2)
-            rows.append([ f(self._x_tweak(x,xbend),self._y_tweak(y)) for f in monomial ])
+            rows.append([ f(self._x_tweak(x,xbend),self._y_tweak(y,ybend)) for f in monomial ])
 
 
         coeffecient_matrix = np.matrix(rows)
         target_vector_d1 = np.array(target_d1)
         target_vector_d2 = np.array(target_d2)
 
-        coeffecient_vector_d1 = np.linalg.lstsq(coeffecient_matrix, target_vector_d1)[:2]
-        coeffecient_vector_d2 = np.linalg.lstsq(coeffecient_matrix, target_vector_d2)[0]
-        return (coeffecient_vector_d1, coeffecient_vector_d2)
+        results_d1 = np.linalg.lstsq(coeffecient_matrix, target_vector_d1)[:2]
+        results_d2 = np.linalg.lstsq(coeffecient_matrix, target_vector_d2)[:2]
+        return (results_d1, results_d2)
 
     def _x_tweak(self,x,bend):
         size = 50.0
@@ -202,7 +202,7 @@ class SpikeTransfomer(Transformer):
         scale = 3.0*size
         return bend * (scale*atan((x-offset)/scale)) + (1.0-bend) * x 
 
-    def _y_tweak(self,y,bend = 0.0):
+    def _y_tweak(self,y,bend):
         size = 50.0
         offset=23.0
         scale = 3.0*size
