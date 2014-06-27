@@ -125,7 +125,7 @@ class PeachyPrinterFactory(object):
     def __init__(self):
         pass
 
-    def wrong(self,alist, millimeters=0.25):
+    def wrong(self,alist, millimeters=0.05):
         for i in range(len(alist)-1):
             alist[i] += millimeters*rdm.normal(1)
 
@@ -135,8 +135,8 @@ class PeachyPrinterFactory(object):
         galvo1 = Galvo()
         galvo2 = Galvo()
         mirror1 = Mirror(np.matrix([15.0,18.0,-70,1.0]),np.matrix([-1.0,1.0,0.0,0.0]),np.matrix([0.0,0.0,1.0,0.0]),galvo1.pos)
-        mirror2 = Mirror(np.matrix([15.0,18.0,-70,1.0]),np.matrix([0.0,-1.0,-1.0,0.0]),np.matrix([1.0,0.0,0.0,0.0]),galvo2.pos)
-        laser = Laser(np.matrix([-3.0,17.0,-70.0,1.0]), np.matrix([0.0,17.0,-70.0,1.0]))
+        mirror2 = Mirror(np.matrix([15.0,23.0,-70,1.0]),np.matrix([0.0,-1.0,-1.0,0.0]),np.matrix([1.0,0.0,0.0,0.0]),galvo2.pos)
+        laser = Laser(np.matrix([-3.0,18.0,-70.0,1.0]), np.matrix([0.0,18.0,-70.0,1.0]))
         return PeachyPrinter(mirror1, mirror2, laser)
 
     def new_peachy_printer_with_err(self):
@@ -148,43 +148,54 @@ class PeachyPrinterFactory(object):
         return PeachyPrinter(mirror1, mirror2, laser)
 
 class SpikeTransfomer(Transformer):
+    def _x_tweak(self,x):
+        size = 50.0
+        offset=15.0
+        bend = 0.5
+        scale = 3.0*size
+        return bend * (scale*atan((x-offset)/scale)) + (1.0-bend) * x 
 
+    def _y_tweak(self,y):
+        size = 50.0
+        offset=23.0
+        bend = 0.2
+        scale = 3.0*size
+        return bend * (scale*atan((y-offset)/scale)) + (1-bend) * y
 
     def __init__(self, points):
         self.calibration_points = points
-        print(points)
-
         self.monomial = [
-        lambda x,y,z : z**2, lambda x,y,z : z,
-        lambda x,y,z : y**2, lambda x,y,z : y,
-        lambda x,y,z : x**2, lambda x,y,z : x,
-        lambda x,y,z : 1.0
+            lambda x,y : x**3,  lambda x,y : x**2*y,   lambda x,y : x*y**2,   lambda x,y : y**3,
+            lambda x,y : x**2,  lambda x,y : x*y,       lambda x,y : y**2,
+            lambda x,y : x,  lambda x,y : y,
+            lambda x,y : 1
         ]
-        
-        target = []
+        print(np.array(points))
+        target_d1 = []
+        target_d2 = []
         rows = []
-
-        for ((x,y,z),(d1,d2)) in self.calibration_points:
-            target.append(1.0)
-            rows.append([ f(x,y,z) for f in self.monomial ])
+        for ((x,y),(d1,d2)) in self.calibration_points:
+            target_d1.append(d1)
+            target_d2.append(d2)
+            rows.append([ f(self._x_tweak(x),self._y_tweak(y)) for f in self.monomial ])
 
         coeffecient_matrix = np.matrix(rows)
-        coeffecient_vector = np.linalg.lstsq(coeffecient_matrix, np.array(target))[0]
+        target_vector_d1 = np.array(target_d1)
+        target_vector_d2 = np.array(target_d2)
 
-        self.b = coeffecient_vector[3] / 2
-        self.c = coeffecient_vector[1] / 2
+        coeffecient_vector_d1 = np.linalg.lstsq(coeffecient_matrix, target_vector_d1)[0]
+        coeffecient_vector_d2 = np.linalg.lstsq(coeffecient_matrix, target_vector_d2)[0]
 
-        print ('cv: %s' % coeffecient_vector)
+        print(coeffecient_vector_d1)
 
-        
-    def transformit(self,x,y,z):
-        g = (y - self.b) / (z - self.c)
-        return asinh( g )
+
+        transform_d1 = lambda x,y : sum( [ m * a(self._x_tweak(x),self._y_tweak(y) ) for (m,a) in zip(coeffecient_vector_d1, self.monomial)] )
+        transform_d2 = lambda x,y : sum( [ m * a(self._x_tweak(x),self._y_tweak(y) ) for (m,a) in zip(coeffecient_vector_d2, self.monomial)] )
+
+        self.transformit = lambda x,y : [ transform_d1(x,y), transform_d2(x,y) ]
 
     def transform(self,xyz):
-        result = self.transformit(*xyz[:3])
-
-        return (xyz[0], result, xyz[2])
+        return self.transformit(*xyz[:2])
 
 
 class Spike(Tk):
@@ -194,51 +205,63 @@ class Spike(Tk):
         self.width = 1200
         self.height = 800
         self.master = Tk()
-        self.canvas = Canvas(self.master, width=1600, height=800, background='black')
+        self.canvas = Canvas(self.master, width=self.width, height=self.height, background='black')
         self.canvas.pack()
-        self.canvas.create_line(0, 400, 1600 ,400, fill="white",width=1)
-        self.canvas.create_line(800, 0, 800 ,800, fill="white",width=1)
+        for i in range(-self.width / 5,self.width / 5):
+            self.canvas.create_line(0, self.height/2 + 10*i, self.width ,self.height / 2 + 10*i, fill="#333",width=1)
+            self.canvas.create_line(self.width / 2+ 10*i, 0, self.width / 2 + 10*i,self.height, fill="#333",width=1)    
+        self.canvas.create_line(0, self.height/2, self.width ,self.height / 2, fill="white",width=1)
+        self.canvas.create_line(self.width / 2, 0, self.width / 2 ,self.height, fill="white",width=1)
         self.pp = self.ppf.new_peachy_printer()
+        self.pp = self.ppf.new_peachy_printer_with_err()
         self.transformer = self._get_transformer(self.pp)
         self.show_approximations()
 
 
     def _get_transformer(self, printer):
         deflection_points = [
-        # [-0.3,0.2],[-0.1,0.2],[0.1,0.2],[0.3,0.2],
-        # [-0.3,0.0],[-0.1,0.0],[0.1,0.0],[0.3,0.0],
-        # [-0.3,-0.2],[-0.1,-0.2],[0.1,-0.2],[0.3,-0.2],
-        [ 0.5, -1.0 ],[0.5, -0.5],[ 0.5, 0.0], [0.5, 0.5],[ 0.5, 1.0 ]
-        # [ 0.1, 0.1 ],[-0.1,  0.1],[ -0.1,  -0.1], [0.1,  -0.1],
-        ]
+        [-1.0, 1.0],[ 0.0, 1.0],[ 1.0, 1.0],[-1.0, 0.0],[ 0.0, 0.0],
+        [ 1.0, 0.0],[-1.0, -1.0],[ 0.0, -1.0],[ 1.0, -1.0],[0.5, 0.5],
+        [-0.3,0.2],[-0.1,0.2],[0.1,0.2],[0.3,0.2],
+        [-0.3,0.0],[-0.1,0.0],[0.1,0.0],[0.3,0.0],
+        [-0.3,-0.2],[-0.1,-0.2],[0.1,-0.2],[0.3,-0.2],
 
-        # deflection_points = [ [x * 2.0 ,y * 2.0] for (x,y) in deflection_points ]
-        # deflection_points = [ [rdm.normal(1) *0.6,rdm.normal(1) * 0.6] for i in range(0,12) ]
+        ]
 
         # for point in deflection_points:
             # self.canvas.create_line(self.xscale(point[0]),self.yscale(point[1]),self.xscale(point[0]) + 1,self.yscale(point[1]) + 1,fill="green", width=5)
 
-        calibration_map =  [ [(np.array(printer.write(point[0],point[1],z))[0].tolist()[:3], point ) for point in deflection_points ][0] for z in [ -250,-300 ] ]
+        z = -300
+        calibration_map = []
+        for point in deflection_points:
+           calibration_map.append((np.array(printer.write(point[0],point[1],z))[0].tolist()[:2], point ))
+
         return SpikeTransfomer(calibration_map)
 
     def xscale(self,x):
-        return (x * ((self.width - 10)  / 2)) + (self.width + 10) / 2 
+        return x * (self.width / 2) + self.width  / 2 
 
     def yscale(self,y):
-        return (y * ((self.height - 10)  / 2)) + (self.height +10) / 2
+        return y * (self.height  / 2) + self.height  / 2
 
     def show_approximations(self):
-        rangerx  = 0
-        rangery  = 6
-        xr = [0.5 for x in range(-rangerx,rangerx + 1)]
-        yr = [y / (rangery * 1.0) for y in range(-rangery,rangery + 1)]
+        rangerx  = 12
+        rangery  = 12
+        xr = [x / (rangerx * 1.5)for x  in range(-rangerx,rangerx + 1)]
+        yr = [y / (rangery * 1.5) for y in range(-rangery,rangery + 1)]
         for x in xr:
             for y in yr:
                 there = self.pp.write(x,y,-300).tolist()[0]
-                self.canvas.create_line(self.xscale(x),         self.yscale(y),         self.xscale(x) + 1,         self.yscale(y) + 1,         fill="blue", width=2)
-                back = self.transformer.transform([x,y,-300])
+                self.canvas.create_line(self.xscale(x),         self.yscale(y),         self.xscale(x) + 3,         self.yscale(y) + 3,         fill="blue", width=3)
+                back = self.transformer.transform(there)
+                self.canvas.create_line(
+                    there[0]+(self.width - 10)  / 2,
+                    there[1] +(self.height - 10)  / 2,
+                    there[0] +1+(self.width - 10)  / 2,  
+                    there[1]+1+(self.height - 10)  / 2, 
+                    fill="white", width=2)
                 print('%s :=> %s' % (str((x,y)), back))
-                self.canvas.create_line(self.xscale(back[0]),   self.yscale(back[1]),   self.xscale(back[0]) + 1,   self.yscale(back[1]) + 1,   fill="red", width=2)
+                self.canvas.create_line(self.xscale(back[0]),   self.yscale(back[1]),   self.xscale(back[0]) + 3,   self.yscale(back[1]) + 3,   fill="red", width=3)
 
 
 from Tkinter import *
