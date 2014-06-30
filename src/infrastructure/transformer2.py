@@ -45,9 +45,15 @@ class SpikeTransfomer(Transformer):
         print('matrix: %s' % self.MP)
 
         monomial = [
-            lambda x,y : x**3,  lambda x,y : x**2*y,   lambda x,y : x*y**2,   lambda x,y : y**3,
-            lambda x,y : x**2,  lambda x,y : x*y,       lambda x,y : y**2,
-            lambda x,y : x,  lambda x,y : y,
+            lambda x,y : x**3,
+            lambda x,y : x**2*y,
+            lambda x,y : x*y**2,
+            lambda x,y : y**3,
+            lambda x,y : x**2,
+            lambda x,y : x*y,
+            lambda x,y : y**2,
+            lambda x,y : x,
+            lambda x,y : y,
             lambda x,y : 1
         ]
         
@@ -160,8 +166,7 @@ class Spike(Tk):
         self.ppf = PeachyPrinterFactory()
         self.width = 1000
         self.height = 1000
-        self.master = Tk()
-        self.canvas = Canvas(self.master, width=self.width, height=self.height, background='black')
+        self.canvas = Canvas(self, width=self.width, height=self.height, background='black')
         self.canvas.pack()
         for i in range(-self.width / 5,self.width / 5):
             self.canvas.create_line(0, self.height/2 + 10*i, self.width ,self.height / 2 + 10*i, fill="#333",width=1)
@@ -169,26 +174,21 @@ class Spike(Tk):
         self.canvas.create_line(0, self.height/2, self.width ,self.height / 2, fill="white",width=1)
         self.canvas.create_line(self.width / 2, 0, self.width / 2 ,self.height, fill="white",width=1)
         self.pp = self.ppf.new_peachy_printer()
-        # self.pp = self.ppf.new_peachy_printer_with_err()
+        self.pp = self.ppf.new_peachy_printer_with_err()
+        self.deflection_points = [
+            [ 1.0, 1.0],[-1.0, 1.0],[ 1.0,-1.0],[-1.0, -1.0],
+            [ 0.0, 1.0 ],[ 0.0, -1.0 ],[1.0,0.0],[-1.0,0.0],
+            [ 0.8, 0.8],[-0.8, 0.8],[ 0.8,-0.8],[-0.8, -0.8],
+            [ 0.0, 0.8],[ 0.0, -0.8 ],[0.8,0.0],[-0.8,0.0],
+            # [0.0,0.0],
+        ]
         self.transformer = self._get_transformer(self.pp)
         self.show_approximations()
 
-
     def _get_transformer(self, printer):
-        deflection_points = [
-        [ 1.0, 1.0],[-1.0, 1.0],[ 1.0,-1.0],[-1.0, -1.0],
-        [ 0.5, 0.5],[-0.3, 0.2],[-0.1, 0.2],[0.1,0.2],[0.3,0.2],
-        [-0.3,0.0],[-0.1,0.0],[0.1,0.0],[0.3,0.0],
-        [-0.3,-0.2],[-0.1,-0.2],[0.1,-0.2],[0.3,-0.2],
-        ]
-
-
-        # for point in deflection_points:
-            # self.canvas.create_line(self.xscale(point[0]),self.yscale(point[1]),self.xscale(point[0]) + 1,self.yscale(point[1]) + 1,fill="green", width=5)
-
         z = -300
         calibration_map = []
-        for point in deflection_points:
+        for point in self.deflection_points:
            calibration_map.append((np.array(printer.write(point[0],point[1],z))[0].tolist()[:2], point ))
 
         return SpikeTransfomer(calibration_map)
@@ -224,14 +224,14 @@ class Spike(Tk):
                     there_again[0] + bigness +(self.width - 10)  / 2,
                     there_again[1] + bigness +(self.height - 10)  / 2,
                     fill="yellow", width=bigness)
-                # self.canvas.create_line(
-                #     self.xscale(self.transformer._x_fit(there[0], there[1])) + (self.width - 10)  / 2,
-                #     self.yscale(self.transformer._y_fit(there[0], there[1])) + (self.height - 10)  / 2,
-                #     self.xscale(self.transformer._x_fit(there[0], there[1])) + 1 +(self.width - 10)  / 2,
-                #     self.yscale(self.transformer._y_fit(there[0], there[1])) + 1 +(self.height - 10)  / 2,
-                #     fill="white", width=2)
-                # # print('%s :=> %s' % (str((x,y)), there))
-                # self.canvas.create_line(self.xscale(back[0]),   self.yscale(back[1]),   self.xscale(back[0]) + bigness,   self.yscale(back[1]) + bigness,   fill="red", width=bigness)
+        for point in [ self.pp.write(point[0],point[1],-300)[0].tolist()[0] for point in self.deflection_points ]:
+            self.canvas.create_line(
+                    point[0] + (self.width - 10)  / 2,
+                    point[1] + (self.height - 10)  / 2,
+                    point[0] + bigness +(self.width - 10)  / 2,
+                    point[1] + bigness +(self.height - 10)  / 2,
+                    fill="red", width=bigness)
+
         print("took: %s" % (time.time()- start))
 
 

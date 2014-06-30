@@ -14,7 +14,6 @@ class Laser(object):
         return  (self.position[0,1] - self.point_at[0,1]) / (self.position[0,2] - self.point_at[0,2]) 
 
     def _current_x_slope(self):
-        print ('%s->%s:%s->%s' %(self.position[0,0],self.point_at[0,0],self.position[0,2],self.point_at[0,2]))
         return (self.position[0,0] - self.point_at[0,0]) /(self.position[0,2] - self.point_at[0,2])
 
     def fire(self,z):
