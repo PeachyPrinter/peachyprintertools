@@ -1,127 +1,16 @@
 import numpy as np
+import numpy.random as rdm
 from math import *
 import sys,os
 import time
+from Tkinter import *
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
-
+from infrastructure.simulator import *
 from domain.transformer import Transformer
-
 
 np.seterr(all='raise')
 
-class Laser(object):
-    def __init__(self,position, point_at):
-        self.position=position
-        self.point_at=point_at
-
-    def _current_y_slope(self):
-        return  (self.position[0,1] - self.point_at[0,1]) / (self.position[0,2] - self.point_at[0,2]) 
-
-    def _current_x_slope(self):
-        return (self.position[0,0] - self.point_at[0,0]) /(self.position[0,2] - self.point_at[0,2])
-
-    def fire(self,z):
-        x =  self.position[0,0] - (self.position[0,2]  - z) * self._current_x_slope()
-        y =  self.position[0,1] - (self.position[0,2]  - z) * self._current_y_slope()
-        return np.matrix([x,y,z,1])
-
-class Mirror(object):
-    def __init__(self, base_point, resting_normal, axis, galvo_pos):
-        #Although is is possible that the axis is not perpendicular to to normal NO!
-        self._base_translation = np.append(np.matrix([[1.0, 0.0, 0.0, 0.0],[0.0,1.0,0.0, 0.0],[0.0,0.0,1.0, 0.0]]),base_point,0)
-        self._resting_unit_normal = self._unit_vector(resting_normal)
-        self._unit_axis = self._unit_vector(axis)
-        self._galvo_pos = galvo_pos
-    
-    def _unit_vector(self,vector):
-            return vector / np.linalg.norm(vector)
-
-    def _get_reflection(self):
-        return np.identity(4) - 2*np.outer(self._resting_unit_normal,self._resting_unit_normal)
-
-    def _get_rotation_matrix(self, theta, axis):
-        x,y,z,w = axis.tolist()[0]
-        cos_theta = cos(theta)
-        sin_theta = sin(theta)
-        return np.matrix([
-            [x*x*(1-cos_theta)+cos_theta,      y*x*(1-cos_theta)-z*sin_theta,    z*x*(1-cos_theta)+y*sin_theta,  0],
-            [x*y*(1-cos_theta)+z*sin_theta,    y*y*(1-cos_theta)+cos_theta,      z*y*(1-cos_theta)-x*sin_theta,  0],
-            [x*z*(1-cos_theta)-y*sin_theta,    y*z*(1-cos_theta)+x*sin_theta,    z*z*(1-cos_theta)+cos_theta,    0],
-            [0,                0,                0,              1]
-            ])
-
-    def reflect(self, point, signal):
-        angle = self._galvo_pos(signal)
-        rotation_matrix = self._get_rotation_matrix(angle,self._unit_axis)
-
-        base_point = point * np.linalg.inv(self._base_translation)* np.linalg.inv(rotation_matrix)
-        base_reflection = (base_point * self._get_reflection())
-        return (base_reflection * rotation_matrix * self._base_translation)
-
-class Galvo(object):
-    def __init__(self):
-        pass
-
-    def pos(self,signal):
-        return signal * pi / 8
-
-class PeachyPrinter(object):
-    def __init__(self,mirror1,mirror2,real_laser):
-        self._mirror1 = mirror1
-        self._mirror2 = mirror2
-        self._laser = real_laser
-
-    def write(self,deflection1, deflection2, real_height_z):
-        position_1 = self._mirror1.reflect(self._laser.position, deflection1)
-        look_at_1 = self._mirror1.reflect(self._laser.point_at,deflection1)
-        phantom_laser1 = Laser(position_1,look_at_1)
-
-        position_2 = self._mirror2.reflect(phantom_laser1.position, deflection2)
-        look_at_2 = self._mirror2.reflect(phantom_laser1.point_at, deflection2)
-        phantom_laser2 = Laser(position_2,look_at_2)
-
-        return phantom_laser2.fire(real_height_z)
-        
-
-# --------------------   Spikes Start Here  --------------------------------
-from Tkinter import *
-import threading
-
-class MagicPrinter(object):
-    def __init__(self, parent):
-        print(str(parent))
-        # Tk.__init__(self,None)
-        self.width = 1600
-        self.height = 980
-        # self.laser = laser_control
-        self.pp = PeachyPrinterFactory().new_peachy_printer()
-        t = Toplevel(parent)
-        self.canvas = Canvas(t, width=self.width, height=self.height,)
-        self.canvas.create_line(0, self.height / 2, self.width ,self.height / 2 , fill="white",width=1)
-        self.canvas.create_line(self.width / 2, 0, self.width / 2 ,self.height, fill="white",width=1)
-        self.canvas.pack()
-        self.last = [0.0,0.0,0.0]
-        
-    def process(self,from_xyz,to_xyz,speed):
-        if self.last[2] != to_xyz[2]:
-            self.canvas.delete("all")
-            self.canvas.create_line(0, self.height / 2, self.width ,self.height / 2 , fill="white",width=1)
-            self.canvas.create_line(self.width / 2, 0, self.width / 2 ,self.height, fill="white",width=1)
-        # print('%s : %s' % (from_xyz, to_xyz))
-        _from = self.pp.write(self.last[0],self.last[1],self.last[2],).tolist()[0]
-        _to = self.pp.write(to_xyz[0],to_xyz[1],to_xyz[2]).tolist()[0]
-
-        x1 = _from[0]  + self.width / 2
-        y1 = _from[1]  + self.height / 2
-        x2 = _to[0]  + self.width / 2
-        y2 = _to[1]  + self.height / 2
-        # print('x: %s -> %s, y: %s -> %s' % (x1,y1,x2,y2))
-        self.canvas.create_line(x1, y1, x2, y2, fill="red",width=2)
-        self.canvas.pack()
-        self.last = to_xyz
-
-import numpy.random as rdm
 class PeachyPrinterFactory(object):
     def __init__(self):
         pass
@@ -153,6 +42,7 @@ class SpikeTransfomer(Transformer):
 
         self._scale = 1.0
         self.MP = self._get_transform(points)
+        print('matrix: %s' % self.MP)
 
         monomial = [
             lambda x,y : x**3,  lambda x,y : x**2*y,   lambda x,y : x*y**2,   lambda x,y : y**3,
@@ -185,7 +75,8 @@ class SpikeTransfomer(Transformer):
         index = 0
         print("IN: %s" % points[:4])
         for ((xi,yi),(xp,yp)) in points[:4]:
-            augment = self._augment(index,xi / self._scale, yi / self._scale)
+            augment = self._augment(index,xi / self._scale, yi / 0.69)
+
             builder.append([ xp, yp,  1,  0,  0,  0,  0,  0,  0] + augment[0])
             builder.append([  0,  0,  0, xp, yp,  1,  0,  0,  0] + augment[1])
             builder.append([  0,  0,  0,  0,  0,  0, xp, yp,  1] + augment[2])
@@ -221,8 +112,8 @@ class SpikeTransfomer(Transformer):
 
     def _get_best_bends(self,points,monomial):
         best_bend = (0, 0, 0 , 0,99999999999999999999999999999999999.0)
-        for y in range(-151, 151, 4):
-            for x in range(-151, 151, 4):
+        for y in range(-200, 200, 20):
+            for x in range(-200,200,20):
                 xbend = x / 100.0
                 ybend = y / 100.0
                 (coeffecient_vector_d1, error_d1), (coeffecient_vector_d2 , error_d2)= self._get_co_vectors(points, monomial,xbend,ybend )
@@ -251,15 +142,13 @@ class SpikeTransfomer(Transformer):
 
     def _x_de_pincushion(self,x,bend):
         size = 0.3
-        offset= 0.0
         scale = 3.0*size
-        return bend * (scale*atan((x-offset)/scale)) + (1.0-bend) * x 
+        return bend * (scale*atan((x)/scale)) + (1.0-bend) * x 
 
     def _y_de_pincushion(self,y,bend):
         size = 0.3
-        offset= 0.0
         scale = 3.0*size
-        return bend * (scale*atan((y-offset)/scale)) + (1-bend) * y
+        return bend * (scale*atan((y)/scale)) + (1.0-bend) * y
 
     def transform(self,xyz):
         return self.transformit(*xyz[:2])
@@ -280,7 +169,7 @@ class Spike(Tk):
         self.canvas.create_line(0, self.height/2, self.width ,self.height / 2, fill="white",width=1)
         self.canvas.create_line(self.width / 2, 0, self.width / 2 ,self.height, fill="white",width=1)
         self.pp = self.ppf.new_peachy_printer()
-        self.pp = self.ppf.new_peachy_printer_with_err()
+        # self.pp = self.ppf.new_peachy_printer_with_err()
         self.transformer = self._get_transformer(self.pp)
         self.show_approximations()
 
@@ -315,24 +204,37 @@ class Spike(Tk):
         start = time.time()
         rangerx  = 20
         rangery  = 20
-        xr = [x / (rangerx * 1.3)for x  in range(-rangerx,rangerx + 1)]
-        yr = [y / (rangery * 1.3) for y in range(-rangery,rangery + 1)]
+        xr = [x / (rangerx * 1.0)for x  in range(-rangerx,rangerx + 1)]
+        yr = [y / (rangery * 1.0) for y in range(-rangery,rangery + 1)]
         for x in xr:
             for y in yr:
                 there = self.pp.write(x,y,-300).tolist()[0]
-                self.canvas.create_line(self.xscale(x),         self.yscale(y),         self.xscale(x) + bigness,         self.yscale(y) + bigness,         fill="blue", width=bigness)
+                # self.canvas.create_line(self.xscale(x),         self.yscale(y),         self.xscale(x) + bigness,         self.yscale(y) + bigness,         fill="blue", width=bigness)
                 back = self.transformer.transform(there)
+                there_again = self.pp.write(back[0],back[1],-300).tolist()[0]
                 self.canvas.create_line(
-                    there[0]+(self.width - 10)  / 2,
-                    there[1] +(self.height - 10)  / 2,
-                    there[0] +1+(self.width - 10)  / 2,
-                    there[1]+1+(self.height - 10)  / 2,
-                    fill="white", width=2)
-                # print('%s :=> %s' % (str((x,y)), back))
-                self.canvas.create_line(self.xscale(back[0]),   self.yscale(back[1]),   self.xscale(back[0]) + bigness,   self.yscale(back[1]) + bigness,   fill="red", width=bigness)
+                    there[0] + (self.width - 10)  / 2,
+                    there[1] + (self.height - 10)  / 2,
+                    there[0] + bigness +(self.width - 10)  / 2,
+                    there[1] + bigness +(self.height - 10)  / 2,
+                    fill="green", width=bigness)
+                self.canvas.create_line(
+                    there_again[0] + (self.width - 10)  / 2,
+                    there_again[1] + (self.height - 10)  / 2,
+                    there_again[0] + bigness +(self.width - 10)  / 2,
+                    there_again[1] + bigness +(self.height - 10)  / 2,
+                    fill="yellow", width=bigness)
+                # self.canvas.create_line(
+                #     self.xscale(self.transformer._x_fit(there[0], there[1])) + (self.width - 10)  / 2,
+                #     self.yscale(self.transformer._y_fit(there[0], there[1])) + (self.height - 10)  / 2,
+                #     self.xscale(self.transformer._x_fit(there[0], there[1])) + 1 +(self.width - 10)  / 2,
+                #     self.yscale(self.transformer._y_fit(there[0], there[1])) + 1 +(self.height - 10)  / 2,
+                #     fill="white", width=2)
+                # # print('%s :=> %s' % (str((x,y)), there))
+                # self.canvas.create_line(self.xscale(back[0]),   self.yscale(back[1]),   self.xscale(back[0]) + bigness,   self.yscale(back[1]) + bigness,   fill="red", width=bigness)
         print("took: %s" % (time.time()- start))
 
-from Tkinter import *
+
 if __name__ == '__main__':
     app = Spike()
     app.mainloop()
