@@ -43,7 +43,7 @@ class PointTransformerTest(unittest.TestCase):
             PointTransformer(calibration_points)
 
     def test_perfect_printer_accuracy(self):
-        acceptable_diffrence = 2.98
+        acceptable_diffrence = 1.454
         z_height = -300
 
         printer = self.factory.new_peachy_printer()

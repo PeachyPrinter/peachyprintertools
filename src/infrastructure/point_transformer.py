@@ -71,23 +71,40 @@ class PointTransformer(Transformer):
 
         self.calibrated_bend_x, self.calibrated_bend_y, self.coeffecient_vector_x, self.coeffecient_vector_y, self.calibrated_scale = self._get_best_bends(calibration_points,self.monomials)
 
-    def _get_best_bends(self,points,monomial):
-        best_bend = (0, 0, 0 ,0, 0, 1.0)
-        for s in range(1 , 100):
-            y_err = 1.0
-            for y in range(30, 60):
-                x_err = 1.0
-                for x in range(30,60):
-                    scale = (s * 1.0) / 100.0
-                    xbend = (x * 1.0) / 40.0
-                    ybend = (y * 1.0) / 40.0
-                    (coeffecient_vector_d1, error_d1), (coeffecient_vector_d2 , error_d2)= self._get_coeffecient_vectors(points, monomial,xbend,ybend,scale )
+    def _get_best_bends(self,points,monomials):
+        best_bend = self._find_best_bends(
+            points,
+            monomials,
+            range(1,2001, 500),
+            range(1, 2001, 500),
+            range(1, 2001, 500),
+            500,
+            (0, 0, 0 ,0, 0, 10.0)
+            )
+        logging.info("Best Bend: %s,%s: %s" % (best_bend[0],best_bend[1], best_bend[4]))
+        return best_bend[:5]
+
+    factor = 1000.0
+    def _find_best_bends(self,points,monomials, scale_range, x_range, y_range, step, best_bend):
+        for s in scale_range:
+            for y in y_range:
+                for x in x_range:
+                    xbend = x / self.factor
+                    ybend = y / self.factor
+                    scale = s / self.factor
+                    (coeffecient_vector_d1, error_d1), (coeffecient_vector_d2 , error_d2)= self._get_coeffecient_vectors(points, monomials,xbend,ybend,scale )
                     error = error_d1[0] + error_d2[0]
                     if best_bend[5] > error:
                         logging.info('New Best: %s %s : %s -> %s' % (xbend, ybend, scale, error ))
                         best_bend = (xbend, ybend, coeffecient_vector_d1,coeffecient_vector_d2, scale, error)
-        logging.info("Best Bend: %s,%s: %s" % (best_bend[0],best_bend[1], best_bend[4]))
-        return best_bend[:5]
+        new_step = int(step - math.ceil(step / 2.0))
+        if new_step > 0:
+            x_range = range(int(best_bend[0] * self.factor) - step, int(best_bend[0] * self.factor) + step, new_step)
+            y_range = range(int(best_bend[1] * self.factor) - step, int(best_bend[1] * self.factor) + step, new_step)
+            s_range = range(int(best_bend[4] * self.factor) - step, int(best_bend[4] * self.factor) + step, new_step)
+            return self._find_best_bends(points,monomials,s_range,x_range,y_range,new_step, best_bend)
+        else:
+            return best_bend
 
     def _get_coeffecient_vectors(self, points, monomials,xbend,ybend,scale):
         target_deflection_1 = []

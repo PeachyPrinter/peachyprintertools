@@ -91,13 +91,13 @@ class Spike(Tk):
                     there_again[1] + bigness +(self.height - 10)  / 2,
                     fill="yellow", width=bigness)
 
-        # for point in [ self.pp.write(point[0],point[1],-300)[0].tolist()[0] for point in self.deflection_points ]:
-        #     self.canvas.create_line(
-        #             point[0] + (self.width - 10)  / 2,
-        #             point[1] + (self.height - 10)  / 2,
-        #             point[0] + bigness +(self.width - 10)  / 2,
-        #             point[1] + bigness +(self.height - 10)  / 2,
-        #             fill="red", width=bigness)
+        for point in [ self.pp.write(point[0],point[1],-300)[0].tolist()[0] for point in self.deflection_points ]:
+            self.canvas.create_line(
+                    point[0] + (self.width - 10)  / 2,
+                    point[1] + (self.height - 10)  / 2,
+                    point[0] + bigness +(self.width - 10)  / 2,
+                    point[1] + bigness +(self.height - 10)  / 2,
+                    fill="red", width=bigness)
 
 
 if __name__ == '__main__':
