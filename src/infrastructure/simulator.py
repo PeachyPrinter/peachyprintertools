@@ -2,6 +2,7 @@ import numpy as np
 from math import *
 import sys,os
 import time
+import numpy.random as rdm
 
 np.seterr(all='raise')
 

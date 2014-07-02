@@ -29,35 +29,46 @@ class PointTransformerTest(unittest.TestCase):
         with self.assertRaises(Exception):
             pt = PointTransformer(points)
 
-    def test_requires_x_points(self):
-        pass
+    def test_requires_11_points_mininmum(self):
+        z_height = -300
+        printer = self.factory.new_peachy_printer()
+        deflection_points = [
+            [ 1.0, 1.0],[-1.0, 1.0],[ 1.0,-1.0],[-1.0, -1.0],
+            [ 0.0, 1.0 ],[ 0.0, -1.0 ],[1.0,0.0],[-1.0,0.0],
+            [ 0.8, 0.8],[-0.8, 0.8]
+        ]
+        calibration_points = [ ((dx,dy),printer.write(dx,dy,z_height).tolist()[0][:2]) for (dx,dy) in deflection_points ]
 
-    def test_transform_returns_a_set_of_deflections(self):
-        pass
+        with self.assertRaises(Exception):
+            PointTransformer(calibration_points)
 
     def test_perfect_printer_accuracy(self):
-        acceptable_diffrence = 60.53
+        acceptable_diffrence = 2.98
+        z_height = -300
+
         printer = self.factory.new_peachy_printer()
         deflection_points = [
             [ 1.0, 1.0],[-1.0, 1.0],[ 1.0,-1.0],[-1.0, -1.0],
             [ 0.0, 1.0 ],[ 0.0, -1.0 ],[1.0,0.0],[-1.0,0.0],
             [ 0.8, 0.8],[-0.8, 0.8],[ 0.8,-0.8],[-0.8, -0.8],
-            [ 0.0, 0.8],[ 0.0, -0.8 ],[0.8,0.0],[-0.8,0.0]
+            [ 0.0, 0.8],[ 0.0, -0.8 ],[0.8,0.0],[-0.8,0.0],
+            [ 0.4, 0.4],[-0.4, 0.4],[ 0.4,-0.4],[-0.4, -0.4],
+            [ 0.0, 0.4],[ 0.0, -0.4 ],[0.4,0.0],[-0.4,0.0]
         ]
-        calibration_points = [ ((dx,dy),printer.write(dx,dy,-300).tolist()[0][:2]) for (dx,dy) in deflection_points ]
+        calibration_points = [ ((dx,dy),printer.write(dx,dy,z_height).tolist()[0][:2]) for (dx,dy) in deflection_points ]
 
         pt = PointTransformer(calibration_points)
 
         difference = 0
-        for (x,y,z) in self.get_test_points(10,-300):
+        for (x,y,z) in self.get_test_points(10, z_height):
             expected_point = printer.write(x,y,z).tolist()[0][:3]
             actual_deflection = pt.transform(expected_point)
-            print('A: %s' % actual_deflection)
-            difference += math.sqrt( (x - actual_deflection[0])**2 + (y - actual_deflection[1])**2 )
+            actual_point = printer.write(actual_deflection[0],actual_deflection[1],actual_deflection[2]).tolist()[0][:3]
+            difference += math.sqrt( (expected_point[0] - actual_point[0])**2 + (expected_point[1] - actual_point[1])**2 )
 
-        self.assertTrue(difference < acceptable_diffrence, 'Difference was %s' % difference)
-
-
+        average_diffrence = difference / 100.0
+        print(average_diffrence)
+        self.assertTrue(average_diffrence < acceptable_diffrence, 'Difference was %s' % average_diffrence)
 
 class SquareTransformTest(unittest.TestCase):
     def test_requires_four_square_point_mappings(self):

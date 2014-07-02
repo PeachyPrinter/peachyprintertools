@@ -1,6 +1,9 @@
 import os
 import sys
 import numpy as np
+import math
+import logging
+
 np.seterr(all='raise')
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
@@ -49,7 +52,8 @@ class SquareTransform(object):
 class PointTransformer(Transformer):
     def __init__(self, calibration_points):
         if len(calibration_points) < 12:
-            raise Exception("Not Enough Points")
+            logging.error("Not Enough Calibration Points")
+            raise Exception("Not Enough Calibration Points")
 
         self.squarer = SquareTransform(calibration_points[:4])
         self.monomials = [
@@ -65,11 +69,27 @@ class PointTransformer(Transformer):
             lambda x,y : 1
         ]
 
-        self.coeffecients_x,self.coeffecients_y  = self._get_coeffecient_vectors(calibration_points, self.monomials)
-        print('Cx: %s' % self.coeffecients_x)
-        print('Cy: %s' % self.coeffecients_y)
+        self.calibrated_bend_x, self.calibrated_bend_y, self.coeffecient_vector_x, self.coeffecient_vector_y, self.calibrated_scale = self._get_best_bends(calibration_points,self.monomials)
 
-    def _get_coeffecient_vectors(self, points, monomials):
+    def _get_best_bends(self,points,monomial):
+        best_bend = (0, 0, 0 ,0, 0, 1.0)
+        for s in range(1 , 100):
+            y_err = 1.0
+            for y in range(30, 60):
+                x_err = 1.0
+                for x in range(30,60):
+                    scale = (s * 1.0) / 100.0
+                    xbend = (x * 1.0) / 40.0
+                    ybend = (y * 1.0) / 40.0
+                    (coeffecient_vector_d1, error_d1), (coeffecient_vector_d2 , error_d2)= self._get_coeffecient_vectors(points, monomial,xbend,ybend,scale )
+                    error = error_d1[0] + error_d2[0]
+                    if best_bend[5] > error:
+                        logging.info('New Best: %s %s : %s -> %s' % (xbend, ybend, scale, error ))
+                        best_bend = (xbend, ybend, coeffecient_vector_d1,coeffecient_vector_d2, scale, error)
+        logging.info("Best Bend: %s,%s: %s" % (best_bend[0],best_bend[1], best_bend[4]))
+        return best_bend[:5]
+
+    def _get_coeffecient_vectors(self, points, monomials,xbend,ybend,scale):
         target_deflection_1 = []
         target_deflection_2 = []
         rows = []
@@ -77,24 +97,27 @@ class PointTransformer(Transformer):
             target_deflection_1.append(deflection_1)
             target_deflection_2.append(deflection_2)
             fit_x, fit_y = self.squarer.fit(actual_x,actual_y)
-            # pin_x = self._x_de_pincushion(fit_xy[0],xbend)
-            # pin_y = self._y_de_pincushion(fit_xy[1],ybend)
-            # rows.append([ f(pin_x,pin_y) for f in monomial ])
-            rows.append([ f(fit_x,fit_y) for f in monomials ])
+            bend_x,bend_y = self._bend(fit_x, fit_y,xbend,ybend,scale)
+            rows.append([ f(bend_x,bend_y) for f in monomials ])
 
         coeffecient_matrix = np.matrix(rows)
         target_vector_d1 = np.array(target_deflection_1)
         target_vector_d2 = np.array(target_deflection_2)
 
-        results_d1 = np.linalg.lstsq(coeffecient_matrix, target_vector_d1)[:1]
-        results_d2 = np.linalg.lstsq(coeffecient_matrix, target_vector_d2)[:1]
+        results_d1 = np.linalg.lstsq(coeffecient_matrix, target_vector_d1)[:2]
+        results_d2 = np.linalg.lstsq(coeffecient_matrix, target_vector_d2)[:2]
         return (results_d1, results_d2)
 
-        return 
+    def _bend(self,x,y,xbend,ybend,scale):
+        bent_x = xbend * (scale * math.atan(x / scale)) + (1.0-xbend)  * x
+        bent_y = ybend * (scale * math.atan(y / scale)) + (1.0-ybend)  * y
+        return (bent_x, bent_y)
 
     def transform(self,xyz):
         x,y,z = xyz
         fit_x, fit_y = self.squarer.fit(x,y)
-        transform_x = np.sum( [ m * a(fit_x,fit_y) for (m,a) in zip(self.coeffecients_x, self.monomials)] )
-        transform_y = np.sum( [ m * a(fit_x,fit_y) for (m,a) in zip(self.coeffecients_y, self.monomials)] )
+        bend_x,bend_y = self._bend(fit_x, fit_y,self.calibrated_bend_x,self.calibrated_bend_y, self.calibrated_scale)
+
+        transform_x = sum( [ m * a(bend_x,bend_y) for (m,a) in zip(self.coeffecient_vector_x, self.monomials)] )
+        transform_y = sum( [ m * a(bend_x,bend_y) for (m,a) in zip(self.coeffecient_vector_y, self.monomials)] )
         return [ transform_x,transform_y, z ]
