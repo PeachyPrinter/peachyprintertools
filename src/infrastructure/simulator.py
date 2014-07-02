@@ -77,3 +77,29 @@ class PeachyPrinter(object):
         phantom_laser2 = Laser(position_2,look_at_2)
 
         return phantom_laser2.fire(real_height_z)
+
+class PeachyPrinterFactory(object):
+    def __init__(self):
+        pass
+
+    def wrong(self,alist, millimeters=0.05):
+        for i in range(len(alist)-1):
+            alist[i] += millimeters*rdm.normal(1)
+
+        return np.matrix(alist)
+
+    def new_peachy_printer(self):
+        galvo1 = Galvo()
+        galvo2 = Galvo()
+        mirror1 = Mirror(np.matrix([15.0,18.0,-70,1.0]),np.matrix([-1.0,1.0,0.0,0.0]),np.matrix([0.0,0.0,1.0,0.0]),galvo1.pos)
+        mirror2 = Mirror(np.matrix([15.0,23.0,-70,1.0]),np.matrix([0.0,-1.0,-1.0,0.0]),np.matrix([1.0,0.0,0.0,0.0]),galvo2.pos)
+        laser = Laser(np.matrix([-3.0,18.0,-70.0,1.0]), np.matrix([0.0,18.0,-70.0,1.0]))
+        return PeachyPrinter(mirror1, mirror2, laser)
+
+    def new_peachy_printer_with_err(self):
+        galvo1 = Galvo()
+        galvo2 = Galvo()
+        mirror1 = Mirror(self.wrong([15.0,18.0,-70,1.0]),self.wrong([-1.0,1.0,0.0,0.0]),self.wrong([0.0,0.0,1.0,0.0]),galvo1.pos)
+        mirror2 = Mirror(self.wrong([15.0,23.0,-70,1.0]),self.wrong([0.0,-1.0,-1.0,0.0]),self.wrong([1.0,0.0,0.0,0.0]),galvo2.pos)
+        laser = Laser(self.wrong([-3.0,17.0,-70.0,1.0]), self.wrong([0.0,17.0,-70.0,1.0]))
+        return PeachyPrinter(mirror1, mirror2, laser)
