@@ -121,7 +121,7 @@ class PrintAPI(object):
             return 0.0
 
     def verify_gcode(self, g_code_file_like_object):
-        self.print_gcode(g_code_file_like_object, dry_run = True)
+        self.print_gcode(g_code_file_like_object,  print_sub_layers = False,  dry_run = True)
 
     def stop(self):
         if self._zaxis:

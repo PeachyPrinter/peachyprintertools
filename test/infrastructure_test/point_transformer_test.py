@@ -164,7 +164,6 @@ class SquareTransformTest(unittest.TestCase):
             self.assertAlmostEquals(expected_deflection[0], actual_x )
             self.assertAlmostEquals(expected_deflection[1], actual_y )
 
-
     def test_can_skew(self):
         configuration_points = [
             ([ 1.0, 1.0],[ 10.0, 15.0]),
@@ -186,7 +185,26 @@ class SquareTransformTest(unittest.TestCase):
             self.assertAlmostEquals(expected_deflection[0], actual_x )
             self.assertAlmostEquals(expected_deflection[1], actual_y )
 
+    def test_can_use_somewhat_random_deflections(self):
+        configuration_points = [
+            ([ 0.60, 0.74],[  6.0,  7.4]),
+            ([ 0.70,-0.68],[  7.0, -6.8]),
+            ([-0.80,-0.90],[ -8.0, -9.0]),
+            ([-0.75, 0.80],[ -7.5,  8.0])
+            ]
+        test_points = [
+            ([ 0.5, -0.5],[ 5.0, -5.0]),
+            ([ 1.0,  1.0],[ 10.0,10.0]),
+            ([-0.75, 0.75],[-7.5, 7.5]),
+            ([-0.5,-0.5],[-5.0, -5.0])
+            ]
 
+        squarer = SquareTransform(configuration_points)
+
+        for (expected_deflection, position) in test_points:
+            actual_x, actual_y = squarer.fit(*position)
+            self.assertAlmostEquals(expected_deflection[0], actual_x )
+            self.assertAlmostEquals(expected_deflection[1], actual_y )
 
 
 if __name__ == '__main__':
