@@ -175,9 +175,11 @@ class CircleGenerator(TestLayerGenerator):
         self.set_radius(radius)
         self._steps = steps
         self.last_xy = [0.0,0.0]
+        self.height = 0.0
 
     def next(self):
-        layer = Layer(0.0)
+        self.height += 0.1
+        layer = Layer(self.height)
         for point in self.points():
             layer.commands.append(LateralDraw(self.last_xy,point, self._speed))
             self.last_xy = point
@@ -257,7 +259,6 @@ class TwitchGenerator(TestLayerGenerator):
             last = scaled_point
         return layer
 
-
 class NESWGenerator(TestLayerGenerator):
     def __init__(self, speed = 100.0, radius = 20.0):
         self.set_speed(speed)
@@ -268,34 +269,6 @@ class NESWGenerator(TestLayerGenerator):
                  ('m',[ 0.1,-0.8]),('d',[-0.1,-0.8]),('d',[-0.1,-0.9]),('d',[ 0.1,-0.9]),('d',[ 0.1,-1.0]),('d',[-0.1,-1.0]),   #S
                  ('m',[-0.8, 0.1]),('d',[-0.8,-0.1]),('d',[-0.9, 0.0]),('d',[-1.0,-0.1]),('d',[-1.0, 0.1])   #W
                 ]
-
-    def next(self):
-        layer = Layer(0.0)
-        last = [ a * self._radius for a in self.path[1][-1:][0] ]
-        for (k, point) in self.path:
-            print(point)
-            scaled_point = [ a * self._radius for a in point ]
-            if k == 'd':
-                layer.commands.append(LateralDraw(last,scaled_point, self._speed))
-            else:
-                layer.commands.append(LateralMove(last,scaled_point, self._speed))
-            last = scaled_point
-        return layer
-
-class NeevilGenerator(TestLayerGenerator):
-    def __init__(self, speed = 100.0, radius = 20.0):
-        self.set_speed(speed)
-        self.set_radius(radius)
-        self.path =  [
-                        ('m',[-0.562, 0.322]), ('d',[-0.875, 0.197]), ('d',[-0.828, -0.093]), ('d',[-0.531, -0.229]), 
-                        ('d',[-0.328, -0.229]), ('d',[-0.171, -0.041]), ('d',[-0.156, 0.25]), ('d',[-0.375, -0.083]), 
-                        ('d',[-0.093, -0.239]), ('d',[0.062, -0.197]), ('d',[0.171, -0.01]), ('d',[-0.125, 0.25]), 
-                        ('d',[0.64, 0.25]), ('d',[0.703, 0.135]), ('d',[0.765, 0.166]), ('d',[0.843, 0.302]), 
-                        ('d',[0.546, 0.791]), ('d',[0.406, 0.5]), ('d',[-0.093, 0.5]), ('d',[0.031, 0.906]), 
-                        ('d',[-0.093, 0.458]), ('d',[-0.171, 0.906]), ('d',[-0.203, 0.468]), 
-                        ('m',[1, 0.27]), ('d',[0.921, 0.27]), ('d',[0.921, 0.187]), ('d',[0.734, 0.291]), 
-                        ('d',[1, 0.322]), 
-                        ]
 
     def next(self):
         layer = Layer(0.0)
@@ -330,21 +303,27 @@ class CureTestGenerator(LayerGenerator):
         self._speed_per_layer = (stop_speed - self.start_speed) / (self._number_of_layers - self._base_layers)
         self._current_layer = 0
 
+    def commands(self,base):
+        if base:
+            return [
+                LateralDraw([0,0],[10,0], self._base_layer_speed),
+                LateralDraw([10,0],[10,10], self._base_layer_speed),
+                LateralDraw([10,10],[0,0], self._base_layer_speed),
+            ]
+        else:
+            current_speed = (self._speed_per_layer * (self._current_layer - self._base_layers)) + self.start_speed
+            logging.info("Speed : %s" % current_speed)
+            return [
+                LateralDraw([0,0],[10,0], current_speed),
+                LateralDraw([10,0],[10,10], current_speed),
+                LateralMove([10,10],[0,0], current_speed),
+            ]
+
     def next(self):
         if self._current_layer > self._number_of_layers:
             raise StopIteration
+        base_layer = self._current_layer < self._base_layers
 
-        if self._current_layer < self._base_layers:
-            current_speed = self._base_layer_speed
-        else:
-            current_speed = (self._speed_per_layer * (self._current_layer - self._base_layers)) + self.start_speed
-
-        logging.info("Speed : %s" % current_speed)
-        commands = [
-            LateralDraw([0,0],[10,0], current_speed),
-            LateralDraw([10,0],[10,10], current_speed),
-            LateralMove([10,10],[0,0], current_speed),
-        ]
-        layer = Layer(float(self._current_layer * self._sub_layer_height), commands = commands)
+        layer = Layer(float(self._current_layer * self._sub_layer_height), commands = self.commands(base_layer))
         self._current_layer += 1
         return layer

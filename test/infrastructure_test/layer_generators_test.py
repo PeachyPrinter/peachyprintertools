@@ -247,7 +247,7 @@ class CureTestGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_base = Layer(0.0, commands = [
             LateralDraw([0,0],[10,0],75),
             LateralDraw([10,0],[10,10],75),
-            LateralMove([10,10],[0,0],75), 
+            LateralDraw([10,10],[0,0],75), 
             ])
         expected_layer1 = Layer(1.0, commands = [
             LateralDraw([0,0],[10,0],start_speed),
