@@ -252,7 +252,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.assertEquals(2, self.calls)
         self.assertEquals(1, self.drips)
         self.assertEquals(1, self.height)
-        self.assertAlmostEquals(55.3, self.drips_per_second, places =1)
+        self.assertAlmostEquals(55.3, self.drips_per_second, places =0)
         self.assertEqual(1, self.adza.current_z_location_mm())
 
     def test_should_be_able_to_set_call_back(self,mock_PyAudio):
@@ -271,7 +271,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.assertEquals(2, self.calls)
         self.assertEquals(1, self.drips)
         self.assertEquals(1, self.height)
-        self.assertAlmostEquals(55.3, self.drips_per_second, places =1)
+        self.assertAlmostEquals(55.3, self.drips_per_second, places =0)
         self.assertEqual(1, self.adza.current_z_location_mm())
 
     def test_should_be_able_to_set_drips_per_mm(self,mock_PyAudio):

@@ -127,7 +127,6 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
-        mock_sublayergenerator = mock_SubLayerGenerator.return_value
         mock_audiowriter = mock_AudioWriter.return_value
         mock_transformer = mock_Transformer.return_value
         mock_pathtoaudio = mock_PathToAudio.return_value
@@ -141,12 +140,6 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config = self.default_config
         api = PrintAPI(config)
         api.verify_gcode(gcode_path)
-
-
-        mock_SubLayerGenerator.assert_called_with(
-            fake_layers,
-            config.options.sublayer_height_mm
-            )
 
         self.assertEquals(0, mock_AudioDripZAxis.call_count)
         mock_AudioModulationLaserControl.assert_called_with(
@@ -174,7 +167,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_audiomodulationlasercontrol,
             mock_pathtoaudio,
             None,
-            mock_sublayergenerator,
+            fake_layers,
             zaxis = None,
             status_call_back = None,
             max_lead_distance = config.dripper.max_lead_distance_mm,

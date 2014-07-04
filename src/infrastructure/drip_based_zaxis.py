@@ -114,8 +114,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self._dripper_off_command = dripper_off_command
 
         self._buffer_size = self._sample_rate / 2
-        self._min_buffer_size = self._sample_rate / 8
-        self._min_buffer_time = self._min_buffer_size / self._sample_rate
+        self._chunk_size = self._buffer_size / 2
         self._drips = 0
         self._destination_height = 0.0
 
@@ -162,9 +161,10 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self.shutdown = True
 
     def _get_frames(self,stream):
-        if stream.get_read_available() < self._min_buffer_size:
-            time.sleep(self._min_buffer_time)
-        return stream.read(stream.get_read_available())
+        if stream.get_read_available() > self._chunk_size:
+            return stream.read(stream.get_read_available())
+        else:
+            return stream.read(self._chunk_size)
 
     def _get_stream(self):
         stream = self.pa.open(
