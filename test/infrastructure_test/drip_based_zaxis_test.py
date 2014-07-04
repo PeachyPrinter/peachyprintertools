@@ -130,8 +130,10 @@ class MockPyAudioInStream(object):
         self.frames = self._wave_data.getnframes()
         self.chunk_size = 1024
         self.closed = False
+        self.calls = 0
     
     def read(self,frames):
+        self.calls +=1
         self._read_frames += frames
         return self._wave_data.readframes(frames)
 
@@ -229,13 +231,12 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         sample_rate = 48000
         bit_depth = '16 bit'
         self.adza = AudioDripZAxis(drips_per_mm,sample_rate,bit_depth,NullCommander(),'','')
-        expected_call_count = int(self.stream.frames * 1.0 / self.stream.chunk_size)
 
         self.adza.start()
         self.wait_for_stream()
         self.adza.stop()
 
-        self.assertTrue(expected_call_count < mock_process_frames.call_count)
+        self.assertTrue(self.stream.calls == mock_process_frames.call_count, "Was: %s, should be less then %s" % (mock_process_frames.call_count, self.stream.calls))
 
     def test_should_call_back_when_DripDetector_calls_back(self,mock_PyAudio):
         mock_pyaudio = self.setup_mock(mock_PyAudio)
