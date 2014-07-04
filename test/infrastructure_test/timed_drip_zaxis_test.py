@@ -59,7 +59,7 @@ class TimedDripZaxisTests(unittest.TestCase):
         original_result = self.tdza.current_z_location_mm()
         self.tdza.set_drips_per_mm(new_drips_per_mm)
         new_result = self.tdza.current_z_location_mm()
-        self.assertAlmostEquals(original_result * 10 , new_result, places = 1)
+        self.assertAlmostEquals(original_result * 10 , new_result, places = 0)
         
     # TODO: JT 2014-06-04 -> There is a windows specific bug with this I need to look at this on windows
     # def test_call_back_calls_back_at_correct_rate(self):
