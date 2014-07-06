@@ -200,7 +200,7 @@ class Controller(threading.Thread,):
                 self._status.set_model_height(layer.z)
                 if self._zaxis:
                     self._zaxis.move_to(layer.z)
-                    if (layer_count % 3 == 0):  # 555 rylan here this makes a number of layers print consecutively hopfully stoping the laser from shutting off inbetween sub layers. 
+                    if (layer_count % 8 == 0):  # 555 rylan here this makes a number of layers print consecutively hopfully stoping the laser from shutting off inbetween sub layers. 
                         self._wait_till(layer.z)
                     ahead_by = self._zaxis.current_z_location_mm() - layer.z
                 if self._should_process(ahead_by):
