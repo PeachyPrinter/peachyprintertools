@@ -114,7 +114,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self._dripper_off_command = dripper_off_command
 
         self._buffer_size = self._sample_rate / 2
-        self._chunk_size = self._buffer_size / 2
+        self._chunk_size = self._buffer_size / 8
         self._drips = 0
         self._destination_height = 0.0
 
