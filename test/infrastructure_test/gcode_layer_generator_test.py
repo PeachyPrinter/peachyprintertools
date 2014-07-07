@@ -170,6 +170,17 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         
         self.assertCommandsEqual(expected, actual)
 
+    def test_to_command_returns_a_LateralDraw_when_0(self):
+        gcode_setup = "G1 X0.0 Y0.0 F6000 E12"
+        gcode_line = "G1 X-8.98 Y0.00 E1.71364"
+        command_reader = GCodeCommandReader()
+        expected = [ LateralDraw([0.0,0.0],[-8.98,0.0],100.0) ]
+        command_reader.to_command(gcode_setup)
+        actual = command_reader.to_command(gcode_line)
+        
+        self.assertCommandsEqual(expected, actual)
+
+
     def test_to_command_remembers_last_speed_if_none_specified(self):
         gcode_setup = "G1 X1.0 Y1.0 F6000 E12"
         gcode_test = "G1 X1.0 Y1.0 E12"
@@ -299,7 +310,6 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         command_reader.to_command(gcode_setup3)
 
         self.assertCommandsEqual(expected, command_reader.to_command(gcode_test))
-
 
     def test_to_command_handles_unknown_sub_command(self):
         gcode_line = "G1 X1.0 Y1.0 F6000 E12 Q55"

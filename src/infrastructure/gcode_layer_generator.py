@@ -122,14 +122,14 @@ class GCodeCommandReader(object):
         if not self._mm_per_s:
             logging.error("Feed Rate Never Specified")
             raise Exception("Feed Rate Never Specified")
-        if z_mm:
-            if x_mm or y_mm:
+        if z_mm != None:
+            if x_mm != None or y_mm != None:
                 logging.warning("Vertically angled writes are not supported...yet")
                 up = self._get_vertical_movement(z_mm,write)
                 over = self._get_lateral_movement([x_mm,y_mm], write)
                 return up + over
             return self._get_vertical_movement(z_mm,write)
-        elif x_mm and y_mm:
+        elif x_mm != None and y_mm != None:
             return self._get_lateral_movement([x_mm,y_mm], write)
         else:
             return []
