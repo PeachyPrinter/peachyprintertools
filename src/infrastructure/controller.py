@@ -235,7 +235,7 @@ class Controller(threading.Thread,):
                 return
             if type(command) == LateralDraw:
                 if self.state.xy != command.start:
-                    self._move_lateral(command.start,layer.z,command.speed)
+                    self._draw_lateral(command.start,layer.z,command.speed)  #555 rylan .. stops the laser from shuting off inbetween layers
                 self._draw_lateral(command.end, layer.z, command.speed )
             elif type(command) == LateralMove:
                 self._move_lateral(command.end, layer.z, command.speed)
