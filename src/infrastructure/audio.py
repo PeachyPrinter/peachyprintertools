@@ -59,12 +59,12 @@ class AudioSetup(object):
 
 
 class AudioWriter(object):
-    def __init__(self, sample_rate, bit_depth):
+    def __init__(self, sample_rate, bit_depth, buffer_divisor = 2):
         self._sample_rate = sample_rate
         self._bit_depth = bit_depth
         self._set_format_from_depth(bit_depth)
         self._pa = pyaudio.PyAudio()
-        self._buffer_size = self._sample_rate / 2
+        self._buffer_size = self._sample_rate / buffer_divisor
 
         logging.info("Audio Writer started with sample rate: %s, bit depth %s" % (self._sample_rate, self._bit_depth))
         try: 
