@@ -10,51 +10,51 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 import test_helpers
 from infrastructure.transformer import OneToOneTransformer, TuningTransformer, HomogenousTransformer
 
-class OneToOneTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
-    def test_works_on_xyz(self):
-        self.assertEquals([1.0,1.0,1.0], OneToOneTransformer().transform([1.0,1.0,1.0]))
+# class OneToOneTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
+#     def test_works_on_xyz(self):
+#         self.assertEquals([1.0,1.0,1.0], OneToOneTransformer().transform([1.0,1.0,1.0]))
 
-    def test_goes_boom_on_xy(self):
-        with self.assertRaises(Exception):
-            OneToOneTransfomer().transform([1.0,1.0])
+#     def test_goes_boom_on_xy(self):
+#         with self.assertRaises(Exception):
+#             OneToOneTransfomer().transform([1.0,1.0])
 
-class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
-    def test_works_on_xyz(self):
-        tuning_transformer = TuningTransformer()
-        self.assertEquals([1.0,1.0], tuning_transformer.transform([1.0,1.0,1.0]))
-        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
-        self.assertEquals([0.0,0.0], tuning_transformer.transform([0.0,0.0,1.0]))
+# class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
+#     def test_works_on_xyz(self):
+#         tuning_transformer = TuningTransformer()
+#         self.assertEquals([1.0,1.0], tuning_transformer.transform([1.0,1.0,1.0]))
+#         self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
+#         self.assertEquals([0.0,0.0], tuning_transformer.transform([0.0,0.0,1.0]))
 
-    def test_works_on_xyz_with_scale(self):
-        tuning_transformer = TuningTransformer(scale = 0.5)
-        self.assertEquals([0.75,0.75], tuning_transformer.transform([1.0,1.0,1.0]))
-        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
-        self.assertEquals([0.25,0.25], tuning_transformer.transform([0.0,0.0,1.0]))
+#     def test_works_on_xyz_with_scale(self):
+#         tuning_transformer = TuningTransformer(scale = 0.5)
+#         self.assertEquals([0.75,0.75], tuning_transformer.transform([1.0,1.0,1.0]))
+#         self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
+#         self.assertEquals([0.25,0.25], tuning_transformer.transform([0.0,0.0,1.0]))
 
-    def test_should_kaboom_if_scale_greater_then_1(self):
-        with self.assertRaises(Exception):
-            TuningTransformer(scale = 1.5)
+#     def test_should_kaboom_if_scale_greater_then_1(self):
+#         with self.assertRaises(Exception):
+#             TuningTransformer(scale = 1.5)
 
-    def test_should_kaboom_if_scale_not_greater_then_0(self):
-        with self.assertRaises(Exception):
-            TuningTransformer(scale = 0.0)
+#     def test_should_kaboom_if_scale_not_greater_then_0(self):
+#         with self.assertRaises(Exception):
+#             TuningTransformer(scale = 0.0)
 
-    def test_should_adjust_if_request_points_out_of_bounds(self):
-        tuning_transformer = TuningTransformer(scale = 1.0)
-        self.assertEquals([1.0, 1.0 ], tuning_transformer.transform([1.1,1.0,1.0]))
-        self.assertEquals([0.0, 1.0 ], tuning_transformer.transform([-0.1,1.0,1.0]))
-        self.assertEquals([1.0, 1.0 ], tuning_transformer.transform([1.0,1.1,1.0]))
-        self.assertEquals([1.0, 0.0 ], tuning_transformer.transform([1.0,-0.1,1.0]))
+#     def test_should_adjust_if_request_points_out_of_bounds(self):
+#         tuning_transformer = TuningTransformer(scale = 1.0)
+#         self.assertEquals([1.0, 1.0 ], tuning_transformer.transform([1.1,1.0,1.0]))
+#         self.assertEquals([0.0, 1.0 ], tuning_transformer.transform([-0.1,1.0,1.0]))
+#         self.assertEquals([1.0, 1.0 ], tuning_transformer.transform([1.0,1.1,1.0]))
+#         self.assertEquals([1.0, 0.0 ], tuning_transformer.transform([1.0,-0.1,1.0]))
 
-    def test_can_change_tuning_transformer_scale(self):
-        tuning_transformer = TuningTransformer(scale = 1.0)
-        self.assertEquals([1.0,1.0], tuning_transformer.transform([1.0,1.0,1.0]))
-        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
-        self.assertEquals([0.0,0.0], tuning_transformer.transform([0.0,0.0,1.0]))
-        tuning_transformer.set_scale(0.5)
-        self.assertEquals([0.75,0.75], tuning_transformer.transform([1.0,1.0,1.0]))
-        self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
-        self.assertEquals([0.25,0.25], tuning_transformer.transform([0.0,0.0,1.0]))
+#     def test_can_change_tuning_transformer_scale(self):
+#         tuning_transformer = TuningTransformer(scale = 1.0)
+#         self.assertEquals([1.0,1.0], tuning_transformer.transform([1.0,1.0,1.0]))
+#         self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
+#         self.assertEquals([0.0,0.0], tuning_transformer.transform([0.0,0.0,1.0]))
+#         tuning_transformer.set_scale(0.5)
+#         self.assertEquals([0.75,0.75], tuning_transformer.transform([1.0,1.0,1.0]))
+#         self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
+#         self.assertEquals([0.25,0.25], tuning_transformer.transform([0.0,0.0,1.0]))
 
 
 class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
@@ -111,6 +111,28 @@ class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         actual_points   = [ transformer.transform ( point) for point in test_points ]
         
         self.assertEquals(expected_points, actual_points)
+
+    def test_zero_should_not_change_regardless_of_height(self):
+        height = 1.0
+        lower_points = { 
+                (1.0, 1.0):( 36.0,  27.0),
+                (0.0, 1.0):(-38.0,  30.0),
+                (1.0, 0.0):( 35.0, -33.0),
+                (0.0, 0.0):(-38.0, -29.0)
+                }
+        upper_points = { 
+                (1.0, 1.0):( 30.0,  23.0),
+                (0.0, 1.0):(-31.0,  26.0),
+                (1.0, 0.0):( 30.0, -27.0),
+                (0.0, 0.0):(-32.0, -25.0)
+                }
+        scale = 1.0
+        transformer = HomogenousTransformer(scale,height,lower_points,upper_points)
+        test_points = [ [0.0,0.0,0.1],[0.0,0.0,1.0]]
+
+        actual_points   = [ transformer.transform(point) for point in test_points ]
+        self.assertAlmostEquals(actual_points[0][0], actual_points[1][0])
+        self.assertAlmostEquals(actual_points[0][1], actual_points[1][1])
 
     def test_given_a_basic_mapping_yields_expected_results_with_scale(self):
         height = 1.0  

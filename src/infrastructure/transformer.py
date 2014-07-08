@@ -43,7 +43,9 @@ class HomogenousTransformer(Transformer):
         self._lock = threading.Lock()
         self._scale = scale
         self._upper_height = upper_height
-        self._lower_points = lower_points
+        inter_scale_x = 1.0 + abs(lower_points.items()[0][1][0] - upper_points.items()[0][1][0])
+        inter_scale_y = 1.0 + abs(lower_points.items()[0][1][1] - upper_points.items()[0][1][1])
+        self._lower_points = dict([(pre , (x * inter_scale_x,y * inter_scale_y)) for (pre,(x,y)) in upper_points.items() ])
         self._upper_points = upper_points
         
         self._get_transforms()
@@ -121,7 +123,7 @@ class HomogenousTransformer(Transformer):
         if x1 >= 0.0 and x1 <=1.0 and y1>= 0.0 and y1 <=1.0:
             return (x1, y1)
         else:
-            logging.error("Bounds of printer exceeded")
+            logging.error("Bounds of printer exceeded: %s,%s" % (x1,y1))
             raise Exception("Bounds of printer exceeded")
 
 
