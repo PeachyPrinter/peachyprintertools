@@ -35,7 +35,7 @@ class Goer(Tk):
         ym = event.y
         # print(xm)
         # print(ym)
-        self.xy = ((ym / float(self.size[1]) +0.250),  1.0 - (xm / float(self.size[0]) + 0.250))
+        self.xy = (ym / float(self.size[1]),  1.0 - xm / float(self.size[0]))
         # print(self.xy)
         str1 = "mouse at x=%d  y=%d" % (xm, ym)
         self.title(str1)
