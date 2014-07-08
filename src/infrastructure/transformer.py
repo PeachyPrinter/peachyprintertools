@@ -43,10 +43,10 @@ class HomogenousTransformer(Transformer):
         self._lock = threading.Lock()
         self._scale = scale
         self._upper_height = upper_height
-        inter_scale_x = 1.0 + abs(lower_points.items()[0][1][0] - upper_points.items()[0][1][0])
-        inter_scale_y = 1.0 + abs(lower_points.items()[0][1][1] - upper_points.items()[0][1][1])
-        self._lower_points = dict([(pre , (x * inter_scale_x,y * inter_scale_y)) for (pre,(x,y)) in upper_points.items() ])
-        self._upper_points = upper_points
+        inter_scale_x = lower_points.items()[0][1][0] / upper_points.items()[0][1][0]  
+        inter_scale_y = lower_points.items()[0][1][1] / upper_points.items()[0][1][1]
+        self._lower_points = lower_points
+        self._upper_points = dict([(pre , (x * inter_scale_x,y * inter_scale_y)) for (pre,(x,y)) in lower_points.items() ])
         
         self._get_transforms()
         self._cache = {}
