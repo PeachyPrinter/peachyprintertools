@@ -425,9 +425,9 @@ class CureTestUI(PeachyFrame):
         self._configuration_api.load_printer(self._current_printer)
 
         self._base_height = IntVar()
-        self._base_height.set(3)
+        self._base_height.set(0)
         self._total_height = IntVar()
-        self._total_height.set(23)
+        self._total_height.set(20)
         self._start_speed = IntVar()
         self._start_speed.set(50)
         self._stop_speed = IntVar()
