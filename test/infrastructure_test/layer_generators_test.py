@@ -218,6 +218,58 @@ class SublayerGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(StopIteration):
             sublayer_generator.next()
 
+    def test_sublayer_generator_should_shuffle_commands_when_layers_same_as_sublayer_height(self):
+        command1 = LateralDraw([0.0,0.0],[0.0,0.0],100.0)
+        command2 = LateralDraw([0.0,0.0],[1.0,1.0],100.0)
+        command3 = LateralDraw([0.0,0.0],[2.0,2.0],100.0)
+        command4 = LateralDraw([0.0,0.0],[3.0,3.0],100.0)
+        layer1 = Layer(0.0,[ command1, command2,command3, command4 ])
+        layer2 = Layer(0.1,[ command1, command2,command3, command4 ])
+        layer3 = Layer(0.2,[ command1, command2,command3, command4 ])
+        layer4 = Layer(0.3,[ command1, command2,command3, command4 ])
+
+        shuffled_layer2 = Layer(0.1,[ command2, command3, command4, command1, ])
+        shuffled_layer3 = Layer(0.2,[ command3, command4, command1, command2, ])
+        shuffled_layer4 = Layer(0.3,[ command4, command1, command2, command3, ])
+
+
+        expected_layers = (layer1,shuffled_layer2,shuffled_layer3,shuffled_layer4)
+        inital_generator = StubLayerGenerator([layer1,layer2,layer3,layer4])
+
+        sublayer_generator = SubLayerGenerator(inital_generator,0.5)
+        for expected_layer in expected_layers:
+            l = sublayer_generator.next()
+            self.assertLayerEquals(expected_layer,l)
+
+        with self.assertRaises(StopIteration):
+            sublayer_generator.next()
+
+    def test_sublayer_generator_should_shuffle_commands_when_layers_have_fewer_commands(self):
+        command1 = LateralDraw([0.0,0.0],[0.0,0.0],100.0)
+        command2 = LateralDraw([0.0,0.0],[1.0,1.0],100.0)
+        command3 = LateralDraw([0.0,0.0],[2.0,2.0],100.0)
+        command4 = LateralDraw([0.0,0.0],[3.0,3.0],100.0)
+        layer1 = Layer(0.0,[ command1, command2,command3, command4 ])
+        layer2 = Layer(0.1,[ command1, command2,command3, command4 ])
+        layer3 = Layer(0.2,[ command1 ])
+        layer4 = Layer(0.3,[ command2 , command3])
+
+        shuffled_layer2 = Layer(0.1,[ command2, command3, command4, command1, ])
+        shuffled_layer3 = Layer(0.2,[ command1 ])
+        shuffled_layer4 = Layer(0.3,[ command3, command2 ])
+
+
+        expected_layers = (layer1,shuffled_layer2,shuffled_layer3,shuffled_layer4)
+        inital_generator = StubLayerGenerator([layer1,layer2,layer3,layer4])
+
+        sublayer_generator = SubLayerGenerator(inital_generator,0.5)
+        for expected_layer in expected_layers:
+            l = sublayer_generator.next()
+            self.assertLayerEquals(expected_layer,l)
+
+        with self.assertRaises(StopIteration):
+            sublayer_generator.next()
+
 #---------------- Cure Test Generators  -------------------------------------
 
 class CureTestGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
