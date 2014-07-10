@@ -36,7 +36,7 @@ class Spike(Tk):
 
         self.pp = self.ppf.new_peachy_printer()
         # for i in range(0,100):
-        # self.pp = self.ppf.new_peachy_printer_with_err()
+        self.pp = self.ppf.new_peachy_printer_with_err()
         self.transformer = self._get_transformer(self.pp)
         self.show_approximations()
 

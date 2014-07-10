@@ -3,8 +3,6 @@ from infrastructure.audio import *
 from infrastructure.laser_control import *
 import numpy
 
-# root = tk.Tk()
-
 
 class Goer(Tk):
     def __init__(self):
@@ -44,7 +42,7 @@ class Goer(Tk):
     def showxy(self, event):
         xm = event.x
         ym = event.y
-        self.xy = (ym / float(self.size[1]),  1.0 - xm / float(self.size[0]))
+        self.xy = (ym / float(self.size[1]),  xm / float(self.size[0]))
         str1 = "mouse at x=%d  y=%d" % (xm, ym)
         self.title(str1)
 
