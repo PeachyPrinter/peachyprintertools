@@ -156,8 +156,8 @@ class CalibrationAPI(object):
             pattern.set_radius(self.get_largest_object_radius())
 
     '''Must be called before shutting down applications'''
-    def stop(self):
-        self._controller.stop()
+    def close(self):
+        self._controller.close()
 
     def _update_generator(self, generator):
         self._current_generator = generator

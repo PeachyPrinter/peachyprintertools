@@ -177,7 +177,7 @@ class ConfigurationAPI(object):
         if self._commander:
             self._commander.close()
         if self._drip_detector:
-            self._drip_detector.stop()
+            self._drip_detector.close()
             self._drip_detector = None
 
     '''Returns the configured Dripper Type'''

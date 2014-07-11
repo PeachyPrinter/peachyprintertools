@@ -333,8 +333,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
     @patch.object(AudioDripZAxis, 'start')
-    @patch.object(AudioDripZAxis, 'stop')
-    def test_stop_counting_drips_should_stop_getting_drips(self, mock_stop,mock_start,mock_load,mock_save):
+    @patch.object(AudioDripZAxis, 'close')
+    def test_stop_counting_drips_should_stop_getting_drips(self, mock_close,mock_start,mock_load,mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
@@ -342,7 +342,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
         configuration_API.stop_counting_drips()
 
-        mock_stop.assert_called_with()
+        mock_close.assert_called_with()
     
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')

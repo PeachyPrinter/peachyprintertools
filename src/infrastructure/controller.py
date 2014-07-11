@@ -163,7 +163,9 @@ class Controller(threading.Thread,):
             self._zaxis.start()
         self.starting = False
         self._process_layers()
+
         self._status.set_complete()
+        self.running = False
         self._terminate()
 
     def change_generator(self, layer_generator):
@@ -178,9 +180,17 @@ class Controller(threading.Thread,):
     def get_status(self):
         return self._status.status()
 
-    def stop(self):
+    def close(self):
         logging.warning("Shutdown requested")
         self._shutting_down = True
+        attempts = 10
+        while self.running and attempts > 0:
+            attempts -= 1
+            time.sleep(0.1)
+        if attempts > 0:
+            logging.info("Controller Shutdown Correctly")
+        else:
+            logging.info("Controller Failed Shutting Down.")
 
     def _process_layers(self):
         ahead_by = None
@@ -273,13 +283,12 @@ class Controller(threading.Thread,):
         self._shutting_down = True
         try:
             self._audio_writer.close()
+            logging.info("Audio shutdown correctly")
         except Exception as ex:
             logging.error(ex)
         if self._zaxis:
             try:
-                self._zaxis.stop()
+                self._zaxis.close()
             except Exception as ex:
                 logging.error(ex)
-
-        self.running = False
 

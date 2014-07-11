@@ -30,8 +30,7 @@ class ControllerTests(unittest.TestCase):
 
     def tearDown(self):
         if self.controller and self.controller.is_alive():
-            self.controller.stop()
-
+            self.controller.close()
 
     def test_should_turn_on_laser_for_draw_commands(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -255,7 +254,7 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(([2.0,2.0,0.0],[2.0,2.0,0.0],2.0), mock_path_to_audio.process.call_args_list[1][0])
         self.assertEqual(([2.0,2.0,0.0],[2.0,2.0,0.0],2.0), mock_path_to_audio.process.call_args_list[2][0])
 
-    def test_stop_should_close_all_processes_cleanly(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+    def test_close_should_close_all_processes_cleanly(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
@@ -269,11 +268,11 @@ class ControllerTests(unittest.TestCase):
 
         time.sleep(0.1)
 
-        self.controller.stop()
+        self.controller.close()
 
         time.sleep(0.1)
 
-        mock_zaxis.stop.assert_called_with()
+        mock_zaxis.close.assert_called_with()
         mock_audio_writer.close.assert_called_with()
 
     def test_stop_should_close_all_processes_cleanly_while_waiting_for_z(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
@@ -291,11 +290,11 @@ class ControllerTests(unittest.TestCase):
 
         time.sleep(0.1)
 
-        self.controller.stop()
+        self.controller.close()
 
         self.wait_for_controller()
 
-        mock_zaxis.stop.assert_called_with()
+        mock_zaxis.close.assert_called_with()
         mock_audio_writer.close.assert_called_with()
 
     def test_stop_should_close_all_processes_cleanly_while_working_on_commands(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
@@ -311,7 +310,7 @@ class ControllerTests(unittest.TestCase):
         self.controller.start()
         time.sleep(0.1)
 
-        self.controller.stop()
+        self.controller.close()
         time.sleep(0.1)
 
         mock_audio_writer.close.assert_called_with()
@@ -334,7 +333,7 @@ class ControllerTests(unittest.TestCase):
 
         time.sleep(0.01)
         actual = self.controller.get_status()['waiting_for_drips']
-        self.controller.stop()
+        self.controller.close()
 
         self.wait_for_controller()
 
@@ -354,7 +353,7 @@ class ControllerTests(unittest.TestCase):
         self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
         self.controller.start()
         time.sleep(0.01)
-        self.controller.stop()
+        self.controller.close()
 
         self.wait_for_controller()
         actual = self.controller.get_status()['model_height']
@@ -380,7 +379,7 @@ class ControllerTests(unittest.TestCase):
             )
         self.controller.start()
         time.sleep(0.01)
-        self.controller.stop()
+        self.controller.close()
 
         self.wait_for_controller()
         mock_path_to_audio.process.assert_called_with([0.0,0.0,0.0],[2.0,2.0,0.0],2.0)
@@ -401,7 +400,7 @@ class ControllerTests(unittest.TestCase):
 
         time.sleep(0.1)
         actual = self.controller.get_status()['waiting_for_drips']
-        self.controller.stop()
+        self.controller.close()
 
         self.wait_for_controller()
 
@@ -473,7 +472,7 @@ class ControllerTests(unittest.TestCase):
         self.controller.change_generator(generator2)
         time.sleep(0.1)
         post_switch = mock_path_to_audio.process.call_args
-        self.controller.stop()
+        self.controller.close()
         self.wait_for_controller()
 
         self.assertEquals( ([1.0,1.0,0.0],[1.0,1.0,0.0],100.0), pre_switch[0] )
@@ -671,5 +670,5 @@ class MachineStatusTests(unittest.TestCase):
         self.assertEquals(6,self.call_count)
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='ERROR')
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='INFO')
     unittest.main()

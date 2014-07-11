@@ -69,9 +69,9 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_controller = mock_Controller.return_value
         calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
 
-        calibration_api.stop()
+        calibration_api.close()
 
-        mock_controller.stop.assert_called_with()
+        mock_controller.close.assert_called_with()
 
         
     def test_should_load_the_correct_printer(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):

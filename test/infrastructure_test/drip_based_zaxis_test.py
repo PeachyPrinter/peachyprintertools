@@ -7,6 +7,7 @@ import pyaudio
 import time
 import random
 import struct
+import logging
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
@@ -167,7 +168,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
     
     def tearDown(self):
         if self.adza:
-            self.adza.stop()
+            self.adza.close()
         if self.stream and not self.stream.closed:
             self.stream.close()
             print("*" * 30)
@@ -200,8 +201,9 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.adza = AudioDripZAxis(drips_per_mm,sample_rate,bit_depth,NullCommander(),'','')
 
         self.adza.start()
-        self.adza.stop()
-        self.assertFalse(self.adza.is_alive())
+        time.sleep(0.1)
+        self.adza.close()
+        self.assertTrue(self.adza.shutdown) 
         mock_pyaudio.terminate.assert_called_with()
 
     def test_should_open_stream_correctly(self,mock_PyAudio):
@@ -213,7 +215,8 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.adza = AudioDripZAxis(drips_per_mm,sample_rate,bit_depth,NullCommander(),'','')
 
         self.adza.start()
-        self.adza.stop()
+        self.wait_for_stream()
+        self.adza.close()
 
         mock_pyaudio.open.assert_called_with(
             rate = sample_rate, 
@@ -234,9 +237,9 @@ class AudioDripZAxisTests(unittest.TestCase, ):
 
         self.adza.start()
         self.wait_for_stream()
-        self.adza.stop()
+        self.adza.close()
 
-        self.assertTrue(self.stream.calls == mock_process_frames.call_count, "Was: %s, should be less then %s" % (mock_process_frames.call_count, self.stream.calls))
+        self.assertTrue(self.stream.calls >= mock_process_frames.call_count, "Was: %s, should be less then %s" % (mock_process_frames.call_count, self.stream.calls))
 
     def test_should_call_back_when_DripDetector_calls_back(self,mock_PyAudio):
         mock_pyaudio = self.setup_mock(mock_PyAudio)
@@ -248,7 +251,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         
         self.adza.start()
         self.wait_for_stream()
-        self.adza.stop()
+        self.adza.close()
 
         self.assertEquals(2, self.calls)
         self.assertEquals(1, self.drips)
@@ -267,7 +270,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         
         self.adza.start()
         self.wait_for_stream()
-        self.adza.stop()
+        self.adza.close()
 
         self.assertEquals(2, self.calls)
         self.assertEquals(1, self.drips)
@@ -287,7 +290,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         
         self.adza.start()
         self.wait_for_stream()
-        self.adza.stop()
+        self.adza.close()
 
         self.assertEqual(10.0, self.adza.current_z_location_mm())
 
@@ -300,7 +303,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.adza = AudioDripZAxis(drips_per_mm,sample_rate,bit_depth,NullCommander(),'','')        
         self.adza.start()
         self.wait_for_stream()
-        self.adza.stop()
+        self.adza.close()
         self.adza.reset()
 
         self.assertEqual(0.0, self.adza.current_z_location_mm())
@@ -326,7 +329,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.adza.start()
         self.adza.move_to(300)
         self.wait_for_stream()
-        self.adza.stop()
+        self.adza.close()
 
         commander.send_command.assert_has_calls([call(expected_drip_on_command), call(expected_drip_off_command)])
 
@@ -351,7 +354,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.adza.start()
         self.adza.move_to(-300)
         self.wait_for_stream()
-        self.adza.stop()
+        self.adza.close()
 
         commander.send_command.assert_has_calls([call(expected_drip_off_command)])
 
@@ -376,9 +379,10 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.adza.start()
         self.adza.move_to(300)
         self.wait_for_stream()
-        self.adza.stop()
+        self.adza.close()
 
         commander.send_command.assert_called_with(expected_drip_off_command)
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
     unittest.main()

@@ -262,6 +262,6 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
     def close(self):
         if hasattr(self, '_calibrationAPI') and self._calibrationAPI:
             try:
-                self._calibrationAPI.stop()
+                self._calibrationAPI.close()
             except:
                 pass

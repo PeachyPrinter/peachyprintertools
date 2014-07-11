@@ -63,7 +63,7 @@ class TimedDripZAxis(ZAxis, threading.Thread):
     def move_to(self, height_mm):
         logging.info('Ignoring move to %s' % height_mm)
 
-    def stop(self):
+    def close(self):
         self.running = False
         while not self.shutdown:
             time.sleep(0.1)

@@ -105,6 +105,7 @@ class SubLayerGenerator(LayerGenerator):
         except StopIteration:
             self._running = False
 
+
 class HilbertGenerator(TestLayerGenerator):
     def __init__(self, order = 4, speed = 150.0, radius = 40.0):
         self._order = order
@@ -277,7 +278,6 @@ class NESWGenerator(TestLayerGenerator):
         layer = Layer(0.0)
         last = [ a * self._radius for a in self.path[1][-1:][0] ]
         for (k, point) in self.path:
-            print(point)
             scaled_point = [ a * self._radius for a in point ]
             if k == 'd':
                 layer.commands.append(LateralDraw(last,scaled_point, self._speed))

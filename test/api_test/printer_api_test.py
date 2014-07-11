@@ -230,7 +230,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def test_print_can_be_stopped_before_started(self):
         api = PrintAPI(self.default_config)
-        api.stop()
+        api.close()
 
     @patch('api.print_api.Controller')
     @patch('api.print_api.PathToAudio')

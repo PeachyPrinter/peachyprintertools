@@ -123,10 +123,10 @@ class PrintAPI(object):
     def verify_gcode(self, g_code_file_like_object):
         self.print_gcode(g_code_file_like_object,  print_sub_layers = False,  dry_run = True)
 
-    def stop(self):
+    def close(self):
         if self._zaxis:
-            self._zaxis.stop()   #Work around for windows not closing.
+            self._zaxis.close()   #Work around for windows not closing.
         if self._controller:
-            self._controller.stop()
+            self._controller.close()
         else:
             logging.warning('Stopped before printing')

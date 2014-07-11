@@ -108,7 +108,7 @@ class VerifyStatusUI(PeachyFrame):
         self.update()
 
     def _stop_button_click(self):
-        self._print_api.stop()
+        self._print_api.close()
         self.navigate(self.kwargs['calling_class'], printer = self.kwargs['printer'])
 
     def _show_errors(self):
@@ -129,7 +129,7 @@ class VerifyStatusUI(PeachyFrame):
             self._stop_button_text.set("Finished")
 
     def close(self):
-        self._print_api.stop()
+        self._print_api.close()
 
 class PrintStatusUI(PeachyFrame):
 
@@ -181,7 +181,7 @@ class PrintStatusUI(PeachyFrame):
 
         Label(self).grid(column=0,row=70)
         
-        Button(self,text='Resart', command=self._restart_printing).grid(column=1,row=80)
+        Button(self,text='Restart', command=self._restart_printing).grid(column=1,row=80)
         Button(self,textvariable=self._stop_button_text, command=self._stop_button_click).grid(column=2,row=80)
 
         self._start_printing()
@@ -201,11 +201,11 @@ class PrintStatusUI(PeachyFrame):
             self._drips_per_second_setting.set(self._print_api.get_drips_per_second())
 
     def _stop_button_click(self):
-        self._print_api.stop()
+        self._print_api.close()
         self.navigate(self.kwargs['calling_class'], printer = self.kwargs['printer'])
 
     def _restart_printing(self):
-        self._print_api.stop()
+        self._print_api.close()
         self._start_printing()
 
     def status_call_back(self,status):
@@ -229,4 +229,4 @@ class PrintStatusUI(PeachyFrame):
 
     def close(self):
         if self._print_api:
-            self._print_api.stop()
+            self._print_api.close()
