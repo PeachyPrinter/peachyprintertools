@@ -26,6 +26,24 @@ class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
         errors = gcode_reader.check()
         self.assertEquals(["Error 1: Unreconized Command: %s" % line ] , errors)
 
+    @patch('infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
+    def test_get_layers_should_use_scale(self, mock_GCodeToLayerGenerator):
+        line = "Fake Gcode"
+        test_gcode = StringIO.StringIO("%s\n" % line)
+
+        gcode_reader = GCodeReader(test_gcode, scale = 0.1)
+        gcode_reader.get_layers()
+        mock_GCodeToLayerGenerator.assert_called_with(test_gcode,scale = 0.1)
+
+    @patch('infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
+    def test_check_should_use_scale(self, mock_GCodeToLayerGenerator):
+        line = "Fake Gcode"
+        test_gcode = StringIO.StringIO("%s\n" % line)
+
+        gcode_reader = GCodeReader(test_gcode, scale = 0.1)
+        gcode_reader.check()
+        mock_GCodeToLayerGenerator.assert_called_with(test_gcode,scale = 0.1)
+
 class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
@@ -40,6 +58,16 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
         actual = list(command_generator)
 
         self.assertLayersEquals(expected, actual)
+
+    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    def test_when_scale_provided_gcode_command_called_with_scale(self, mock_GCodeCommandReader):
+        mock_gcode_command_reader = mock_GCodeCommandReader.return_value
+        mock_gcode_command_reader.to_command.return_value = [ LateralDraw([0.0,0.0],[0.0,0.0],100.0) ]
+        gcode_line = "G01 X0.00 Y0.00 E1 F100.0\n"
+        test_gcode = StringIO.StringIO(gcode_line)
+        command_generator = GCodeToLayerGenerator(test_gcode, scale = 0.1)
+        mock_GCodeCommandReader.assert_called_with(scale = 0.1)
+
 
     @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_get_layers_returns_a_single_layer_with_multipule_commands(self,mock_GCodeCommandReader):
@@ -335,6 +363,22 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         command_reader.to_command(gcode_feet)
         self.assertCommandsEqual(expected_feet, command_reader.to_command(gcode_feet_line))
 
+    def test_to_command_can_scale_when_scale_provided(self):
+        gcode_setup1 = "G0 Z0.1 F6000 E0"
+        gcode_setup2 = "G0 Z0.2 F6000 E0"
+        gcode_setup3 = "G0 X0.0 Y0.0 F6000"
+        gcode_test = "G0 X1.0 Y1.0 Z0.3 F6000"
+        command_reader = GCodeCommandReader(scale = 0.1)
+        expected = [ 
+            VerticalMove(0.02,0.03,10.0), 
+            LateralMove([0.0,0.0],[0.1,0.1],10.0),
+            ]
+
+        command_reader.to_command(gcode_setup1)
+        command_reader.to_command(gcode_setup2)
+        command_reader.to_command(gcode_setup3)
+
+        self.assertCommandsEqual(expected, command_reader.to_command(gcode_test))
 # units
 
 if __name__ == '__main__':

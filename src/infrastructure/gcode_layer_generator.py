@@ -5,27 +5,28 @@ import logging
 import sys
 
 class GCodeReader(object):
-    def __init__(self, file_object):
+    def __init__(self, file_object, scale = 1.0):
         self.file_object = file_object
+        self.scale = scale
 
     def check(self):
-        layers = GCodeToLayerGenerator(self.file_object)
+        layers = GCodeToLayerGenerator(self.file_object, scale = self.scale)
         for layer in layers:
             pass
         return layers.errors
 
     def get_layers(self):
-        return GCodeToLayerGenerator(self.file_object)
+        return GCodeToLayerGenerator(self.file_object, scale = self.scale)
 
 class GCodeToLayerGenerator(LayerGenerator):
-    def __init__(self, file_object):
+    def __init__(self, file_object,scale = 1.0):
         super(GCodeToLayerGenerator, self).__init__()
         self.errors = []
         self.warning = []
         self._file_object = file_object
         self._line_number = 0
         self._current_z = 0.0
-        self._gcode_command_reader = GCodeCommandReader()
+        self._gcode_command_reader = GCodeCommandReader(scale = scale)
         self._command_queue = collections.deque()
         self._file_complete = False
 
@@ -80,13 +81,14 @@ class GCodeToLayerGenerator(LayerGenerator):
 
 class GCodeCommandReader(object):
     _INCHES2MM = 25.4
-    def __init__(self, verbose = False):
+    def __init__(self, verbose = False, scale = 1.0):
         super(GCodeCommandReader, self).__init__()
         self._mm_per_s = None
         self._current_xy = [0.0,0.0]
         self._current_z_pos = 0.0
         self._layer_height = None
         self._units = 'mm'
+        self.scale = scale
 
     def to_command(self, gcode):
         if self._can_ignore(gcode):
@@ -107,13 +109,13 @@ class GCodeCommandReader(object):
         for detail in command_details[1:]:
             detail_type = detail[0]
             if detail_type == 'X':
-                x_mm = self._to_mm(float(detail[1:]))
+                x_mm = self._to_mm(float(detail[1:])) * self.scale
             elif detail_type == 'Y':
-                y_mm = self._to_mm(float(detail[1:]))
+                y_mm = self._to_mm(float(detail[1:])) * self.scale
             elif detail_type == 'Z':
-                z_mm = self._to_mm(float(detail[1:]))
+                z_mm = self._to_mm(float(detail[1:])) * self.scale
             elif detail_type == 'F':
-                self._mm_per_s = self._to_mm_per_second(float(detail[1:]))
+                self._mm_per_s = self._to_mm_per_second(float(detail[1:])) * self.scale
             elif detail_type == 'E':
                 write = float(detail[1:]) > 0.0
             else:
