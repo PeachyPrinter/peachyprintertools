@@ -30,6 +30,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_sublayer_height_mm = True
         expected_laser_thickness_mm = True
         expected_laser_offset = True
+        expected_scaling_factor = True
 
         expected_drips_per_mm = True
         expected_dripper_type = True
@@ -67,6 +68,8 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             config.options.sublayer_height_mm = expected_sublayer_height_mm
         with self.assertRaises(Exception):
             config.options.laser_thickness_mm = expected_laser_thickness_mm
+        with self.assertRaises(Exception):
+            config.options.scaling_factor = expected_scaling_factor
         with self.assertRaises(Exception):
             config.dripper.drips_per_mm = expected_drips_per_mm
         with self.assertRaises(Exception):
@@ -108,6 +111,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
 
         expected_sublayer_height_mm = 0.
         expected_laser_thickness_mm = 0.1
+        expected_scaling_factor = 1.0
         
         expected_drips_per_mm = 10.1
         expected_dripper_type = "audio"
@@ -151,6 +155,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.calibration.lower_points             = expected_calibration_lower_points
         original_config.calibration.upper_points             = expected_calibration_upper_points
         original_config.options.draw_speed                   = expected_draw_speed
+        original_config.options.scaling_factor               = expected_scaling_factor
 
         original_config.serial.on                            = expected_use_serial_zaxis
         original_config.serial.port                          = expected_serial_port
@@ -178,6 +183,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_sublayer_height_mm, config.options.sublayer_height_mm )
         self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm )
         self.assertEquals(expected_laser_offset, config.options.laser_offset )
+        self.assertEquals(expected_scaling_factor, config.options.scaling_factor )
 
         self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm )
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )

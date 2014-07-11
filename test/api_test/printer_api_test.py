@@ -75,7 +75,10 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.audio.output.modulation_off_frequency,
             config.options.laser_offset
             )
-        mock_GCodeReader.assert_called_with(gcode_path)
+        mock_GCodeReader.assert_called_with(
+            gcode_path, 
+            scale = config.options.scaling_factor
+            )
         mock_AudioWriter.assert_called_with(
             config.audio.output.sample_rate,
             config.audio.output.bit_depth,
@@ -148,7 +151,10 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.audio.output.modulation_off_frequency,
             config.options.laser_offset
             )
-        mock_GCodeReader.assert_called_with(gcode_path)
+        mock_GCodeReader.assert_called_with(
+            gcode_path,
+            scale = config.options.scaling_factor
+            )
 
         self.assertEquals(0, mock_AudioWriter.call_count)
 

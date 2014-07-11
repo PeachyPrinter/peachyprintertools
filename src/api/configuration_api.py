@@ -278,6 +278,18 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Laser thickness must be a positive floating point number")
 
+    '''Returns the current setting for scaling factor'''
+    def get_scaling_factor(self):
+        return self._current_config.options.scaling_factor
+
+    '''Sets the scaling factor in mm'''
+    def set_scaling_factor(self, scaling_factor):
+        if (type(scaling_factor) == types.FloatType  and scaling_factor > 0.0):
+            self._current_config.options.scaling_factor = scaling_factor
+            self.save()
+        else:
+            raise Exception("Scaling Factor must be a positive floating point number")
+
     '''Gets the Sublayer height sublayers are added between layers for grater definition'''
     def get_sublayer_height_mm(self):
         return self._current_config.options.sublayer_height_mm

@@ -32,6 +32,7 @@ class OptionsConfiguration(ConfigurationBase):
         self._laser_offset = self.get(source, u'laser_offset')
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm')
         self._laser_thickness_mm = self.get(source, u'laser_thickness_mm')
+        self._scaling_factor = self.get(source, u'scaling_factor')
 
     @property
     def draw_speed(self):
@@ -84,6 +85,18 @@ class OptionsConfiguration(ConfigurationBase):
             self._laser_thickness_mm = value
         else:
             raise ValueError("Laser Thickness must be of %s" % (str(_type)))
+
+    @property
+    def scaling_factor(self):
+        return self._scaling_factor
+
+    @scaling_factor.setter
+    def scaling_factor(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._scaling_factor = value
+        else:
+            raise ValueError("Scaling Factor must be of %s" % (str(_type)))
 
 class DripperConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -410,6 +423,7 @@ class ConfigurationGenerator(object):
         configuration.options.laser_thickness_mm           = 0.5
         configuration.options.draw_speed                   = 200.0
         configuration.options.laser_offset                 = [0.0,0.0]
+        configuration.options.scaling_factor               = 1.0
 
         configuration.dripper.drips_per_mm                 = 100.0
         configuration.dripper.max_lead_distance_mm         = 1.0

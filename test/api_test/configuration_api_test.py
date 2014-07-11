@@ -612,6 +612,9 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_thickness,configuration_API.get_laser_thickness_mm())
         mock_save.assert_called_with(expected)
 
+    patch.object(ConfigurationManager, 'load' )
+
+
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_laser_thickness_mm_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
@@ -629,6 +632,52 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             configuration_API.set_laser_thickness_mm(0)
         with self.assertRaises(Exception):
             configuration_API.set_laser_thickness_mm(1)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_scaling_factor_returns_thickness(self, mock_load):
+        expected = 7.0
+        config = self.default_config
+        config.options.scaling_factor = expected
+        mock_load.return_value =  config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_scaling_factor())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_scaling_factor_sets_scaling_factor(self, mock_save, mock_load):
+        expected_scale = 7.0
+        config =  self.default_config
+        expected = config
+        expected.options.scaling_factor = expected_scale
+        mock_load.return_value =  config 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_scaling_factor(expected_scale)
+
+        self.assertEquals(expected_scale,configuration_API.get_scaling_factor())
+        mock_save.assert_called_with(expected)
+
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_scaling_factor_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
+        mock_load.return_value =   {'name':'test' }
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.set_scaling_factor('a')
+        with self.assertRaises(Exception):
+            configuration_API.set_scaling_factor(-1.0)
+        with self.assertRaises(Exception):
+            configuration_API.set_scaling_factor({'a':'b'})
+        with self.assertRaises(Exception):
+            configuration_API.set_scaling_factor(0)
+        with self.assertRaises(Exception):
+            configuration_API.set_scaling_factor(1)
 
     @patch.object(ConfigurationManager, 'load' )
     def test_sublayer_height_mm_returns_theight(self, mock_load):

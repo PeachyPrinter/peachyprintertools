@@ -24,7 +24,7 @@ class PrintAPI(object):
         self._zaxis = None
 
     def print_gcode(self, file_like_object, print_sub_layers = True, dry_run = False):
-        gcode_reader = GCodeReader(file_like_object)
+        gcode_reader = GCodeReader(file_like_object, scale = self._configuration.options.scaling_factor)
         gcode_layer_generator = gcode_reader.get_layers()
         if print_sub_layers:
             layer_generator = SubLayerGenerator(gcode_layer_generator, self._configuration.options.sublayer_height_mm)
