@@ -179,7 +179,9 @@ class AudioDripZAxis(ZAxis, threading.Thread):
 
     def stop(self):
         self.running = False
-        while not self.shutdown:
+        attempts = 10
+        while not self.shutdown and attempts > 10:
+            attempts -= 1
             time.sleep(0.1)
         self._commander.send_command(self._dripper_off_command)
         self.pa.terminate()

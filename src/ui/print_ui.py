@@ -181,8 +181,15 @@ class PrintStatusUI(PeachyFrame):
 
         Label(self).grid(column=0,row=70)
         
+        Button(self,text='Resart', command=self._restart_printing).grid(column=1,row=80)
         Button(self,textvariable=self._stop_button_text, command=self._stop_button_click).grid(column=2,row=80)
 
+        self._start_printing()
+        
+        self.update()
+
+    def _start_printing(self):
+        self._stop_button_text.set("Abort Print")
         self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
         if 'filename' in self.kwargs:
             file_to_print = self.kwargs['filename']
@@ -192,12 +199,14 @@ class PrintStatusUI(PeachyFrame):
         if self._print_api.can_set_drips_per_second():
             self.options_frame.grid()
             self._drips_per_second_setting.set(self._print_api.get_drips_per_second())
-        
-        self.update()
 
     def _stop_button_click(self):
         self._print_api.stop()
         self.navigate(self.kwargs['calling_class'], printer = self.kwargs['printer'])
+
+    def _restart_printing(self):
+        self._print_api.stop()
+        self._start_printing()
 
     def status_call_back(self,status):
         total_seconds = int(status['elapsed_time'].total_seconds())
