@@ -110,6 +110,8 @@ class SetupOptionsUI(PeachyFrame):
         self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
         self.max_lead_distance_entry_text = DoubleVar()
         self.max_lead_distance_entry_text.set(self._configuration_api.get_max_lead_distance_mm())
+        self.scaling_factor_entry_text = DoubleVar()
+        self.scaling_factor_entry_text.set(self._configuration_api.get_scaling_factor())
 
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
@@ -125,6 +127,9 @@ class SetupOptionsUI(PeachyFrame):
 
         Label(self, text = "Maximum Lead Distance (mm) [0.5]" ).grid(column=0,row=40)
         Entry(self, textvariable = self.max_lead_distance_entry_text).grid(column=1, row=40)
+
+        Label(self, text = "Scale Image [1.0]" ).grid(column=0,row=45)
+        Entry(self, textvariable = self.scaling_factor_entry_text).grid(column=1, row=45)
 
         Label(self).grid(column=1,row=50)
 
@@ -179,6 +184,7 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_laser_thickness_mm(float(self.laser_thickness_entry_text.get()))
         self._configuration_api.set_sublayer_height_mm(float(self.sublayer_height_entry_text.get()))
         self._configuration_api.set_max_lead_distance_mm(float(self.max_lead_distance_entry_text.get()))
+        self._configuration_api.set_scaling_factor(float(self.scaling_factor_entry_text.get()))
         self._configuration_api.set_serial_enabled(bool(self._use_serial.get()))
         self._configuration_api.set_serial_port(self._serial_port.get())
         self._configuration_api.set_serial_on_command(self._serial_on_command.get())
