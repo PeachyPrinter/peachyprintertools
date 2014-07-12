@@ -115,7 +115,7 @@ class GCodeCommandReader(object):
             elif detail_type == 'Z':
                 z_mm = self._to_mm(float(detail[1:])) * self.scale
             elif detail_type == 'F':
-                self._mm_per_s = self._to_mm_per_second(float(detail[1:])) * self.scale
+                self._mm_per_s = self._to_mm_per_second(float(detail[1:]))
             elif detail_type == 'E':
                 write = float(detail[1:]) > 0.0
             else:
