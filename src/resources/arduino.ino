@@ -75,6 +75,7 @@ void camera_on(){
 }
 void camera_off(){
   digitalWrite(camera_pin, LOW);
+  delay(1000);
 }
 
 void run() {
@@ -89,6 +90,8 @@ void run() {
     camera_on();
   } else if (incommingByte == layerEndCommand) {
     camera_off();
+  } else if (incommingByte == 49) {
+    Serial.write("OK\n");
   }
   else {
     digitalWrite(offLed, LOW);
