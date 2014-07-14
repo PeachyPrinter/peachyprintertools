@@ -5,7 +5,7 @@ import time
 import datetime
 import itertools
 import logging
-from mock import patch, PropertyMock, call
+from mock import patch, PropertyMock, call, MagicMock
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
@@ -510,6 +510,23 @@ class ControllerTests(unittest.TestCase):
         Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator, mock_zaxis)
 
         self.assertTrue(mock_zaxis.set_call_back.called)
+
+    def test_should_call_layer_serial_commands_at_start_and_end_of_layer(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_commander = MagicMock()
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
+        stub_layer_generator = StubLayerGenerator([test_layer])
+        mock_path_to_audio.process.return_value = "SomeAudio"
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator, commander = mock_commander)
+        self.controller.start()
+
+        self.wait_for_controller()
+        self.assertEquals("S", mock_commander.send_command.call_args_list[0][0][0])
+        self.assertEquals("E", mock_commander.send_command.call_args_list[1][0][0])
 
     #TODO JT
     #Skip layers if z at next layer

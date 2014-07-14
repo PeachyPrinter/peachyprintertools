@@ -370,8 +370,8 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         gcode_test = "G0 X1.0 Y1.0 Z0.3 F6000"
         command_reader = GCodeCommandReader(scale = 0.1)
         expected = [ 
-            VerticalMove(0.02,0.03,10.0), 
-            LateralMove([0.0,0.0],[0.1,0.1],10.0),
+            VerticalMove(0.02,0.03,100.0), 
+            LateralMove([0.0,0.0],[0.1,0.1],100.0),
             ]
 
         command_reader.to_command(gcode_setup1)
