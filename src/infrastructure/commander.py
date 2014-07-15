@@ -7,19 +7,28 @@ class Commander(object):
         raise NotImplementedError("This is not implemented")
 
 class SerialCommander(object):
-    def __init__(self, port, baud= 9600, connection_timeout = 20):
-        logging.info("Opening serial on port: %s at rate: %s" % (port, baud))
+    def __init__(self, port, baud= 9600, connection_timeout = 10):
+        
+        self.port = port
+        self.baud = baud
         self._connection_timeout = connection_timeout
-        self._connection = serial.Serial(port,baud)
-        # self._wait_for_init()
+        logging.info("Opening serial on port: %s at rate: %s" % (self.port,self.baud))
+        self._connection = serial.Serial(self.port,self.baud,timeout = 1, writeTimeout = 1, interCharTimeout=1)
+        self._wait_for_init()
 
     def _wait_for_init(self):
         start = time.time()
         while time.time() - start < self._connection_timeout:
-            self._connection.write('1\n')
-            time.sleep(0.1)
-            if self._connection.readline().rstrip() == "OK":
+            logging.info('Serial Writing Hello')
+            self._connection.write("D")
+            logging.info('Reading Hello')
+            time.sleep(1)
+            read = self._connection.readline().rstrip()
+            if read == "OK":
+                logging.info('Read Hello Successfully')
                 return
+            logging.info('Failed Reading Hello retrying')
+        logging.error("FAILED Opening serial on port: %s at rate: %s" % (self.port,self.baud))
         raise Exception("Could not start serial")
 
     def send_command(self, command):

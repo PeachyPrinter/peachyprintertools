@@ -18,6 +18,7 @@ int servoLo = 2;
 int loPot = A0;
 int hiPot = A1;
 int testSwitch = 5;
+int bufferSize = 500;
 
 int dripOnCommand = 49;
 int dripOffCommand = 48;
@@ -71,17 +72,19 @@ void dripperOff(){
 }
 
 void camera_on(){
+  delay(bufferSize);
   digitalWrite(camera_pin, HIGH);
 }
 void camera_off(){
+  delay(bufferSize);
   digitalWrite(camera_pin, LOW);
-  delay(1000);
 }
 
 void run() {
   if (Serial.available() > 0) {
     incommingByte = Serial.read();
   }
+  
   if (incommingByte == dripOnCommand) {
     dripperOn();
   } else if (incommingByte == dripOffCommand) {
@@ -90,12 +93,9 @@ void run() {
     camera_on();
   } else if (incommingByte == layerEndCommand) {
     camera_off();
-  } else if (incommingByte == 49) {
+  } else if (incommingByte == 'D') {
     Serial.write("OK\n");
-  }
-  else {
-    digitalWrite(offLed, LOW);
-    digitalWrite(onLed, LOW);
+    incommingByte = 0;
   }
 }
 
