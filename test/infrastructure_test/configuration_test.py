@@ -47,6 +47,8 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_serial_port = True
         expected_serial_on = True
         expected_serial_off = True
+        expected_layer_started = True
+        expected_layer_ended = True
 
         config = Configuration()
 
@@ -97,6 +99,10 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             config.serial.off_command = expected_serial_off
         with self.assertRaises(Exception):
+            config.serial.layer_started = expected_layer_started
+        with self.assertRaises(Exception):
+            config.serial.layer_ended = expected_layer_ended
+        with self.assertRaises(Exception):
             config.options.laser_offset = expected_laser_offset
 
     def test_can_create_json_and_load_from_json(self):
@@ -129,6 +135,8 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_serial_port = "COM2"
         expected_serial_on = "12"
         expected_serial_off = "13"
+        expected_layer_started = "14"
+        expected_layer_ended = "15"
         
 
         original_config = Configuration()
@@ -161,6 +169,8 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.serial.port                          = expected_serial_port
         original_config.serial.on_command                    = expected_serial_on
         original_config.serial.off_command                   = expected_serial_off
+        original_config.serial.layer_started                 = expected_layer_started
+        original_config.serial.layer_ended                   = expected_layer_ended
 
 
         actual_json = json.loads(original_config.toJson())
@@ -204,6 +214,10 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_serial_on, config.serial.on_command )
         self.assertEquals(type(expected_serial_off), type(config.serial.off_command) )
         self.assertEquals(expected_serial_off, config.serial.off_command )
+        self.assertEquals(type(expected_layer_started), type(config.serial.layer_started) )
+        self.assertEquals(expected_layer_started, config.serial.layer_started)
+        self.assertEquals(type(expected_layer_ended), type(config.serial.layer_ended) )
+        self.assertEquals(expected_layer_ended, config.serial.layer_ended )
 
 
 

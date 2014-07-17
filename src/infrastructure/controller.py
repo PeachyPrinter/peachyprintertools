@@ -130,8 +130,12 @@ class Controller(threading.Thread,):
                     max_lead_distance = sys.float_info.max, 
                     abort_on_error=True,
                     max_speed = None,
+                    commander = None,
+                    layer_start_command = "S",
+                    layer_ended_command = "E",
                     ):
         threading.Thread.__init__(self)
+        self.commander = commander
         self.deamon = True
         self._abort_on_error = abort_on_error
         self._max_lead_distance = max_lead_distance
@@ -155,6 +159,8 @@ class Controller(threading.Thread,):
         self._abort_current_command = False
         self._pause = False
         self._pausing = False
+        self._layer_start_command = layer_start_command
+        self._layer_ended_command = layer_ended_command
 
     def run(self):
         logging.info('Running Controller')
@@ -192,6 +198,10 @@ class Controller(threading.Thread,):
         else:
             logging.info("Controller Failed Shutting Down.")
 
+    def _send_command(self, command):
+        if self.commander:
+            self.commander.send_command(command)
+
     def _process_layers(self):
         ahead_by = None
         layer_count  = 0
@@ -204,6 +214,7 @@ class Controller(threading.Thread,):
                     time.sleep(0.01)
                 self._pausing = False
                 layer = self._layer_generator.next()
+                
                 logging.debug('Layer Generator Time: %.2f' % (time.time()-start))
                 layer_count += 1
                 self._status.add_layer()
@@ -213,7 +224,9 @@ class Controller(threading.Thread,):
                     self._wait_till(layer.z)
                     ahead_by = self._zaxis.current_z_location_mm() - layer.z
                 if self._should_process(ahead_by):
+                    self._send_command(self._layer_start_command)
                     self._process_layer(layer)
+                    self._send_command(self._layer_ended_command)
                 else:
                     logging.warning('Dripping too fast, Skipping layer')
                     print ("Skipped at: %s" % time.time())

@@ -208,12 +208,16 @@ class CalibrationConfiguration(ConfigurationBase):
         else:
             raise ValueError("Max Deflection must be of %s" % (str(_type)))
 
+#TODO just make this serial configuration
 class SerialZAxisConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._on = self.get(source, u'on')
         self._port = self.get(source, u'port')
         self._on_command = self.get(source, u'on_command')
         self._off_command = self.get(source, u'off_command')
+        self._layer_started = self.get(source, u'layer_started')
+        self._layer_ended = self.get(source, u'layer_ended')
+
 
     @property
     def on(self):
@@ -249,7 +253,7 @@ class SerialZAxisConfiguration(ConfigurationBase):
         if type(value) == _type:
             self._on_command = value
         else:
-            raise ValueError("Bit depth must be of %s" % (str(_type)))
+            raise ValueError("On command must be %s" % (str(_type)))
 
     @property
     def off_command(self):
@@ -261,7 +265,31 @@ class SerialZAxisConfiguration(ConfigurationBase):
         if type(value) == _type:
             self._off_command = value
         else:
-            raise ValueError("Bit depth must be of %s" % (str(_type)))
+            raise ValueError("Off command must be %s" % (str(_type)))
+
+    @property
+    def layer_started(self):
+        return self._layer_started
+
+    @layer_started.setter
+    def layer_started(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._layer_started = value
+        else:
+            raise ValueError("Layer started command must be of %s" % (str(_type)))
+
+    @property
+    def layer_ended(self):
+        return self._layer_ended
+
+    @layer_ended.setter
+    def layer_ended(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._layer_ended = value
+        else:
+            raise ValueError("Layer ended command must be of %s" % (str(_type)))
 
 class AudioInputConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -439,6 +467,8 @@ class ConfigurationGenerator(object):
         configuration.serial.port                          = "COM2"
         configuration.serial.on_command                    = "1"
         configuration.serial.off_command                   = "0"
+        configuration.serial.layer_started                 = "S"
+        configuration.serial.layer_ended                   = "E"
 
         return configuration
 

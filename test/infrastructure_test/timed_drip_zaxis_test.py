@@ -20,7 +20,7 @@ class TimedDripZaxisTests(unittest.TestCase):
     
     def tearDown(self):
         if self.tdza:
-            self.tdza.stop()
+            self.tdza.close()
 
     def call_back(self, drips, height, drips_per_second):
         self.calls += 1
@@ -31,7 +31,7 @@ class TimedDripZaxisTests(unittest.TestCase):
     def test_shutsdown_cleanly(self):
         self.tdza = TimedDripZAxis(1)
         self.tdza.start()
-        self.tdza.stop()
+        self.tdza.close()
         self.assertFalse(self.tdza.is_alive())
 
     def test_current_z_location_mm_returns_the_correct_number(self):
@@ -42,7 +42,7 @@ class TimedDripZaxisTests(unittest.TestCase):
         while time.time() - start < 0.1:
             time.sleep(0.01)
         result = self.tdza.current_z_location_mm()
-        self.tdza.stop()
+        self.tdza.close()
         self.assertAlmostEquals(expected_mm, result, places = 0)
 
     def test_cset_drips_per_mm_returns_the_new_correct_height(self):
@@ -54,7 +54,7 @@ class TimedDripZaxisTests(unittest.TestCase):
         self.tdza.start()
         while time.time() - start < 0.1:
             time.sleep(0.01)
-        self.tdza.stop()
+        self.tdza.close()
         time.sleep(0.01)
         original_result = self.tdza.current_z_location_mm()
         self.tdza.set_drips_per_mm(new_drips_per_mm)
@@ -80,7 +80,7 @@ class TimedDripZaxisTests(unittest.TestCase):
     #     while self.calls < 10:
     #         time.sleep(0.01)
     #     actual_time = time.time() - start
-    #     self.tdza.stop()
+    #     self.tdza.close()
 
     #     self.assertAlmostEquals(expected_time, actual_time, places = 1)
     #     self.assertEquals(expected_drips, self.drips)
@@ -97,7 +97,7 @@ class TimedDripZaxisTests(unittest.TestCase):
         self.tdza.set_call_back(self.call_back) 
         self.tdza.start()
         time.sleep(0.1)
-        self.tdza.stop()
+        self.tdza.close()
 
         self.assertTrue(self.calls > 0 )
 
@@ -119,7 +119,7 @@ class TimedDripZaxisTests(unittest.TestCase):
         self.assertTrue(before_height <= self.tdza.current_z_location_mm(), "%s !<= %s" % (before_height, self.tdza.current_z_location_mm()))
         self.assertTrue(before_cb_height <= self.height)
         self.assertTrue(before_drips <= self.drips)
-        self.tdza.stop()
+        self.tdza.close()
 
         self.assertTrue(self.calls > 0 )
 
@@ -133,7 +133,7 @@ class TimedDripZaxisTests(unittest.TestCase):
         
         self.tdza.start()
         actual = self.tdza.get_drips_per_second()
-        self.tdza.stop()
+        self.tdza.close()
 
         self.assertEquals(expected_drips_per_second, actual )
     
