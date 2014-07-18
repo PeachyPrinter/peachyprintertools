@@ -338,9 +338,10 @@ class SubLayerGenerator(LayerGenerator):
             self._running = False
 
 class OverLapGenerator(LayerGenerator):
-    def __init__(self,layer_generator):
+    def __init__(self,layer_generator, overlap_mm = 1.0):
         self._layer_generator = layer_generator
         self._tollerance = 0.01
+        self.overlap_mm = overlap_mm
 
     def __iter__(self):
         return self
@@ -372,12 +373,14 @@ class OverLapGenerator(LayerGenerator):
             return ([LateralDraw(command.start,command.end,command.speed)], amount - magnatude)
            
 
-    def _overlap_layer(self, layer, overlap_mm = 1.0, threshold = 0.001):
+    def _overlap_layer(self, layer, threshold = 0.001):
         new_commands = []
         index = 0
-        remainder = overlap_mm
+        remainder = self.overlap_mm
         while remainder > threshold: # almost
             if len(layer.commands) < index:
+                break
+            if type(layer.commands[index]) == LateralMove:
                 break
             new_command, remainder = self._overlap_command(layer.commands[index], remainder)
             new_commands = new_commands + new_command
