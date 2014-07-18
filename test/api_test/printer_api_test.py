@@ -24,7 +24,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioDripZAxis')
     @patch('api.print_api.SubLayerGenerator')
     @patch('api.print_api.NullCommander')
+    @patch('api.print_api.ShuffleGenerator')
     def test_print_gcode_should_create_required_classes_and_start_it(self,
+            mock_ShuffleGenerator,
             mock_NullCommander,
             mock_SubLayerGenerator, 
             mock_AudioDripZAxis,
@@ -42,6 +44,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
+        mock_shufflegenerator = mock_ShuffleGenerator.return_value
         mock_sublayergenerator = mock_SubLayerGenerator.return_value
         mock_audiowriter = mock_AudioWriter.return_value
         mock_transformer = mock_Transformer.return_value
@@ -56,6 +59,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         api = PrintAPI(config)
         api.print_gcode(gcode_path)
 
+        mock_ShuffleGenerator.assert_called_with(
+            mock_sublayergenerator
+            )
         mock_SubLayerGenerator.assert_called_with(
             fake_layers,
             config.options.sublayer_height_mm
@@ -98,7 +104,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_audiomodulationlasercontrol,
             mock_pathtoaudio,
             mock_audiowriter,
-            mock_sublayergenerator,
+            mock_shufflegenerator,
             zaxis = mock_dripbasedzaxis,
             status_call_back = None,
             max_lead_distance = config.dripper.max_lead_distance_mm,
@@ -277,7 +283,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioDripZAxis')
     @patch('api.print_api.SubLayerGenerator')
     @patch('api.print_api.SerialCommander')
+    @patch('api.print_api.ShuffleGenerator')
     def test_print_gcode_should_create_serial_commander_if_specified_in_config(self,
+            mock_ShuffleGenerator,
             mock_SerialCommander,
             mock_SubLayerGenerator, 
             mock_AudioDripZAxis,
@@ -296,6 +304,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
         mock_sublayergenerator = mock_SubLayerGenerator.return_value
+        mock_shufflegenerator = mock_ShuffleGenerator.return_value
         mock_audiowriter = mock_AudioWriter.return_value
         mock_transformer = mock_Transformer.return_value
         mock_pathtoaudio = mock_PathToAudio.return_value
@@ -325,7 +334,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_audiomodulationlasercontrol,
             mock_pathtoaudio,
             mock_audiowriter,
-            mock_sublayergenerator,
+            mock_shufflegenerator,
             zaxis = mock_dripbasedzaxis,
             status_call_back = None,
             max_lead_distance = config.dripper.max_lead_distance_mm,
@@ -344,7 +353,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.TimedDripZAxis')
     @patch('api.print_api.SubLayerGenerator')
     @patch('api.print_api.NullCommander')
+    @patch('api.print_api.ShuffleGenerator')
     def test_print_gcode_should_use_specified_dripper_if_specified_in_config(self,
+            mock_ShuffleGenerator,
             mock_NullCommander,
             mock_SubLayerGenerator, 
             mock_TimedDripZAxis,
@@ -363,6 +374,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_nullcommander = mock_NullCommander.return_value
         mock_gcodereader = mock_GCodeReader.return_value
         mock_sublayergenerator = mock_SubLayerGenerator.return_value
+        mock_shufflegenerator = mock_ShuffleGenerator.return_value
         mock_audiowriter = mock_AudioWriter.return_value
         mock_transformer = mock_Transformer.return_value
         mock_pathtoaudio = mock_PathToAudio.return_value
@@ -381,7 +393,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_audiomodulationlasercontrol,
             mock_pathtoaudio,
             mock_audiowriter,
-            mock_sublayergenerator,
+            mock_shufflegenerator,
             zaxis = mock_timeddripzaxis,
             status_call_back = None,
             max_lead_distance = config.dripper.max_lead_distance_mm,

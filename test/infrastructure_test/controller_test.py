@@ -687,5 +687,5 @@ class MachineStatusTests(unittest.TestCase):
         self.assertEquals(6,self.call_count)
 
 if __name__ == '__main__':
-    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='INFO')
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
     unittest.main()

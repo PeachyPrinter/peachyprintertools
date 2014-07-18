@@ -302,7 +302,6 @@ class SubLayerGenerator(LayerGenerator):
         self._running = True
         self._load_layer()
         self._current_layer = None
-        self._shuffle_point = 0
 
     def next(self):
         if self._running:
@@ -312,16 +311,36 @@ class SubLayerGenerator(LayerGenerator):
                 if  distance_to_next_layer / 2.0 >= self._sub_layer_height - self._tollerance:
                     current_z = self._current_layer.z
                     self._current_layer.z = current_z + self._sub_layer_height
-                    self._current_layer = self._shuffle(self._current_layer)
+                    self._current_layer = self._current_layer
                 else:
-                    self._current_layer = self._shuffle(self._next)
+                    self._current_layer = self._next
                     self._load_layer()
             else:
-                self._current_layer = self._shuffle(self._next)
+                self._current_layer = self._next
                 self._load_layer()
             return self._current_layer
         else:
             raise StopIteration
+
+    def _load_layer(self):
+        try:
+            self._next = self._layer_generator.next()
+        except StopIteration:
+            self._running = False
+
+class ShuffleGenerator(LayerGenerator):
+    def __init__(self,layer_generator):
+        self._layer_generator = layer_generator
+        self._shuffle_point = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def next(self):
+        return self._shuffle(self._layer_generator.next())
 
     def _shuffle(self, layer):
         if self._shuffle_point >= len(layer.commands):
@@ -329,7 +348,6 @@ class SubLayerGenerator(LayerGenerator):
         layer.commands = layer.commands[self._shuffle_point:] + layer.commands[:self._shuffle_point]
         self._shuffle_point +=1
         return layer
-       
 
     def _load_layer(self):
         try:

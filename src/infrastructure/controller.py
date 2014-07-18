@@ -178,7 +178,11 @@ class Controller(threading.Thread,):
         self._pause = True
         self._abort_current_command = True
         while not self._pausing:
+            logging.info("Waiting for pause point")
             time.sleep(0.01)
+            if self._shutting_down:
+                logging.warning("Unexpected Shutdown changing generators")
+                break
         self.state.set_state([0.0,0.0,1.0],100)
         self._layer_generator = layer_generator
         self._pause = False
@@ -209,9 +213,10 @@ class Controller(threading.Thread,):
         while not self._shutting_down:
             try:
                 start = time.time()
-                if self._pause:
+                while self._pause:
+                    # logging.debug("Pause Request")
                     self._pausing = True
-                    time.sleep(0.01)
+                    time.sleep(0.1)
                 self._pausing = False
                 layer = self._layer_generator.next()
                 
@@ -250,6 +255,7 @@ class Controller(threading.Thread,):
 
     def _process_layer(self, layer):
         for command in layer.commands:
+            logging.debug("Processing command")
             if self._shutting_down:
                 return
             if self._abort_current_command:

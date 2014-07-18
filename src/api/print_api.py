@@ -9,7 +9,7 @@ from infrastructure.timed_drip_zaxis import TimedDripZAxis
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
-from infrastructure.layer_generators import SubLayerGenerator
+from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator
 from infrastructure.commander import SerialCommander, NullCommander
 
 
@@ -27,7 +27,7 @@ class PrintAPI(object):
         gcode_reader = GCodeReader(file_like_object, scale = self._configuration.options.scaling_factor)
         gcode_layer_generator = gcode_reader.get_layers()
         if print_sub_layers:
-            layer_generator = SubLayerGenerator(gcode_layer_generator, self._configuration.options.sublayer_height_mm)
+            layer_generator = ShuffleGenerator(SubLayerGenerator(gcode_layer_generator, self._configuration.options.sublayer_height_mm))
         else:
             layer_generator = gcode_layer_generator
         self.print_layers(layer_generator, dry_run)
