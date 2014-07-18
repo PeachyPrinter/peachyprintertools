@@ -82,7 +82,7 @@ class VerifyStatusUI(PeachyFrame):
             self._print_api.verify_gcode(self.kwargs['layer_generator'])
 
 
-        Label(self, text = "Verifying Model" ).grid(column=0,row=5)
+        Label(self, text = "Verifying G-Code" ).grid(column=0,row=5)
         Label(self ).grid(column=0,row=8)
 
         Label(self, text = "Elapsed Time" ).grid(column=0,row=10)
