@@ -2,6 +2,8 @@ import unittest
 import StringIO
 import os
 import sys
+import time
+import logging
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
@@ -379,7 +381,33 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
         command_reader.to_command(gcode_setup3)
 
         self.assertCommandsEqual(expected, command_reader.to_command(gcode_test))
-# units
+
+
+# class GcodeUnifiedTest(unittest.TestCase):
+#     def test_performanace_julia_vase(self):
+#         layer_times = []
+#         afile = open(os.path.join(os.path.dirname(os.path.realpath(__file__)),'test_data','julia.gcode'), 'r')
+#         start_time = time.time()
+#         layers = GCodeReader(afile).get_layers()
+#         running = True
+#         while running:
+#             try:
+#                 layer_start = time.time()
+#                 layer = layers.next()
+#                 for command in layer.commands:
+#                     pass
+#                 layer_times.append(time.time() - layer_start)
+#             except StopIteration:
+#                 running = False
+#         total_time = time.time() - start_time
+#         print("Total Time: %s " % total_time)
+#         print("Layers: %s" % len(layer_times))
+#         print("Longest: %s" % max(layer_times))
+#         print("Shortest: %s" % min(layer_times))
+#         print("Mean: %s" % (sum(layer_times) / len(layer_times) * 1.0))
+#         self.assertTrue(False)
+#         afile.close()
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='INFO')
     unittest.main()

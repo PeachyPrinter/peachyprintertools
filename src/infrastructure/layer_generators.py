@@ -97,7 +97,6 @@ class SubLayerGenerator(LayerGenerator):
         layer.commands = layer.commands[self._shuffle_point:] + layer.commands[:self._shuffle_point]
         self._shuffle_point +=1
         return layer
-       
 
     def _load_layer(self):
         try:
