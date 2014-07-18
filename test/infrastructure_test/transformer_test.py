@@ -140,8 +140,8 @@ class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertAlmostEquals(0.76,bottom[1],places=2)
 
         top = transformer.transform([18.0,13.5,1.0])
-        self.assertAlmostEquals(0.72,top[0],places=2)
-        self.assertAlmostEquals(0.73,top[1],places=2)
+        self.assertAlmostEquals(0.82,top[0],places=2)
+        self.assertAlmostEquals(0.80,top[1],places=2)
 
     def test_given_a_basic_mapping_yields_expected_results_with_scale(self):
         height = 1.0  
