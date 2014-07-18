@@ -290,6 +290,18 @@ class OverLapGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
 
         self.assertLayerEquals(expected_layer,actual_layer)
 
+    def test_next_should_return_input_when_command_start_is_move(self):
+        expected_layer = Layer(0.0, commands = [
+            LateralMove([0.0,0.0],[10.0,10.0],100.0),
+            LateralDraw([10.0,10.0],[20.0,20.0],100.0),
+            LateralDraw([20.0,20.0],[0.0,0.0],100.0)
+            ])
+        source = StubLayerGenerator([expected_layer])
+        overlap_generator = OverLapGenerator(source)
+
+        actual_layer = overlap_generator.next()
+        self.assertLayerEquals(expected_layer,actual_layer)
+
     def test_next_should_overlap_when_commands_congruent(self):
         source_layer = Layer(0.0, commands = [
             LateralDraw([0.0,0.0],[10.0,10.0],100.0),
@@ -309,11 +321,54 @@ class OverLapGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
 
         self.assertLayerEquals(expected_layer,actual_layer)
 
+    def test_next_should_handle_draw_commands_with_no_movement(self):
+        test_layer = Layer(0.0, commands = [
+            LateralDraw([1.0,1.0],[1.0,1.0],100.0),
+            LateralDraw([1.0,1.0],[11.0,11.0],100.0),
+            LateralDraw([11.0,11.0],[20.0,20.0],100.0),
+            LateralDraw([20.0,20.0],[1.0,1.0],100.0)
+            ])
+        expected_layer = Layer(0.0, commands = [
+            LateralDraw([1.0,1.0],[1.0,1.0],100.0),
+            LateralDraw([1.0,1.0],[11.0,11.0],100.0),
+            LateralDraw([11.0,11.0],[20.0,20.0],100.0),
+            LateralDraw([20.0,20.0],[1.0,1.0],100.0),
+            LateralDraw([1.0,1.0],[1.70710678118,1.70710678118], 100.0)
+            ])
+        source = StubLayerGenerator([test_layer])
+        overlap_generator = OverLapGenerator(source)
 
-    def test_next_should_handle_non_movment_commands(self):
-        pass
-        # not long enough
+        actual_layer = overlap_generator.next()
+
+        self.assertLayerEquals(expected_layer,actual_layer)
+
+    def test_next_should_handle_draw_commands_with_less_then_overlap_length(self):
+        test_layer = Layer(0.0, commands = [
+            LateralDraw([0.75,0.75],[1.0,1.0],100.0),
+            LateralDraw([1.0,1.0],[11.0,11.0],100.0),
+            LateralDraw([11.0,11.0],[20.0,20.0],100.0),
+            LateralDraw([20.0,20.0],[0.75,0.75],100.0)
+            ])
+        expected_layer = Layer(0.0, commands = [
+            LateralDraw([0.75,0.75],[1.0,1.0],100.0),
+            LateralDraw([1.0,1.0],[11.0,11.0],100.0),
+            LateralDraw([11.0,11.0],[20.0,20.0],100.0),
+            LateralDraw([20.0,20.0],[0.75,0.75],100.0),
+            LateralDraw([0.75,0.75],[1.0,1.0], 100.0),
+            LateralDraw([1.0,1.0],[1.457106781187,1.457106781187], 100.0)
+            ])
+        source = StubLayerGenerator([test_layer])
+        overlap_generator = OverLapGenerator(source)
+
+        actual_layer = overlap_generator.next()
+        
+        self.assertLayerEquals(expected_layer,actual_layer)
+
+
         # end begin in move
+        # move in multi command overlap
+        # islands
+        # specified sizes
 
 
 #---------------- Cure Test Generators  -------------------------------------

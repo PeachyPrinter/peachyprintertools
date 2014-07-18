@@ -355,22 +355,48 @@ class OverLapGenerator(LayerGenerator):
         x = end[0] - start[0]
         y = end[1] - start[1]
         magnatude = math.sqrt(x**2 + y**2)
-        direction = [x / magnatude, y / magnatude]
+        vector = [x / magnatude, y / magnatude]
         return direction
 
+    def _overlap_command(self,command, amount):
+        x = command.end[0] - command.start[0]
+        y = command.end[1] - command.start[1]
+        magnatude = math.sqrt(x**2 + y**2)
+        if magnatude == 0.0:
+            return ([], amount)
+        elif magnatude >= amount:
+            vector = [(x / magnatude) * amount, (y / magnatude) * amount]
+            end_pos = [command.start[0] + vector[0], command.start[1] + vector[1]] 
+            return ([LateralDraw(command.start,end_pos,command.speed)], 0.0)
+        else:
+            return ([LateralDraw(command.start,command.end,command.speed)], amount - magnatude)
+           
 
-    def _augment_layer(self, layer):
-        start = layer.commands[0].start
-        end = layer.commands[0].end
-        speed = layer.commands[0].speed
-        vector = self._2d_unit_vector(start,end)
-        end_pos = [start[0] + vector[0], start[1] + vector[1]] 
-        layer.commands.append(LateralDraw(start,end_pos,speed))
-        return layer
+    def _overlap_layer(self, layer, overlap_mm = 1.0, threshold = 0.001):
+        new_commands = []
+        index = 0
+        remainder = overlap_mm
+        while remainder > threshold: # almost
+            if len(layer.commands) < index:
+                break
+            new_command, remainder = self._overlap_command(layer.commands[index], remainder)
+            new_commands = new_commands + new_command
+            index += 1
+        commands = layer.commands + new_commands
+        return Layer(layer.z, commands = commands)
+
+    def _should_overlap(self, layer):
+        first_command = layer.commands[0]
+        last_command = layer.commands[-1]
+        return (
+            self._same_spot(last_command.end, first_command.start) and 
+            type(first_command) == LateralDraw and 
+            type(last_command) == LateralDraw
+            )
 
     def next(self):
         next_layer = self._layer_generator.next()
-        if self._same_spot(next_layer.commands[-1].end, next_layer.commands[0].start):
-            return self._augment_layer(next_layer)
+        if self._should_overlap(next_layer):
+            return self._overlap_layer(next_layer)
         else:
             return next_layer
