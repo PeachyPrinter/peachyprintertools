@@ -131,9 +131,7 @@ class MemoryHourglassTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertLayerEquals(expected,actual)
 
 
-
-
-#---------------- Production Generators  -------------------------------------
+#---------------- Augmented Generators  -------------------------------------
 
 class SublayerGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     
@@ -269,6 +267,54 @@ class SublayerGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
 
         with self.assertRaises(StopIteration):
             sublayer_generator.next()
+
+class OverLapGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
+    def test_next_should_return_input_when_single_command(self):
+        expected_layer = Layer(0.0, commands = [LateralDraw([0.0,0.0],[1.0,1.0],100.0)])
+        source = StubLayerGenerator([expected_layer])
+        overlap_generator = OverLapGenerator(source)
+
+        actual_layer = overlap_generator.next()
+
+        self.assertLayerEquals(expected_layer,actual_layer)
+
+    def test_next_should_return_input_when_command_start_and_end_not_congruent(self):
+        expected_layer = Layer(0.0, commands = [
+            LateralDraw([0.0,0.0],[1.0,1.0],100.0),
+            LateralDraw([1.0,1.0],[2.0,2.0],100.0),
+            ])
+        source = StubLayerGenerator([expected_layer])
+        overlap_generator = OverLapGenerator(source)
+
+        actual_layer = overlap_generator.next()
+
+        self.assertLayerEquals(expected_layer,actual_layer)
+
+    def test_next_should_overlap_when_commands_congruent(self):
+        source_layer = Layer(0.0, commands = [
+            LateralDraw([0.0,0.0],[10.0,10.0],100.0),
+            LateralDraw([10.0,10.0],[20.0,20.0],100.0),
+            LateralDraw([20.0,20.0],[0.0,0.0],100.0),
+            ])
+        expected_layer = Layer(0.0, commands = [
+            LateralDraw([0.0,0.0],[10.0,10.0],100.0),
+            LateralDraw([10.0,10.0],[20.0,20.0],100.0),
+            LateralDraw([20.0,20.0],[0.0,0.0],100.0),
+            LateralDraw([0.0,0.0],[0.70710678118,0.70710678118], 100.0)
+            ])
+        source = StubLayerGenerator([source_layer])
+        overlap_generator = OverLapGenerator(source)
+
+        actual_layer = overlap_generator.next()
+
+        self.assertLayerEquals(expected_layer,actual_layer)
+
+
+    def test_next_should_handle_non_movment_commands(self):
+        pass
+        # not long enough
+        # end begin in move
+
 
 #---------------- Cure Test Generators  -------------------------------------
 

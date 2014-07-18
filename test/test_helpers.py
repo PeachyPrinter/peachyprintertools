@@ -17,13 +17,23 @@ class NumpyTestHelpers(object):
 
 class CommandTestHelpers(object):
 
+    def almostEqual(self,a, b,tollerence = 0.0001):
+        diff = a - b
+        return abs(diff) < tollerence 
+
+    def coordantesAlmostEqual(self,point_a, point_b,tollerence = 0.0001):
+        return self.almostEqual(point_a[0] , point_b[0]) and self.almostEqual(point_a[1] , point_b[1])
+
     def assertLateralDrawEqual(self, command1, command2):
-        if not (command1.start == command2.start and command1.end == command2.end and command1.speed == command2.speed):
-            self.fail("Commands do not match\n%s\ndid not equal\n%s" % (command1, command2))
+        if not self.coordantesAlmostEqual(command1.start, command2.start):
+            self.fail("Command starts do not match\n%s\ndid not equal\n%s" % (command1, command2))
+        if not self.coordantesAlmostEqual(command1.end,command2.end):
+            self.fail("Command ends do not match\n%s\ndid not equal\n%s" % (command1, command2))
+        if not self.almostEqual(command1.speed, command2.speed):
+            self.fail("Command speeds do not match\n%s\ndid not equal\n%s" % (command1, command2))
 
     def assertLateralMoveEqual(self, command1, command2):
-        if not (command1.start == command2.start and command1.end == command2.end and command1.speed == command2.speed):
-            self.fail("Commands do not match\n%s\ndid not equal\n%s" % (command1, command2))
+        self.assertLateralDrawEqual(command1, command2)
 
     def assertVerticleMoveEqual(self, command1, command2):
         if not (self._equal(command1.start, command2.start) and self._equal(command1.end, command2.end) and self._equal(command1.speed, command2.speed)):

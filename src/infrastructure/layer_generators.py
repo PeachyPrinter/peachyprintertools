@@ -2,6 +2,9 @@ import logging
 
 from domain.commands import *
 from domain.layer_generator import LayerGenerator, TestLayerGenerator
+import math
+
+# -----------Testing Generators ----------------
 
 class StubLayerGenerator(LayerGenerator):
     def __init__(self, layers):
@@ -11,6 +14,8 @@ class StubLayerGenerator(LayerGenerator):
         if len(self._layers) == 0:
             raise StopIteration()
         return self._layers.pop(0)
+
+# -----------Pattern  Generators ----------------
 
 class SinglePointGenerator(LayerGenerator):
     def __init__(self, starting_xy = [0.0,0.0]):
@@ -24,7 +29,6 @@ class SinglePointGenerator(LayerGenerator):
         layer = Layer(0.0)
         layer.commands.append(LateralDraw(self.xy,self.xy,self.speed))
         return layer
-
 
 class CalibrationLineGenerator(LayerGenerator):
     def __init__(self, speed = 10.0):
@@ -61,49 +65,6 @@ class BlinkGenerator(TestLayerGenerator):
             x = math.sin(theta) * self._radius + 0.5
             y = math.cos(theta) * self._radius + 0.5
             yield [x,y]
-
-class SubLayerGenerator(LayerGenerator):
-    def __init__(self,layer_generator,sub_layer_height, tollerance = 0.001):
-        self._layer_generator = layer_generator
-        self._tollerance = tollerance
-        self._sub_layer_height = sub_layer_height
-        self._running = True
-        self._load_layer()
-        self._current_layer = None
-        self._shuffle_point = 0
-
-    def next(self):
-        if self._running:
-            if self._current_layer:
-                distance_to_next_layer = self._next.z - self._current_layer.z
-                logging.debug('%f8' % distance_to_next_layer)
-                if  distance_to_next_layer / 2.0 >= self._sub_layer_height - self._tollerance:
-                    current_z = self._current_layer.z
-                    self._current_layer.z = current_z + self._sub_layer_height
-                    self._current_layer = self._shuffle(self._current_layer)
-                else:
-                    self._current_layer = self._shuffle(self._next)
-                    self._load_layer()
-            else:
-                self._current_layer = self._shuffle(self._next)
-                self._load_layer()
-            return self._current_layer
-        else:
-            raise StopIteration
-
-    def _shuffle(self, layer):
-        if self._shuffle_point >= len(layer.commands):
-            self._shuffle_point = 0
-        layer.commands = layer.commands[self._shuffle_point:] + layer.commands[:self._shuffle_point]
-        self._shuffle_point +=1
-        return layer
-
-    def _load_layer(self):
-        try:
-            self._next = self._layer_generator.next()
-        except StopIteration:
-            self._running = False
-
 
 class HilbertGenerator(TestLayerGenerator):
     def __init__(self, order = 4, speed = 150.0, radius = 40.0):
@@ -171,7 +132,6 @@ class DampingTestGenerator(TestLayerGenerator):
         layer.commands.append(LateralDraw([ 0.0         ,-self._radius ],[  0.0         ,  self._radius ], self._speed))
         return layer
 
-import math
 class CircleGenerator(TestLayerGenerator):
     def __init__(self, speed = 100.0, radius = 20.0, steps = 20):
         self.set_speed(speed)
@@ -285,6 +245,8 @@ class NESWGenerator(TestLayerGenerator):
             last = scaled_point
         return layer
 
+# -----------Cure Generators ----------------
+
 class CureTestGenerator(LayerGenerator):
     def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height):
         base_height = float(base_height)
@@ -329,3 +291,86 @@ class CureTestGenerator(LayerGenerator):
         layer = Layer(float(self._current_layer * self._sub_layer_height), commands = self.commands(base_layer))
         self._current_layer += 1
         return layer
+
+# -----------Augmenting Generators ----------------
+
+class SubLayerGenerator(LayerGenerator):
+    def __init__(self,layer_generator,sub_layer_height, tollerance = 0.001):
+        self._layer_generator = layer_generator
+        self._tollerance = tollerance
+        self._sub_layer_height = sub_layer_height
+        self._running = True
+        self._load_layer()
+        self._current_layer = None
+        self._shuffle_point = 0
+
+    def next(self):
+        if self._running:
+            if self._current_layer:
+                distance_to_next_layer = self._next.z - self._current_layer.z
+                logging.debug('%f8' % distance_to_next_layer)
+                if  distance_to_next_layer / 2.0 >= self._sub_layer_height - self._tollerance:
+                    current_z = self._current_layer.z
+                    self._current_layer.z = current_z + self._sub_layer_height
+                    self._current_layer = self._shuffle(self._current_layer)
+                else:
+                    self._current_layer = self._shuffle(self._next)
+                    self._load_layer()
+            else:
+                self._current_layer = self._shuffle(self._next)
+                self._load_layer()
+            return self._current_layer
+        else:
+            raise StopIteration
+
+    def _shuffle(self, layer):
+        if self._shuffle_point >= len(layer.commands):
+            self._shuffle_point = 0
+        layer.commands = layer.commands[self._shuffle_point:] + layer.commands[:self._shuffle_point]
+        self._shuffle_point +=1
+        return layer
+       
+
+    def _load_layer(self):
+        try:
+            self._next = self._layer_generator.next()
+        except StopIteration:
+            self._running = False
+
+class OverLapGenerator(LayerGenerator):
+    def __init__(self,layer_generator):
+        self._layer_generator = layer_generator
+        self._tollerance = 0.01
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return  self.next()
+
+    def _same_spot(self,pos1,pos2):
+        return (abs(pos1[0] - pos2[0]) < self._tollerance) and (abs(pos1[0] - pos2[0]) < self._tollerance)
+
+    def _2d_unit_vector(self,start,end):
+        x = end[0] - start[0]
+        y = end[1] - start[1]
+        magnatude = math.sqrt(x**2 + y**2)
+        direction = [x / magnatude, y / magnatude]
+        return direction
+
+
+    def _augment_layer(self, layer):
+        start = layer.commands[0].start
+        end = layer.commands[0].end
+        speed = layer.commands[0].speed
+        vector = self._2d_unit_vector(start,end)
+        end_pos = [start[0] + vector[0], start[1] + vector[1]] 
+        layer.commands.append(LateralDraw(start,end_pos,speed))
+        return layer
+
+    def next(self):
+        next_layer = self._layer_generator.next()
+        if self._same_spot(next_layer.commands[-1].end, next_layer.commands[0].start):
+            return self._augment_layer(next_layer)
+        else:
+            return next_layer
