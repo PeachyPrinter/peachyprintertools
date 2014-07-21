@@ -612,8 +612,6 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_thickness,configuration_API.get_laser_thickness_mm())
         mock_save.assert_called_with(expected)
 
-    patch.object(ConfigurationManager, 'load' )
-
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
@@ -735,11 +733,15 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         actual_port = configuration_API.get_serial_port()
         actual_on = configuration_API.get_serial_on_command()
         actual_off = configuration_API.get_serial_off_command()
+        actual_layer_start = configuration_API.get_layer_started_command()
+        actual_layer_ended = configuration_API.get_layer_ended_command()
 
         self.assertEquals(self.default_config.serial.on, actual_enabled)
         self.assertEquals(self.default_config.serial.port, actual_port)
         self.assertEquals(self.default_config.serial.on_command, actual_on)
         self.assertEquals(self.default_config.serial.off_command, actual_off)
+        self.assertEquals(self.default_config.serial.layer_started, actual_layer_start)
+        self.assertEquals(self.default_config.serial.layer_ended, actual_layer_ended)
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
@@ -748,6 +750,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         expected_port = 'com54'
         expected_on = 'GOGOGO'
         expected_off = 'STOPSTOP'
+        expected_start = 'S'
+        expected_end = 'E'
 
         mock_load.return_value =  self.default_config
         expected = self.default_config
@@ -755,6 +759,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         expected.serial.port      = expected_port
         expected.serial.on_command        = expected_on
         expected.serial.off_command       = expected_off
+        expected.serial.layer_started     = expected_start
+        expected.serial.layer_ended       = expected_end
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
@@ -763,13 +769,48 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         configuration_API.set_serial_port(expected_port)
         configuration_API.set_serial_on_command(expected_on)
         configuration_API.set_serial_off_command(expected_off)
+        configuration_API.set_layer_started_command(expected_start)
+        configuration_API.set_layer_ended_command(expected_end)
+
 
         self.assertEquals( expected_enabled ,configuration_API.get_serial_enabled())
         self.assertEquals( expected_port ,configuration_API.get_serial_port())
         self.assertEquals( expected_on ,configuration_API.get_serial_on_command())
         self.assertEquals( expected_off ,configuration_API.get_serial_off_command())
+        self.assertEquals( expected_start ,configuration_API.get_layer_started_command())
+        self.assertEquals( expected_end ,configuration_API.get_layer_ended_command())
 
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
+
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_overlap_amount_mm_returns_the_overlap(self, mock_load):
+        expected = 7.0
+        expected_config = self.default_config
+        expected_config.options.overlap_amount = expected
+        mock_load.return_value =  expected_config
+
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_overlap_amount_mm())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_overlap_amount_mm_returns_height(self, mock_save, mock_load):
+        overlap_amount = 7.0
+        config =  self.default_config
+        expected = config
+        expected.options.overlap_amount = overlap_amount
+        mock_load.return_value =  config 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_overlap_amount_mm(overlap_amount)
+
+        self.assertEquals(overlap_amount,configuration_API.get_overlap_amount_mm())
+        mock_save.assert_called_with(expected)
+
 
 #-----------------------------------------Cure Test Setup Tests -----------------------------------
 
@@ -945,6 +986,40 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             configuration_API.set_speed(-1)
         with self.assertRaises(Exception):
             configuration_API.set_speed(0)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_layer_settings(self, mock_load):
+        config  = self.default_config
+        config.options.use_shufflelayers = True
+        config.options.use_sublayers = True
+        config.options.use_overlap = True
+
+        mock_load.return_value = config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+        
+        self.assertTrue(configuration_API.get_use_shufflelayers())
+        self.assertTrue(configuration_API.get_use_sublayers())
+        self.assertTrue(configuration_API.get_use_overlap())
+
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_layer_settings(self, mock_save, mock_load):
+        mock_load.return_value = self.default_config
+        expected = self.default_config
+        expected.options.use_shufflelayers = False
+        expected.options.use_sublayers = False
+        expected.options.use_overlap = False
+        
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+        
+        configuration_API.set_use_shufflelayers(False)
+        configuration_API.set_use_sublayers(False)
+        configuration_API.set_use_overlap(False)
+        
+        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
 
 class AudioSettingsTest(unittest.TestCase, test_helpers.TestHelpers):

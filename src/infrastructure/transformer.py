@@ -14,7 +14,7 @@ class TuningTransformer(Transformer):
         if scale > 0.0 and scale <= 1.0:
             self._scale = scale
         else:
-            logging.error('Scale must be between 0.0 and 1.0 was %s' % scale) 
+            logging.error('Scale must be between 0.0 and 1.0 was %s' % scale)
             raise Exception('Scale must be between 0.0 and 1.0 was %s' % scale)
 
     def transform(self, xyz):
@@ -51,7 +51,6 @@ class HomogenousTransformer(Transformer):
         self._get_transforms()
         self._cache = {}
         
-
     def _get_transforms(self):
         self._lock.acquire()
         try:
@@ -126,8 +125,6 @@ class HomogenousTransformer(Transformer):
             logging.error("Bounds of printer exceeded: %s,%s" % (x1,y1))
             raise Exception("Bounds of printer exceeded")
 
-
     def set_scale(self, new_scale):
         self._scale = new_scale
         self._get_transforms()
-       

@@ -71,6 +71,9 @@ class ConfigurationAPI(object):
     def save(self):
         self._configuration_manager.save(self._current_config)
 
+    def _positive_float(self, value):
+        return (type(value) == types.FloatType  and value > 0.0)
+
     # ----------------------------------- Audio Setup ------------------------------------------
     _BEST_AUDIO_OUT_OPTIONS = [
         AudioSetting(48000, '16 bit'), 
@@ -272,7 +275,7 @@ class ConfigurationAPI(object):
 
     '''Sets the laser thickness in mm'''
     def set_laser_thickness_mm(self, thickness_mm):
-        if (type(thickness_mm) == types.FloatType  and thickness_mm > 0.0):
+        if self._positive_float(thickness_mm):
             self._current_config.options.laser_thickness_mm = thickness_mm
             self.save()
         else:
@@ -284,7 +287,7 @@ class ConfigurationAPI(object):
 
     '''Sets the scaling factor in mm'''
     def set_scaling_factor(self, scaling_factor):
-        if (type(scaling_factor) == types.FloatType  and scaling_factor > 0.0):
+        if self._positive_float(scaling_factor):
             self._current_config.options.scaling_factor = scaling_factor
             self.save()
         else:
@@ -296,7 +299,7 @@ class ConfigurationAPI(object):
 
     '''Sets the Sublayer height sublayers are added between layers for grater definition'''
     def set_sublayer_height_mm(self, thickness_mm):
-        if (type(thickness_mm) == types.FloatType  and thickness_mm > 0.0):
+        if  self._positive_float(thickness_mm):
             self._current_config.options.sublayer_height_mm = thickness_mm
             self.save()
         else:
@@ -308,11 +311,59 @@ class ConfigurationAPI(object):
 
     '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
     def set_max_lead_distance_mm(self, lead_distance_mm):
-        if (type(lead_distance_mm) == types.FloatType  and lead_distance_mm > 0.0):
+        if  self._positive_float(lead_distance_mm):
             self._current_config.dripper.max_lead_distance_mm = lead_distance_mm
             self.save()
         else:
             raise Exception("Max lead distance height must be a positive floating point number")
+
+    '''Gets the Overlap Amount for each layer'''
+    def get_overlap_amount_mm(self):
+        return self._current_config.options.overlap_amount
+
+    '''Sets the Overlap Amount for each layer'''
+    def set_overlap_amount_mm(self, overlap_amount):
+        if self._positive_float(overlap_amount):
+            self._current_config.options.overlap_amount = overlap_amount
+            self.save()
+        else:
+            raise Exception("Overlap Amount must be a positive floating point number")
+
+    '''Gets the Shuffle layers setting'''
+    def get_use_shufflelayers(self):
+        return self._current_config.options.use_shufflelayers
+
+    '''Sets the Shuffle layers setting'''
+    def set_use_shufflelayers(self, use_shufflelayers):
+        if (type(use_shufflelayers) == types.BooleanType):
+            self._current_config.options.use_shufflelayers = use_shufflelayers
+            self.save()
+        else:
+            raise Exception("Use Shuffle Layers must be True or False")
+
+    '''Gets the Sub layers setting'''
+    def get_use_sublayers(self):
+        return self._current_config.options.use_sublayers
+
+    '''Sets the Sub layers setting'''
+    def set_use_sublayers(self, use_sublayers):
+        if (type(use_sublayers) == types.BooleanType):
+            self._current_config.options.use_sublayers = use_sublayers
+            self.save()
+        else:
+            raise Exception("Use SubLayers must be True or False")
+
+    '''Gets the Overlap layers setting'''
+    def get_use_overlap(self):
+        return self._current_config.options.use_overlap
+
+    '''Sets the Overlap layers setting'''
+    def set_use_overlap(self, use_overlap):
+        if (type(use_overlap) == types.BooleanType):
+            self._current_config.options.use_overlap = use_overlap
+            self.save()
+        else:
+            raise Exception("Use Overlap must be True or False")
 
 
     #----------------------------Advanced Setup---------------------------------------
@@ -329,6 +380,12 @@ class ConfigurationAPI(object):
     def get_serial_off_command(self):
         return self._current_config.serial.off_command
 
+    def get_layer_started_command(self):
+        return self._current_config.serial.layer_started
+
+    def get_layer_ended_command(self):
+        return self._current_config.serial.layer_ended
+
     def set_serial_enabled(self, enabled):
         self._current_config.serial.on = enabled
         self.save()
@@ -344,5 +401,15 @@ class ConfigurationAPI(object):
     def set_serial_off_command(self, off_command):
         self._current_config.serial.off_command = off_command
         self.save()
+
+    def set_layer_started_command(self, layer_started):
+        self._current_config.serial.layer_started = layer_started
+        self.save()
+
+    def set_layer_ended_command(self, layer_ended):
+        self._current_config.serial.layer_ended = layer_ended
+        self.save()
+
+
 
 

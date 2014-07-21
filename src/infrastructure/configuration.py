@@ -508,6 +508,10 @@ class ConfigurationGenerator(object):
         configuration.options.draw_speed                   = 200.0
         configuration.options.laser_offset                 = [0.0,0.0]
         configuration.options.scaling_factor               = 1.0
+        configuration.options.overlap_amount               = 1.0
+        configuration.options.use_shufflelayers            = True
+        configuration.options.use_sublayers                = False
+        configuration.options.use_overlap                  = True
 
         configuration.dripper.drips_per_mm                 = 100.0
         configuration.dripper.max_lead_distance_mm         = 1.0
