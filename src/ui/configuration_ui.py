@@ -106,12 +106,22 @@ class SetupOptionsUI(PeachyFrame):
 
         self.laser_thickness_entry_text = DoubleVar()
         self.laser_thickness_entry_text.set(self._configuration_api.get_laser_thickness_mm())
-        self.sublayer_height_entry_text = DoubleVar()
-        self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
         self.max_lead_distance_entry_text = DoubleVar()
         self.max_lead_distance_entry_text.set(self._configuration_api.get_max_lead_distance_mm())
         self.scaling_factor_entry_text = DoubleVar()
         self.scaling_factor_entry_text.set(self._configuration_api.get_scaling_factor())
+
+        self._use_sublayers = IntVar()
+        self._use_sublayers.set(self._configuration_api.get_use_sublayers())
+        self._use_shufflelayers = IntVar()
+        self._use_shufflelayers.set(self._configuration_api.get_use_shufflelayers())
+        self._use_overlap = IntVar()
+        self._use_overlap.set(self._configuration_api.get_use_overlap())
+
+        self.sublayer_height_entry_text = DoubleVar()
+        self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
+        self.overlap_amount_entry_text = DoubleVar()
+        self.overlap_amount_entry_text.set(self._configuration_api.get_overlap_amount_mm())
 
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
@@ -122,9 +132,6 @@ class SetupOptionsUI(PeachyFrame):
         Label(self, text = "Spot Diameter (mm) [0.5]" ).grid(column=0,row=20)
         Entry(self, textvariable = self.laser_thickness_entry_text).grid(column=1, row=20)
 
-        Label(self, text = "Sub Layer Height (mm) [0.05]" ).grid(column=0,row=30)
-        Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=1, row=30)
-
         Label(self, text = "Maximum Lead Distance (mm) [0.5]" ).grid(column=0,row=40)
         Entry(self, textvariable = self.max_lead_distance_entry_text).grid(column=1, row=40)
 
@@ -133,8 +140,20 @@ class SetupOptionsUI(PeachyFrame):
 
         Label(self).grid(column=1,row=50)
 
+        Checkbutton(self, text="Use Sublayers", variable = self._use_sublayers, command=self._update_field_visibility).grid(column=0, row = 60, sticky=W)
+        Label(self, text = "Sublayer Size (mm) [0.01]" ).grid(column=1,row=60)
+        Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=2, row=60)
+
+        Checkbutton(self, text="Use Overlap", variable = self._use_shufflelayers, command=self._update_field_visibility).grid(column=0, row = 70, sticky=W)
+        Label(self, text = "Overlap Amount (mm) [1.0]" ).grid(column=1,row=70)
+        Entry(self, textvariable = self.overlap_amount_entry_text).grid(column=2, row=70)
+
+        Checkbutton(self, text="Use Shuffled Starting Points", variable = self._use_overlap, command=self._update_field_visibility).grid(column=0, row = 80, sticky=W)
+
+        Label(self).grid(column=1,row=90)
+
         advanced_frame = LabelFrame(self, text="Advanced Options (use at your own risk)", padx=5, pady=5)
-        advanced_frame.grid(column=0,row=60, columnspan=3)
+        advanced_frame.grid(column=0,row=100, columnspan=3)
         # ----------------------Frame Start---------------------------
         self._use_serial = IntVar()
         self._use_serial.set(self._configuration_api.get_serial_enabled())
@@ -172,11 +191,14 @@ class SetupOptionsUI(PeachyFrame):
         self._showhide_serial()
 
         # ----------------------Frame End---------------------------
-        Label(self).grid(column=1,row=70)
+        Label(self).grid(column=1,row=110)
 
-        Button(self, text ="Back", command = self._back).grid(column=0,row=80,sticky=N+S+W)
-        Button(self, text ="Save", command = self._save).grid(column=2,row=80,sticky=N+S+E)
+        Button(self, text ="Back", command = self._back).grid(column=0,row=120,sticky=N+S+W)
+        Button(self, text ="Save", command = self._save).grid(column=2,row=120,sticky=N+S+E)
         self.update()
+
+    def _update_field_visibility(self):
+        pass
 
     def _showhide_serial(self):
         if self._use_serial.get():
@@ -200,15 +222,23 @@ class SetupOptionsUI(PeachyFrame):
 
     def _save(self):
         self._configuration_api.set_laser_thickness_mm(float(self.laser_thickness_entry_text.get()))
-        self._configuration_api.set_sublayer_height_mm(float(self.sublayer_height_entry_text.get()))
         self._configuration_api.set_max_lead_distance_mm(float(self.max_lead_distance_entry_text.get()))
         self._configuration_api.set_scaling_factor(float(self.scaling_factor_entry_text.get()))
+
+        self._configuration_api.set_sublayer_height_mm(float(self.sublayer_height_entry_text.get()))
+        self._configuration_api.set_overlap_amount_mm(float(self.overlap_amount_entry_text.get()))
+
+        self._configuration_api.set_use_sublayers(bool(self._use_sublayers.get()))
+        self._configuration_api.set_use_shufflelayers(bool(self._use_shufflelayers.get()))
+        self._configuration_api.set_use_overlap(bool(self._use_overlap.get()))
+
         self._configuration_api.set_serial_enabled(bool(self._use_serial.get()))
         self._configuration_api.set_serial_port(self._serial_port.get())
         self._configuration_api.set_serial_on_command(self._serial_on_command.get())
         self._configuration_api.set_serial_off_command(self._serial_off_command.get())
         self._configuration_api.set_layer_started_command(self._serial_layer_start_command.get())
         self._configuration_api.set_layer_ended_command(self._serial_layer_end_command.get())
+
         self.navigate(SetupUI, printer = self._current_printer)
 
     def close(self):
