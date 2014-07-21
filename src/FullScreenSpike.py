@@ -41,7 +41,7 @@ class FullScreenApp(object):
         self.max_depth= IntVar()
         self.max_height= IntVar()
         self.rotate  = BooleanVar()
-        self.flip_1= BooleanVar(
+        self.flip_1= BooleanVar()
         self.flip_2= BooleanVar()
 
         self.max_width.set(50)

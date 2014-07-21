@@ -31,6 +31,12 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_laser_thickness_mm = True
         expected_laser_offset = True
         expected_scaling_factor = True
+        expected_draw_speed = True
+        expected_overlap_amount = True
+        expected_use_shufflelayers = "WRONG"
+        expected_use_sublayers = "WRONG"
+        expected_use_overlap = "WRONG"
+
 
         expected_drips_per_mm = True
         expected_dripper_type = True
@@ -41,7 +47,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_calibration_height = True
         expected_calibration_lower_points = True
         expected_calibration_upper_points = True
-        expected_draw_speed = True
+        
         
         expected_use_serial_zaxis = "!@#!@#"
         expected_serial_port = True
@@ -66,20 +72,16 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             config.audio.input.bit_depth = expected_input_bit_depth
         with self.assertRaises(Exception):
             config.audio.input.sample_rate = expected_input_sample_frequency
-        with self.assertRaises(Exception):
-            config.options.sublayer_height_mm = expected_sublayer_height_mm
-        with self.assertRaises(Exception):
-            config.options.laser_thickness_mm = expected_laser_thickness_mm
-        with self.assertRaises(Exception):
-            config.options.scaling_factor = expected_scaling_factor
+
         with self.assertRaises(Exception):
             config.dripper.drips_per_mm = expected_drips_per_mm
-        with self.assertRaises(Exception):
-            config.calibration.max_deflection = expected_max_deflection
         with self.assertRaises(Exception):
             config.dripper.dripper_type = expected_dripper_type
         with self.assertRaises(Exception):
             config.dripper.emulated_drips_per_second = expected_dripper_emulated_drips_per_second
+        with self.assertRaises(Exception):
+            config.dripper.max_lead_distance_mm = expected_max_lead_distance_mm
+
         with self.assertRaises(Exception):
             config.calibration.height = expected_calibration_height
         with self.assertRaises(Exception):
@@ -87,9 +89,27 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             config.calibration.upper_points = expected_calibration_upper_points
         with self.assertRaises(Exception):
+            config.calibration.max_deflection = expected_max_deflection
+
+        with self.assertRaises(Exception):
+            config.options.sublayer_height_mm = expected_sublayer_height_mm
+        with self.assertRaises(Exception):
+            config.options.laser_thickness_mm = expected_laser_thickness_mm
+        with self.assertRaises(Exception):
+            config.options.scaling_factor = expected_scaling_factor
+        with self.assertRaises(Exception):
             config.options.draw_speed = expected_draw_speed
         with self.assertRaises(Exception):
-            config.dripper.max_lead_distance_mm = expected_max_lead_distance_mm
+            config.options.laser_offset = expected_laser_offset
+        with self.assertRaises(Exception):
+            config.options.overlap_amount = expected_overlap_amount
+        with self.assertRaises(Exception):
+            config.options.use_shufflelayers = expected_use_shufflelayers
+        with self.assertRaises(Exception):
+            config.options.use_sublayers = expected_use_sublayers
+        with self.assertRaises(Exception):
+            config.options.use_overlap = expected_use_overlap
+
         with self.assertRaises(Exception):
             config.serial.on = expected_use_serial_zaxis
         with self.assertRaises(Exception):
@@ -102,8 +122,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             config.serial.layer_started = expected_layer_started
         with self.assertRaises(Exception):
             config.serial.layer_ended = expected_layer_ended
-        with self.assertRaises(Exception):
-            config.options.laser_offset = expected_laser_offset
+
 
     def test_can_create_json_and_load_from_json(self):
         expected_name = "PP"
@@ -123,6 +142,10 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_dripper_type = "audio"
         expected_dripper_emulated_drips_per_second = 1.0
         expected_max_lead_distance_mm = 0.2
+        expected_overlap_amount = 1.0 
+        expected_use_shufflelayers = True
+        expected_use_sublayers = True
+        expected_use_overlap = True
 
         expected_max_deflection = 75.2
         expected_calibration_height = 1.0
@@ -152,6 +175,10 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.options.sublayer_height_mm           = expected_sublayer_height_mm
         original_config.options.laser_thickness_mm           = expected_laser_thickness_mm
         original_config.options.laser_offset                 = expected_laser_offset
+        original_config.options.overlap_amount               = expected_overlap_amount
+        original_config.options.use_shufflelayers            = expected_use_shufflelayers
+        original_config.options.use_sublayers                = expected_use_sublayers
+        original_config.options.use_overlap                  = expected_use_overlap
         
         original_config.dripper.drips_per_mm                 = expected_drips_per_mm
         original_config.dripper.dripper_type                 = expected_dripper_type
@@ -194,6 +221,10 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm )
         self.assertEquals(expected_laser_offset, config.options.laser_offset )
         self.assertEquals(expected_scaling_factor, config.options.scaling_factor )
+        self.assertEquals(expected_overlap_amount, config.options.overlap_amount )
+        self.assertEquals(expected_use_shufflelayers, config.options.use_shufflelayers )
+        self.assertEquals(expected_use_sublayers, config.options.use_sublayers )
+        self.assertEquals(expected_use_overlap, config.options.use_overlap )
 
         self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm )
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )

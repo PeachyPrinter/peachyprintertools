@@ -33,6 +33,10 @@ class OptionsConfiguration(ConfigurationBase):
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm')
         self._laser_thickness_mm = self.get(source, u'laser_thickness_mm')
         self._scaling_factor = self.get(source, u'scaling_factor')
+        self._overlap_amount = self.get(source, u'overlap_amount')
+        self._use_shufflelayers = self.get(source, u'use_shufflelayers')
+        self._use_sublayers = self.get(source, u'use_sublayers')
+        self._use_overlap = self.get(source, u'use_overlap')
 
     @property
     def draw_speed(self):
@@ -97,6 +101,58 @@ class OptionsConfiguration(ConfigurationBase):
             self._scaling_factor = value
         else:
             raise ValueError("Scaling Factor must be of %s" % (str(_type)))
+
+    @property
+    def overlap_amount(self):
+        return self._overlap_amount
+
+    @overlap_amount.setter
+    def overlap_amount(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._overlap_amount = value
+        else:
+            raise ValueError("overlap_amount must be of %s" % (str(_type)))
+
+
+    @property
+    def use_shufflelayers(self):
+        return self._use_shufflelayers
+
+    @use_shufflelayers.setter
+    def use_shufflelayers(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._use_shufflelayers = value
+        else:
+            raise ValueError("Use use_shufflelayers must be of %s" % (str(_type)))
+
+
+    @property
+    def use_sublayers(self):
+        return self._use_sublayers
+
+    @use_sublayers.setter
+    def use_sublayers(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._use_sublayers = value
+        else:
+            raise ValueError("use_sublayers must be of %s" % (str(_type)))
+
+
+    @property
+    def use_overlap(self):
+        return self._use_overlap
+
+    @use_overlap.setter
+    def use_overlap(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._use_overlap = value
+        else:
+            raise ValueError("use_overlap must be of %s" % (str(_type)))
+
 
 class DripperConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
