@@ -22,9 +22,13 @@ class PrintAPI(object):
         self._controller = None
         self._status_call_back = status_call_back
         self._zaxis = None
+        self._current_file_name = None
+        self._current_file = None
 
-    def print_gcode(self, file_like_object, print_sub_layers = True, dry_run = False):
-        gcode_reader = GCodeReader(file_like_object, scale = self._configuration.options.scaling_factor)
+    def print_gcode(self, file_name, print_sub_layers = True, dry_run = False):
+        self._current_file_name = file_name
+        self._current_file = open(file_name,'r')
+        gcode_reader = GCodeReader(self._current_file, scale = self._configuration.options.scaling_factor)
         gcode_layer_generator = gcode_reader.get_layers()
         layer_generator = gcode_layer_generator
         logging.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
@@ -131,8 +135,8 @@ class PrintAPI(object):
             logging.warning("Drips per second requested but does not exist")
             return 0.0
 
-    def verify_gcode(self, g_code_file_like_object):
-        self.print_gcode(g_code_file_like_object,  print_sub_layers = False,  dry_run = True)
+    def verify_gcode(self, file_name):
+        self.print_gcode(file_name,  print_sub_layers = False,  dry_run = True)
 
     def close(self):
         if self._zaxis:
@@ -141,3 +145,6 @@ class PrintAPI(object):
             self._controller.close()
         else:
             logging.warning('Stopped before printing')
+        if self._current_file:
+            self._current_file.close()
+            logging.info("File Closed")

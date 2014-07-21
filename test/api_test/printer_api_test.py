@@ -3,7 +3,7 @@ import os
 import sys
 from StringIO import StringIO
 
-from mock import patch
+from mock import patch, mock_open
 
 import logging
 
@@ -14,6 +14,9 @@ from domain.configuration_manager import ConfigurationManager
 from api.print_api import PrintAPI
 from infrastructure.layer_generators import ShuffleGenerator,SubLayerGenerator,OverLapGenerator,StubLayerGenerator
 import test_helpers
+
+
+
 
 
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
@@ -59,9 +62,14 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_shufflelayers = False
         config.options.use_sublayers = False
         config.options.use_overlap = False
-
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
+            mock_GCodeReader.assert_called_with(
+            m.return_value,
+            scale = config.options.scaling_factor
+            )
 
         mock_AudioDripZAxis.assert_called_with(
             config.dripper.drips_per_mm,
@@ -77,10 +85,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.audio.output.modulation_off_frequency,
             config.options.laser_offset
             )
-        mock_GCodeReader.assert_called_with(
-            gcode_path, 
-            scale = config.options.scaling_factor
-            )
+        
         mock_AudioWriter.assert_called_with(
             config.audio.output.sample_rate,
             config.audio.output.bit_depth,
@@ -154,7 +159,12 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_overlap = False
 
         api = PrintAPI(config)
-        api.verify_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.verify_gcode(gcode_path)
+            mock_GCodeReader.assert_called_with(
+            m.return_value,
+            scale = config.options.scaling_factor
+            )
 
         self.assertEquals(0, mock_AudioDripZAxis.call_count)
         mock_AudioModulationLaserControl.assert_called_with(
@@ -163,10 +173,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.audio.output.modulation_off_frequency,
             config.options.laser_offset
             )
-        mock_GCodeReader.assert_called_with(
-            gcode_path,
-            scale = config.options.scaling_factor
-            )
+
 
         self.assertEquals(0, mock_AudioWriter.call_count)
 
@@ -237,7 +244,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_overlap = False
 
         api = PrintAPI(config)
-        api.print_gcode(gcode_path, print_sub_layers = False)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path, print_sub_layers = False)
 
         mock_Controller.assert_called_with(
             mock_audiomodulationlasercontrol,
@@ -280,8 +288,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
 
         api = PrintAPI(self.default_config)
-        api.print_gcode("Spam")
-        api.get_status()
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode("Spam")
+            api.get_status()
 
         mock_controller.get_status.assert_called_with()
 
@@ -331,7 +340,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_sublayers = False
         config.options.use_overlap = False
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
 
         mock_SerialCommander.assert_called_with("COM6")
         mock_AudioDripZAxis.assert_called_with(
@@ -403,7 +413,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_overlap = False
         
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
 
         mock_TimedDripZAxis.assert_called_with(config.dripper.drips_per_mm, drips_per_second = config.dripper.emulated_drips_per_second )
         mock_Controller.assert_called_with(
@@ -447,7 +458,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config = self.default_config
 
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
 
         with self.assertRaises(Exception):
             api.set_drips_per_second(12)
@@ -487,21 +499,24 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_sublayers = False
         config.options.use_overlap = False
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
         self.assertEquals(layer_generator ,mock_Controller.call_args[0][3])
 
         config.options.use_shufflelayers = True
         config.options.use_sublayers = False
         config.options.use_overlap = False
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
         self.assertEquals(mock_shufflegenerator ,mock_Controller.call_args[0][3])
 
         config.options.use_shufflelayers = False
         config.options.use_sublayers = True
         config.options.use_overlap = False
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
         self.assertEquals(mock_sublayergenerator ,mock_Controller.call_args[0][3])
         mock_SubLayerGenerator.assert_called_with(layer_generator, config.options.sublayer_height_mm)
 
@@ -509,7 +524,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_sublayers = False
         config.options.use_overlap = True
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
         self.assertEquals(mock_overlapgenerator ,mock_Controller.call_args[0][3])
         mock_OverLapGenerator.assert_called_with(layer_generator, config.options.overlap_amount)
 
@@ -517,7 +533,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_sublayers = True
         config.options.use_overlap = True
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
         self.assertEquals(mock_overlapgenerator ,mock_Controller.call_args[0][3])
         mock_OverLapGenerator.assert_called_with(mock_shufflegenerator, config.options.overlap_amount)
         mock_ShuffleGenerator.assert_called_with(mock_sublayergenerator)
@@ -550,7 +567,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config = self.default_config
         config.dripper.dripper_type = 'emulated'
         api = PrintAPI(config)
-        api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
 
 
         mock_TimedDripZAxis.assert_called_with(config.dripper.drips_per_mm, drips_per_second = config.dripper.emulated_drips_per_second)

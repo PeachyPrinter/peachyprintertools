@@ -44,12 +44,12 @@ class PrintUI(PeachyFrame):
         self._configuration_api.load_printer(selection)
 
     def print_g_code_click(self):
-        filename = tkFileDialog.askopenfile(**self.file_opt)
+        filename = tkFileDialog.askopenfilename(**self.file_opt)
         if filename:
             self.navigate(PrintStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
 
     def verify_g_code_click(self):
-        filename = tkFileDialog.askopenfile(**self.file_opt)
+        filename = tkFileDialog.askopenfilename(**self.file_opt)
         if filename:
             self.navigate(VerifyStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
 
@@ -76,8 +76,8 @@ class VerifyStatusUI(PeachyFrame):
 
         self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
         if 'filename' in self.kwargs:
-            file_to_print = self.kwargs['filename']
-            self._print_api.verify_gcode(file_to_print)
+            file_name = self.kwargs['filename']
+            self._print_api.verify_gcode(file_name)
         else:
             self._print_api.verify_gcode(self.kwargs['layer_generator'])
 
@@ -192,8 +192,8 @@ class PrintStatusUI(PeachyFrame):
         self._stop_button_text.set("Abort Print")
         self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
         if 'filename' in self.kwargs:
-            file_to_print = self.kwargs['filename']
-            self._print_api.print_gcode(file_to_print)
+            file_name = self.kwargs['filename']
+            self._print_api.print_gcode(file_name)
         else:
             self._print_api.print_layers(self.kwargs['layer_generator'])
         if self._print_api.can_set_drips_per_second():
