@@ -9,7 +9,7 @@ from infrastructure.timed_drip_zaxis import TimedDripZAxis
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
-from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator
+from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
 from infrastructure.commander import SerialCommander, NullCommander
 
 
@@ -26,10 +26,18 @@ class PrintAPI(object):
     def print_gcode(self, file_like_object, print_sub_layers = True, dry_run = False):
         gcode_reader = GCodeReader(file_like_object, scale = self._configuration.options.scaling_factor)
         gcode_layer_generator = gcode_reader.get_layers()
-        if print_sub_layers:
-            layer_generator = ShuffleGenerator(SubLayerGenerator(gcode_layer_generator, self._configuration.options.sublayer_height_mm))
-        else:
-            layer_generator = gcode_layer_generator
+        layer_generator = gcode_layer_generator
+        logging.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
+        logging.info("Sublayered: %s" % self._configuration.options.use_sublayers)
+        logging.info("Overlapped: %s" % self._configuration.options.use_overlap)
+
+        if self._configuration.options.use_sublayers and print_sub_layers:
+            layer_generator = SubLayerGenerator(layer_generator, self._configuration.options.sublayer_height_mm)
+        if self._configuration.options.use_shufflelayers:
+            layer_generator = ShuffleGenerator(layer_generator)
+        if self._configuration.options.use_overlap:
+            layer_generator = OverLapGenerator(layer_generator, self._configuration.options.overlap_amount)
+            
         self.print_layers(layer_generator, dry_run)
 
     def _get_zaxis(self):
@@ -94,7 +102,9 @@ class PrintAPI(object):
             max_lead_distance = self._configuration.dripper.max_lead_distance_mm,
             abort_on_error = abort_on_error,
             max_speed = self._configuration.options.draw_speed,
-            commander = self._commander
+            commander = self._commander,
+            layer_start_command = self._configuration.serial.layer_started,
+            layer_ended_command = self._configuration.serial.layer_ended,
             )
         self._controller.start()
 

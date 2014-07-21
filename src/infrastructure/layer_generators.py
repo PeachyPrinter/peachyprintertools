@@ -7,7 +7,7 @@ import math
 # -----------Testing Generators ----------------
 
 class StubLayerGenerator(LayerGenerator):
-    def __init__(self, layers):
+    def __init__(self, layers = Layer(0.0)):
         self._layers = layers
 
     def next(self):

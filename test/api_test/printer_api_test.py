@@ -5,11 +5,14 @@ from StringIO import StringIO
 
 from mock import patch
 
+import logging
+
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 from domain.configuration_manager import ConfigurationManager
 from api.print_api import PrintAPI
+from infrastructure.layer_generators import ShuffleGenerator,SubLayerGenerator,OverLapGenerator,StubLayerGenerator
 import test_helpers
 
 
@@ -44,8 +47,6 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
-        mock_shufflegenerator = mock_ShuffleGenerator.return_value
-        mock_sublayergenerator = mock_SubLayerGenerator.return_value
         mock_audiowriter = mock_AudioWriter.return_value
         mock_transformer = mock_Transformer.return_value
         mock_pathtoaudio = mock_PathToAudio.return_value
@@ -55,17 +56,12 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_gcodereader.get_layers.return_value = fake_layers
 
         config = self.default_config
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = False
+        config.options.use_overlap = False
 
         api = PrintAPI(config)
         api.print_gcode(gcode_path)
-
-        mock_ShuffleGenerator.assert_called_with(
-            mock_sublayergenerator
-            )
-        mock_SubLayerGenerator.assert_called_with(
-            fake_layers,
-            config.options.sublayer_height_mm
-            )
 
         mock_AudioDripZAxis.assert_called_with(
             config.dripper.drips_per_mm,
@@ -104,13 +100,15 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_audiomodulationlasercontrol,
             mock_pathtoaudio,
             mock_audiowriter,
-            mock_shufflegenerator,
+            fake_layers,
             zaxis = mock_dripbasedzaxis,
             status_call_back = None,
             max_lead_distance = config.dripper.max_lead_distance_mm,
             abort_on_error = True,
             max_speed = config.options.draw_speed,
-            commander = mock_nullcommander
+            commander = mock_nullcommander,
+            layer_start_command = config.serial.layer_started,
+            layer_ended_command = config.serial.layer_ended,
             )
 
     @patch('api.print_api.Controller')
@@ -149,8 +147,12 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
         mock_gcodereader.get_layers.return_value = fake_layers
-
+        
         config = self.default_config
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = False
+        config.options.use_overlap = False
+
         api = PrintAPI(config)
         api.verify_gcode(gcode_path)
 
@@ -189,7 +191,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             max_lead_distance = config.dripper.max_lead_distance_mm,
             abort_on_error = False,
             max_speed = config.options.draw_speed,
-            commander = mock_nullcommander
+            commander = mock_nullcommander,
+            layer_start_command = config.serial.layer_started,
+            layer_ended_command = config.serial.layer_ended,
             )
 
     @patch('api.print_api.Controller')
@@ -212,6 +216,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_PathToAudio,
             mock_Controller,
             ):
+        config = self.default_config
         gcode_path = "FakeFile"
         actual_samples_per_second = 7
         fake_layers = "Fake Layers"
@@ -227,7 +232,11 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
         mock_gcodereader.get_layers.return_value = fake_layers
 
-        api = PrintAPI(self.default_config)
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = False
+        config.options.use_overlap = False
+
+        api = PrintAPI(config)
         api.print_gcode(gcode_path, print_sub_layers = False)
 
         mock_Controller.assert_called_with(
@@ -240,7 +249,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             max_lead_distance = self.default_config.dripper.max_lead_distance_mm,
             abort_on_error = True,
             max_speed = self.default_config.options.draw_speed,
-            commander = mock_nullcommander
+            commander = mock_nullcommander,
+            layer_start_command = config.serial.layer_started,
+            layer_ended_command = config.serial.layer_ended,
             )
 
     def test_print_can_be_stopped_before_started(self):
@@ -303,8 +314,6 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_gcodereader = mock_GCodeReader.return_value
-        mock_sublayergenerator = mock_SubLayerGenerator.return_value
-        mock_shufflegenerator = mock_ShuffleGenerator.return_value
         mock_audiowriter = mock_AudioWriter.return_value
         mock_transformer = mock_Transformer.return_value
         mock_pathtoaudio = mock_PathToAudio.return_value
@@ -318,6 +327,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.serial.port = "COM6"
         config.serial.on_command = "ON"
         config.serial.off_command = "OFF"
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = False
+        config.options.use_overlap = False
         api = PrintAPI(config)
         api.print_gcode(gcode_path)
 
@@ -334,13 +346,15 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_audiomodulationlasercontrol,
             mock_pathtoaudio,
             mock_audiowriter,
-            mock_shufflegenerator,
+            fake_layers,
             zaxis = mock_dripbasedzaxis,
             status_call_back = None,
             max_lead_distance = config.dripper.max_lead_distance_mm,
             abort_on_error = True,
             max_speed = config.options.draw_speed,
-            commander = mock_serialcommander
+            commander = mock_serialcommander,
+            layer_start_command = config.serial.layer_started,
+            layer_ended_command = config.serial.layer_ended,
         )
 
 
@@ -373,8 +387,6 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
         mock_nullcommander = mock_NullCommander.return_value
         mock_gcodereader = mock_GCodeReader.return_value
-        mock_sublayergenerator = mock_SubLayerGenerator.return_value
-        mock_shufflegenerator = mock_ShuffleGenerator.return_value
         mock_audiowriter = mock_AudioWriter.return_value
         mock_transformer = mock_Transformer.return_value
         mock_pathtoaudio = mock_PathToAudio.return_value
@@ -384,7 +396,12 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_gcodereader.get_layers.return_value = fake_layers
 
         config = self.default_config
+
         config.dripper.dripper_type = 'emulated'
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = False
+        config.options.use_overlap = False
+        
         api = PrintAPI(config)
         api.print_gcode(gcode_path)
 
@@ -393,13 +410,15 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_audiomodulationlasercontrol,
             mock_pathtoaudio,
             mock_audiowriter,
-            mock_shufflegenerator,
+            fake_layers,
             zaxis = mock_timeddripzaxis,
             status_call_back = None,
             max_lead_distance = config.dripper.max_lead_distance_mm,
             abort_on_error = True,
             max_speed = config.options.draw_speed,
-            commander = mock_nullcommander
+            commander = mock_nullcommander,
+            layer_start_command = config.serial.layer_started,
+            layer_ended_command = config.serial.layer_ended,
         )
 
     @patch('api.print_api.Controller')
@@ -439,9 +458,81 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioWriter')
     @patch('api.print_api.GCodeReader')
     @patch('api.print_api.AudioModulationLaserControl')
+    @patch('api.print_api.SubLayerGenerator')
+    @patch('api.print_api.ShuffleGenerator')
+    @patch('api.print_api.OverLapGenerator')
+    def test_uses_layer_agument_correctly_and_orderly(self,
+            mock_OverLapGenerator,
+            mock_ShuffleGenerator,
+            mock_SubLayerGenerator,
+            mock_AudioModulationLaserControl,
+            mock_GCodeReader,
+            mock_AudioWriter,
+            mock_Transformer,
+            mock_PathToAudio,
+            mock_Controller,
+            ):
+        gcode_path = "FakeFile"
+        expected_drips_per_second = 12
+        mock_gcodereader = mock_GCodeReader.return_value
+        layer_generator = 'fake'
+        mock_gcodereader.get_layers.return_value = layer_generator
+        mock_sublayergenerator = mock_SubLayerGenerator.return_value
+        mock_shufflegenerator = mock_ShuffleGenerator.return_value
+        mock_overlapgenerator = mock_OverLapGenerator.return_value
+
+        config = self.default_config
+
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = False
+        config.options.use_overlap = False
+        api = PrintAPI(config)
+        api.print_gcode(gcode_path)
+        self.assertEquals(layer_generator ,mock_Controller.call_args[0][3])
+
+        config.options.use_shufflelayers = True
+        config.options.use_sublayers = False
+        config.options.use_overlap = False
+        api = PrintAPI(config)
+        api.print_gcode(gcode_path)
+        self.assertEquals(mock_shufflegenerator ,mock_Controller.call_args[0][3])
+
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = True
+        config.options.use_overlap = False
+        api = PrintAPI(config)
+        api.print_gcode(gcode_path)
+        self.assertEquals(mock_sublayergenerator ,mock_Controller.call_args[0][3])
+        mock_SubLayerGenerator.assert_called_with(layer_generator, config.options.sublayer_height_mm)
+
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = False
+        config.options.use_overlap = True
+        api = PrintAPI(config)
+        api.print_gcode(gcode_path)
+        self.assertEquals(mock_overlapgenerator ,mock_Controller.call_args[0][3])
+        mock_OverLapGenerator.assert_called_with(layer_generator, config.options.overlap_amount)
+
+        config.options.use_shufflelayers = True
+        config.options.use_sublayers = True
+        config.options.use_overlap = True
+        api = PrintAPI(config)
+        api.print_gcode(gcode_path)
+        self.assertEquals(mock_overlapgenerator ,mock_Controller.call_args[0][3])
+        mock_OverLapGenerator.assert_called_with(mock_shufflegenerator, config.options.overlap_amount)
+        mock_ShuffleGenerator.assert_called_with(mock_sublayergenerator)
+        mock_SubLayerGenerator.assert_called_with(layer_generator, config.options.sublayer_height_mm)
+
+
+    @patch('api.print_api.Controller')
+    @patch('api.print_api.PathToAudio')
+    @patch('api.print_api.HomogenousTransformer')
+    @patch('api.print_api.AudioWriter')
+    @patch('api.print_api.GCodeReader')
+    @patch('api.print_api.AudioModulationLaserControl')
     @patch('api.print_api.TimedDripZAxis')
     @patch('api.print_api.SubLayerGenerator')
-    def test_get_and_set_drips_per_second(self,
+    def test_controller_should_be_called_with_right_layer_augments(self,
             mock_SubLayerGenerator, 
             mock_TimedDripZAxis,
             mock_AudioModulationLaserControl,
@@ -469,5 +560,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         mock_timeddripzaxis.set_drips_per_second.assert_called_with(expected_drips_per_second)
 
+
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
     unittest.main()
