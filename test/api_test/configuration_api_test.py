@@ -750,8 +750,9 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         expected_port = 'com54'
         expected_on = 'GOGOGO'
         expected_off = 'STOPSTOP'
-        expected_start = 'S'
-        expected_end = 'E'
+        expected_layer_start = 'S'
+        expected_layer_end = 'E'
+        expected_print_end = 'Z'
 
         mock_load.return_value =  self.default_config
         expected = self.default_config
@@ -759,8 +760,9 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         expected.serial.port      = expected_port
         expected.serial.on_command        = expected_on
         expected.serial.off_command       = expected_off
-        expected.serial.layer_started     = expected_start
-        expected.serial.layer_ended       = expected_end
+        expected.serial.layer_started     = expected_layer_start
+        expected.serial.layer_ended       = expected_layer_end
+        expected.serial.print_ended       = expected_print_end
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
@@ -769,16 +771,18 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         configuration_API.set_serial_port(expected_port)
         configuration_API.set_serial_on_command(expected_on)
         configuration_API.set_serial_off_command(expected_off)
-        configuration_API.set_layer_started_command(expected_start)
-        configuration_API.set_layer_ended_command(expected_end)
+        configuration_API.set_layer_started_command(expected_layer_start)
+        configuration_API.set_layer_ended_command(expected_layer_end)
+        configuration_API.set_print_ended_command(expected_print_end)
 
 
         self.assertEquals( expected_enabled ,configuration_API.get_serial_enabled())
         self.assertEquals( expected_port ,configuration_API.get_serial_port())
         self.assertEquals( expected_on ,configuration_API.get_serial_on_command())
         self.assertEquals( expected_off ,configuration_API.get_serial_off_command())
-        self.assertEquals( expected_start ,configuration_API.get_layer_started_command())
-        self.assertEquals( expected_end ,configuration_API.get_layer_ended_command())
+        self.assertEquals( expected_layer_start ,configuration_API.get_layer_started_command())
+        self.assertEquals( expected_layer_end ,configuration_API.get_layer_ended_command())
+        self.assertEquals( expected_print_end ,configuration_API.get_print_ended_command())
 
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 

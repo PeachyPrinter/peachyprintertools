@@ -386,6 +386,9 @@ class ConfigurationAPI(object):
     def get_layer_ended_command(self):
         return self._current_config.serial.layer_ended
 
+    def get_print_ended_command(self):
+        return self._current_config.serial.print_ended
+
     def set_serial_enabled(self, enabled):
         self._current_config.serial.on = enabled
         self.save()
@@ -410,6 +413,9 @@ class ConfigurationAPI(object):
         self._current_config.serial.layer_ended = layer_ended
         self.save()
 
+    def set_print_ended_command(self, print_ended):
+        self._current_config.serial.print_ended = print_ended
+        self.save()
 
 
 
