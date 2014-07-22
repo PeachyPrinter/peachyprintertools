@@ -114,6 +114,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             commander = mock_nullcommander,
             layer_start_command = config.serial.layer_started,
             layer_ended_command = config.serial.layer_ended,
+            print_ended_command = config.serial.print_ended
             )
 
     @patch('api.print_api.Controller')
@@ -201,6 +202,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             commander = mock_nullcommander,
             layer_start_command = config.serial.layer_started,
             layer_ended_command = config.serial.layer_ended,
+            print_ended_command = config.serial.print_ended
             )
 
     @patch('api.print_api.Controller')
@@ -260,6 +262,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             commander = mock_nullcommander,
             layer_start_command = config.serial.layer_started,
             layer_ended_command = config.serial.layer_ended,
+            print_ended_command = config.serial.print_ended
             )
 
     def test_print_can_be_stopped_before_started(self):
@@ -365,6 +368,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             commander = mock_serialcommander,
             layer_start_command = config.serial.layer_started,
             layer_ended_command = config.serial.layer_ended,
+            print_ended_command = config.serial.print_ended
         )
 
 
@@ -430,7 +434,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             commander = mock_nullcommander,
             layer_start_command = config.serial.layer_started,
             layer_ended_command = config.serial.layer_ended,
-        )
+            print_ended_command = config.serial.print_ended)
 
     @patch('api.print_api.Controller')
     @patch('api.print_api.PathToAudio')

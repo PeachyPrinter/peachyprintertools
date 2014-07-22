@@ -109,6 +109,7 @@ class PrintAPI(object):
             commander = self._commander,
             layer_start_command = self._configuration.serial.layer_started,
             layer_ended_command = self._configuration.serial.layer_ended,
+            print_ended_command = self._configuration.serial.print_ended,
             )
         self._controller.start()
 
