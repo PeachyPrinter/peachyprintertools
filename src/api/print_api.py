@@ -1,5 +1,6 @@
 import logging
 import threading
+from os import path, listdir
 
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
@@ -12,8 +13,37 @@ from infrastructure.transformer import HomogenousTransformer
 from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
 from infrastructure.commander import SerialCommander, NullCommander
 
+class PrintQueueAPI(object):
+    def __init__(self, configuration, status_call_back = None):
+        self._configuration = configuration
+        self.files = []
 
-'''TODO'''
+    def call_back(self, status):
+        print(status)
+        if status.status()['status'] == "Complete":
+            logging.info("Print Complete proceeding to next file")
+            self.print_next()
+
+    def print_next(self):
+        afile = self.files.pop(0)
+        logging.info("Printing Next File: %s" % afile )
+        self.api = PrintAPI(self._configuration, self.call_back)
+        self.api.print_gcode(afile)
+
+    def print_folder(self, folder):
+        self.files = self._get_files(folder)
+        self.print_next()
+
+    def _get_files(self, folder):
+        if not path.isdir(folder):
+            raise Exception("Folder Specified Does Not Exist")
+        all_files = [ item for item in listdir(folder) if item.endswith('.gcode') ]
+        if len(all_files) == 0:
+            raise Exception("Folder Contains No Valid Files")
+        return all_files
+
+
+'''API designed to use configuration to print a thing'''
 class PrintAPI(object):
     def __init__(self, configuration, status_call_back = None):
         logging.info('Print API Startup')
@@ -24,6 +54,7 @@ class PrintAPI(object):
         self._zaxis = None
         self._current_file_name = None
         self._current_file = None
+
 
     def print_gcode(self, file_name, print_sub_layers = True, dry_run = False):
         self._current_file_name = file_name

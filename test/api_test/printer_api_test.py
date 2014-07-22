@@ -3,7 +3,7 @@ import os
 import sys
 from StringIO import StringIO
 
-from mock import patch, mock_open
+from mock import patch, mock_open, MagicMock
 
 import logging
 
@@ -11,12 +11,71 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 from domain.configuration_manager import ConfigurationManager
-from api.print_api import PrintAPI
+from api.print_api import PrintAPI, PrintQueueAPI
 from infrastructure.layer_generators import ShuffleGenerator,SubLayerGenerator,OverLapGenerator,StubLayerGenerator
 import test_helpers
 
 
+class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
+    @patch.object(os.path, 'isdir')
+    def test_print_folder_should_raise_exception_when_folder_is_empty(self, mock_isdir):
+        folder = os.path.join('SomthingMadeUp')
+        mock_isdir.return_value = False
 
+        with self.assertRaises(Exception):
+            api = PrintQueueAPI(self.default_config)
+            api.print_folder(folder)
+
+        mock_isdir.assert_called_with(folder)
+
+    @patch.object(os.path, 'isdir')
+    @patch.object(os, 'listdir')
+    def test_print_folder_should_raise_exception_when_no_files(self, mock_listdir, mock_isdir):
+        folder = os.path.join('','SomthingMadeUp')
+        mock_isdir.return_value = True
+        mock_listdir.return_value = []
+        with patch('api.print_api.listdir', return_value= []):
+            with self.assertRaises(Exception):
+                api = PrintQueueAPI(self.default_config)
+                api.print_folder(folder)
+
+    @patch.object(os.path, 'isdir')
+    def test_print_folder_should_raise_exception_when_no_gcode_files(self,  mock_isdir):
+        folder = os.path.join('','SomthingMadeUp')
+        mock_isdir.return_value = True
+        with patch('api.print_api.listdir', return_value= ['ASDFAS.txt','bor.fa']):
+            with self.assertRaises(Exception):
+                api = PrintQueueAPI(self.default_config)
+                api.print_folder(folder)
+
+    @patch.object(os.path, 'isdir')
+    @patch.object(PrintAPI, 'print_gcode')
+    def test_print_folder_should_call_print_api_for_gcode_files(self, mock_print_gcode, mock_isdir):
+        folder = os.path.join('','SomthingMadeUp')
+        expected_file = 'thingy.gcode'
+        mock_isdir.return_value = True
+        with patch('api.print_api.listdir', return_value= [ 'ASDFAS.txt', 'bor.fa', expected_file ]): 
+            api = PrintQueueAPI(self.default_config)
+            api.print_folder(folder)
+        mock_print_gcode.assert_called_with(expected_file)
+
+    @patch.object(os.path, 'isdir')
+    @patch('api.print_api.PrintAPI')
+    def test_print_folder_should_call_print_api_for_each_gcode_files_after_layer_complete(self, mock_PrintAPI, mock_isdir):
+        folder = os.path.join('','SomthingMadeUp')
+        expected_file1 = 'thingy1.gcode'
+        expected_file2 = 'thingy2.gcode'
+        mock_isdir.return_value = True
+        mock_print_api = mock_PrintAPI.return_value
+        with patch('api.print_api.listdir', return_value= [ 'ASDFAS.txt', 'bor.fa', expected_file1, expected_file2 ]): 
+            api = PrintQueueAPI(self.default_config)
+            api.print_folder(folder)
+            mock_print_api.print_gcode.assert_called_with(expected_file1)
+            call_back = mock_PrintAPI.call_args[0][1]
+            mock_status = MagicMock()
+            mock_status.status.return_value = { 'status':'Complete' }
+            call_back(mock_status)
+            mock_print_api.print_gcode.assert_called_with(expected_file2)
 
 
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
