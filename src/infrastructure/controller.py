@@ -300,6 +300,7 @@ class Controller(threading.Thread,):
     def _terminate(self):
         logging.info('Controller shutdown requested')
         self._shutting_down = True
+        self._send_command("Z")
         try:
             self._audio_writer.close()
             logging.info("Audio shutdown correctly")
