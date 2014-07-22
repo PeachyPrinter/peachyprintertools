@@ -133,6 +133,7 @@ class Controller(threading.Thread,):
                     commander = None,
                     layer_start_command = "S",
                     layer_ended_command = "E",
+                    print_ended_command = "Z",
                     ):
         threading.Thread.__init__(self)
         self.commander = commander
@@ -161,6 +162,7 @@ class Controller(threading.Thread,):
         self._pausing = False
         self._layer_start_command = layer_start_command
         self._layer_ended_command = layer_ended_command
+        self._print_ended_command = print_ended_command
 
     def run(self):
         logging.info('Running Controller')
@@ -300,7 +302,7 @@ class Controller(threading.Thread,):
     def _terminate(self):
         logging.info('Controller shutdown requested')
         self._shutting_down = True
-        self._send_command("Z")
+        self._send_command(self._print_ended_command)
         try:
             self._audio_writer.close()
             logging.info("Audio shutdown correctly")

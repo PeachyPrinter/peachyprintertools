@@ -265,7 +265,7 @@ class CalibrationConfiguration(ConfigurationBase):
             raise ValueError("Max Deflection must be of %s" % (str(_type)))
 
 #TODO just make this serial configuration
-class SerialZAxisConfiguration(ConfigurationBase):
+class SerialConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._on = self.get(source, u'on')
         self._port = self.get(source, u'port')
@@ -273,6 +273,7 @@ class SerialZAxisConfiguration(ConfigurationBase):
         self._off_command = self.get(source, u'off_command')
         self._layer_started = self.get(source, u'layer_started')
         self._layer_ended = self.get(source, u'layer_ended')
+        self._print_ended = self.get(source, u'print_ended')
 
 
     @property
@@ -346,6 +347,18 @@ class SerialZAxisConfiguration(ConfigurationBase):
             self._layer_ended = value
         else:
             raise ValueError("Layer ended command must be of %s" % (str(_type)))
+
+    @property
+    def print_ended(self):
+        return self._print_ended
+
+    @print_ended.setter
+    def print_ended(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._print_ended = value
+        else:
+            raise ValueError("Print ended command must be of %s" % (str(_type)))
 
 class AudioInputConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -449,7 +462,7 @@ class Configuration(ConfigurationBase):
     def __init__(self, source = {}):
         self._name = self.get(source, u'name')
         self._audio = AudioConfiguration(source = source.get(u'audio', {}))
-        self._serial = SerialZAxisConfiguration(source = source.get(u'serial', {}))
+        self._serial = SerialConfiguration(source = source.get(u'serial', {}))
         self._calibration = CalibrationConfiguration(source = source.get(u'calibration', {}))
         self._dripper = DripperConfiguration(source = source.get(u'dripper', {}))
         self._options = OptionsConfiguration(source = source.get(u'options', {}))
@@ -529,6 +542,7 @@ class ConfigurationGenerator(object):
         configuration.serial.off_command                   = "0"
         configuration.serial.layer_started                 = "S"
         configuration.serial.layer_ended                   = "E"
+        configuration.serial.print_ended                   = "Z"
 
         return configuration
 
