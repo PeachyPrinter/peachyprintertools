@@ -1,5 +1,6 @@
 import logging
 import threading
+import time
 from os import path, listdir
 
 from infrastructure.audio import AudioWriter
@@ -19,6 +20,7 @@ class PrintQueueAPI(object):
         self._files = []
         self._api = None
         self._status_call_back = status_call_back
+        self._configuration.options.print_queue_delay
 
     def call_back(self, status):
         if self._status_call_back:
@@ -28,6 +30,9 @@ class PrintQueueAPI(object):
                 self._api.close()
             logging.info('Print Complete proceeding to next file')
             if len(self._files) > 0:
+                logging.info('Waiting %s seconds before proceeding to next file' % self._configuration.options.print_queue_delay)
+                time.sleep(self._configuration.options.print_queue_delay)
+                logging.info('Proceeding to next file')
                 self.print_next()
             else:
                 logging.info('Print Queue Complete')

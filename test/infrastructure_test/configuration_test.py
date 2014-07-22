@@ -36,6 +36,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_use_shufflelayers = "WRONG"
         expected_use_sublayers = "WRONG"
         expected_use_overlap = "WRONG"
+        expected_print_queue_delay = True
 
 
         expected_drips_per_mm = True
@@ -110,6 +111,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             config.options.use_sublayers = expected_use_sublayers
         with self.assertRaises(Exception):
             config.options.use_overlap = expected_use_overlap
+        with self.assertRaises(Exception):
+            config.options.print_queue_delay = expected_print_queue_delay
+
 
         with self.assertRaises(Exception):
             config.serial.on = expected_use_serial_zaxis
@@ -149,6 +153,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_use_shufflelayers = True
         expected_use_sublayers = True
         expected_use_overlap = True
+        expected_print_queue_delay = 0.0
 
         expected_max_deflection = 75.2
         expected_calibration_height = 1.0
@@ -183,6 +188,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.options.use_shufflelayers            = expected_use_shufflelayers
         original_config.options.use_sublayers                = expected_use_sublayers
         original_config.options.use_overlap                  = expected_use_overlap
+        original_config.options.print_queue_delay            = expected_print_queue_delay
         
         original_config.dripper.drips_per_mm                 = expected_drips_per_mm
         original_config.dripper.dripper_type                 = expected_dripper_type
@@ -230,6 +236,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_use_shufflelayers, config.options.use_shufflelayers )
         self.assertEquals(expected_use_sublayers, config.options.use_sublayers )
         self.assertEquals(expected_use_overlap, config.options.use_overlap )
+        self.assertEquals(expected_print_queue_delay, config.options.print_queue_delay )
 
         self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm )
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )

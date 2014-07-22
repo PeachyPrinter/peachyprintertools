@@ -5,6 +5,7 @@ import json
 import types
 import logging
 
+
 from domain.configuration_manager import ConfigurationManager
 
 class ConfigurationBase(object):
@@ -37,6 +38,7 @@ class OptionsConfiguration(ConfigurationBase):
         self._use_shufflelayers = self.get(source, u'use_shufflelayers')
         self._use_sublayers = self.get(source, u'use_sublayers')
         self._use_overlap = self.get(source, u'use_overlap')
+        self._print_queue_delay = self.get(source, u'print_queue_delay')
 
     @property
     def draw_speed(self):
@@ -152,6 +154,19 @@ class OptionsConfiguration(ConfigurationBase):
             self._use_overlap = value
         else:
             raise ValueError("use_overlap must be of %s" % (str(_type)))
+
+
+    @property
+    def print_queue_delay(self):
+        return self._print_queue_delay
+
+    @print_queue_delay.setter
+    def print_queue_delay(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._print_queue_delay = value
+        else:
+            raise ValueError("print_queue_delay must be of %s" % (str(_type)))
 
 
 class DripperConfiguration(ConfigurationBase):
@@ -525,6 +540,8 @@ class ConfigurationGenerator(object):
         configuration.options.use_shufflelayers            = True
         configuration.options.use_sublayers                = False
         configuration.options.use_overlap                  = True
+        configuration.options.print_queue_delay            = 0.0
+
 
         configuration.dripper.drips_per_mm                 = 100.0
         configuration.dripper.max_lead_distance_mm         = 1.0
