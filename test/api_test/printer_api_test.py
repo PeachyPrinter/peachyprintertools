@@ -17,6 +17,13 @@ import test_helpers
 
 
 class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
+
+    def setUp(self):
+        self.call_backs = []
+
+    def call_back(self, call_back):
+        self.call_backs.append(call_back)
+
     @patch.object(os.path, 'isdir')
     def test_print_folder_should_raise_exception_when_folder_is_empty(self, mock_isdir):
         folder = os.path.join('SomthingMadeUp')
@@ -76,6 +83,69 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_status.status.return_value = { 'status':'Complete' }
             call_back(mock_status)
             mock_print_api.print_gcode.assert_called_with(expected_file2)
+
+    @patch.object(os.path, 'isdir')
+    @patch('api.print_api.PrintAPI')
+    def test_print_folder_should_close_api_before_opening_new_one(self, mock_PrintAPI, mock_isdir):
+        folder = os.path.join('','SomthingMadeUp')
+        expected_file1 = 'thingy1.gcode'
+        expected_file2 = 'thingy2.gcode'
+        mock_isdir.return_value = True
+        mock_print_api = mock_PrintAPI.return_value
+        with patch('api.print_api.listdir', return_value= [ 'ASDFAS.txt', 'bor.fa', expected_file1, expected_file2 ]): 
+            api = PrintQueueAPI(self.default_config)
+            api.print_folder(folder)
+            call_back = mock_PrintAPI.call_args[0][1]
+            mock_status = MagicMock()
+            mock_status.status.return_value = { 'status':'Complete' }
+            call_back(mock_status)
+            mock_print_api.close.assert_called_with()
+
+    @patch.object(os.path, 'isdir')
+    @patch('api.print_api.PrintAPI')
+    def test_print_folder_should_be_interuptable(self, mock_PrintAPI, mock_isdir):
+        folder = os.path.join('','SomthingMadeUp')
+        expected_file1 = 'thingy1.gcode'
+        mock_isdir.return_value = True
+        mock_print_api = mock_PrintAPI.return_value
+        with patch('api.print_api.listdir', return_value= [ 'ASDFAS.txt', 'bor.fa', expected_file1 ]): 
+            api = PrintQueueAPI(self.default_config)
+            api.print_folder(folder)
+            api.close()
+            mock_print_api.close.assert_called_with()
+
+    @patch.object(os.path, 'isdir')
+    @patch('api.print_api.PrintAPI')
+    def test_print_folder_ends_smoothly(self, mock_PrintAPI, mock_isdir):
+        folder = os.path.join('','SomthingMadeUp')
+        expected_file1 = 'thingy1.gcode'
+        mock_isdir.return_value = True
+        mock_print_api = mock_PrintAPI.return_value
+        with patch('api.print_api.listdir', return_value= [ 'ASDFAS.txt', 'bor.fa', expected_file1 ]): 
+            api = PrintQueueAPI(self.default_config)
+            api.print_folder(folder)
+            call_back = mock_PrintAPI.call_args[0][1]
+            mock_status = MagicMock()
+            mock_status.status.return_value = { 'status':'Complete' }
+            call_back(mock_status)
+
+    @patch.object(os.path, 'isdir')
+    @patch('api.print_api.PrintAPI')
+    def test_print_folder_should_call_back_when_called_back(self, mock_PrintAPI, mock_isdir):
+        folder = os.path.join('','SomthingMadeUp')
+        expected_file1 = 'thingy1.gcode'
+        mock_isdir.return_value = True
+        mock_print_api = mock_PrintAPI.return_value
+        with patch('api.print_api.listdir', return_value= [ 'ASDFAS.txt', 'bor.fa', expected_file1 ]): 
+            api = PrintQueueAPI(self.default_config, self.call_back)
+            api.print_folder(folder)
+            call_back = mock_PrintAPI.call_args[0][1]
+            mock_status = MagicMock()
+            mock_status.status.return_value = { 'status':'Complete' }
+            call_back(mock_status)
+            self.assertEqual(1, len(self.call_backs))
+            self.assertEqual(mock_status, self.call_backs[0])
+
 
 
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):

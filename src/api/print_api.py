@@ -16,31 +16,44 @@ from infrastructure.commander import SerialCommander, NullCommander
 class PrintQueueAPI(object):
     def __init__(self, configuration, status_call_back = None):
         self._configuration = configuration
-        self.files = []
+        self._files = []
+        self._api = None
+        self._status_call_back = status_call_back
 
     def call_back(self, status):
-        print(status)
+        if self._status_call_back:
+            self._status_call_back(status)
         if status.status()['status'] == "Complete":
-            logging.info("Print Complete proceeding to next file")
-            self.print_next()
+            if self._api:
+                self._api.close()
+            logging.info('Print Complete proceeding to next file')
+            if len(self._files) > 0:
+                self.print_next()
+            else:
+                logging.info('Print Queue Complete')
+
 
     def print_next(self):
-        afile = self.files.pop(0)
+        afile = self._files.pop(0)
         logging.info("Printing Next File: %s" % afile )
-        self.api = PrintAPI(self._configuration, self.call_back)
-        self.api.print_gcode(afile)
+        self._api = PrintAPI(self._configuration, self.call_back)
+        self._api.print_gcode(afile)
 
     def print_folder(self, folder):
-        self.files = self._get_files(folder)
+        self._files = self._get_files(folder)
         self.print_next()
 
     def _get_files(self, folder):
         if not path.isdir(folder):
-            raise Exception("Folder Specified Does Not Exist")
+            raise Exception('Folder Specified Does Not Exist')
         all_files = [ item for item in listdir(folder) if item.endswith('.gcode') ]
         if len(all_files) == 0:
-            raise Exception("Folder Contains No Valid Files")
+            raise Exception('Folder Contains No Valid Files')
         return all_files
+
+    def close(self):
+        if self._api:
+            self._api.close()
 
 
 '''API designed to use configuration to print a thing'''
