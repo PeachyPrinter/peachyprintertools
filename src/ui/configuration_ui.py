@@ -166,6 +166,8 @@ class SetupOptionsUI(PeachyFrame):
         self._serial_layer_start_command.set(self._configuration_api.get_layer_started_command())
         self._serial_layer_end_command = StringVar()
         self._serial_layer_end_command.set(self._configuration_api.get_layer_ended_command())
+        self._serial_print_end_command = StringVar()
+        self._serial_print_end_command.set(self._configuration_api.get_print_ended_command())
 
         self._serial_port = StringVar()
         self._serial_port.set(self._configuration_api.get_serial_port())
@@ -187,6 +189,9 @@ class SetupOptionsUI(PeachyFrame):
         Label(advanced_frame,text="Serial Layer Ended Command").grid(column=0, row=60)
         self._serial_layer_end_entry = Entry(advanced_frame,textvariable=self._serial_layer_end_command)
         self._serial_layer_end_entry.grid(column=1, row=60)
+        Label(advanced_frame,text="Serial Print Ended Command").grid(column=0, row=70)
+        self._serial_print_end_entry = Entry(advanced_frame,textvariable=self._serial_print_end_command)
+        self._serial_print_end_entry.grid(column=1, row=70)
 
         self._showhide_serial()
 
@@ -207,12 +212,14 @@ class SetupOptionsUI(PeachyFrame):
             self._serial_port_entry.configure(state='normal')
             self._serial_layer_start_entry.configure(state='normal')
             self._serial_layer_end_entry.configure(state='normal')
+            self._serial_print_end_entry.configure(state='normal')
         else:
             self._serial_off_entry.configure(state='disabled')
             self._serial_on_entry.configure(state='disabled')
             self._serial_port_entry.configure(state='disabled')
             self._serial_layer_start_entry.configure(state='disabled')
             self._serial_layer_end_entry.configure(state='disabled')
+            self._serial_print_end_entry.configure(state='disabled')
 
     def _help(self):
         PopUp(self,'Help', help_text.options_help)
@@ -238,6 +245,7 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_serial_off_command(self._serial_off_command.get())
         self._configuration_api.set_layer_started_command(self._serial_layer_start_command.get())
         self._configuration_api.set_layer_ended_command(self._serial_layer_end_command.get())
+        self._configuration_api.set_print_ended_command(self._serial_print_end_command.get())
 
         self.navigate(SetupUI, printer = self._current_printer)
 
