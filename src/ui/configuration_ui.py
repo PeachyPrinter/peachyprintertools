@@ -7,6 +7,8 @@ from api.configuration_api import ConfigurationAPI
 from print_ui import PrintStatusUI
 import help_text
 
+from config import devmode
+
 class SetupUI(PeachyFrame):
 
     def initialize(self):

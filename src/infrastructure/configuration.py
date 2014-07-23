@@ -38,7 +38,7 @@ class OptionsConfiguration(ConfigurationBase):
         self._use_shufflelayers = self.get(source, u'use_shufflelayers')
         self._use_sublayers = self.get(source, u'use_sublayers')
         self._use_overlap = self.get(source, u'use_overlap')
-        self._print_queue_delay = self.get(source, u'print_queue_delay')
+        self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
 
     @property
     def draw_speed(self):

@@ -3,20 +3,27 @@ import tkMessageBox
 import tkFileDialog
 from ui.ui_tools import *
 from ui.main_ui import MainUI
-from api.print_api import PrintAPI
+from api.print_api import PrintAPI, PrintQueueAPI
 from api.configuration_api import ConfigurationAPI
+
+from config import devmode
 
 class PrintUI(PeachyFrame):
 
     def initialize(self):
         self.grid()
-        self.file_opt = options = {}
-        options['defaultextension'] = '.gcode'
-        options['filetypes'] = [('GCode files', '.gcode'),('all files', '.*'), ]
-        options['initialdir'] = '.'
-        options['parent'] = self
-        options['title'] = 'Select file to print'
-
+        self.file_opt = {}
+        self.file_opt['initialdir'] = '.'
+        self.file_opt['parent'] = self
+        self.file_opt['title'] = 'Select file to print'
+        self.file_opt['filetypes'] = [('GCode files', '.gcode'),('all files', '.*'), ]
+        self.file_opt['defaultextension'] = '.gcode'
+        self.folder_opt = {}
+        self.folder_opt['initialdir'] = '.'
+        self.folder_opt['parent'] = self
+        self.folder_opt['title'] = 'Select file to print'
+        
+        
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._printer_selection_current = StringVar()
 
@@ -35,6 +42,8 @@ class PrintUI(PeachyFrame):
         Label(self).grid(column=1,row=20)
         Button(self,text=u"Verify G Code", command=self.verify_g_code_click).grid(column=1,row=25,sticky=N+S+E+W)
         Button(self,text=u"Print G Code", command=self.print_g_code_click).grid(column=1,row=30,sticky=N+S+E+W)
+        if devmode:
+            Button(self,text=u"Print GCode Queue", command=self.print_g_code_queue_click).grid(column=1,row=35,sticky=N+S+E+W)
         Label(self).grid(column=1,row=40)
         Button(self,text=u"Back", command=self._back).grid(column=0,row=50)
 
@@ -47,6 +56,12 @@ class PrintUI(PeachyFrame):
         filename = tkFileDialog.askopenfilename(**self.file_opt)
         if filename:
             self.navigate(PrintStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
+
+    def print_g_code_queue_click(self):
+        foldername = tkFileDialog.askdirectory(**self.folder_opt)
+        if foldername:
+            self.navigate(PrintStatusUI, printer =self._printer_selection_current.get(), foldername = foldername, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
+
 
     def verify_g_code_click(self):
         filename = tkFileDialog.askopenfilename(**self.file_opt)
@@ -190,15 +205,23 @@ class PrintStatusUI(PeachyFrame):
 
     def _start_printing(self):
         self._stop_button_text.set("Abort Print")
-        self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
+        
         if 'filename' in self.kwargs:
+            self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
             file_name = self.kwargs['filename']
             self._print_api.print_gcode(file_name)
+            if self._print_api.can_set_drips_per_second():
+                self.options_frame.grid()
+                self._drips_per_second_setting.set(self._print_api.get_drips_per_second())
+        elif 'foldername' in self.kwargs:
+            self._print_api = PrintQueueAPI(self.kwargs['config'],status_call_back = self.status_call_back)
+            foldername = self.kwargs['foldername']
+            self._print_api.print_folder(foldername)
         else:
+            self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
             self._print_api.print_layers(self.kwargs['layer_generator'])
-        if self._print_api.can_set_drips_per_second():
-            self.options_frame.grid()
-            self._drips_per_second_setting.set(self._print_api.get_drips_per_second())
+
+        
 
     def _stop_button_click(self):
         self._print_api.close()

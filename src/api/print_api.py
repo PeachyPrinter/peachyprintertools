@@ -25,7 +25,7 @@ class PrintQueueAPI(object):
     def call_back(self, status):
         if self._status_call_back:
             self._status_call_back(status)
-        if status.status()['status'] == "Complete":
+        if status['status'] == "Complete":
             if self._api:
                 self._api.close()
             logging.info('Print Complete proceeding to next file')
@@ -50,13 +50,16 @@ class PrintQueueAPI(object):
 
     def _get_files(self, folder):
         if not path.isdir(folder):
+            logging.info('Folder Specified Does Not Exist')
             raise Exception('Folder Specified Does Not Exist')
-        all_files = [ item for item in listdir(folder) if item.endswith('.gcode') ]
+        all_files = [ path.join(folder,item) for item in listdir(folder) if item.endswith('.gcode') ]
         if len(all_files) == 0:
+            logging.info('Folder Contains No Valid Files')
             raise Exception('Folder Contains No Valid Files')
         return all_files
 
     def close(self):
+        self._files = []
         if self._api:
             self._api.close()
 
