@@ -118,7 +118,6 @@ class MachineStatus(object):
             'skipped_layers' : self._skipped_layers,
         }
 
-
 class Controller(threading.Thread,):
     def __init__(self, 
                     laser_control, 

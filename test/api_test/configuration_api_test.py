@@ -815,6 +815,33 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(overlap_amount,configuration_API.get_overlap_amount_mm())
         mock_save.assert_called_with(expected)
 
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_print_queue_delay_returns_the_delay(self, mock_load):
+        expected = 7.0
+        expected_config = self.default_config
+        expected_config.options.print_queue_delay = expected
+        mock_load.return_value =  expected_config
+
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_print_queue_delay())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_print_queue_delay_returns_delay(self, mock_save, mock_load):
+        print_queue_delay = 7.0
+        config =  self.default_config
+        expected = config
+        expected.options.print_queue_delay = print_queue_delay
+        mock_load.return_value =  config 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_print_queue_delay(print_queue_delay)
+
+        self.assertEquals(print_queue_delay,configuration_API.get_print_queue_delay())
+        mock_save.assert_called_with(expected)
 
 #-----------------------------------------Cure Test Setup Tests -----------------------------------
 

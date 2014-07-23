@@ -269,6 +269,18 @@ class ConfigurationAPI(object):
 
     # ----------------------------- General Setup --------------------------------------
 
+    '''Returns the print queue delay'''
+    def get_print_queue_delay(self):
+        return self._current_config.options.print_queue_delay
+
+    '''Sets the print queue delay'''
+    def set_print_queue_delay(self, delay):
+        if self._positive_float(delay):
+            self._current_config.options.print_queue_delay = delay
+            self.save()
+        else:
+            raise Exception("Print queue delay must be a positive floating point number")
+
     '''Returns the current setting for laser thickness'''
     def get_laser_thickness_mm(self):
         return self._current_config.options.laser_thickness_mm

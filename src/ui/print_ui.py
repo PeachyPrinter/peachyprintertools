@@ -221,8 +221,6 @@ class PrintStatusUI(PeachyFrame):
             self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
             self._print_api.print_layers(self.kwargs['layer_generator'])
 
-        
-
     def _stop_button_click(self):
         self._print_api.close()
         self.navigate(self.kwargs['calling_class'], printer = self.kwargs['printer'])
