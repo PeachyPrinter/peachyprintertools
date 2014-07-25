@@ -56,7 +56,6 @@ class TuningTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals([0.5,0.5], tuning_transformer.transform([0.5,0.5,1.0]))
         self.assertEquals([0.25,0.25], tuning_transformer.transform([0.0,0.0,1.0]))
 
-
 class HomogenousTransformerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_points_outside_range_raise_exception(self):
         height = 1.0  

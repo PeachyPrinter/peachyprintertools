@@ -65,7 +65,6 @@ class HomogenousTransformer(Transformer):
         solved_matrix = np.linalg.solve(mapping_matrix,b)
         forwards = np.matrix([solved_matrix[0:3], solved_matrix[3:6], solved_matrix[6:9]])
         inverse = forwards.I
-        logging.debug("Transformation Matrix: %s " % inverse)
         return inverse
 
     def _build_matrix(self, points):
@@ -95,10 +94,8 @@ class HomogenousTransformer(Transformer):
         elif height == self._upper_height:
             return self._upper_transform
         elif height in self._cache.keys():
-            logging.debug('Matrix cache hit')
             return self._cache[height]
         else:
-            logging.debug('Calculating new transformation matrix')
             current = self._positional_transform(height)
             self._cache = { height : current}
             return current
@@ -110,19 +107,16 @@ class HomogenousTransformer(Transformer):
     def transform(self,(x,y,z)):
         self._lock.acquire()
         try:
-            logging.debug('in x: %s in: y %s' % (x,y))
             realworld = np.array([[x], [y], [1]])
-            logging.debug('Z: %s M: %s' % (z, self._transforms_for_height(z)))
             computerland =  self._transforms_for_height(z) * realworld
             [kx, ky, k] = [computerland.item(i, 0) for i in range(3)]
-            logging.debug('out kx: %s , ky: %s, k: %s' % (kx,ky,k))
         finally:
             self._lock.release()
         x1,y1 = (kx/k, ky/k) 
         if x1 >= 0.0 and x1 <=1.0 and y1>= 0.0 and y1 <=1.0:
             return (x1, y1)
         else:
-            logging.error("Bounds of printer exceeded: %s,%s" % (x1,y1))
+            logging.error("Bounds of printer exceeded: %s,%s" % (x,y))
             raise Exception("Bounds of printer exceeded")
 
     def set_scale(self, new_scale):

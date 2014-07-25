@@ -9,8 +9,8 @@ const int speaker       =  7;
 const int pumpInterupted    =  8;
 const int tankEmpty         =  9;
 const int tankFull          = 10;
-const int bottomRoller      = 11;
-const int topRoller         = 12;
+const int topRoller         = 11;
+const int bottomRoller      = 12;
 const int testButton        = 13;
 
 const int initializeButton  = 2;
@@ -126,6 +126,7 @@ void advanceBelt(int turns) {
       inTurn = false;
     if (digitalRead(bottomRoller) == HIGH && inTurn == false) {
       inTurn = true;
+      Serial.println("Belt Advanced");
       turns--;
     }
   }
@@ -133,11 +134,17 @@ void advanceBelt(int turns) {
 }
 
 void complete(){
+  Serial.println("Setting up for next print");
+  Serial.println("Advancing Belt");
   advanceBelt(4);
+  Serial.println("Emptying Tank");
   while(digitalRead(tankEmpty) == LOW)
     pumpEmpty();
+  Serial.println("Tank Empty");
   pumpStop();
+  Serial.println("Ready to Print");
   happytone();
+
 }
 
 void checkPump() {
@@ -192,6 +199,7 @@ if (Serial.available() > 0) {
     Serial.write("OK\n");
     incommingByte = 0;
   }else if (incommingByte == printCompleteCommand) {
+    Serial.println("Communication: Recieved Print Complete");
     complete();
     incommingByte = 0;
   }
@@ -204,7 +212,7 @@ void loop()
     checkPump();
     checkFull();
     checkTestMode();
-
+    checkSerial();
   }
 
   if (digitalRead(initializeButton) == HIGH){

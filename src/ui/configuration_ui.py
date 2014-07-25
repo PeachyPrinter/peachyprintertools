@@ -131,31 +131,31 @@ class SetupOptionsUI(PeachyFrame):
 
         Label(self).grid(column=1,row=15)
 
-        Label(self, text = "Spot Diameter (mm) [0.5]" ).grid(column=0,row=20)
+        Label(self, text = "Spot Diameter (mm) [0.5]" ).grid(column=0,row=20,sticky=N+S+E)
         Entry(self, textvariable = self.laser_thickness_entry_text).grid(column=1, row=20)
 
-        Label(self, text = "Maximum Lead Distance (mm) [0.5]" ).grid(column=0,row=40)
+        Label(self, text = "Maximum Lead Distance (mm) [0.5]" ).grid(column=0,row=40,sticky=N+S+E)
         Entry(self, textvariable = self.max_lead_distance_entry_text).grid(column=1, row=40)
 
-        Label(self, text = "Scale Image [1.0]" ).grid(column=0,row=45)
+        Label(self, text = "Scale Image [1.0]" ).grid(column=0,row=45,sticky=N+S+E)
         Entry(self, textvariable = self.scaling_factor_entry_text).grid(column=1, row=45)
 
         Label(self).grid(column=1,row=50)
 
         Checkbutton(self, text="Use Sublayers", variable = self._use_sublayers, command=self._update_field_visibility).grid(column=0, row = 60, sticky=W)
-        Label(self, text = "Sublayer Size (mm) [0.01]" ).grid(column=1,row=60)
-        Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=2, row=60)
+        Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=1, row=60)
+        Label(self, text = "Sublayer Size (mm) [0.01]" ).grid(column=2,row=60,sticky=N+S+W)
 
         Checkbutton(self, text="Use Overlap", variable = self._use_shufflelayers, command=self._update_field_visibility).grid(column=0, row = 70, sticky=W)
-        Label(self, text = "Overlap Amount (mm) [1.0]" ).grid(column=1,row=70)
-        Entry(self, textvariable = self.overlap_amount_entry_text).grid(column=2, row=70)
+        Entry(self, textvariable = self.overlap_amount_entry_text).grid(column=1, row=70)
+        Label(self, text = "Overlap Amount (mm) [1.0]" ).grid(column=2,row=70,sticky=N+S+W)
 
         Checkbutton(self, text="Use Shuffled Starting Points", variable = self._use_overlap, command=self._update_field_visibility).grid(column=0, row = 80, sticky=W)
 
         Label(self).grid(column=1,row=90)
 
-        advanced_frame = LabelFrame(self, text="Advanced Options (use at your own risk)", padx=5, pady=5)
-        advanced_frame.grid(column=0,row=100, columnspan=3)
+        serial_frame = LabelFrame(self, text="Serial Options (for hackers)", padx=5, pady=5)
+        serial_frame.grid(column=0,row=100, columnspan=3,sticky=N+S+W+E)
         # ----------------------Frame Start---------------------------
         self._use_serial = IntVar()
         self._use_serial.set(self._configuration_api.get_serial_enabled())
@@ -174,31 +174,49 @@ class SetupOptionsUI(PeachyFrame):
         self._serial_port = StringVar()
         self._serial_port.set(self._configuration_api.get_serial_port())
 
-        Checkbutton(advanced_frame, text="Use Serial Drip Control", variable = self._use_serial, command=self._showhide_serial).grid(column=0, row = 10)
-        Label(advanced_frame,text="Serial Port").grid(column=0, row=20)
-        self._serial_port_entry = Entry(advanced_frame,textvariable=self._serial_port)
+        Checkbutton(serial_frame, text="Use Serial Drip Control", variable = self._use_serial, command=self._showhide_serial).grid(column=0, row = 10)
+        Label(serial_frame,text="Serial Port").grid(column=0, row=20,sticky=N+S+E)
+        self._serial_port_entry = Entry(serial_frame,textvariable=self._serial_port)
         self._serial_port_entry.grid(column=1, row=20)
-        Label(advanced_frame,text="Serial On Command").grid(column=0, row=30)
-        self._serial_on_entry = Entry(advanced_frame,textvariable=self._serial_on_command)
+        Label(serial_frame,text="Serial On Command").grid(column=0, row=30,sticky=N+S+E)
+        self._serial_on_entry = Entry(serial_frame,textvariable=self._serial_on_command)
         self._serial_on_entry.grid(column=1, row=30)
-        Label(advanced_frame,text="Serial Off Command").grid(column=0, row=40)
-        self._serial_off_entry = Entry(advanced_frame,textvariable=self._serial_off_command)
+        Label(serial_frame,text="Serial Off Command").grid(column=0, row=40,sticky=N+S+E)
+        self._serial_off_entry = Entry(serial_frame,textvariable=self._serial_off_command)
         self._serial_off_entry.grid(column=1, row=40)
 
-        Label(advanced_frame,text="Serial Layer Started Command").grid(column=0, row=50)
-        self._serial_layer_start_entry = Entry(advanced_frame,textvariable=self._serial_layer_start_command)
+        Label(serial_frame,text="Serial Layer Started Command").grid(column=0, row=50,sticky=N+S+E)
+        self._serial_layer_start_entry = Entry(serial_frame,textvariable=self._serial_layer_start_command)
         self._serial_layer_start_entry.grid(column=1, row=50)
-        Label(advanced_frame,text="Serial Layer Ended Command").grid(column=0, row=60)
-        self._serial_layer_end_entry = Entry(advanced_frame,textvariable=self._serial_layer_end_command)
+        Label(serial_frame,text="Serial Layer Ended Command").grid(column=0, row=60,sticky=N+S+E)
+        self._serial_layer_end_entry = Entry(serial_frame,textvariable=self._serial_layer_end_command)
         self._serial_layer_end_entry.grid(column=1, row=60)
-        Label(advanced_frame,text="Serial Print Ended Command").grid(column=0, row=70)
-        self._serial_print_end_entry = Entry(advanced_frame,textvariable=self._serial_print_end_command)
+        Label(serial_frame,text="Serial Print Ended Command").grid(column=0, row=70,sticky=N+S+E)
+        self._serial_print_end_entry = Entry(serial_frame,textvariable=self._serial_print_end_command)
         self._serial_print_end_entry.grid(column=1, row=70)
 
         self._showhide_serial()
 
         # ----------------------Frame End---------------------------
-        Label(self).grid(column=1,row=110)
+
+        Label(self).grid(column=1,row=103)
+        devmode_options_frame = LabelFrame(self, text="Development Mode Options", padx=5, pady=5)
+        devmode_options_frame.grid(column=0,row=105, columnspan=3,sticky=N+S+W+E)
+        # ----------------------Frame Start---------------------------
+        self._print_queue_delay = DoubleVar()
+        self._print_queue_delay.set(self._configuration_api.get_print_queue_delay())
+        
+        Label(devmode_options_frame,text="Print Queue Delay").grid(column=0, row=70)
+        Entry(devmode_options_frame,textvariable=self._print_queue_delay).grid(column=1, row=70)
+
+        if not devmode:
+            devmode_options_frame.grid_remove()
+        else:
+            Label(self).grid(column=1,row=110)
+
+        # ----------------------Frame End---------------------------
+
+        
 
         Button(self, text ="Back", command = self._back).grid(column=0,row=120,sticky=N+S+W)
         Button(self, text ="Save", command = self._save).grid(column=2,row=120,sticky=N+S+E)
@@ -248,6 +266,8 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_layer_started_command(self._serial_layer_start_command.get())
         self._configuration_api.set_layer_ended_command(self._serial_layer_end_command.get())
         self._configuration_api.set_print_ended_command(self._serial_print_end_command.get())
+        if devmode:
+            self._configuration_api.set_print_queue_delay(self._print_queue_delay.get())
 
         self.navigate(SetupUI, printer = self._current_printer)
 
