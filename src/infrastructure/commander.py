@@ -1,6 +1,7 @@
 import serial
 import logging
 import time
+import threading
 
 class Commander(object):
     def send_command(self, command):
@@ -8,7 +9,7 @@ class Commander(object):
 
 class SerialCommander(object):
     def __init__(self, port, baud= 9600, connection_timeout = 10):
-        
+        self._lock = threading.Lock()
         self.port = port
         self.baud = baud
         self._connection_timeout = connection_timeout
@@ -33,12 +34,16 @@ class SerialCommander(object):
 
     def send_command(self, command):
         # logging.info("Attempting to send command: %s" % command) 
-        if self._connection.isOpen():
-            self._connection.flushInput()
-            self._connection.flushOutput()
-            serial_command = '%s\r\n' % command.encode('utf-8')
-            self._connection.write(serial_command)
-            # logging.info("sent command: %s" % command) 
+        self._lock.acquire()
+        try:
+            if self._connection.isOpen():
+                self._connection.flushInput()
+                self._connection.flushOutput()
+                serial_command = '%s\r\n' % command.encode('utf-8')
+                self._connection.write(serial_command)
+                # logging.info("sent command: %s" % command) 
+        finally:
+            self._lock.release()
 
 
     def close(self):

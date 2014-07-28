@@ -103,6 +103,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
                 dripper_off_command,
                 drip_call_back = None,):
         threading.Thread.__init__(self)
+        self._last_command = ('',0)
         self._drips_per_mm = drips_per_mm
         self._sample_rate = sample_rate
         self._format = audio_formats[bit_depth]
@@ -117,12 +118,14 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self._chunk_size = self._buffer_size / 4
         self._drips = 0
         self._destination_height = 0.0
+        self._command_delay = 0.5 # seconds
 
         self.running = True
         self.shutdown = False
 
         self.pa = pyaudio.PyAudio()
         self.drip_detector = DripDetector(self._sample_rate, self._call_back)
+
     
     def set_call_back(self, call_back):
         self._drip_call_back = call_back
@@ -146,10 +149,16 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self._destination_height = height_mm
 
     def _update_state(self):
+        last, last_time = self._last_command
+        now_time = time.time()
         if self._destination_height >= self.current_z_location_mm():
-            self._commander.send_command(self._dripper_on_command)
+            if last != self._dripper_on_command or now_time - last_time > self._command_delay:
+                self._last_command = (self._dripper_on_command, now_time)
+                self._commander.send_command(self._dripper_on_command)
         else:
-            self._commander.send_command(self._dripper_off_command)
+             if last != self._dripper_off_command or now_time - last_time > self._command_delay:
+                self._last_command = (self._dripper_off_command, now_time)
+                self._commander.send_command(self._dripper_off_command)
 
     def run(self):
         stream = self._get_stream()
