@@ -75,7 +75,7 @@ class HilbertGenerator(TestLayerGenerator):
 
     def next(self):
         self._pattern = self._get_hilbert(self._order, [-self._radius,-self._radius], [self._radius,self._radius])
-        logging.debug('Pattern: %s' % self._pattern)
+        # logging.debug('Pattern: %s' % self._pattern)
         layer = Layer(0.0)
         layer.commands.append(LateralMove(self._last_xy, self._pattern[0], self._speed))
         self._last_xy = self._pattern[0]
@@ -307,7 +307,7 @@ class SubLayerGenerator(LayerGenerator):
         if self._running:
             if self._current_layer:
                 distance_to_next_layer = self._next.z - self._current_layer.z
-                logging.debug('%f8' % distance_to_next_layer)
+                # logging.debug('%f8' % distance_to_next_layer)
                 if  distance_to_next_layer / 2.0 >= self._sub_layer_height - self._tollerance:
                     current_z = self._current_layer.z
                     self._current_layer.z = current_z + self._sub_layer_height

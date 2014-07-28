@@ -221,7 +221,7 @@ class Controller(threading.Thread,):
                 self._pausing = False
                 layer = self._layer_generator.next()
                 
-                logging.debug('Layer Generator Time: %.2f' % (time.time()-start))
+                # logging.debug('Layer Generator Time: %.2f' % (time.time()-start))
                 layer_count += 1
                 self._status.add_layer()
                 self._status.set_model_height(layer.z)
@@ -237,7 +237,7 @@ class Controller(threading.Thread,):
                     logging.warning('Dripping too fast, Skipping layer')
                     print ("Skipped at: %s" % time.time())
                     self._status.skipped_layer()
-                logging.debug("Layer Total Time: %.2f" % (time.time()-start))
+                # logging.debug("Layer Total Time: %.2f" % (time.time()-start))
             except StopIteration:
                 logging.info('Layers Complete')
                 self._shutting_down = True
@@ -256,7 +256,7 @@ class Controller(threading.Thread,):
 
     def _process_layer(self, layer):
         for command in layer.commands:
-            logging.debug("Processing command")
+            # logging.debug("Processing command")
             if self._shutting_down:
                 return
             if self._abort_current_command:
