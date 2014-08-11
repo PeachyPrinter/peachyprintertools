@@ -135,7 +135,7 @@ class Controller(threading.Thread,):
                     print_ended_command = "Z",
                     ):
         threading.Thread.__init__(self)
-        self.commander = commander
+        self._commander = commander
         self.deamon = True
         self._abort_on_error = abort_on_error
         self._max_lead_distance = max_lead_distance
@@ -204,8 +204,8 @@ class Controller(threading.Thread,):
             logging.info("Controller Failed Shutting Down.")
 
     def _send_command(self, command):
-        if self.commander:
-            self.commander.send_command(command)
+        if self._commander:
+            self._commander.send_command(command)
 
     def _process_layers(self):
         ahead_by = None
@@ -226,7 +226,7 @@ class Controller(threading.Thread,):
                 self._status.add_layer()
                 self._status.set_model_height(layer.z)
                 if self._zaxis:
-                    self._zaxis.move_to(layer.z)
+                    self._zaxis.move_to(layer.z + self._max_lead_distance)
                     self._wait_till(layer.z)
                     ahead_by = self._zaxis.current_z_location_mm() - layer.z
                 if self._should_process(ahead_by):
@@ -310,6 +310,11 @@ class Controller(threading.Thread,):
         if self._zaxis:
             try:
                 self._zaxis.close()
+            except Exception as ex:
+                logging.error(ex)
+        if self._commander:
+            try:
+                self._commander.close()
             except Exception as ex:
                 logging.error(ex)
 

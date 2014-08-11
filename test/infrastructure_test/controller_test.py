@@ -168,6 +168,31 @@ class ControllerTests(unittest.TestCase):
         self.assertEquals(1, self.controller.get_status()['skipped_layers'])
         self.assertEquals(5, mock_audio_writer.write_chunk.call_count)
 
+
+    def test_if_max_lead_specifed_should_print_while_dripping_until_max_lead(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
+        max_lead_distance = 1.0
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_zaxis = mock_ZAxis.return_value
+        zaxis_return_values = [ 0.0, 0.0, 1.0, 1.0, 2.0, 2.0 ]
+        def z_axis_side_effect():
+            return zaxis_return_values.pop(0)
+        mock_zaxis.current_z_location_mm = z_axis_side_effect
+        test_layer1 = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
+        test_layer2 = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
+        test_layer3 = Layer(2.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
+        stub_layer_generator = StubLayerGenerator([test_layer1, test_layer2, test_layer3])
+        mock_path_to_audio.process.return_value = "SomeAudio"
+        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator,zaxis =mock_zaxis,max_lead_distance=max_lead_distance)
+        self.controller.start()
+        self.wait_for_controller()
+        self.assertEquals(0, self.controller.get_status()['skipped_layers'])
+        self.assertEquals(8, mock_audio_writer.write_chunk.call_count)
+        mock_zaxis.move_to.assert_has_calls([call(1.0),call(2.0),call(3.0)])
+
     def test_if_draw_command_start_and_current_pos_are_not_the_same_should_move_to_new_posisition(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
@@ -285,7 +310,8 @@ class ControllerTests(unittest.TestCase):
         mock_layer_generator.next.return_value =   Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
+        mock_commander = MagicMock()
+        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis, commander = mock_commander)
         self.controller.start()
 
         time.sleep(0.1)
@@ -296,6 +322,7 @@ class ControllerTests(unittest.TestCase):
 
         mock_zaxis.close.assert_called_with()
         mock_audio_writer.close.assert_called_with()
+        mock_commander.close.assert_called_with()
 
     def test_stop_should_close_all_processes_cleanly_while_working_on_commands(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -328,6 +355,7 @@ class ControllerTests(unittest.TestCase):
         mock_layer_generator.next.return_value = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+
         self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
         self.controller.start()
 
