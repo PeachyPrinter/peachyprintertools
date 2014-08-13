@@ -119,6 +119,7 @@ class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):
         self.assertEquals(expected.options.use_sublayers               , actual.options.use_sublayers                 , "options.use_sublayers did not match expected %s was %s"                 % (expected.options.use_sublayers                , actual.options.use_sublayers                ))
         self.assertEquals(expected.options.use_overlap                 , actual.options.use_overlap                   , "options.use_overlap did not match expected %s was %s"                   % (expected.options.use_overlap                  , actual.options.use_overlap                  ))
         self.assertEquals(expected.options.print_queue_delay           , actual.options.print_queue_delay             , "options.print_queue_delay did not match expected %s was %s"             % (expected.options.print_queue_delay            , actual.options.print_queue_delay            ))
+        self.assertEquals(expected.options.pre_layer_delay             , actual.options.pre_layer_delay               , "options.pre_layer_delay did not match expected %s was %s"               % (expected.options.pre_layer_delay              , actual.options.pre_layer_delay              ))
 
 
         self.assertEquals(expected.dripper.max_lead_distance_mm         , actual.dripper.max_lead_distance_mm         , "dripper.max_lead_distance_mm did not match expected %s was %s"          % (expected.dripper.max_lead_distance_mm         , actual.dripper.max_lead_distance_mm         ))

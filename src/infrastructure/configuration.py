@@ -39,6 +39,33 @@ class OptionsConfiguration(ConfigurationBase):
         self._use_sublayers = self.get(source, u'use_sublayers')
         self._use_overlap = self.get(source, u'use_overlap')
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
+        self._pre_layer_delay = self.get(source, u'pre_layer_delay',0.0)
+
+
+    @property
+    def pre_layer_delay(self):
+        return self._pre_layer_delay
+
+    @pre_layer_delay.setter
+    def pre_layer_delay(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._pre_layer_delay = value
+        else:
+            raise ValueError("Pre Layer Delay must be of %s" % (str(_type)))
+
+
+    @property
+    def draw_speed(self):
+        return self._draw_speed
+
+    @draw_speed.setter
+    def draw_speed(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._draw_speed = value
+        else:
+            raise ValueError("Draw Speed must be of %s" % (str(_type)))
 
     @property
     def draw_speed(self):
@@ -553,7 +580,7 @@ class ConfigurationGenerator(object):
         configuration.options.use_sublayers                = False
         configuration.options.use_overlap                  = True
         configuration.options.print_queue_delay            = 0.0
-
+        configuration.options.pre_layer_delay              = 0.0
 
         configuration.dripper.drips_per_mm                 = 100.0
         configuration.dripper.max_lead_distance_mm         = 1.0

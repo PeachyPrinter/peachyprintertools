@@ -562,6 +562,34 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     # ----------------------------- General Setup --------------------------------------
 
     @patch.object(ConfigurationManager, 'load' )
+    def test_get_pre_layer_delay_returns_delay(self, mock_load):
+        expected = 7.0
+        config = self.default_config
+        config.options.pre_layer_delay = expected
+        mock_load.return_value =  config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_pre_layer_delay())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_pre_layer_delay_sets_pre_layer_delay(self, mock_save, mock_load):
+        expected_scale = 7.0
+        config =  self.default_config
+        expected = config
+        expected.options.pre_layer_delay = expected_scale
+        mock_load.return_value =  config 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_pre_layer_delay(expected_scale)
+
+        self.assertEquals(expected_scale,configuration_API.get_pre_layer_delay())
+        mock_save.assert_called_with(expected)
+
+
+    @patch.object(ConfigurationManager, 'load' )
     def test_get_max_lead_distance_mm_returns_max_lead_distance(self, mock_load):
         expected = 0.4
         config = self.default_config

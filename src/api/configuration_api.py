@@ -74,6 +74,9 @@ class ConfigurationAPI(object):
     def _positive_float(self, value):
         return (type(value) == types.FloatType  and value > 0.0)
 
+    def _zero_or_positive_float(self, value):
+        return (type(value) == types.FloatType  and value > 0.0)
+
     # ----------------------------------- Audio Setup ------------------------------------------
     _BEST_AUDIO_OUT_OPTIONS = [
         AudioSetting(48000, '16 bit'), 
@@ -277,13 +280,25 @@ class ConfigurationAPI(object):
 
     # ----------------------------- General Setup --------------------------------------
 
+    '''Returns the pre layer delay'''
+    def get_pre_layer_delay(self):
+        return self._current_config.options.pre_layer_delay
+
+    '''Sets the pre layer delay'''
+    def set_pre_layer_delay(self, delay):
+        if self._zero_or_positive_float(delay):
+            self._current_config.options.pre_layer_delay = delay
+            self.save()
+        else:
+            raise Exception("Print queue delay must be a positive floating point number")
+
     '''Returns the print queue delay'''
     def get_print_queue_delay(self):
         return self._current_config.options.print_queue_delay
 
     '''Sets the print queue delay'''
     def set_print_queue_delay(self, delay):
-        if self._positive_float(delay):
+        if self._zero_or_positive_float(delay):
             self._current_config.options.print_queue_delay = delay
             self.save()
         else:
