@@ -68,7 +68,7 @@ class TimedDripZAxis(ZAxis, threading.Thread):
         while not self.shutdown:
             time.sleep(0.1)
 
-class PhotoDripZAxis(ZAxis):
+class PhotoZAxis(ZAxis):
     def __init__(self, height_change_delay = 1.0, call_back = None):
         self._current_height = 0.0
         self._next_height = None
@@ -88,7 +88,7 @@ class PhotoDripZAxis(ZAxis):
 
     def set_call_back(self, call_back):
         self._call_back = call_back
-        
+
     def callback(self):
         if self._call_back:
             self._call_back(0, self._current_height, 0)

@@ -7,7 +7,7 @@ from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
 from infrastructure.drip_based_zaxis import AudioDripZAxis
-from infrastructure.timed_drip_zaxis import TimedDripZAxis
+from infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
@@ -110,6 +110,10 @@ class PrintAPI(object):
             return TimedDripZAxis(
                 self._configuration.dripper.drips_per_mm, 
                 drips_per_second = self._configuration.dripper.emulated_drips_per_second
+                )
+        elif self._configuration.dripper.dripper_type == 'photo':
+            return PhotoZAxis(
+                self._configuration.dripper.photo_zaxis_delay 
                 )
 
     def print_layers(self, layer_generator, dry_run = False):

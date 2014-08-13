@@ -535,7 +535,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.SubLayerGenerator')
     @patch('api.print_api.NullCommander')
     @patch('api.print_api.ShuffleGenerator')
-    def test_print_gcode_should_use_specified_dripper_if_specified_in_config(self,
+    def test_print_gcode_should_use_emulated_dripper_if_specified_in_config(self,
             mock_ShuffleGenerator,
             mock_NullCommander,
             mock_SubLayerGenerator, 
@@ -580,6 +580,71 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             mock_audiowriter,
             fake_layers,
             zaxis = mock_timeddripzaxis,
+            status_call_back = None,
+            max_lead_distance = config.dripper.max_lead_distance_mm,
+            abort_on_error = True,
+            max_speed = config.options.draw_speed,
+            commander = mock_nullcommander,
+            layer_start_command = config.serial.layer_started,
+            layer_ended_command = config.serial.layer_ended,
+            print_ended_command = config.serial.print_ended)
+
+
+    @patch('api.print_api.Controller')
+    @patch('api.print_api.PathToAudio')
+    @patch('api.print_api.HomogenousTransformer')
+    @patch('api.print_api.AudioWriter')
+    @patch('api.print_api.GCodeReader')
+    @patch('api.print_api.AudioModulationLaserControl')
+    @patch('api.print_api.PhotoZAxis')
+    @patch('api.print_api.SubLayerGenerator')
+    @patch('api.print_api.NullCommander')
+    @patch('api.print_api.ShuffleGenerator')
+    def test_print_gcode_should_use_photo_zaxis_if_specified_in_config(self,
+            mock_ShuffleGenerator,
+            mock_NullCommander,
+            mock_SubLayerGenerator, 
+            mock_PhotoZAxis,
+            mock_AudioModulationLaserControl,
+            mock_GCodeReader,
+            mock_AudioWriter,
+            mock_Transformer,
+            mock_PathToAudio,
+            mock_Controller,
+            ):
+        gcode_path = "FakeFile"
+        actual_samples_per_second = 7
+        fake_layers = "Fake Layers"
+        mock_photozaxis = mock_PhotoZAxis.return_value
+        mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
+        mock_nullcommander = mock_NullCommander.return_value
+        mock_gcodereader = mock_GCodeReader.return_value
+        mock_audiowriter = mock_AudioWriter.return_value
+        mock_transformer = mock_Transformer.return_value
+        mock_pathtoaudio = mock_PathToAudio.return_value
+        mock_controller = mock_Controller.return_value
+
+        mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
+        mock_gcodereader.get_layers.return_value = fake_layers
+
+        config = self.default_config
+
+        config.dripper.dripper_type = 'photo'
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = False
+        config.options.use_overlap = False
+        
+        api = PrintAPI(config)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
+
+        mock_PhotoZAxis.assert_called_with(config.dripper.photo_zaxis_delay)
+        mock_Controller.assert_called_with(
+            mock_audiomodulationlasercontrol,
+            mock_pathtoaudio,
+            mock_audiowriter,
+            fake_layers,
+            zaxis = mock_photozaxis,
             status_call_back = None,
             max_lead_distance = config.dripper.max_lead_distance_mm,
             abort_on_error = True,
