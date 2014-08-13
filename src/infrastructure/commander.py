@@ -41,7 +41,7 @@ class SerialCommander(object):
                 self._connection.flushOutput()
                 serial_command = '%s\r\n' % command.encode('utf-8')
                 self._connection.write(serial_command)
-                # logging.info("sent command: %s" % command) 
+                logging.info("Sent command: %s" % command) 
         finally:
             self._lock.release()
 

@@ -248,6 +248,7 @@ class Controller(threading.Thread,):
                     self._terminate()
 
     def _should_process(self, ahead_by_distance):
+        logging.info("Ahead by: %s" % ahead_by_distance)
         if not ahead_by_distance:
             return True
         if (ahead_by_distance <= self._max_lead_distance):
@@ -301,6 +302,7 @@ class Controller(threading.Thread,):
     def _terminate(self):
         logging.info('Controller shutdown requested')
         self._shutting_down = True
+        self._send_command(self._layer_ended_command)
         self._send_command(self._print_ended_command)
         try:
             self._audio_writer.close()

@@ -67,3 +67,32 @@ class TimedDripZAxis(ZAxis, threading.Thread):
         self.running = False
         while not self.shutdown:
             time.sleep(0.1)
+
+class PhotoDripZAxis(ZAxis):
+    def __init__(self, height_change_delay = 1.0, call_back = None):
+        self._current_height = 0.0
+        self._next_height = None
+        self._time_of_change = None
+        self._next_change = 0
+        self._height_change_delay = height_change_delay
+        self._call_back = call_back
+
+    def current_z_location_mm(self):
+        if (self._next_height != None):
+            if (self._time_of_change and self._time_of_change <= time.time()):
+                self._current_height = self._next_height
+                self._next_height = None
+                self._time_of_change = None
+                self.callback()
+        return self._current_height
+
+    def set_call_back(self, call_back):
+        self._call_back = call_back
+        
+    def callback(self):
+        if self._call_back:
+            self._call_back(0, self._current_height, 0)
+
+    def move_to(self,height_mm):
+        self._time_of_change = time.time() + self._height_change_delay
+        self._next_height = height_mm

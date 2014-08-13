@@ -32,8 +32,6 @@ class CalibrationAPI(object):
             'NESW' : NESWGenerator(),
             'Twitch' : TwitchGenerator(),
             }
-        if devmode:
-          self._test_patterns['Neevil http://www.youtube.com/watch?v=pYVHDd8UrsQ'] = NeevilGenerator() 
         self._current_generator = self._point_generator
 
         self._laser_control = AudioModulationLaserControl(
