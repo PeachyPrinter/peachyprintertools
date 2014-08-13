@@ -199,6 +199,14 @@ class ConfigurationAPI(object):
     def set_emulated_drips_per_second(self, value):
         self._current_config.dripper.emulated_drips_per_second = value
 
+    '''Gets the photo delay in seconds'''
+    def get_photo_zaxis_delay(self):
+        return self._current_config.dripper.photo_zaxis_delay
+
+    '''Sets the photo delay in seconds'''
+    def set_photo_zaxis_delay(self, value):
+        self._current_config.dripper.photo_zaxis_delay = value
+
     def send_dripper_on_command(self):
         if self._commander:
             self._commander.send_command(self._current_config.serial.on_command)

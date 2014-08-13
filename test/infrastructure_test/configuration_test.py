@@ -43,6 +43,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_dripper_type = True
         expected_dripper_emulated_drips_per_second = True
         expected_max_lead_distance_mm = True
+        expected_photo_zaxis_delay = True
 
         expected_max_deflection = True
         expected_calibration_height = True
@@ -83,6 +84,8 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             config.dripper.emulated_drips_per_second = expected_dripper_emulated_drips_per_second
         with self.assertRaises(Exception):
             config.dripper.max_lead_distance_mm = expected_max_lead_distance_mm
+        with self.assertRaises(Exception):
+            config.dripper.photo_zaxis_delay = expected_photo_zaxis_delay
 
         with self.assertRaises(Exception):
             config.calibration.height = expected_calibration_height
@@ -149,6 +152,8 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_dripper_type = "audio"
         expected_dripper_emulated_drips_per_second = 1.0
         expected_max_lead_distance_mm = 0.2
+        expected_photo_zaxis_delay = 2.0
+
         expected_overlap_amount = 1.0 
         expected_use_shufflelayers = True
         expected_use_sublayers = True
@@ -194,6 +199,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.dripper.dripper_type                 = expected_dripper_type
         original_config.dripper.emulated_drips_per_second    = expected_dripper_emulated_drips_per_second
         original_config.dripper.max_lead_distance_mm         = expected_max_lead_distance_mm
+        original_config.dripper.photo_zaxis_delay            = expected_photo_zaxis_delay
 
         original_config.calibration.max_deflection           = expected_max_deflection
         original_config.calibration.height                   = expected_calibration_height
@@ -243,6 +249,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(type(expected_dripper_type), type(config.dripper.dripper_type) )
         self.assertEquals(expected_dripper_type, config.dripper.dripper_type)
         self.assertEquals(expected_dripper_emulated_drips_per_second, config.dripper.emulated_drips_per_second)
+        self.assertEquals(expected_photo_zaxis_delay, config.dripper.photo_zaxis_delay)
 
         self.assertEquals(expected_max_deflection, config.calibration.max_deflection )
         self.assertEquals(expected_calibration_height, config.calibration.height )

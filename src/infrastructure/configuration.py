@@ -175,7 +175,20 @@ class DripperConfiguration(ConfigurationBase):
         self._drips_per_mm = self.get(source, u'drips_per_mm')
         self._dripper_type = self.get(source, u'dripper_type')
         self._emulated_drips_per_second = self.get(source,u'emulated_drips_per_second')
+        self._photo_zaxis_delay = self.get(source,u'photo_zaxis_delay')
     
+    @property
+    def photo_zaxis_delay(self):
+        return self._photo_zaxis_delay
+    
+    @photo_zaxis_delay.setter
+    def photo_zaxis_delay(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._photo_zaxis_delay = value
+        else:
+            raise ValueError("Photo ZAxis Delay must be of %s" % (str(_type)))
+
     @property
     def max_lead_distance_mm(self):
         return self._max_lead_distance_mm
@@ -279,7 +292,6 @@ class CalibrationConfiguration(ConfigurationBase):
         else:
             raise ValueError("Max Deflection must be of %s" % (str(_type)))
 
-#TODO just make this serial configuration
 class SerialConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._on = self.get(source, u'on')
@@ -547,6 +559,7 @@ class ConfigurationGenerator(object):
         configuration.dripper.max_lead_distance_mm         = 1.0
         configuration.dripper.dripper_type                 = 'audio'
         configuration.dripper.emulated_drips_per_second    = 1.0
+        configuration.dripper.photo_zaxis_delay            = 1.0
 
         configuration.calibration.max_deflection           = 0.75
         configuration.calibration.height                   = 40.0

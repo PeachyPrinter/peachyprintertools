@@ -428,6 +428,27 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected, actual)
 
     @patch.object(ConfigurationManager, 'load')
+    def test_get_dripper_delay_should_return_current_delay(self, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        mock_load.return_value = self.default_config
+        configuration_API.load_printer('Printer')
+
+        actual = configuration_API.get_photo_zaxis_delay()
+
+        self.assertEquals(self.default_config.dripper.photo_zaxis_delay, actual)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_set_dripper_delay_should_set_current_delay(self, mock_load):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        mock_load.return_value = self.default_config
+        configuration_API.load_printer('Printer')
+        expected = 2.0
+        configuration_API.set_photo_zaxis_delay(expected)
+        actual = configuration_API.get_photo_zaxis_delay()
+
+        self.assertEquals(expected, actual)
+
+    @patch.object(ConfigurationManager, 'load')
     def test_get_emulated_drips_per_second_should_return(self, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config

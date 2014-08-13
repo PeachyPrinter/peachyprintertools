@@ -123,6 +123,7 @@ class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):
 
         self.assertEquals(expected.dripper.max_lead_distance_mm         , actual.dripper.max_lead_distance_mm         , "dripper.max_lead_distance_mm did not match expected %s was %s"          % (expected.dripper.max_lead_distance_mm         , actual.dripper.max_lead_distance_mm         ))
         self.assertEquals(expected.dripper.drips_per_mm                 , actual.dripper.drips_per_mm                 , "dripper.drips_per_mm did not match expected %s was %s"                  % (expected.dripper.drips_per_mm                 , actual.dripper.drips_per_mm                 ))
+        self.assertEquals(expected.dripper.photo_zaxis_delay            , actual.dripper.photo_zaxis_delay            , "dripper.photo_zaxis_delay did not match expected %s was %s"             % (expected.dripper.photo_zaxis_delay            , actual.dripper.photo_zaxis_delay            ))
 
         self.assertEquals(expected.serial.on                            , actual.serial.on                            , "serial.on did not match expected %s was %s"                             % (expected.serial.on                            , actual.serial.on                            ))
         self.assertEquals(expected.serial.port                          , actual.serial.port                          , "serial.port did not match expected %s was %s"                           % (expected.serial.port                          , actual.serial.port                          ))

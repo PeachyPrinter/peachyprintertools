@@ -570,7 +570,8 @@ class ControllerTests(unittest.TestCase):
         self.controller.start()
 
         self.wait_for_controller()
-        self.assertEquals("Z", mock_commander.send_command.call_args_list[2][0][0])
+        self.assertEquals("E", mock_commander.send_command.call_args_list[2][0][0])
+        self.assertEquals("Z", mock_commander.send_command.call_args_list[3][0][0])
 
     #TODO JT
     #Skip layers if z at next layer
