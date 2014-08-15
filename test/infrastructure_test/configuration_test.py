@@ -394,6 +394,58 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
             actual = cm.load('Some Printer')
             self.assertConfigurationEqual(expected, actual)
 
+    @patch.object(os.path, 'exists')
+    def test_load_should_populate_empty_data_with_defaults(self,mock_exists):
+        mock_exists.return_value = True
+        
+        expected = self.default_config
+        missing = self.default_config.toJson()
+        tmp = json.loads(missing)
+
+        del tmp['name']
+        del tmp['audio']['output']['bit_depth']
+        del tmp['audio']['output']['sample_rate']
+        del tmp['audio']['output']['modulation_on_frequency']
+        del tmp['audio']['output']['modulation_off_frequency']
+        del tmp['audio']['input']['bit_depth']
+        del tmp['audio']['input']['sample_rate']
+        del tmp['options']['sublayer_height_mm']
+        del tmp['options']['laser_thickness_mm']
+        del tmp['options']['draw_speed']
+        del tmp['options']['laser_offset']
+        del tmp['options']['scaling_factor']
+        del tmp['options']['overlap_amount']
+        del tmp['options']['use_shufflelayers']
+        del tmp['options']['use_sublayers']
+        del tmp['options']['use_overlap']
+        del tmp['options']['print_queue_delay']
+        del tmp['options']['pre_layer_delay']
+        del tmp['dripper']['drips_per_mm']
+        del tmp['dripper']['max_lead_distance_mm']
+        del tmp['dripper']['dripper_type']
+        del tmp['dripper']['emulated_drips_per_second']
+        del tmp['dripper']['photo_zaxis_delay']
+        del tmp['calibration']['max_deflection']
+        del tmp['calibration']['height']
+        del tmp['calibration']['lower_points']
+        del tmp['calibration']['upper_points']
+        del tmp['serial']['on']
+        del tmp['serial']['port']
+        del tmp['serial']['on_command']
+        del tmp['serial']['off_command']
+        del tmp['serial']['layer_started']
+        del tmp['serial']['layer_ended']
+        del tmp['serial']['print_ended']
+
+        missing = json.dumps(tmp)
+
+        mocked_open = mock_open(read_data=missing)
+        
+        with patch('infrastructure.configuration.open', mocked_open, create=True):
+            cm = ConfigurationManager()
+            actual = cm.load('Some Printer')
+            self.assertConfigurationEqual(expected, actual)
+
     def test_new_should_return_a_config_with_defaults_and_correct_name(self):
         name = "Apple"
         expected = self.default_config

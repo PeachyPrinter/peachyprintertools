@@ -29,15 +29,15 @@ class ConfigurationBase(object):
 
 class OptionsConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._draw_speed = self.get(source, u'draw_speed')
-        self._laser_offset = self.get(source, u'laser_offset')
-        self._sublayer_height_mm = self.get(source, u'sublayer_height_mm')
-        self._laser_thickness_mm = self.get(source, u'laser_thickness_mm')
-        self._scaling_factor = self.get(source, u'scaling_factor')
-        self._overlap_amount = self.get(source, u'overlap_amount')
-        self._use_shufflelayers = self.get(source, u'use_shufflelayers')
-        self._use_sublayers = self.get(source, u'use_sublayers')
-        self._use_overlap = self.get(source, u'use_overlap')
+        self._draw_speed = self.get(source, u'draw_speed', 200.0)
+        self._laser_offset = self.get(source, u'laser_offset', [0.0,0.0])
+        self._sublayer_height_mm = self.get(source, u'sublayer_height_mm', 0.01)
+        self._laser_thickness_mm = self.get(source, u'laser_thickness_mm',0.5)
+        self._scaling_factor = self.get(source, u'scaling_factor',1.0)
+        self._overlap_amount = self.get(source, u'overlap_amount',1.0)
+        self._use_shufflelayers = self.get(source, u'use_shufflelayers', True)
+        self._use_sublayers = self.get(source, u'use_sublayers', False)
+        self._use_overlap = self.get(source, u'use_overlap',True)
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
         self._pre_layer_delay = self.get(source, u'pre_layer_delay',0.0)
 
@@ -198,11 +198,11 @@ class OptionsConfiguration(ConfigurationBase):
 
 class DripperConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._max_lead_distance_mm = self.get(source, u'max_lead_distance_mm')
-        self._drips_per_mm = self.get(source, u'drips_per_mm')
-        self._dripper_type = self.get(source, u'dripper_type')
-        self._emulated_drips_per_second = self.get(source,u'emulated_drips_per_second')
-        self._photo_zaxis_delay = self.get(source,u'photo_zaxis_delay')
+        self._max_lead_distance_mm = self.get(source, u'max_lead_distance_mm',1.0)
+        self._drips_per_mm = self.get(source, u'drips_per_mm',100.0)
+        self._dripper_type = self.get(source, u'dripper_type','audio')
+        self._emulated_drips_per_second = self.get(source,u'emulated_drips_per_second',100.0)
+        self._photo_zaxis_delay = self.get(source,u'photo_zaxis_delay',3.0)
     
     @property
     def photo_zaxis_delay(self):
@@ -266,10 +266,10 @@ class DripperConfiguration(ConfigurationBase):
 
 class CalibrationConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._max_deflection = self.get(source, u'max_deflection')
-        self._height = self.get(source, u'height')
-        self._lower_points = [ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in source.get(u'lower_points', []) ]
-        self._upper_points = [ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in source.get(u'upper_points', []) ]
+        self._max_deflection = self.get(source, u'max_deflection', 0.75)
+        self._height = self.get(source, u'height',40.0)
+        self._lower_points = [ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in source.get(u'lower_points', [[[0.0, 1.0],[-40.0, 40.0]],[[1.0, 0.0],[40.0, -40.0]],[[0.0, 0.0],[-40.0, -40.0]], [[1.0, 1.0],[40.0, 40.0]]]) ]
+        self._upper_points = [ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in source.get(u'upper_points', [[[0.0, 1.0],[-30.0, 30.0]],[[1.0, 0.0],[30.0, -30.0]],[[0.0, 0.0],[-30.0, -30.0]], [[1.0, 1.0],[30.0, 30.0]]]) ]
 
     @property
     def height(self):
@@ -321,13 +321,13 @@ class CalibrationConfiguration(ConfigurationBase):
 
 class SerialConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._on = self.get(source, u'on')
-        self._port = self.get(source, u'port')
-        self._on_command = self.get(source, u'on_command')
-        self._off_command = self.get(source, u'off_command')
-        self._layer_started = self.get(source, u'layer_started')
-        self._layer_ended = self.get(source, u'layer_ended')
-        self._print_ended = self.get(source, u'print_ended')
+        self._on = self.get(source, u'on', False)
+        self._port = self.get(source, u'port','COM2')
+        self._on_command = self.get(source, u'on_command','7')
+        self._off_command = self.get(source, u'off_command','8')
+        self._layer_started = self.get(source, u'layer_started','S')
+        self._layer_ended = self.get(source, u'layer_ended','E')
+        self._print_ended = self.get(source, u'print_ended','Z')
 
 
     @property
@@ -416,8 +416,8 @@ class SerialConfiguration(ConfigurationBase):
 
 class AudioInputConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._bit_depth = self.get(source, u'bit_depth')
-        self._sample_rate = self.get(source, u'sample_rate')
+        self._bit_depth = self.get(source, u'bit_depth', "16 bit")
+        self._sample_rate = self.get(source, u'sample_rate', 44100)
 
     @property
     def bit_depth(self):
@@ -445,10 +445,10 @@ class AudioInputConfiguration(ConfigurationBase):
 
 class AudioOutputConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._bit_depth = self.get(source, u'bit_depth')
-        self._sample_rate = self.get(source, u'sample_rate')
-        self._modulation_on_frequency = self.get(source, u'modulation_on_frequency')
-        self._modulation_off_frequency = self.get(source, u'modulation_off_frequency')
+        self._bit_depth = self.get(source, u'bit_depth',"16 bit")
+        self._sample_rate = self.get(source, u'sample_rate', 48000)
+        self._modulation_on_frequency = self.get(source, u'modulation_on_frequency', 8000)
+        self._modulation_off_frequency = self.get(source, u'modulation_off_frequency',2000)
 
     @property
     def bit_depth(self):
@@ -514,7 +514,7 @@ class AudioConfiguration(ConfigurationBase):
 
 class Configuration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._name = self.get(source, u'name')
+        self._name = self.get(source, u'name','Peachy Printer')
         self._audio = AudioConfiguration(source = source.get(u'audio', {}))
         self._serial = SerialConfiguration(source = source.get(u'serial', {}))
         self._calibration = CalibrationConfiguration(source = source.get(u'calibration', {}))
@@ -567,7 +567,7 @@ class ConfigurationGenerator(object):
         configuration.audio.output.sample_rate             = 48000
         configuration.audio.output.modulation_on_frequency = 8000
         configuration.audio.output.modulation_off_frequency= 2000
-        configuration.audio.input.bit_depth                = "24 bit"
+        configuration.audio.input.bit_depth                = "16 bit"
         configuration.audio.input.sample_rate              = 44100
 
         configuration.options.sublayer_height_mm           = 0.01
@@ -586,7 +586,7 @@ class ConfigurationGenerator(object):
         configuration.dripper.max_lead_distance_mm         = 1.0
         configuration.dripper.dripper_type                 = 'audio'
         configuration.dripper.emulated_drips_per_second    = 1.0
-        configuration.dripper.photo_zaxis_delay            = 1.0
+        configuration.dripper.photo_zaxis_delay            = 3.0
 
         configuration.calibration.max_deflection           = 0.75
         configuration.calibration.height                   = 40.0
@@ -595,8 +595,8 @@ class ConfigurationGenerator(object):
 
         configuration.serial.on                            = False
         configuration.serial.port                          = "COM2"
-        configuration.serial.on_command                    = "1"
-        configuration.serial.off_command                   = "0"
+        configuration.serial.on_command                    = "7"
+        configuration.serial.off_command                   = "8"
         configuration.serial.layer_started                 = "S"
         configuration.serial.layer_ended                   = "E"
         configuration.serial.print_ended                   = "Z"
