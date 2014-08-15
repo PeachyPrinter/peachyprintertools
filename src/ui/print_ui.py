@@ -103,7 +103,7 @@ class VerifyStatusUI(PeachyFrame):
         Label(self, text = "Elapsed Time" ).grid(column=0,row=10)
         Label(self, textvariable = self._elapsed_time ).grid(column=1,row=10)
 
-        Label(self, text = "Layer" ).grid(column=0,row=20)
+        Label(self, text = "Layer / Sublayer" ).grid(column=0,row=20)
         Label(self, textvariable = self._current_layer ).grid(column=1,row=20)
 
         Label(self, text = "Model Height (mm)" ).grid(column=0,row=35)
@@ -166,7 +166,7 @@ class PrintStatusUI(PeachyFrame):
         Label(self, text = "Elapsed Time" ).grid(column=0,row=10)
         Label(self, textvariable = self._elapsed_time ).grid(column=1,row=10)
 
-        Label(self, text = "Layer" ).grid(column=0,row=20)
+        Label(self, text = "Layer / Sublayer" ).grid(column=0,row=20)
         Label(self, textvariable = self._current_layer ).grid(column=1,row=20)
 
         Label(self, text = "Actual Height (mm)" ).grid(column=0,row=30)
@@ -181,7 +181,7 @@ class PrintStatusUI(PeachyFrame):
         Label(self, text = "Waiting for drips" ).grid(column=0,row=50)
         Label(self, textvariable = self._waiting_for_drips ).grid(column=1,row=50)
 
-        Label(self, text = "Skipped Layers" ).grid(column=0,row=55)
+        Label(self, text = "Skipped Layers / Sublayers" ).grid(column=0,row=55)
         Label(self, textvariable = self._skipped_layers ).grid(column=1,row=55)
 
         Label(self, text = "Status").grid(column=0,row=60)
