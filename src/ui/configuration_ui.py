@@ -346,7 +346,8 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         Label(self.real_dripper_frame).grid(column=1,row=60)
 
-        if self._configuration_api.get_serial_enabled:
+
+        if self._configuration_api.get_serial_enabled():
             Label(self.real_dripper_frame, text="Serial Dripper Tests").grid(column = 0, row = 65)
             Button(self.real_dripper_frame, text="Turn On dripper", command=self._dripper_on).grid(column = 1, row = 65)
             Button(self.real_dripper_frame, text="Turn Off dripper", command=self._dripper_off).grid(column = 2, row = 65)
