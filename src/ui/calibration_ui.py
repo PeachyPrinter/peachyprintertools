@@ -86,7 +86,7 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
         self._scale_value = IntVar()
         self._scale_value.set(int(self._calibrationAPI.get_max_deflection() * 100.0))
 
-        self._scale_setting = RylanSpinbox(frame, width= 4,from_=1, to=75, command =self._scale_changed, textvariable=self._scale_value)
+        self._scale_setting = RylanSpinbox(frame, width= 4,from_=1, to=100, command =self._scale_changed, textvariable=self._scale_value)
         self._scale_setting.bind('<Return>', self._scale_changed)
         self._scale_setting.grid(column=1, row=10,sticky=W)
 

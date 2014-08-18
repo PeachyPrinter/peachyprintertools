@@ -210,6 +210,16 @@ class PhotoZAxisTests(unittest.TestCase):
         self.assertEquals(0, self.drips)
         self.assertEquals(0, self.drips_per_second)
 
+    def test_start_should_advance(self):
+        test_zaxis = PhotoZAxis()
+        test_zaxis.start()
+        self.assertEquals(0.0,test_zaxis.current_z_location_mm())
+
+    def test_close_can_be_called(self):
+        test_zaxis = PhotoZAxis()
+        test_zaxis.start()
+        self.assertEquals(0.0,test_zaxis.current_z_location_mm())
+        test_zaxis.close()
 
 if __name__ == '__main__':
     unittest.main()

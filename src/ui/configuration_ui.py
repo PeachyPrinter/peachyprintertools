@@ -205,9 +205,15 @@ class SetupOptionsUI(PeachyFrame):
         # ----------------------Frame Start---------------------------
         self._print_queue_delay = DoubleVar()
         self._print_queue_delay.set(self._configuration_api.get_print_queue_delay())
+        self._pre_layer_delay = DoubleVar()
+        self._pre_layer_delay.set(self._configuration_api.get_pre_layer_delay())
         
-        Label(devmode_options_frame,text="Print Queue Delay").grid(column=0, row=70)
+        Label(devmode_options_frame,text="Print Queue Delay (Seconds)").grid(column=0, row=70)
         Entry(devmode_options_frame,textvariable=self._print_queue_delay).grid(column=1, row=70)
+
+        Label(devmode_options_frame,text="Pre Layer Delay (Seconds)").grid(column=0, row=75)
+        Entry(devmode_options_frame,textvariable=self._pre_layer_delay).grid(column=1, row=75)
+
 
         if not devmode:
             devmode_options_frame.grid_remove()
@@ -268,6 +274,7 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_print_ended_command(self._serial_print_end_command.get())
         if devmode:
             self._configuration_api.set_print_queue_delay(self._print_queue_delay.get())
+            self._configuration_api.set_pre_layer_delay(self._pre_layer_delay.get())
 
         self.navigate(SetupUI, printer = self._current_printer)
 
@@ -293,6 +300,8 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         Radiobutton(self, text="Microphone Dripper", variable=self._dripper_type, value="audio", command = self._dripper_type_changed).grid(column=0,row=20,sticky=N+S+E+W)
         Radiobutton(self, text="Emulated Dripper ", variable=self._dripper_type, value="emulated", command = self._dripper_type_changed).grid(column=1,row=20,sticky=N+S+E+W)
+        if devmode:
+            Radiobutton(self, text="Photo Z Axis ", variable=self._dripper_type, value="photo", command = self._dripper_type_changed).grid(column=2,row=20,sticky=N+S+E+W)
 
         
         # ---------------- Microphone Dripper Frame Start -------------------------
@@ -363,24 +372,48 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         emulated_drips_per_mm_field.bind('<Key>', self._drips_per_mm_changed)
         emulated_drips_per_mm_field.bind('<FocusOut>', self._drips_per_mm_changed)
         # ---------------- Manual Dripper Frame Stop ----------------------------
+        # ---------------- Photo Dripper Frame Start ----------------------------
+        self._layer_delay = DoubleVar()
+        self._layer_delay.set(self._configuration_api.get_photo_zaxis_delay())
+
+        self.photo_zaxis_frame = LabelFrame(self, text="Photo Z Axis Setup", padx=5, pady=5)
+        self.photo_zaxis_frame.grid(column=0,row=42, columnspan=3,sticky=N+S+E+W)
+        self.photo_zaxis_frame.grid_remove()
+
+        Label(self.photo_zaxis_frame, text="Layer Delay").grid(column=1,row=10)
+        layer_delay_field = Entry(self.photo_zaxis_frame, textvariable=self._layer_delay)
+        layer_delay_field.grid(column=2,row=10)
+
+        layer_delay_field.grid(column=2,row=20,sticky=N+S+E+W)
+        layer_delay_field.bind('<Key>', self._layer_delay_changed)
+        layer_delay_field.bind('<FocusOut>', self._layer_delay_changed)
+        # ---------------- Photo Dripper Frame Stop ----------------------------
+
         Label(self).grid(column=0,row=45)
         Button(self,text=u"Back", command=self._back, width=10).grid(column=0,row=50,sticky=N+S+W)
         
         self.update()
         self._dripper_type_changed()
-        
 
     def _dripper_type_changed(self):
         if self._dripper_type.get() == 'audio':
             self._configuration_api.set_dripper_type('audio')
             self.fake_dripper_frame.grid_remove()
+            self.photo_zaxis_frame.grid_remove()
             self.real_dripper_frame.grid()
             self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
         elif self._dripper_type.get() == 'emulated':
             self._configuration_api.set_dripper_type('emulated')
             self._configuration_api.stop_counting_drips()
             self.real_dripper_frame.grid_remove()
+            self.photo_zaxis_frame.grid_remove()
             self.fake_dripper_frame.grid()
+        elif self._dripper_type.get() == 'photo':
+            self._configuration_api.set_dripper_type('photo')
+            self._configuration_api.stop_counting_drips()
+            self.real_dripper_frame.grid_remove()
+            self.fake_dripper_frame.grid_remove()
+            self.photo_zaxis_frame.grid()
         else:
             raise Exception('Unsupported Dripper: %s ' % self._dripper_type.get() )
 
@@ -418,6 +451,11 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         drips_per_mm = self._drips_per_mm.get()
         if drips_per_mm > 0.0:
             self._configuration_api.set_drips_per_mm(drips_per_mm)
+
+    def _layer_delay_changed(self, event):
+        delay = self._layer_delay.get()
+        if delay >= 0.0:
+            self._configuration_api.set_photo_zaxis_delay(delay)
 
     def close(self):
         self._configuration_api.stop_counting_drips()

@@ -77,6 +77,12 @@ class PhotoZAxis(ZAxis):
         self._height_change_delay = height_change_delay
         self._call_back = call_back
 
+    def start(self):
+        self.move_to(0)
+        
+    def close(self):
+        pass
+
     def current_z_location_mm(self):
         if (self._next_height != None):
             if (self._time_of_change and self._time_of_change <= time.time()):

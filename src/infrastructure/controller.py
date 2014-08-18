@@ -133,6 +133,7 @@ class Controller(threading.Thread,):
                     layer_start_command = "S",
                     layer_ended_command = "E",
                     print_ended_command = "Z",
+                    pre_layer_delay = 0.0
                     ):
         threading.Thread.__init__(self)
         self._commander = commander
@@ -156,12 +157,14 @@ class Controller(threading.Thread,):
         self._zaxis = zaxis
         if self._zaxis:
             self._zaxis.set_call_back(self._status.drip_call_back)
+
         self._abort_current_command = False
         self._pause = False
         self._pausing = False
         self._layer_start_command = layer_start_command
         self._layer_ended_command = layer_ended_command
         self._print_ended_command = print_ended_command
+        self._pre_layer_delay = pre_layer_delay
 
     def run(self):
         logging.info('Running Controller')
@@ -231,6 +234,8 @@ class Controller(threading.Thread,):
                     ahead_by = self._zaxis.current_z_location_mm() - layer.z
                 if self._should_process(ahead_by):
                     self._send_command(self._layer_start_command)
+                    if self._pre_layer_delay:
+                        time.sleep(self._pre_layer_delay)
                     self._process_layer(layer)
                     self._send_command(self._layer_ended_command)
                 else:
