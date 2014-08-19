@@ -11,7 +11,7 @@ from infrastructure.layer_generators import *
 from domain.commands import *
 import test_helpers
 
------------------ Calibration Generators -----------------------------
+#----------------- Calibration Generators -----------------------------
 
 class BlinkGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_alernates_between_points(self):

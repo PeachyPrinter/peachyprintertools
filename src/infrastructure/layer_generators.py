@@ -249,53 +249,53 @@ class NESWGenerator(TestLayerGenerator):
 
 # -----------Cure Generators ----------------
 
+# class CureTestGenerator(LayerGenerator):
+#     def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height):
+#         base_height = float(base_height)
+#         total_height = float(total_height)
+#         self.start_speed = float(start_speed)
+#         stop_speed = float(stop_speed)
+#         self._sub_layer_height = float(sublayer_height)
+#         logging.info("Base Height: %s" % base_height)
+#         logging.info("Total Height: %s" % total_height)
+#         logging.info("Start Speed: %s" % self.start_speed)
+#         logging.info("Stop Speed: %s" % stop_speed)
+#         logging.info("Sublayer Height: %s" % self._sub_layer_height)
+
+#         self._base_layers = base_height / self._sub_layer_height
+#         self._number_of_layers = total_height / self._sub_layer_height
+#         logging.info("Total layer to print: %s" % self._number_of_layers)
+#         self._base_layer_speed = self.start_speed + ((stop_speed - self.start_speed) / 2.0) 
+#         self._speed_per_layer = (stop_speed - self.start_speed) / (self._number_of_layers - self._base_layers)
+#         self._current_layer = 0
+
+#     def commands(self,base):
+#         if base:
+#             return [
+#                 LateralDraw([0,0],[10,0], self._base_layer_speed),
+#                 LateralDraw([10,0],[10,10], self._base_layer_speed),
+#                 LateralDraw([10,10],[0,0], self._base_layer_speed),
+#             ]
+#         else:
+#             current_speed = (self._speed_per_layer * (self._current_layer - self._base_layers)) + self.start_speed
+#             logging.info("Speed : %s" % current_speed)
+#             return [
+#                 LateralDraw([0,0],[10,0], current_speed),
+#                 LateralDraw([10,0],[10,10], current_speed),
+#                 LateralMove([10,10],[0,0], current_speed),
+#             ]
+
+#     def next(self):
+#         if self._current_layer > self._number_of_layers:
+#             raise StopIteration
+#         base_layer = self._current_layer < self._base_layers
+
+#         layer = Layer(float(self._current_layer * self._sub_layer_height), commands = self.commands(base_layer))
+#         self._current_layer += 1
+#         return layer
+
+
 class CureTestGenerator(LayerGenerator):
-    def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height):
-        base_height = float(base_height)
-        total_height = float(total_height)
-        self.start_speed = float(start_speed)
-        stop_speed = float(stop_speed)
-        self._sub_layer_height = float(sublayer_height)
-        logging.info("Base Height: %s" % base_height)
-        logging.info("Total Height: %s" % total_height)
-        logging.info("Start Speed: %s" % self.start_speed)
-        logging.info("Stop Speed: %s" % stop_speed)
-        logging.info("Sublayer Height: %s" % self._sub_layer_height)
-
-        self._base_layers = base_height / self._sub_layer_height
-        self._number_of_layers = total_height / self._sub_layer_height
-        logging.info("Total layer to print: %s" % self._number_of_layers)
-        self._base_layer_speed = self.start_speed + ((stop_speed - self.start_speed) / 2.0) 
-        self._speed_per_layer = (stop_speed - self.start_speed) / (self._number_of_layers - self._base_layers)
-        self._current_layer = 0
-
-    def commands(self,base):
-        if base:
-            return [
-                LateralDraw([0,0],[10,0], self._base_layer_speed),
-                LateralDraw([10,0],[10,10], self._base_layer_speed),
-                LateralDraw([10,10],[0,0], self._base_layer_speed),
-            ]
-        else:
-            current_speed = (self._speed_per_layer * (self._current_layer - self._base_layers)) + self.start_speed
-            logging.info("Speed : %s" % current_speed)
-            return [
-                LateralDraw([0,0],[10,0], current_speed),
-                LateralDraw([10,0],[10,10], current_speed),
-                LateralMove([10,10],[0,0], current_speed),
-            ]
-
-    def next(self):
-        if self._current_layer > self._number_of_layers:
-            raise StopIteration
-        base_layer = self._current_layer < self._base_layers
-
-        layer = Layer(float(self._current_layer * self._sub_layer_height), commands = self.commands(base_layer))
-        self._current_layer += 1
-        return layer
-
-
-class AdvancedCureTestGenerator(LayerGenerator):
     def __init__(
         self,
         base_height, 
@@ -303,10 +303,10 @@ class AdvancedCureTestGenerator(LayerGenerator):
         start_speed, 
         stop_speed, 
         sublayer_height,  
-        radius = 20.0, 
+        radius = 30.0, 
         curves = 10, 
         curve_change = 0.2, 
-        curve_spacing = 0.01, 
+        curve_spacing = 0.05, 
         polys_per = 20
             ):
             base_height = float(base_height)
