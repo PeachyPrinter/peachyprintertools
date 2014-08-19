@@ -53,6 +53,10 @@ class GCodeToLayerGenerator(LayerGenerator):
         except StopIteration:
             self._file_complete = True
 
+    def _clean_up_unneed_moves(self, layer):
+        if (type(layer.commands[-1]) == LateralMove):
+            layer.commands = layer.commands[:-1]
+        return layer
 
     def _get_layer(self, layer = None):
         generating_layer = True
@@ -62,7 +66,7 @@ class GCodeToLayerGenerator(LayerGenerator):
                 if type(command) == VerticalMove:
                     if layer:
                         self._command_queue.appendleft(command)
-                        return layer
+                        return self._clean_up_unneed_moves(layer)
                     else:
                         layer = Layer(command.end)
                 else:
@@ -73,7 +77,7 @@ class GCodeToLayerGenerator(LayerGenerator):
             except IndexError:
                 if self._file_complete:
                     if layer:
-                        return layer
+                        return self._clean_up_unneed_moves(layer)
                     else:
                         raise StopIteration
                 else:

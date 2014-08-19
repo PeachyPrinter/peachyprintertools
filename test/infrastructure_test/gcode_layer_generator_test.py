@@ -151,6 +151,27 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
         
         self.assertLayersEquals(expected, actual)
 
+    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    def test_if_last_command_is_move_omited(self,mock_GCodeCommandReader):
+        command1 = VerticalMove(0.0,0.1,100.0)
+        command2 = LateralDraw([0.0,0.0],[1.0,1.0],100.0)
+        command3 = LateralDraw([1.0,1.0],[0.5,0.5],100.0)
+        command4 = LateralMove([0.5,0.5],[1.0,1.0],100.0)
+        list_of_return_values = [ [command1,command2,command3,command4] ]
+        def side_effect(self):
+            return list_of_return_values.pop()
+        mock_gcode_command_reader = mock_GCodeCommandReader.return_value
+        mock_gcode_command_reader.to_command.side_effect = side_effect
+
+        gcode_line = "G01 Z0.1 F100.0\nG01 X1.00 Y1.00 E1 F100.0\nG01 X0.50 Y0.50 E1 F100.0\nG00 X1.00 Y1.00 E1 F100.0"
+        test_gcode = StringIO.StringIO(gcode_line)
+        layer_generator = GCodeToLayerGenerator(test_gcode)
+        expected =  [ Layer(0.1, [ command2 , command3 ]) ]
+
+        actual = list(layer_generator)
+        
+        self.assertLayersEquals(expected, actual)
+
 class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
     def test_to_command_returns_empty_list_for_comments(self):
         test_gcode_line = ";Comment"

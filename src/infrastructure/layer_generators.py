@@ -184,6 +184,44 @@ class SpiralGenerator(TestLayerGenerator):
             radius += inc
             yield [x,y]
 
+# class MemoryHourglassGenerator(TestLayerGenerator):
+#     def __init__(self, speed = 100.0, radius = 20.0, curves = 9, curve_change = 0.1, curve_spacing = 0.1,polys_per = 20):
+#         self.set_speed(speed)
+#         self.set_radius(radius)
+#         self.curves = curves
+#         self.curve_change = curve_change
+#         self.curve_spacing = curve_spacing
+#         self.polys_per = polys_per
+#         self.current_curve = 0
+
+#         self.curves = curves(curves)
+#         self.last_xy = [0.0,0.0]
+
+#     def point(x, vertex_x, vertex_y ,curve):
+#         return [x,curve * (x + vertex_x)^2 + vertex_y]
+
+#     def points(vertex_x,vertex_y,curve):
+#         change_amount = 1.0 / (self.polys_per * 1.0)
+#         return [point(change_amount * i,vertex_x,vertex_y,curve) for i in range(0, self.polys_per)]
+
+#     def curves(number_of_curves):
+#         grouped_curves = []
+#         for i in range(0,number_of_curves):
+#             vertex_y = self.curve_spacing * i
+#             vertex_x = 0
+#             curvature = i * self.curve_change
+#             grouped_curves.append(points(vertex_x,vertex_y,curvature))
+
+
+#     def next(self):
+#         layer = Layer(0.0)
+#         for curve in self.curves:
+#             for point in curve:
+#                 next_xy = point * self.radius
+#                 layer.commands.append(LateralDraw(self.last_xy, next_xy, self.speed))
+#                 self.last_xy = next_xy
+#         return layer
+
 class MemoryHourglassGenerator(TestLayerGenerator):
     def __init__(self, speed = 100.0, radius = 20.0):
         self.set_speed(speed)
