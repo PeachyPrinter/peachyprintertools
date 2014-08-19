@@ -266,7 +266,7 @@ class Controller(threading.Thread,):
 
     def _process_layer(self, layer):
         for command in layer.commands:
-            # logging.debug("Processing command")
+            # logging.debug("Processing command: %s" % command)
             if self._shutting_down:
                 return
             if self._abort_current_command:
