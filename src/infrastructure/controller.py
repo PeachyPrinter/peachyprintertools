@@ -145,6 +145,8 @@ class Controller(threading.Thread,):
         self._shutting_down = False
         self.running = False
         self.starting = True
+        self._shut_down = False
+
         self.laser_off_override = False
         
         self._laser_control = laser_control
@@ -173,10 +175,9 @@ class Controller(threading.Thread,):
             self._zaxis.start()
         self.starting = False
         self._process_layers()
-
-        self._status.set_complete()
         self.running = False
         self._terminate()
+        self._status.set_complete()
 
     def change_generator(self, layer_generator):
         self._pause = True
@@ -196,11 +197,13 @@ class Controller(threading.Thread,):
 
     def close(self):
         logging.warning("Shutdown requested")
-        self._shutting_down = True
-        attempts = 10
-        while self.running and attempts > 0:
+        if not self._shutting_down:
+            self._shutting_down = True
+        attempts = 20
+        while not self._shut_down and attempts > 0:
             attempts -= 1
-            time.sleep(0.1)
+            time.sleep(1)
+            logging.info("Waiting for Controller Shutdown Correctly")
         if attempts > 0:
             logging.info("Controller Shutdown Correctly")
         else:
@@ -251,6 +254,7 @@ class Controller(threading.Thread,):
                 logging.error('Unexpected Error: %s' % str(ex))
                 if self._abort_on_error:
                     self._terminate()
+        logging.info("Processing Layers Complete")
 
     def _should_process(self, ahead_by_distance):
         logging.info("Ahead by: %s" % ahead_by_distance)
@@ -317,11 +321,14 @@ class Controller(threading.Thread,):
         if self._zaxis:
             try:
                 self._zaxis.close()
+                logging.info("Zaxis shutdown correctly")
             except Exception as ex:
                 logging.error(ex)
         if self._commander:
             try:
                 self._commander.close()
+                logging.info("Commander shutdown correctly")
             except Exception as ex:
                 logging.error(ex)
+        self._shut_down = True
 
