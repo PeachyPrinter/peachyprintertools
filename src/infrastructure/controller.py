@@ -264,16 +264,22 @@ class Controller(threading.Thread,):
             return True
         return False
 
+    def _almost_equal(self,a,b,sig_fig=5):
+        return ( a==b or int(a*10**sig_fig) == int(b*10**sig_fig))
+
+    def _same_posisition(self,pos_1,pos_2):
+        return self._almost_equal(pos_1[0],pos_2[0]) and self._almost_equal(pos_1[1],pos_2[1])
+
     def _process_layer(self, layer):
         for command in layer.commands:
-            # logging.debug("Processing command: %s" % command)
+            # logging.info("Processing command: %s" % command)
             if self._shutting_down:
                 return
             if self._abort_current_command:
                 self._abort_current_command = False
                 return
             if type(command) == LateralDraw:
-                if self.state.xy != command.start:
+                if not self._same_posisition(self.state.xy, command.start):
                     self._move_lateral(command.start,layer.z,command.speed)
                 self._draw_lateral(command.end, layer.z, command.speed )
             elif type(command) == LateralMove:
@@ -284,6 +290,7 @@ class Controller(threading.Thread,):
         self._write_lateral(to_x,to_y,to_z,speed)
 
     def _draw_lateral(self,(to_x,to_y), to_z,speed):
+        logging.info("Drawing")
         if self.laser_off_override:
             self._laser_control.set_laser_off()
         else:
@@ -291,6 +298,7 @@ class Controller(threading.Thread,):
         self._write_lateral(to_x,to_y,to_z,speed)
     
     def _write_lateral(self,to_x,to_y, to_z,speed):
+        logging.info("Writing")
         if self._max_speed and speed > self._max_speed:
             speed = self._max_speed
         to_xyz = [to_x,to_y,to_z]
