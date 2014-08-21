@@ -222,7 +222,36 @@ class SetupOptionsUI(PeachyFrame):
 
         # ----------------------Frame End---------------------------
 
-        
+        Label(self).grid(column=1,row=106)
+        email_options_frame = LabelFrame(self, text="Email Notification Options", padx=5, pady=5)
+        email_options_frame.grid(column=0,row=107, columnspan=3,sticky=N+S+W+E)
+
+        # ----------------------Frame Start---------------------------
+        self._email_on = IntVar()
+        self._email_port = IntVar()
+        self._email_host = StringVar()
+        self._email_sender = StringVar()
+        self._email_recipient = StringVar()
+
+        self._email_on.set(self._configuration_api.get_email_on())
+        self._email_port.set(self._configuration_api.get_email_port())
+        self._email_host.set(self._configuration_api.get_email_host())
+        self._email_sender.set(self._configuration_api.get_email_sender())
+        self._email_recipient.set(self._configuration_api.get_email_recipient())
+
+        Checkbutton(serial_frame, text="Use Email Notifications", variable = self._email_on).grid(column=0, row = 10)
+        Label(email_options_frame,text="SMPTP Host Name").grid(column=0, row=20)
+        Entry(email_options_frame,textvariable=self._email_host).grid(column=1, row=20)
+        Label(email_options_frame,text="SMTP Port").grid(column=0, row=30)
+        Entry(email_options_frame,textvariable=self._email_port).grid(column=1, row=30)
+        Label(email_options_frame,text="Sender Email Address").grid(column=0, row=40)
+        Entry(email_options_frame,textvariable=self._email_sender).grid(column=1, row=40)
+        Label(email_options_frame,text="Recipient Email Address").grid(column=0, row=50)
+        Entry(email_options_frame,textvariable=self._email_recipient).grid(column=1, row=50)
+
+
+        # ----------------------Frame End---------------------------
+
 
         Button(self, text ="Back", command = self._back).grid(column=0,row=120,sticky=N+S+W)
         Button(self, text ="Save", command = self._save).grid(column=2,row=120,sticky=N+S+E)
@@ -264,6 +293,12 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_use_sublayers(bool(self._use_sublayers.get()))
         self._configuration_api.set_use_shufflelayers(bool(self._use_shufflelayers.get()))
         self._configuration_api.set_use_overlap(bool(self._use_overlap.get()))
+
+        self._configuration_api.set_email_on(bool(self._email_on.get()))
+        self._configuration_api.set_email_port(self._email_port.get())
+        self._configuration_api.set_email_host(self._email_host.get())
+        self._configuration_api.set_email_sender(self._email_sender.get())
+        self._configuration_api.set_email_recipient(self._email_recipient.get())
 
         self._configuration_api.set_serial_enabled(bool(self._use_serial.get()))
         self._configuration_api.set_serial_port(self._serial_port.get())
