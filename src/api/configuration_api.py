@@ -400,6 +400,34 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Use Overlap must be True or False")
 
+    #----------------------------Email Setup -----------------------------------------
+
+    def set_email_on(self, on):
+        self._current_config.email.on = on
+        
+    def set_email_port(self, port):
+        self._current_config.email.port = port
+        
+    def set_email_host(self, host):
+        self._current_config.email.host = host
+        
+    def set_email_sender(self, sender):
+        self._current_config.email.sender = sender
+        
+    def set_email_recipient(self, recipient):
+        self._current_config.email.recipient = recipient
+        
+
+    def get_email_on(self):
+        return self._current_config.email.on
+    def get_email_port(self):
+        return self._current_config.email.port
+    def get_email_host(self):
+        return self._current_config.email.host
+    def get_email_sender(self):
+        return self._current_config.email.sender
+    def get_email_recipient(self):
+        return self._current_config.email.recipient
 
     #----------------------------Advanced Setup---------------------------------------
 

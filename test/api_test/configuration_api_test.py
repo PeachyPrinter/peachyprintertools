@@ -892,6 +892,44 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(print_queue_delay,configuration_API.get_print_queue_delay())
         mock_save.assert_called_with(expected)
 
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_get_and_set_email_details(self, mock_save, mock_load):
+        expected_on = True
+        expected_port = 33
+        expected_host = "some.host"
+        expected_sender = "sender@email.com"
+        expected_recipient = "recipient@email.com"
+
+        expected_config = self.default_config
+        
+        expected_config.email.on = expected_on
+        expected_config.email.port = expected_port
+        expected_config.email.host = expected_host
+        expected_config.email.sender = expected_sender
+        expected_config.email.recipient = expected_recipient
+
+        mock_load.return_value =  self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_email_on(expected_on)
+        configuration_API.set_email_port(expected_port)
+        configuration_API.set_email_host(expected_host)
+        configuration_API.set_email_sender(expected_sender)
+        configuration_API.set_email_recipient(expected_recipient)
+
+        configuration_API.save()
+
+        self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
+
+        self.assertEquals(expected_on , configuration_API.get_email_on())
+        self.assertEquals(expected_port , configuration_API.get_email_port())
+        self.assertEquals(expected_host , configuration_API.get_email_host())
+        self.assertEquals(expected_sender , configuration_API.get_email_sender())
+        self.assertEquals(expected_recipient , configuration_API.get_email_recipient())
+
+
 #-----------------------------------------Cure Test Setup Tests -----------------------------------
 
     @patch.object(ConfigurationManager, 'load' )
