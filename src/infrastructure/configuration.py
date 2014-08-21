@@ -4,6 +4,7 @@ import config
 import json
 import types
 import logging
+import re
 
 
 from domain.configuration_manager import ConfigurationManager
@@ -26,6 +27,81 @@ class ConfigurationBase(object):
             else:
                 d[unicode(key)[1:]] = value
         return d
+
+class EmailConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._on = self.get(source, u'on', False)
+        self._port = self.get(source, u'port',25)
+        self._host = self.get(source, u'host', 'smtp')
+        self._sender = self.get(source, u'sender','me@peachyprinter.com')
+        self._recipient = self.get(source, u'recipient','me@peachyprinter.com')
+        self._email_regex = r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b'
+
+    def valid_email(self,potential_email):
+        m = re.match(self._email_regex, potential_email,re.I)
+        if m != None:
+            return True
+        return False
+
+    @property
+    def on(self):
+        return self._on
+
+    @on.setter
+    def on(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._on = value
+        else:
+            raise ValueError("Bit depth must be of %s" % (str(_type)))
+
+    @property
+    def port(self):
+        return self._port
+
+    @port.setter
+    def port(self, value):
+        _type = types.IntType
+        if type(value) == _type:
+            self._port = value
+        else:
+            raise ValueError("Port must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def host(self):
+        return self._host
+
+    @host.setter
+    def host(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._host = value
+        else:
+            raise ValueError("Hostname must be %s" % (str(_type)))
+
+    @property
+    def sender(self):
+        return self._sender
+
+    @sender.setter
+    def sender(self, value):
+        _type = types.StringType
+        if type(value) == _type and self.valid_email(value):
+            self._sender = value
+        else:
+            raise ValueError("Sender must be %s" % (str(_type)))
+
+    @property
+    def recipient(self):
+        return self._recipient
+
+    @recipient.setter
+    def recipient(self, value):
+        _type = types.StringType
+        if type(value) == _type and self.valid_email(value):
+            self._recipient = value
+        else:
+            raise ValueError("Reciepient must be of %s" % (str(_type)))
 
 class OptionsConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -194,7 +270,6 @@ class OptionsConfiguration(ConfigurationBase):
             self._print_queue_delay = value
         else:
             raise ValueError("print_queue_delay must be of %s" % (str(_type)))
-
 
 class DripperConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -520,6 +595,7 @@ class Configuration(ConfigurationBase):
         self._calibration = CalibrationConfiguration(source = source.get(u'calibration', {}))
         self._dripper = DripperConfiguration(source = source.get(u'dripper', {}))
         self._options = OptionsConfiguration(source = source.get(u'options', {}))
+        self._email = EmailConfiguration(source = source.get(u'email', {}))
 
     def toJson(self):
         di = self.toDict()
@@ -544,6 +620,10 @@ class Configuration(ConfigurationBase):
     @property
     def options(self):
         return self._options
+
+    @property
+    def email(self):
+        return self._email
 
     @property
     def name(self):
@@ -600,6 +680,12 @@ class ConfigurationGenerator(object):
         configuration.serial.layer_started                 = "S"
         configuration.serial.layer_ended                   = "E"
         configuration.serial.print_ended                   = "Z"
+
+        configuration.email.on                             = False
+        configuration.email.port                           = 25
+        configuration.email.host                           = "some.smtp.server"
+        configuration.email.sender                         = "senderemail@email.com"
+        configuration.email.recipient                      = "recipientemail@email.com"
 
         return configuration
 

@@ -12,8 +12,63 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 from infrastructure.configuration import FileBasedConfigurationManager as ConfigurationManager
-from infrastructure.configuration import Configuration, ConfigurationGenerator
+from infrastructure.configuration import Configuration, ConfigurationGenerator, EmailConfiguration
 import test_helpers
+
+class EmailConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
+    def test_set_should_fail_for_incorrect_values(self):
+        expected_name = True
+
+        expected_on = "ASDF"
+        expected_port = True
+        expected_host = 1354
+        expected_sender = "ASDF"
+        expected_recipient = "ASDF"
+
+
+        email_config = EmailConfiguration()
+
+        with self.assertRaises(Exception):
+            email_config.on = expected_on
+        with self.assertRaises(Exception):
+            email_config.port = expected_port
+        with self.assertRaises(Exception):
+            email_config.host = expected_host
+        with self.assertRaises(Exception):
+            email_config.sender = expected_sender
+        with self.assertRaises(Exception):
+            email_config.recipient = expected_recipient
+
+    def test_can_create_json_and_load_from_json(self):
+
+        expected_on = True
+        expected_port = 25
+        expected_host = "smtp.host.com"
+        expected_sender = "valid@email.com"
+        expected_recipient = "anothervalid@email.com"
+
+        original_config = Configuration()
+
+        original_config.email.on                   = expected_on
+        original_config.email.port                 = expected_port
+        original_config.email.host                 = expected_host
+        original_config.email.sender               = expected_sender
+        original_config.email.recipient            = expected_recipient
+
+        actual_json = json.loads(original_config.toJson())
+        config = Configuration(source = actual_json)
+
+        self.assertEquals(type(expected_on), type(config.email.on) )
+        self.assertEquals(type(expected_port), type(config.email.port) )
+        self.assertEquals(type(expected_host), type(config.email.host) )
+        self.assertEquals(type(expected_sender), type(config.email.sender) )
+        self.assertEquals(type(expected_recipient), type(config.email.recipient) )
+
+        self.assertEquals(expected_on, config.email.on )
+        self.assertEquals(expected_port, config.email.port )
+        self.assertEquals(expected_host, config.email.host )
+        self.assertEquals(expected_sender, config.email.sender )
+        self.assertEquals(expected_recipient, config.email.recipient )
 
 class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
 

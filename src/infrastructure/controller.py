@@ -290,7 +290,7 @@ class Controller(threading.Thread,):
         self._write_lateral(to_x,to_y,to_z,speed)
 
     def _draw_lateral(self,(to_x,to_y), to_z,speed):
-            if self.laser_off_override:
+        if self.laser_off_override:
             self._laser_control.set_laser_off()
         else:
             self._laser_control.set_laser_on()
