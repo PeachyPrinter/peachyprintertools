@@ -183,7 +183,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     @patch('api.print_api.AudioDripZAxis')
     @patch('api.print_api.SubLayerGenerator')
     @patch('api.print_api.NullCommander')
-    @patch('api.print_api.ShuffleGenerator')
+    @patch('api.print_api.ShuffleGenerator') 
     def test_print_gcode_should_create_required_classes_and_start_it(self,
             mock_ShuffleGenerator,
             mock_NullCommander,
@@ -799,6 +799,63 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_drips_per_second, api.get_drips_per_second())
 
         mock_timeddripzaxis.set_drips_per_second.assert_called_with(expected_drips_per_second)
+
+    @patch('api.print_api.Controller')
+    @patch('api.print_api.PathToAudio')
+    @patch('api.print_api.HomogenousTransformer')
+    @patch('api.print_api.AudioWriter')
+    @patch('api.print_api.GCodeReader')
+    @patch('api.print_api.AudioModulationLaserControl')
+    @patch('api.print_api.AudioDripZAxis')
+    @patch('api.print_api.SubLayerGenerator')
+    @patch('api.print_api.NullCommander')
+    @patch('api.print_api.ShuffleGenerator') 
+    @patch('api.print_api.EmailNotificationService') 
+    @patch('api.print_api.EmailGateway') 
+    def test_print_gcode_should_send_email_when_complete_and_email_enabled(self,
+            mock_EmailGateway,
+            mock_EmailNotificationService,
+            mock_ShuffleGenerator,
+            mock_NullCommander,
+            mock_SubLayerGenerator, 
+            mock_AudioDripZAxis,
+            mock_AudioModulationLaserControl,
+            mock_GCodeReader,
+            mock_AudioWriter,
+            mock_Transformer,
+            mock_PathToAudio,
+            mock_Controller,
+            ):
+        gcode_path = "FakeFile"
+        actual_samples_per_second = 7
+        fake_layers = "Fake Layers"
+        mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
+        mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
+        mock_gcodereader = mock_GCodeReader.return_value
+        mock_controller = mock_Controller.return_value
+        mock_email_gateway = mock_EmailGateway.return_value
+        mock_email_notification_service = mock_EmailNotificationService.return_value
+
+        mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
+        mock_gcodereader.get_layers.return_value = fake_layers
+
+        config = self.default_config
+        config.email.on = True
+        api = PrintAPI(config)
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
+            mock_GCodeReader.assert_called_with(
+            m.return_value,
+            scale = config.options.scaling_factor
+            )
+            api.close()
+
+        mock_EmailNotificationService.assert_called_with(mock_email_gateway,config.email.sender,config.email.recipient)
+        mock_email_notification_service.send_message.assert_called_with("Print Complete","%s is complete" % gcode_path)
+
+
+        
 
 
 if __name__ == '__main__':

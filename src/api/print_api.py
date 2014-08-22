@@ -13,6 +13,7 @@ from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
 from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
 from infrastructure.commander import SerialCommander, NullCommander
+from infrastructure.notification import EmailNotificationService, EmailGateway
 
 class PrintQueueAPI(object):
     def __init__(self, configuration, status_call_back = None):
@@ -75,6 +76,11 @@ class PrintAPI(object):
         self._zaxis = None
         self._current_file_name = None
         self._current_file = None
+        if self._configuration.email.on:
+            self._email_gateway = EmailGateway(self._configuration.email.host,self._configuration.email.port)
+            self._notification_service = EmailNotificationService(self._email_gateway,self._configuration.email.sender, self._configuration.email.recipient)
+        else:
+            self._notification_service = None
 
 
     def print_gcode(self, file_name, print_sub_layers = True, dry_run = False):
@@ -205,3 +211,5 @@ class PrintAPI(object):
         if self._current_file:
             self._current_file.close()
             logging.info("File Closed")
+        if self._notification_service:
+            self._notification_service.send_message("Print Complete", "%s is complete" % self._current_file_name)

@@ -75,7 +75,7 @@ class ConfigurationAPI(object):
         return (type(value) == types.FloatType  and value > 0.0)
 
     def _zero_or_positive_float(self, value):
-        return (type(value) == types.FloatType  and value > 0.0)
+        return (type(value) == types.FloatType  and value >= 0.0)
 
     # ----------------------------------- Audio Setup ------------------------------------------
     _BEST_AUDIO_OUT_OPTIONS = [
