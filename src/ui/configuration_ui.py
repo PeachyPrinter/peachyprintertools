@@ -239,7 +239,7 @@ class SetupOptionsUI(PeachyFrame):
         self._email_sender.set(self._configuration_api.get_email_sender())
         self._email_recipient.set(self._configuration_api.get_email_recipient())
 
-        Checkbutton(serial_frame, text="Use Email Notifications", variable = self._email_on).grid(column=0, row = 10)
+        Checkbutton(email_options_frame, text="Use Email Notifications", variable = self._email_on).grid(column=0, row = 10)
         Label(email_options_frame,text="SMPTP Host Name").grid(column=0, row=20)
         Entry(email_options_frame,textvariable=self._email_host).grid(column=1, row=20)
         Label(email_options_frame,text="SMTP Port").grid(column=0, row=30)
