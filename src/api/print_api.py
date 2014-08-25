@@ -158,6 +158,8 @@ class PrintAPI(object):
             self._zaxis = self._get_zaxis()
             abort_on_error = True
 
+        override_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
+
         self._controller = Controller(
             laser_control,
             path_to_audio,
@@ -167,7 +169,7 @@ class PrintAPI(object):
             status_call_back = self._status_call_back,
             max_lead_distance = self._configuration.dripper.max_lead_distance_mm,
             abort_on_error = abort_on_error,
-            max_speed = self._configuration.cure_rate.draw_speed,
+            override_speed = override_speed,
             commander = self._commander,
             layer_start_command = self._configuration.serial.layer_started,
             layer_ended_command = self._configuration.serial.layer_ended,

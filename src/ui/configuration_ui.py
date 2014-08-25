@@ -594,6 +594,8 @@ class CureTestUI(PeachyFrame):
         self._best_height.set(0)
         self._cure_speed = DoubleVar()
         self._cure_speed.set(self._configuration_api.get_cure_rate_draw_speed())
+        self._use_cure_speed = IntVar()
+        self._use_cure_speed.set(self._configuration_api.get_cure_rate_use_draw_speed())
 
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
@@ -628,7 +630,12 @@ class CureTestUI(PeachyFrame):
 
         Label(self, text = "Maximum Speed (mm/second)" ).grid(column=0,row=95)
         Entry(self, textvariable = self._cure_speed).grid(column=1, row=95)
+
+        Label(self).grid(column=1,row=96)
         
+        Radiobutton(self, text="Override Speed", variable=self._use_cure_speed, value=True, ).grid(column=0,row=97,sticky=N+S+E+W)
+        Radiobutton(self, text="Use Source Speed ", variable=self._use_cure_speed, value=False, ).grid(column=1,row=97,sticky=N+S+E+W)
+
         Label(self).grid(column=1,row=100)
 
         Button(self, text ="Save", command = self._save).grid(column=2,row=110,sticky=N+S+E)
@@ -653,14 +660,14 @@ class CureTestUI(PeachyFrame):
                 )
             self._cure_speed.set(speed)
 
-            self._configuration_api.set_cure_rate_draw_speed(float(self._cure_speed.get()))
-            self._configuration_api.save()
+            self._save()
         except Exception as ex:
             tkMessageBox.showwarning("Error", ex.message)
 
     def _save(self):
         try:
             self._configuration_api.set_cure_rate_draw_speed(float(self._cure_speed.get()))
+            self._configuration_api.set_cure_rate_use_draw_speed(True if self._use_cure_speed.get() == 1 else False)
             self._configuration_api.save()
             self.navigate(SetupUI)
         except Exception as ex:
