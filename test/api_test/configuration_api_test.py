@@ -1077,35 +1077,6 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         speed = configuration_API.get_speed_at_height(0,1,10,20,0.5)
         self.assertEquals(15, speed)
 
-
-    @patch.object(ConfigurationManager, 'load' )
-    @patch.object(ConfigurationManager, 'save' )
-    def test_get_speed(self, mock_save, mock_load):
-        mock_load.return_value = self.default_config
-        expected = 122.0
-        config = self.default_config
-        config.cure_rate.draw_speed = expected
-        mock_load.return_value = config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-        
-        actual = configuration_API.get_speed()
-        
-        self.assertEqual(expected, actual)
-
-    @patch.object(ConfigurationManager, 'load' )
-    @patch.object(ConfigurationManager, 'save' )
-    def test_set_speed(self, mock_save, mock_load):
-        mock_load.return_value = self.default_config
-        expected = self.default_config
-        expected.cure_rate.draw_speed = 121.0
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-        
-        configuration_API.set_speed(121)
-        
-        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
-
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_speed_should_throw_exception_if_less_then_or_0(self, mock_save, mock_load):
@@ -1152,6 +1123,43 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         configuration_API.set_use_overlap(False)
         
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_get_and_set_cure_test_details(self, mock_save, mock_load):
+        expected_base_height = 3.0
+        expected_total_height = 33.0
+        expected_start_speed = 10.0
+        expected_finish_speed = 100.0
+        expected_draw_speed = 75.0
+
+        expected_config = self.default_config
+        
+        expected_config.cure_rate.base_height = expected_base_height
+        expected_config.cure_rate.total_height = expected_total_height
+        expected_config.cure_rate.start_speed = expected_start_speed
+        expected_config.cure_rate.finish_speed = expected_finish_speed
+        expected_config.cure_rate.draw_speed = expected_draw_speed
+
+        mock_load.return_value =  self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_cure_rate_base_height(expected_base_height)
+        configuration_API.set_cure_rate_total_height(expected_total_height)
+        configuration_API.set_cure_rate_start_speed(expected_start_speed)
+        configuration_API.set_cure_rate_finish_speed(expected_finish_speed)
+        configuration_API.set_cure_rate_draw_speed(expected_draw_speed)
+
+        configuration_API.save()
+
+        self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
+
+        self.assertEquals(expected_base_height ,  configuration_API.get_cure_rate_base_height())
+        self.assertEquals(expected_total_height , configuration_API.get_cure_rate_total_height())
+        self.assertEquals(expected_start_speed ,  configuration_API.get_cure_rate_start_speed())
+        self.assertEquals(expected_finish_speed , configuration_API.get_cure_rate_finish_speed())
+        self.assertEquals(expected_draw_speed ,   configuration_API.get_cure_rate_draw_speed())
 
 
 class AudioSettingsTest(unittest.TestCase, test_helpers.TestHelpers):

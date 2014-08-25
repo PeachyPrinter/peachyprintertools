@@ -269,17 +269,64 @@ class ConfigurationAPI(object):
             logging.warning('base_height cannot be negitive')
             raise Exception('base_height cannot be negitive')
 
-    '''Save the maximum speed in mm per second in the configuration file'''
-    def set_speed(self,mm_per_second):
-        if (float(mm_per_second) > 0.0):
-            self._current_config.cure_rate.draw_speed = float(mm_per_second)
-            self.save()
+    '''Sets the base_height for Cure Rate test.'''
+    def set_cure_rate_base_height(self,base_height):
+        if (self._zero_or_positive_float(float(base_height))):
+            self._current_config.cure_rate.base_height = base_height
         else:
-            logging.warning('Specified speed is less then or equal to 0')
-            raise Exception('Specified speed is less then or equal to 0')
+            logging.warning('Base height must be 0 or positive')
+            raise Exception('Specified base height must be positive')
 
-    '''Get the maximum speed in mm per second in the configuration file'''
-    def get_speed(self):
+    '''Sets the total_height for Cure Rate test.'''
+    def set_cure_rate_total_height(self,total_height):
+        if (self._positive_float(float(total_height))):
+            self._current_config.cure_rate.total_height = total_height
+        else:
+            logging.warning('Total height must be positive')
+            raise Exception('Specified total height must be positive')
+
+    '''Sets the start_speed for Cure Rate test.'''
+    def set_cure_rate_start_speed(self,start_speed):
+        if (self._positive_float(float(start_speed))):
+            self._current_config.cure_rate.start_speed = start_speed
+        else:
+            logging.warning('start_speed must be positive')
+            raise Exception('Specified start speed must be positive')
+
+    '''Sets the finish_speed for Cure Rate test.'''
+    def set_cure_rate_finish_speed(self,finish_speed):
+        if (self._positive_float(float(finish_speed))):
+            self._current_config.cure_rate.finish_speed = finish_speed
+        else:
+            logging.warning('finish_speed must be positive')
+            raise Exception('Specified finish speed must be positive')
+
+    '''Sets the draw_speed for Cure Rate test.'''
+    def set_cure_rate_draw_speed(self,draw_speed):
+        if (self._positive_float(float(draw_speed))):
+            self._current_config.cure_rate.draw_speed = draw_speed
+        else:
+            logging.warning('draw_speed must be positive')
+            raise Exception('Specified draw speed must be positive')
+
+    '''Gets the base_height for Cure Rate test.'''
+    def get_cure_rate_base_height(self):
+        return self._current_config.cure_rate.base_height
+
+    '''Gets the total_height for Cure Rate test.'''
+    def get_cure_rate_total_height(self):
+        return self._current_config.cure_rate.total_height
+
+    '''Gets the start_speed for Cure Rate test.'''
+    def get_cure_rate_start_speed(self):
+        return self._current_config.cure_rate.start_speed
+
+    '''Gets the finish_speed for Cure Rate test.'''
+    def get_cure_rate_finish_speed(self):
+        return self._current_config.cure_rate.finish_speed
+
+    '''Gets the draw_speed for Cure Rate test.'''
+    def get_cure_rate_draw_speed(self):
         return self._current_config.cure_rate.draw_speed
 
 

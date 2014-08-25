@@ -582,18 +582,18 @@ class CureTestUI(PeachyFrame):
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._configuration_api.load_printer(self._current_printer)
 
-        self._base_height = IntVar()
-        self._base_height.set(3)
-        self._total_height = IntVar()
-        self._total_height.set(23)
-        self._start_speed = IntVar()
-        self._start_speed.set(50)
-        self._stop_speed = IntVar()
-        self._stop_speed.set(250)
-        self._best_height = IntVar()
+        self._base_height = DoubleVar()
+        self._base_height.set(self._configuration_api.get_cure_rate_base_height())
+        self._total_height = DoubleVar()
+        self._total_height.set(self._configuration_api.get_cure_rate_total_height())
+        self._start_speed = DoubleVar()
+        self._start_speed.set(self._configuration_api.get_cure_rate_start_speed())
+        self._stop_speed = DoubleVar()
+        self._stop_speed.set(self._configuration_api.get_cure_rate_finish_speed())
+        self._best_height = DoubleVar()
         self._best_height.set(0)
         self._cure_speed = DoubleVar()
-        self._cure_speed.set(self._configuration_api.get_speed())
+        self._cure_speed.set(self._configuration_api.get_cure_rate_draw_speed())
 
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
@@ -652,24 +652,35 @@ class CureTestUI(PeachyFrame):
                 self._best_height.get()
                 )
             self._cure_speed.set(speed)
+
+            self._configuration_api.set_cure_rate_draw_speed(float(self._cure_speed.get()))
+            self._configuration_api.save()
         except Exception as ex:
             tkMessageBox.showwarning("Error", ex.message)
 
     def _save(self):
         try:
-            self._configuration_api.set_speed(self._cure_speed.get())
+            self._configuration_api.set_cure_rate_draw_speed(float(self._cure_speed.get()))
+            self._configuration_api.save()
             self.navigate(SetupUI)
         except Exception as ex:
             tkMessageBox.showwarning("Error", ex.message)
 
     def _start(self):
         try:
+            self._configuration_api.set_cure_rate_base_height(float(self._base_height.get()))
+            self._configuration_api.set_cure_rate_total_height(float(self._total_height.get()))
+            self._configuration_api.set_cure_rate_start_speed(float(self._start_speed.get()))
+            self._configuration_api.set_cure_rate_finish_speed(float(self._stop_speed.get()))
+            self._configuration_api.save()
+
             cure_test = self._configuration_api.get_cure_test(
                 self._base_height.get(),
                 self._total_height.get(),
                 self._start_speed.get(),
                 self._stop_speed.get()
                 )
+
             self.navigate(PrintStatusUI,layer_generator = cure_test, config = self._configuration_api.get_current_config(), calling_class = CureTestUI, printer = self._current_printer)
         except Exception as ex:
             tkMessageBox.showwarning("Error", ex.message)
