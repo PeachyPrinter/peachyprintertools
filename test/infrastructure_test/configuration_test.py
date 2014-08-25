@@ -12,8 +12,61 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 from infrastructure.configuration import FileBasedConfigurationManager as ConfigurationManager
-from infrastructure.configuration import Configuration, ConfigurationGenerator, EmailConfiguration
+from infrastructure.configuration import Configuration, ConfigurationGenerator, EmailConfiguration, CureRateConfiguration
 import test_helpers
+
+
+class CureRateConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
+    def test_set_should_fail_for_incorrect_values(self):
+        expected_base_height = True
+        expected_total_height = True
+        expected_start_speed = True
+        expected_finish_speed = True
+        expected_draw_speed = True
+        
+        cure_rate_config = CureRateConfiguration()
+
+        with self.assertRaises(Exception):
+            cure_rate_config.base_height = expected_base_height
+        with self.assertRaises(Exception):
+            cure_rate_config.total_height = expected_total_height
+        with self.assertRaises(Exception):
+            cure_rate_config.start_speed = expected_start_speed
+        with self.assertRaises(Exception):
+            cure_rate_config.finish_speed = expected_finish_speed
+        with self.assertRaises(Exception):
+            cure_rate_config.draw_speed = expected_draw_speed
+
+    def test_can_create_json_and_load_from_json(self):
+
+        expected_base_height = 3.0
+        expected_total_height = 13.0
+        expected_start_speed = 50.0
+        expected_finish_speed = 200.0
+        expected_draw_speed = 100.0
+
+        original_config = Configuration()
+
+        original_config.cure_rate.base_height      = expected_base_height
+        original_config.cure_rate.total_height     = expected_total_height
+        original_config.cure_rate.start_speed      = expected_start_speed
+        original_config.cure_rate.finish_speed     = expected_finish_speed
+        original_config.cure_rate.draw_speed       = expected_draw_speed
+
+        actual_json = json.loads(original_config.toJson())
+        config = Configuration(source = actual_json)
+
+        self.assertEquals(type(expected_base_height), type(config.cure_rate.base_height) )
+        self.assertEquals(type(expected_total_height),type(config.cure_rate.total_height) )
+        self.assertEquals(type(expected_start_speed), type(config.cure_rate.start_speed) )
+        self.assertEquals(type(expected_finish_speed),type(config.cure_rate.finish_speed) )
+        self.assertEquals(type(expected_draw_speed),  type(config.cure_rate.draw_speed) )
+
+        self.assertEquals(expected_base_height,  config.cure_rate.base_height )
+        self.assertEquals(expected_total_height, config.cure_rate.total_height )
+        self.assertEquals(expected_start_speed,  config.cure_rate.start_speed )
+        self.assertEquals(expected_finish_speed, config.cure_rate.finish_speed )
+        self.assertEquals(expected_draw_speed,   config.cure_rate.draw_speed )
 
 class EmailConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
@@ -86,7 +139,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_laser_thickness_mm = True
         expected_laser_offset = True
         expected_scaling_factor = True
-        expected_draw_speed = True
         expected_overlap_amount = True
         expected_use_shufflelayers = "WRONG"
         expected_use_sublayers = "WRONG"
@@ -159,8 +211,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             config.options.scaling_factor = expected_scaling_factor
         with self.assertRaises(Exception):
-            config.options.draw_speed = expected_draw_speed
-        with self.assertRaises(Exception):
             config.options.laser_offset = expected_laser_offset
         with self.assertRaises(Exception):
             config.options.overlap_amount = expected_overlap_amount
@@ -223,7 +273,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_calibration_height = 1.0
         expected_calibration_lower_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
         expected_calibration_upper_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
-        expected_draw_speed = 2.0
         expected_laser_offset = [ 0.1, 0.1]
         
         expected_use_serial_zaxis = True
@@ -265,7 +314,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.calibration.height                   = expected_calibration_height
         original_config.calibration.lower_points             = expected_calibration_lower_points
         original_config.calibration.upper_points             = expected_calibration_upper_points
-        original_config.options.draw_speed                   = expected_draw_speed
         original_config.options.scaling_factor               = expected_scaling_factor
 
         original_config.serial.on                            = expected_use_serial_zaxis
@@ -315,7 +363,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_calibration_height, config.calibration.height )
         self.assertEquals(expected_calibration_lower_points, config.calibration.lower_points )
         self.assertEquals(expected_calibration_upper_points, config.calibration.upper_points )
-        self.assertEquals(expected_draw_speed, config.options.draw_speed )
 
         self.assertEquals(expected_use_serial_zaxis, config.serial.on )
         self.assertEquals(type(expected_serial_port), type(config.serial.port) )
@@ -466,7 +513,6 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         del tmp['audio']['input']['sample_rate']
         del tmp['options']['sublayer_height_mm']
         del tmp['options']['laser_thickness_mm']
-        del tmp['options']['draw_speed']
         del tmp['options']['laser_offset']
         del tmp['options']['scaling_factor']
         del tmp['options']['overlap_amount']
@@ -491,6 +537,16 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         del tmp['serial']['layer_started']
         del tmp['serial']['layer_ended']
         del tmp['serial']['print_ended']
+        del tmp['email']['on']
+        del tmp['email']['port']
+        del tmp['email']['host']
+        del tmp['email']['sender']
+        del tmp['email']['recipient']
+        del tmp['cure_rate']['base_height']
+        del tmp['cure_rate']['total_height']
+        del tmp['cure_rate']['start_speed']
+        del tmp['cure_rate']['finish_speed']
+        del tmp['cure_rate']['draw_speed']
 
         missing = json.dumps(tmp)
 

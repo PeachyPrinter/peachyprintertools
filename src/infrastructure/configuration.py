@@ -28,13 +28,81 @@ class ConfigurationBase(object):
                 d[unicode(key)[1:]] = value
         return d
 
+class CureRateConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._base_height   = self.get(source, u'base_height',  3.0)
+        self._total_height  = self.get(source, u'total_height', 23.0)
+        self._start_speed   = self.get(source, u'start_speed',  50.0)
+        self._finish_speed  = self.get(source, u'finish_speed', 200.0)
+        self._draw_speed    = self.get(source, u'draw_speed',   100.0)
+
+    @property
+    def base_height(self):
+        return self._base_height
+
+    @base_height.setter
+    def base_height(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._base_height = value
+        else:
+            raise ValueError("Base Height must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def total_height(self):
+        return self._total_height
+
+    @total_height.setter
+    def total_height(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._total_height = value
+        else:
+            raise ValueError("Total Height must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def start_speed(self):
+        return self._start_speed
+
+    @start_speed.setter
+    def start_speed(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._start_speed = value
+        else:
+            raise ValueError("Start speed must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def finish_speed(self):
+        return self._finish_speed
+
+    @finish_speed.setter
+    def finish_speed(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._finish_speed = value
+        else:
+            raise ValueError("Finish Speed must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def draw_speed(self):
+        return self._draw_speed
+
+    @draw_speed.setter
+    def draw_speed(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._draw_speed = value
+        else:
+            raise ValueError("Draw Speed must be of %s was %s" % (_type, type(value)))
+
 class EmailConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._on = self.get(source, u'on', False)
         self._port = self.get(source, u'port',25)
-        self._host = self.get(source, u'host', 'smtp')
-        self._sender = self.get(source, u'sender','me@peachyprinter.com')
-        self._recipient = self.get(source, u'recipient','me@peachyprinter.com')
+        self._host = self.get(source, u'host', 'some.smtp.server')
+        self._sender = self.get(source, u'sender','senderemail@email.com')
+        self._recipient = self.get(source, u'recipient','recipientemail@email.com')
         self._email_regex = r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b'
 
     def valid_email(self,potential_email):
@@ -105,7 +173,6 @@ class EmailConfiguration(ConfigurationBase):
 
 class OptionsConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._draw_speed = self.get(source, u'draw_speed', 200.0)
         self._laser_offset = self.get(source, u'laser_offset', [0.0,0.0])
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm', 0.01)
         self._laser_thickness_mm = self.get(source, u'laser_thickness_mm',0.5)
@@ -596,6 +663,7 @@ class Configuration(ConfigurationBase):
         self._dripper = DripperConfiguration(source = source.get(u'dripper', {}))
         self._options = OptionsConfiguration(source = source.get(u'options', {}))
         self._email = EmailConfiguration(source = source.get(u'email', {}))
+        self._cure_rate = CureRateConfiguration(source = source.get(u'cure_rate', {}))
 
     def toJson(self):
         di = self.toDict()
@@ -626,6 +694,10 @@ class Configuration(ConfigurationBase):
         return self._email
 
     @property
+    def cure_rate(self):
+        return self._cure_rate
+
+    @property
     def name(self):
         return self._name
     @name.setter
@@ -652,7 +724,6 @@ class ConfigurationGenerator(object):
 
         configuration.options.sublayer_height_mm           = 0.01
         configuration.options.laser_thickness_mm           = 0.5
-        configuration.options.draw_speed                   = 200.0
         configuration.options.laser_offset                 = [0.0,0.0]
         configuration.options.scaling_factor               = 1.0
         configuration.options.overlap_amount               = 1.0
@@ -686,6 +757,14 @@ class ConfigurationGenerator(object):
         configuration.email.host                           = "some.smtp.server"
         configuration.email.sender                         = "senderemail@email.com"
         configuration.email.recipient                      = "recipientemail@email.com"
+
+        configuration.cure_rate.base_height                = 3.0
+        configuration.cure_rate.total_height               = 23.0
+        configuration.cure_rate.start_speed                = 50.0
+        configuration.cure_rate.finish_speed               = 200.0
+        configuration.cure_rate.draw_speed                 = 100.0
+
+
 
         return configuration
 

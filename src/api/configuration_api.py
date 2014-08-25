@@ -272,11 +272,16 @@ class ConfigurationAPI(object):
     '''Save the maximum speed in mm per second in the configuration file'''
     def set_speed(self,mm_per_second):
         if (float(mm_per_second) > 0.0):
-            self._current_config.options.draw_speed = float(mm_per_second)
+            self._current_config.cure_rate.draw_speed = float(mm_per_second)
             self.save()
         else:
-            logging.warning('Specified speed if less then or equal to 0')
-            raise Exception('Specified speed if less then or equal to 0')
+            logging.warning('Specified speed is less then or equal to 0')
+            raise Exception('Specified speed is less then or equal to 0')
+
+    '''Get the maximum speed in mm per second in the configuration file'''
+    def get_speed(self):
+        return self._current_config.cure_rate.draw_speed
+
 
     # ----------------------------- General Setup --------------------------------------
 

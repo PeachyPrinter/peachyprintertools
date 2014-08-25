@@ -592,6 +592,8 @@ class CureTestUI(PeachyFrame):
         self._stop_speed.set(250)
         self._best_height = IntVar()
         self._best_height.set(0)
+        self._cure_speed = DoubleVar()
+        self._cure_speed.set(self._configuration_api.get_speed())
 
         Label(self, text = 'Printer: ').grid(column=0,row=10)
         Label(self, text = self._configuration_api.current_printer()).grid(column=1,row=10)
@@ -599,30 +601,37 @@ class CureTestUI(PeachyFrame):
 
         Label(self).grid(column=1,row=15)
 
-        Label(self, text = "Base Height (mm)" ).grid(column=0,row=20)
-        Entry(self, textvariable = self._base_height).grid(column=1, row=20)
+        self._cure_test_frame = LabelFrame(self, text="Cure Test", padx=5, pady=5)
+        self._cure_test_frame.grid(column=0,row=20, columnspan=3)
+        Label(self._cure_test_frame, text = "Base Height (mm)" ).grid(column=0,row=20)
+        Entry(self._cure_test_frame, textvariable = self._base_height).grid(column=1, row=20)
 
-        Label(self, text = "Total Height (mm)" ).grid(column=0,row=30)
-        Entry(self, textvariable = self._total_height).grid(column=1, row=30)
+        Label(self._cure_test_frame, text = "Total Height (mm)" ).grid(column=0,row=30)
+        Entry(self._cure_test_frame, textvariable = self._total_height).grid(column=1, row=30)
 
-        Label(self, text = "Start Speed (mm)" ).grid(column=0,row=40)
-        Entry(self, textvariable = self._start_speed).grid(column=1, row=40)
+        Label(self._cure_test_frame, text = "Start Speed (mm)" ).grid(column=0,row=40)
+        Entry(self._cure_test_frame, textvariable = self._start_speed).grid(column=1, row=40)
 
-        Label(self, text = "Finish Speed (mm)" ).grid(column=0,row=50)
-        Entry(self, textvariable = self._stop_speed).grid(column=1, row=50)
-        Label(self).grid(column=1,row=60)
+        Label(self._cure_test_frame, text = "Finish Speed (mm)" ).grid(column=0,row=50)
+        Entry(self._cure_test_frame, textvariable = self._stop_speed).grid(column=1, row=50)
+        Label(self._cure_test_frame).grid(column=1,row=60)
 
-        Button(self, text ="Run Test", command = self._start).grid(column=2,row=70,sticky=N+S+E)
+        Button(self._cure_test_frame, text ="Run Test", command = self._start).grid(column=2,row=20,rowspan=40,sticky=E)
+        Label(self._cure_test_frame).grid(column=1,row=80)
 
-        Label(self).grid(column=1,row=80)
-
-        Label(self, text = "Best height above base (mm)" ).grid(column=0,row=90)
-        self._best_height_field = Entry(self, textvariable = self._best_height)
+        Label(self._cure_test_frame, text = "Best height above base (mm)" ).grid(column=0,row=90)
+        self._best_height_field = Entry(self._cure_test_frame, textvariable = self._best_height)
         self._best_height_field.grid(column=1, row=90)
+        Button(self._cure_test_frame, text ="Calculate Cure Speed", command = self._calculate).grid(column=2,row=90,sticky=N+S+E)
+
+        Label(self).grid(column=1,row=94)
+
+        Label(self, text = "Maximum Speed (mm/second)" ).grid(column=0,row=95)
+        Entry(self, textvariable = self._cure_speed).grid(column=1, row=95)
         
         Label(self).grid(column=1,row=100)
 
-        Button(self, text ="Save", command = self._save).grid(column=2,row=110,sticky=N+S+W)
+        Button(self, text ="Save", command = self._save).grid(column=2,row=110,sticky=N+S+E)
         Button(self, text ="Back", command = self._back).grid(column=0,row=110,sticky=N+S+W)
 
         self.update()
@@ -633,16 +642,22 @@ class CureTestUI(PeachyFrame):
     def _help(self):
         PopUp(self,'Help', help_text.cure_test_help)
 
-    def _save(self):
+    def _calculate(self):
         try:
             speed = self._configuration_api.get_speed_at_height(
-                    self._base_height.get(),
-                    self._total_height.get(),
-                    self._start_speed.get(),
-                    self._stop_speed.get(),
-                    self._best_height.get()
-                    )
-            self._configuration_api.set_speed(speed)
+                self._base_height.get(),
+                self._total_height.get(),
+                self._start_speed.get(),
+                self._stop_speed.get(),
+                self._best_height.get()
+                )
+            self._cure_speed.set(speed)
+        except Exception as ex:
+            tkMessageBox.showwarning("Error", ex.message)
+
+    def _save(self):
+        try:
+            self._configuration_api.set_speed(self._cure_speed.get())
             self.navigate(SetupUI)
         except Exception as ex:
             tkMessageBox.showwarning("Error", ex.message)

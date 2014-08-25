@@ -943,7 +943,6 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             configuration_API.get_cure_test(1,1,1,2)
 
-
     @patch.object(ConfigurationManager, 'load' )
     def test_get_cure_test_final_speed_exceeds_start_speed(self, mock_load):
         mock_load.return_value = self.default_config
@@ -1078,12 +1077,28 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         speed = configuration_API.get_speed_at_height(0,1,10,20,0.5)
         self.assertEquals(15, speed)
 
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_get_speed(self, mock_save, mock_load):
+        mock_load.return_value = self.default_config
+        expected = 122.0
+        config = self.default_config
+        config.cure_rate.draw_speed = expected
+        mock_load.return_value = config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+        
+        actual = configuration_API.get_speed()
+        
+        self.assertEqual(expected, actual)
+
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
     def test_set_speed(self, mock_save, mock_load):
         mock_load.return_value = self.default_config
         expected = self.default_config
-        expected.options.draw_speed = 121.0
+        expected.cure_rate.draw_speed = 121.0
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
         
@@ -1096,7 +1111,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_speed_should_throw_exception_if_less_then_or_0(self, mock_save, mock_load):
         mock_load.return_value = self.default_config
         expected_config = self.default_config
-        expected_config.options.draw_speed = 121.0
+        expected_config.cure_rate.draw_speed = 121.0
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
         
@@ -1119,7 +1134,6 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertTrue(configuration_API.get_use_shufflelayers())
         self.assertTrue(configuration_API.get_use_sublayers())
         self.assertTrue(configuration_API.get_use_overlap())
-
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
