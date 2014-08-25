@@ -23,6 +23,7 @@ class CureRateConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_start_speed = True
         expected_finish_speed = True
         expected_draw_speed = True
+        expected_use_draw_speed = 123
         
         cure_rate_config = CureRateConfiguration()
 
@@ -36,6 +37,8 @@ class CureRateConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             cure_rate_config.finish_speed = expected_finish_speed
         with self.assertRaises(Exception):
             cure_rate_config.draw_speed = expected_draw_speed
+        with self.assertRaises(Exception):
+            cure_rate_config.use_draw_speed = expected_use_draw_speed
 
     def test_can_create_json_and_load_from_json(self):
 
@@ -44,6 +47,7 @@ class CureRateConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_start_speed = 50.0
         expected_finish_speed = 200.0
         expected_draw_speed = 100.0
+        expected_use_draw_speed = True
 
         original_config = Configuration()
 
@@ -52,21 +56,24 @@ class CureRateConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.cure_rate.start_speed      = expected_start_speed
         original_config.cure_rate.finish_speed     = expected_finish_speed
         original_config.cure_rate.draw_speed       = expected_draw_speed
+        original_config.cure_rate.use_draw_speed   = expected_use_draw_speed
 
         actual_json = json.loads(original_config.toJson())
         config = Configuration(source = actual_json)
 
-        self.assertEquals(type(expected_base_height), type(config.cure_rate.base_height) )
-        self.assertEquals(type(expected_total_height),type(config.cure_rate.total_height) )
-        self.assertEquals(type(expected_start_speed), type(config.cure_rate.start_speed) )
-        self.assertEquals(type(expected_finish_speed),type(config.cure_rate.finish_speed) )
-        self.assertEquals(type(expected_draw_speed),  type(config.cure_rate.draw_speed) )
+        self.assertEquals(type(expected_base_height),    type(config.cure_rate.base_height) )
+        self.assertEquals(type(expected_total_height),   type(config.cure_rate.total_height) )
+        self.assertEquals(type(expected_start_speed),    type(config.cure_rate.start_speed) )
+        self.assertEquals(type(expected_finish_speed),   type(config.cure_rate.finish_speed) )
+        self.assertEquals(type(expected_draw_speed),     type(config.cure_rate.draw_speed) )
+        self.assertEquals(type(expected_use_draw_speed), type(config.cure_rate.use_draw_speed) )
 
-        self.assertEquals(expected_base_height,  config.cure_rate.base_height )
-        self.assertEquals(expected_total_height, config.cure_rate.total_height )
-        self.assertEquals(expected_start_speed,  config.cure_rate.start_speed )
-        self.assertEquals(expected_finish_speed, config.cure_rate.finish_speed )
-        self.assertEquals(expected_draw_speed,   config.cure_rate.draw_speed )
+        self.assertEquals(expected_base_height,    config.cure_rate.base_height )
+        self.assertEquals(expected_total_height,   config.cure_rate.total_height )
+        self.assertEquals(expected_start_speed,    config.cure_rate.start_speed )
+        self.assertEquals(expected_finish_speed,   config.cure_rate.finish_speed )
+        self.assertEquals(expected_draw_speed,     config.cure_rate.draw_speed )
+        self.assertEquals(expected_use_draw_speed, config.cure_rate.use_draw_speed )
 
 class EmailConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
@@ -547,6 +554,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         del tmp['cure_rate']['start_speed']
         del tmp['cure_rate']['finish_speed']
         del tmp['cure_rate']['draw_speed']
+        del tmp['cure_rate']['use_draw_speed']
 
         missing = json.dumps(tmp)
 

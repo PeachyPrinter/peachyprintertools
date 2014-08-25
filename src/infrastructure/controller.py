@@ -128,7 +128,7 @@ class Controller(threading.Thread,):
                     status_call_back = None, 
                     max_lead_distance = sys.float_info.max, 
                     abort_on_error=True,
-                    max_speed = None,
+                    override_speed = None,
                     commander = None,
                     layer_start_command = "S",
                     layer_ended_command = "E",
@@ -140,7 +140,7 @@ class Controller(threading.Thread,):
         self.deamon = True
         self._abort_on_error = abort_on_error
         self._max_lead_distance = max_lead_distance
-        self._max_speed = max_speed
+        self._override_speed = override_speed
 
         self._shutting_down = False
         self.running = False
@@ -297,8 +297,8 @@ class Controller(threading.Thread,):
         self._write_lateral(to_x,to_y,to_z,speed)
     
     def _write_lateral(self,to_x,to_y, to_z,speed):
-        if self._max_speed and speed > self._max_speed:
-            speed = self._max_speed
+        if self._override_speed and speed > self._override_speed:
+            speed = self._override_speed
         to_xyz = [to_x,to_y,to_z]
         path = self._path_to_audio.process(self.state.xyz,to_xyz , speed)
         modulated_path = self._laser_control.modulate(path)

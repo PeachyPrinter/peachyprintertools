@@ -309,6 +309,10 @@ class ConfigurationAPI(object):
             logging.warning('draw_speed must be positive')
             raise Exception('Specified draw speed must be positive')
 
+    '''Sets the use_draw_speed for Cure Rate test.'''
+    def set_cure_rate_use_draw_speed(self,use_draw_speed):
+        self._current_config.cure_rate.use_draw_speed = use_draw_speed
+
     '''Gets the base_height for Cure Rate test.'''
     def get_cure_rate_base_height(self):
         return self._current_config.cure_rate.base_height
@@ -328,6 +332,10 @@ class ConfigurationAPI(object):
     '''Gets the draw_speed for Cure Rate test.'''
     def get_cure_rate_draw_speed(self):
         return self._current_config.cure_rate.draw_speed
+
+    '''Gets the usedraw_speed for Cure Rate test.'''
+    def get_cure_rate_use_draw_speed(self):
+        return self._current_config.cure_rate.use_draw_speed
 
 
     # ----------------------------- General Setup --------------------------------------

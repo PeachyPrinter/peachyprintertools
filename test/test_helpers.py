@@ -144,5 +144,6 @@ class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):
         self.assertEquals(expected.cure_rate.start_speed                , actual.cure_rate.start_speed                , "cure_rate.start_speed did not match expected %s was %s"                 % (expected.cure_rate.start_speed                , actual.cure_rate.start_speed                ))
         self.assertEquals(expected.cure_rate.finish_speed               , actual.cure_rate.finish_speed               , "cure_rate.finish_speed did not match expected %s was %s"                % (expected.cure_rate.finish_speed               , actual.cure_rate.finish_speed               ))
         self.assertEquals(expected.cure_rate.draw_speed                 , actual.cure_rate.draw_speed                 , "cure_rate.draw_speed did not match expected %s was %s"                  % (expected.cure_rate.draw_speed                 , actual.cure_rate.draw_speed                 ))
+        self.assertEquals(expected.cure_rate.use_draw_speed             , actual.cure_rate.use_draw_speed             , "cure_rate.use_draw_speed did not match expected %s was %s"              % (expected.cure_rate.use_draw_speed             , actual.cure_rate.use_draw_speed             ))
 
         

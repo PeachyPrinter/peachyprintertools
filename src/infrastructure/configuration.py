@@ -30,11 +30,12 @@ class ConfigurationBase(object):
 
 class CureRateConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._base_height   = self.get(source, u'base_height',  3.0)
-        self._total_height  = self.get(source, u'total_height', 23.0)
-        self._start_speed   = self.get(source, u'start_speed',  50.0)
-        self._finish_speed  = self.get(source, u'finish_speed', 200.0)
-        self._draw_speed    = self.get(source, u'draw_speed',   100.0)
+        self._base_height    = self.get(source, u'base_height',  3.0)
+        self._total_height   = self.get(source, u'total_height', 23.0)
+        self._start_speed    = self.get(source, u'start_speed',  50.0)
+        self._finish_speed   = self.get(source, u'finish_speed', 200.0)
+        self._draw_speed     = self.get(source, u'draw_speed',   100.0)
+        self._use_draw_speed = self.get(source, u'use_draw_speed', True)
 
     @property
     def base_height(self):
@@ -95,6 +96,19 @@ class CureRateConfiguration(ConfigurationBase):
             self._draw_speed = value
         else:
             raise ValueError("Draw Speed must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def use_draw_speed(self):
+        return self._use_draw_speed
+
+    @use_draw_speed.setter
+    def use_draw_speed(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._use_draw_speed = value
+        else:
+            raise ValueError("Use draw Speed must be of %s was %s" % (_type, type(value)))
+
 
 class EmailConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -763,6 +777,7 @@ class ConfigurationGenerator(object):
         configuration.cure_rate.start_speed                = 50.0
         configuration.cure_rate.finish_speed               = 200.0
         configuration.cure_rate.draw_speed                 = 100.0
+        configuration.cure_rate.use_draw_speed             = True
 
 
 

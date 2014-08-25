@@ -1132,6 +1132,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         expected_start_speed = 10.0
         expected_finish_speed = 100.0
         expected_draw_speed = 75.0
+        expected_use_draw_speed = False
 
         expected_config = self.default_config
         
@@ -1140,6 +1141,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         expected_config.cure_rate.start_speed = expected_start_speed
         expected_config.cure_rate.finish_speed = expected_finish_speed
         expected_config.cure_rate.draw_speed = expected_draw_speed
+        expected_config.cure_rate.use_draw_speed = expected_use_draw_speed
 
         mock_load.return_value =  self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
@@ -1150,16 +1152,18 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         configuration_API.set_cure_rate_start_speed(expected_start_speed)
         configuration_API.set_cure_rate_finish_speed(expected_finish_speed)
         configuration_API.set_cure_rate_draw_speed(expected_draw_speed)
+        configuration_API.set_cure_rate_use_draw_speed(expected_use_draw_speed)
 
         configuration_API.save()
 
         self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
 
-        self.assertEquals(expected_base_height ,  configuration_API.get_cure_rate_base_height())
-        self.assertEquals(expected_total_height , configuration_API.get_cure_rate_total_height())
-        self.assertEquals(expected_start_speed ,  configuration_API.get_cure_rate_start_speed())
-        self.assertEquals(expected_finish_speed , configuration_API.get_cure_rate_finish_speed())
-        self.assertEquals(expected_draw_speed ,   configuration_API.get_cure_rate_draw_speed())
+        self.assertEquals(expected_base_height ,   configuration_API.get_cure_rate_base_height())
+        self.assertEquals(expected_total_height ,  configuration_API.get_cure_rate_total_height())
+        self.assertEquals(expected_start_speed ,   configuration_API.get_cure_rate_start_speed())
+        self.assertEquals(expected_finish_speed ,  configuration_API.get_cure_rate_finish_speed())
+        self.assertEquals(expected_draw_speed ,    configuration_API.get_cure_rate_draw_speed())
+        self.assertEquals(expected_use_draw_speed, configuration_API.get_cure_rate_use_draw_speed())
 
 
 class AudioSettingsTest(unittest.TestCase, test_helpers.TestHelpers):
