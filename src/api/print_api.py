@@ -159,6 +159,7 @@ class PrintAPI(object):
             abort_on_error = True
 
         override_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
+        pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else None
 
         self._controller = Controller(
             laser_control,
@@ -174,6 +175,7 @@ class PrintAPI(object):
             layer_start_command = self._configuration.serial.layer_started,
             layer_ended_command = self._configuration.serial.layer_ended,
             print_ended_command = self._configuration.serial.print_ended,
+            pre_layer_delay = pre_layer_delay
             )
         self._controller.start()
 
