@@ -238,7 +238,7 @@ class Controller(threading.Thread,):
                 if self._should_process(ahead_by):
                     self._send_command(self._layer_start_command)
                     if self._pre_layer_delay:
-                        time.sleep(self._pre_layer_delay)
+                        self._wait_till_time(time.time() + self._pre_layer_delay)
                     self._process_layer(layer)
                     self._send_command(self._layer_ended_command)
                 else:
@@ -313,6 +313,13 @@ class Controller(threading.Thread,):
             self._status.set_waiting_for_drips()
             self._move_lateral(self.state.xy, self.state.z,self.state.speed)
         self._status.set_not_waiting_for_drips()
+
+    def _wait_till_time(self, wait_time):
+        while time.time() <= wait_time:
+            if self._shutting_down:
+                return
+            self._move_lateral(self.state.xy, self.state.z,self.state.speed)
+
 
     def _terminate(self):
         logging.info('Controller shutdown requested')

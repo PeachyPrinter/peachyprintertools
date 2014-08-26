@@ -617,6 +617,22 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
+    def test_set_max_lead_distance_mm_sets_max_lead_distance_mm_when_0(self, mock_save, mock_load):
+        expected = 0.0
+        expected_config = self.default_config
+        expected_config.dripper.max_lead_distance_mm = expected
+        mock_load.return_value =  self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_max_lead_distance_mm(expected)
+
+        self.assertEquals(expected,configuration_API.get_max_lead_distance_mm())
+        self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
+
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
     def test_set_max_lead_distance_mm_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
         mock_load.return_value =   {'name':'test' }
         configuration_API = ConfigurationAPI(ConfigurationManager())

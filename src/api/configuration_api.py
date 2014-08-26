@@ -406,7 +406,7 @@ class ConfigurationAPI(object):
 
     '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
     def set_max_lead_distance_mm(self, lead_distance_mm):
-        if  self._positive_float(lead_distance_mm):
+        if  self._zero_or_positive_float(lead_distance_mm):
             self._current_config.dripper.max_lead_distance_mm = lead_distance_mm
             self.save()
         else:
