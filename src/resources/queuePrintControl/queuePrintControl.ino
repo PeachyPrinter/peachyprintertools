@@ -1,16 +1,17 @@
 //Outputs
-const int pumpForward   =  3;
-const int pumpReverse   =  4;
+const int pumpIn        =  3;
+const int pumpOut       =  4;
 const int belt          =  6;
 const int dripShort     =  5;
 const int speaker       =  7;
+const int shutter       =  14;
+const int emptyVoltagePin   = 10;
 
 //Inputs
 const int pumpInterupted    =  8;
-const int tankEmpty         =  9;
-const int tankFull          = 10;
+const int emptyCheckPin     =  9;
 const int topRoller         = 11;
-const int bottomRoller      = 12;
+const int printDisk1Click   = 12;
 const int testButton        = 13;
 
 const int initializeButton  = 2;
@@ -27,18 +28,22 @@ const int printCompleteCommand = 90;//Z
 int incommingByte = 0;
 bool testInProgress = false;
 bool pumpState = true;
+int shutterOn=0;
 
 void setup() {
-  pinMode(pumpForward, OUTPUT);      
-  pinMode(pumpReverse, OUTPUT);
+  pinMode(shutter, OUTPUT);
+  pinMode(pumpOut, OUTPUT);
+  pinMode(pumpIn, OUTPUT);
   pinMode(belt, OUTPUT);
   pinMode(dripShort, OUTPUT);
   pinMode(speaker, OUTPUT);
+  pinMode(emptyVoltagePin, OUTPUT);  
+  pinMode(emptyVoltagePin, OUTPUT);  
+  digitalWrite(emptyVoltagePin,LOW);
 
   pinMode(pumpInterupted, INPUT);
-  pinMode(tankEmpty, INPUT);
-  pinMode(tankFull, INPUT);
-  pinMode(bottomRoller, INPUT);
+  pinMode(printDisk1Click, INPUT);    
+  pinMode(emptyCheckPin, INPUT); 
   pinMode(topRoller, INPUT);
   pinMode(testButton, INPUT);
   pinMode(initializeButton, INPUT);
@@ -61,18 +66,18 @@ void alarmtone() {
 }
 
 void pumpFill() {
-  digitalWrite(pumpReverse, LOW);
-  digitalWrite(pumpForward, HIGH);
+  digitalWrite(pumpOut, LOW);
+  digitalWrite(pumpIn, HIGH);
 }
 
 void pumpStop() {
-  digitalWrite(pumpReverse, HIGH);
-  digitalWrite(pumpForward, HIGH);
+  digitalWrite(pumpOut, LOW);
+  digitalWrite(pumpIn, LOW);
 }
 
 void pumpEmpty() {
-  digitalWrite(pumpForward, LOW);
-  digitalWrite(pumpReverse, HIGH);
+  digitalWrite(pumpIn, LOW);
+  digitalWrite(pumpOut, HIGH);
 }
 
 void emulateDrip() {
@@ -81,11 +86,11 @@ void emulateDrip() {
   digitalWrite(dripShort, LOW);
 }
 
-void converyerAdvance() {
+void conveyerAdvance() {
   digitalWrite(belt, HIGH);
 }
 
-void converyerStop() {
+void conveyerStop() {
   digitalWrite(belt, LOW);
 }
 
@@ -104,68 +109,58 @@ void aTest() {
   pumpStop();
   Serial.println("Testing:Drip Emulation");
   emulateDrip();
-  Serial.println("Testing: Converyer Advance");
-  converyerAdvance();
+  Serial.println("Testing: Conveyer Advance");
+  conveyerAdvance();
   delay(1000);
-  Serial.println("Testing: Converyer Stop");
-  converyerStop();
-  complete();
+  Serial.println("Testing: Conveyer Stop");
+  conveyerStop();
+  
+  
+  PrintSetup();
 }
 
-void initializeBelt(){
-  while(digitalRead(bottomRoller) == LOW)
-    converyerAdvance();
-  converyerStop();
-}
-
-void advanceBelt(int turns) {
-  bool inTurn = true;
-  converyerAdvance();
-  while (turns > 0) {
-    if (digitalRead(bottomRoller) == LOW)
-      inTurn = false;
-    if (digitalRead(bottomRoller) == HIGH && inTurn == false) {
-      inTurn = true;
-      Serial.println("Belt Advanced");
-      turns--;
-    }
+void advanceBelt(int clicks){
+  Serial.println("advancing");
+  digitalWrite(belt,HIGH);
+  while(clicks>0){
+    while(digitalRead(printDisk1Click)==HIGH){delay(10);}
+    while(digitalRead(printDisk1Click)==LOW){delay(10);}
+    while(digitalRead(printDisk1Click)==HIGH){delay(10);}
+    clicks--;
+    Serial.println("clicks left: ");
+    Serial.println(clicks);
   }
-  converyerStop();
+  Serial.println("advanced");
+  digitalWrite(belt,LOW);
 }
 
-void complete(){
+void PrintSetup(){
   Serial.println("Setting up for next print");
-  Serial.println("Advancing Belt");
-  advanceBelt(4);
   Serial.println("Emptying Tank");
-  while(digitalRead(tankEmpty) == LOW)
-    pumpEmpty();
-  Serial.println("Tank Empty");
-  pumpStop();
+  emptyTank(3000);
+  Serial.println("Advancing Belt");
+  advanceBelt(1);
+
   Serial.println("Ready to Print");
   happytone();
 
 }
 
-void checkPump() {
-   if (digitalRead(pumpInterupted) == HIGH){
-      if (pumpState != true) {
-        pumpState = true;
-        Serial.println("Pumped");
-      }
+void emptyTank(int CheckInterval){
+  boolean empty = false;
+  while(empty==false){  
+    digitalWrite(emptyVoltagePin,HIGH);
+    if (digitalRead(emptyCheckPin)==HIGH){
+      Serial.println("not empty");  
+      digitalWrite(pumpOut,HIGH);
     }
-  if (digitalRead(pumpInterupted) == LOW) {
-    if (pumpState != false) {
-        pumpState = false;
-        Serial.println("UnPumped");
-      }
+    else{
+      Serial.println("empty");
+      empty=true;
+      digitalWrite(pumpOut,LOW);
     }
-}
-
-void checkFull() {
-  if (digitalRead(tankFull) == HIGH){
-    Serial.println("TankFull");
-    alarmtone();
+    digitalWrite(emptyVoltagePin,LOW);
+    delay(CheckInterval);
   }
 }
 
@@ -192,32 +187,47 @@ if (Serial.available() > 0) {
   } else if (incommingByte == dripOffCommand) {
     pumpStop();
   } else if (incommingByte == layerStartCommand) {
-    // Do nothing
+    shutterStart();
   } else if (incommingByte == layerEndCommand) {
-    // Do nothing
+    shutterClose();
+
   } else if (incommingByte == helloCommand) {
     Serial.write("OK\n");
-    incommingByte = 0;
   }else if (incommingByte == printCompleteCommand) {
     Serial.println("Communication: Recieved Print Complete");
-    complete();
-    incommingByte = 0;
+    PrintSetup();
+  }
+  incommingByte = 0;
+}
+
+void shutterStart(){
+  if (shutterOn==0){
+    digitalWrite(shutter,HIGH);
+    shutterOn=2;
+  }
+  else if (shutterOn<0){
+    shutterOn++;
   }
 }
 
+int shutterClose(){
+  if (shutterOn>1){
+    shutterOn--;
+  }
+  else if (shutterOn==1){
+    digitalWrite(shutter,LOW);
+    shutterOn = -3;
+  }
+}
 
 void loop()
 { 
   if (!testInProgress) {
-    checkPump();
-    checkFull();
     checkTestMode();
     checkSerial();
   }
 
   if (digitalRead(initializeButton) == HIGH){
-      Serial.println("Initializing Belt");
-      initializeBelt();
+      PrintSetup();
     }
-
 }

@@ -165,6 +165,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         while self.running:
             self._update_state()
             self.drip_detector.process_frames(self._get_frames(stream))
+        self._commander.send_command(self._dripper_off_command)
         stream.stop_stream()
         stream.close()
         self.shutdown = True
@@ -187,6 +188,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         return stream
 
     def close(self):
+        self._commander.send_command(self._dripper_off_command)
         self.running = False
         attempts = 10
         while not self.shutdown and attempts > 0:
@@ -196,7 +198,6 @@ class AudioDripZAxis(ZAxis, threading.Thread):
             logging.info("AudioDripZAxis shutdown successfully")
         else:
             logging.info("AudioDripZAxis did not shutdown successfully")
-        self._commander.send_command(self._dripper_off_command)
         self.pa.terminate()
 
 
