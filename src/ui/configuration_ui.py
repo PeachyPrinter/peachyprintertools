@@ -370,8 +370,6 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Label(self.real_dripper_frame,text=" -> ", anchor=W, justify=RIGHT).grid(column=3,row=30,sticky=N+S+E+W)
         dripper_drips_per_mm_field = Entry(self.real_dripper_frame,textvariable=self._drips_per_mm)
         dripper_drips_per_mm_field.grid(column=4,row=30,sticky=N+S+E+W)
-        dripper_drips_per_mm_field.bind('<Key>', self._drips_per_mm_changed)
-        dripper_drips_per_mm_field.bind('<FocusOut>', self._drips_per_mm_changed)
         Label(self.real_dripper_frame,textvariable=self._current_height_mm,  anchor=CENTER, justify=CENTER).grid(column=5,row=30,sticky=N+S+E+W)
 
         Label(self.real_dripper_frame).grid(column=1,row=40)
@@ -404,8 +402,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Label(self.fake_dripper_frame, text="Drips per mm").grid(column=1,row=20)
         emulated_drips_per_mm_field = Entry(self.fake_dripper_frame, textvariable=self._drips_per_mm)
         emulated_drips_per_mm_field.grid(column=2,row=20,sticky=N+S+E+W)
-        emulated_drips_per_mm_field.bind('<Key>', self._drips_per_mm_changed)
-        emulated_drips_per_mm_field.bind('<FocusOut>', self._drips_per_mm_changed)
+
         # ---------------- Manual Dripper Frame Stop ----------------------------
         # ---------------- Photo Dripper Frame Start ----------------------------
         self._layer_delay = DoubleVar()
@@ -417,15 +414,13 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 
         Label(self.photo_zaxis_frame, text="Layer Delay").grid(column=1,row=10)
         layer_delay_field = Entry(self.photo_zaxis_frame, textvariable=self._layer_delay)
-        layer_delay_field.grid(column=2,row=10)
-
         layer_delay_field.grid(column=2,row=20,sticky=N+S+E+W)
-        layer_delay_field.bind('<Key>', self._layer_delay_changed)
-        layer_delay_field.bind('<FocusOut>', self._layer_delay_changed)
+
         # ---------------- Photo Dripper Frame Stop ----------------------------
 
         Label(self).grid(column=0,row=45)
         Button(self,text=u"Back", command=self._back, width=10).grid(column=0,row=50,sticky=N+S+W)
+        Button(self,text=u"Save", command=self._save, width=10).grid(column=2,row=50,sticky=N+S+E)
         
         self.update()
         self._dripper_type_changed()
@@ -467,10 +462,16 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         self._configuration_api.reset_drips()
 
     def _back(self):
-        self._configuration_api.set_emulated_drips_per_second(self._drips_per_second.get())
-        self._configuration_api.set_drips_per_mm(self._drips_per_mm.get())
         self._configuration_api.stop_counting_drips()
         self._configuration_api.save()
+        self.navigate(SetupUI, printer = self._current_printer)
+
+    def _save(self):
+        self._configuration_api.set_emulated_drips_per_second(self._drips_per_second.get())
+        self._configuration_api.set_drips_per_mm(self._drips_per_mm.get())
+        self._configuration_api.set_photo_zaxis_delay(self._layer_delay.get())
+        self._configuration_api.save()
+        self._configuration_api.stop_counting_drips()
         self.navigate(SetupUI, printer = self._current_printer)
 
     def _help(self):
@@ -481,16 +482,6 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
             drips_per_mm = (self._drip_count.get() * 1.0) / (self._target_height_mm.get() * 1.0)
             self._configuration_api.set_drips_per_mm(drips_per_mm)
             self._drips_per_mm.set(drips_per_mm)
-
-    def _drips_per_mm_changed(self, event):
-        drips_per_mm = self._drips_per_mm.get()
-        if drips_per_mm > 0.0:
-            self._configuration_api.set_drips_per_mm(drips_per_mm)
-
-    def _layer_delay_changed(self, event):
-        delay = self._layer_delay.get()
-        if delay >= 0.0:
-            self._configuration_api.set_photo_zaxis_delay(delay)
 
     def close(self):
         self._configuration_api.stop_counting_drips()

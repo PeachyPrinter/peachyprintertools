@@ -604,7 +604,7 @@ class ControllerTests(unittest.TestCase):
 
         self.wait_for_controller()
 
-        self.assertTrue( 1000 < mock_path_to_audio.process.call_count,mock_path_to_audio.process.call_count) #Calls are appxorimate 
+        self.assertTrue( 10 < mock_path_to_audio.process.call_count,mock_path_to_audio.process.call_count) #Calls are appxorimate 
         self.assertTrue( 3000 > mock_path_to_audio.process.call_count,mock_path_to_audio.process.call_count) #Calls are appxorimate 
 
         
