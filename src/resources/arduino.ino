@@ -25,11 +25,13 @@ int dripOffCommand = 48;
 int layerStartCommand = 83;
 int layerEndCommand = 69;
 
+unsigned long maxTime = 4000000000l;
+
 int maxPotValue = 1024;
 float servoThrow = 180.0;
 int incommingByte = 0;
-unsigned long cameraStateOnTime = millis() + 100000l;
-unsigned long cameraStateOffTime = millis() + 100000l;
+unsigned long cameraStateOnTime = millis() + maxTime;
+unsigned long cameraStateOffTime = millis() + maxTime;
 
 
 void setup() {                
@@ -84,12 +86,12 @@ void camera_off(){
 void camera_state(){
   if (millis() >=  cameraStateOnTime){
       digitalWrite(camera_pin, HIGH);
-      cameraStateOnTime = millis() + 1000000l;
+      cameraStateOnTime = millis() + maxTime;
       Serial.println("On");
   } 
   if (millis() >=  cameraStateOffTime){
       digitalWrite(camera_pin, LOW);
-      cameraStateOffTime = millis() + 1000000l;
+      cameraStateOffTime = millis() + maxTime;
       Serial.println("Off");
     }
 }
