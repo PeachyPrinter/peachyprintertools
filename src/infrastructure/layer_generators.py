@@ -184,8 +184,6 @@ class SpiralGenerator(TestLayerGenerator):
             radius += inc
             yield [x,y]
 
-
-
 class MemoryHourglassGenerator(TestLayerGenerator):
     def __init__(self, speed = 100.0, radius = 20.0):
         self.set_speed(speed)
@@ -293,7 +291,6 @@ class CureTestGenerator(LayerGenerator):
         layer = Layer(float(self._current_layer * self._sub_layer_height), commands = self.commands(base_layer))
         self._current_layer += 1
         return layer
-
 
 class AdvancedCureTestGenerator(LayerGenerator):
     def __init__(

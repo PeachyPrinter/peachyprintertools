@@ -25,7 +25,7 @@ int dripOffCommand = 48;
 int layerStartCommand = 83;
 int layerEndCommand = 69;
 
-unsigned long maxTime = 4000000000l;
+unsigned long maxTime = 1000000000l;
 
 int maxPotValue = 1024;
 float servoThrow = 180.0;
