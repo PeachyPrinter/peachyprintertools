@@ -38,7 +38,7 @@ class CalibrationLineGenerator(LayerGenerator):
         return Layer(0.0, commands = [LateralDraw([0.0,0.5],[1.0,0.5],self._speed),LateralDraw([1.0,0.5],[0.0,0.5],self._speed)])
 
 class BlinkGenerator(TestLayerGenerator):
-    def __init__(self, starting_xy = [0.0,0.0],radius = 0.5 ,speed = 0.5,steps = 80):
+    def __init__(self, starting_xy = [0.0,0.0],radius = 0.5 ,speed = 0.5,steps = 45):
         self.xy = starting_xy
         self._state = True
         self.set_speed(speed)
@@ -138,11 +138,9 @@ class CircleGenerator(TestLayerGenerator):
         self.set_radius(radius)
         self._steps = steps
         self.last_xy = [0.0,0.0]
-        self.height = 0.0
 
     def next(self):
-        self.height += 0.1
-        layer = Layer(self.height)
+        layer = Layer(0.0)
         for point in self.points():
             layer.commands.append(LateralDraw(self.last_xy,point, self._speed))
             self.last_xy = point

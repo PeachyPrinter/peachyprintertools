@@ -287,14 +287,16 @@ class Controller(threading.Thread,):
 
     def _move_lateral(self,(to_x,to_y), to_z,speed):
         self._laser_control.set_laser_off()
-        self._write_lateral(to_x,to_y,to_z,speed)
+        for i in range(0,1):
+            self._write_lateral(to_x,to_y,to_z,speed)
 
     def _draw_lateral(self,(to_x,to_y), to_z,speed):
         if self.laser_off_override:
             self._laser_control.set_laser_off()
         else:
             self._laser_control.set_laser_on()
-        self._write_lateral(to_x,to_y,to_z,speed)
+        for i in range(0,1):
+            self._write_lateral(to_x,to_y,to_z,speed)
     
     def _write_lateral(self,to_x,to_y, to_z,speed):
         if self._override_speed and speed > self._override_speed:
