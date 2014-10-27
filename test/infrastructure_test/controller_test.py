@@ -233,6 +233,46 @@ class LayerProcessingTest(unittest.TestCase):
 
         mock_writer.process_layer.assert_called_with(test_layer)
 
+    def test_process_should_wait_for_zaxis(self, mock_ZAxis, mock_Writer):
+        mock_writer = mock_Writer.return_value
+        mock_zaxis = mock_ZAxis.return_value
+        state = MachineState()
+        status = MachineStatus()
+        zaxis_return_values = [ 0.0, 0.0, 1.0, 1.0 ]
+        def z_axis_side_effect():
+            return zaxis_return_values.pop(0)
+        mock_zaxis.current_z_location_mm = z_axis_side_effect
+        test_layer = Layer(1.0, [ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+        layer_processing = LayerProcessing(mock_writer, state, status, mock_zaxis, 0.0, NullCommander(), 0, 'a','b')
+
+        layer_processing.process(test_layer)
+
+        self.assertEqual(1, mock_writer.process_layer.call_count)
+        self.assertEqual(2, mock_writer.wait_till_time.call_count)
+
+    # @patch('infrastructure.machine.MachineStatus')
+    # def test_process_should_set_waiting_while_wating_for_z(self, mock_MachineStatus, mock_ZAxis, mock_Writer):
+    #     mock_writer = mock_Writer.return_value
+    #     mock_zaxis = mock_ZAxis.return_value
+    #     mock_machinestatus = mock_MachineStatus.return_value
+    #     state = MachineState()
+    #     zaxis_return_values = [0.0,0.0,1.0,1.0,1.0,1.0]
+    #     def z_axis_side_effect():
+    #         logging.info(zaxis_return_values[0])
+    #         return zaxis_return_values.pop(0)
+
+    #     test_layer = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+
+    #     layer_processing = LayerProcessing(mock_writer, state, mock_machinestatus, mock_zaxis, 0.0, NullCommander(), 0, 'a','b')
+
+    #     layer_processing.process(test_layer)
+
+    #     self.assertEqual(1, mock_writer.process_layer.call_count)
+    #     self.assertEqual(2, mock_writer.wait_till_time.call_count)
+    #     self.assertEqual(1, mock_machinestatus.set_waiting_for_drips.call_count)
+    #     self.assertEqual(1, mock_machinestatus.set_not_waiting_for_drips.call_count)
+
+
 @patch('domain.laser_control.LaserControl')
 @patch('domain.zaxis.ZAxis')
 @patch('infrastructure.audiofiler.PathToAudio')
@@ -248,33 +288,6 @@ class ControllerTests(unittest.TestCase):
     def tearDown(self):
         if self.controller and self.controller.is_alive():
             self.controller.close()
-
-    def test_zaxis_should_be_waited_for_by_outputing_laser_off_signal(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
-        mock_laser_control = mock_LaserControl.return_value
-        mock_path_to_audio = mock_PathToAudio.return_value
-        mock_zaxis = mock_ZAxis.return_value
-        mock_audio_writer = mock_AudioWriter.return_value
-        zaxis_return_values = [ 0.0,0.0, 0.25, 0.75, 1.0,1.0 ]
-        def z_axis_side_effect():
-            return zaxis_return_values.pop(0)
-        mock_zaxis.current_z_location_mm = z_axis_side_effect
-
-        test_layer1 = Layer(0.0, [ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
-        test_layer2 = Layer(1.0, [ LateralDraw([2.0,2.0],[0.0,0.0],2.0) ])
-        stub_layer_generator = StubLayerGenerator([test_layer1,test_layer2])
-        mock_path_to_audio.process.return_value = "SomeAudio"
-        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-
-        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator, mock_zaxis)
-        self.controller.start()
-
-        self.wait_for_controller()
-
-        mock_zaxis.start.assert_called_with()
-        self.assertTrue(4 < mock_path_to_audio.process.call_count) #Approximate as based on time
-        self.assertTrue(2 < mock_laser_control.set_laser_off.call_count) #Approximate as based on time
-        self.assertEqual(([2.0,2.0,0.0],[2.0,2.0,0.0],2.0), mock_path_to_audio.process.call_args_list[1][0])
-        self.assertEqual(([2.0,2.0,0.0],[2.0,2.0,0.0],2.0), mock_path_to_audio.process.call_args_list[2][0])
 
     def test_close_should_close_all_processes_cleanly(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -340,28 +353,6 @@ class ControllerTests(unittest.TestCase):
         mock_audio_writer.close.assert_called_with()
         
         self.wait_for_controller()
-
-    def test_set_waiting_while_wating_for_z(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
-        mock_laser_control = mock_LaserControl.return_value
-        mock_path_to_audio = mock_PathToAudio.return_value
-        mock_audio_writer = mock_AudioWriter.return_value
-        mock_zaxis = mock_ZAxis.return_value
-        mock_zaxis.current_z_location_mm.return_value = 0.0
-        mock_layer_generator = mock_LayerGenerator.return_value
-        mock_layer_generator.next.return_value = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
-        mock_path_to_audio.process.return_value = "SomeAudio"
-        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-
-        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator,mock_zaxis)
-        self.controller.start()
-
-        time.sleep(0.01)
-        actual = self.controller.get_status()['waiting_for_drips']
-        self.controller.close()
-
-        self.wait_for_controller()
-
-        self.assertTrue(actual)
 
     def test_should_update_layer_height(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         expected_model_height = 32.7
