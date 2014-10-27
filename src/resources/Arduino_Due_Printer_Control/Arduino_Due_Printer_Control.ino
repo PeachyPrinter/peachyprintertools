@@ -3,7 +3,7 @@ This is an experimental work in progress. Peachy Printer Assumes no responsibili
 It is not recommened that this is uploaded to a arduino at this time.
 */
 
-#include <Audio.h>
+#include "JAudio.h"
 
 static const short LASER_PIN = 2;
 static const short TEST_PIN = 11;
@@ -18,7 +18,7 @@ short bits = 16; //Audio library downsamples
 bool running = false;
 const int buffer_size_millis = 100;
 // const int buffer_size_samples = channels * sample_rate * buffer_size_millis / 1000 /2;
-const int buffer_size_samples = 1024;
+const int buffer_size_samples = 2048;
 
 
 
