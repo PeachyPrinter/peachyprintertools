@@ -4,119 +4,9 @@ import datetime
 import logging
 
 from domain.commands import *
-
+from infrastructure.commander import NullCommander
+from infrastructure.machine import *
 import time
-
-class MachineState(object):
-    def __init__(self,xyz = [0.0,0.0,0.0], speed = 1.0):
-        self.x, self.y, self.z = xyz
-        self.speed = speed
-
-    @property
-    def xy(self):
-        return [self.x,self.y]
-
-    @property
-    def xyz(self):
-        return [self.x,self.y, self.z]
-
-    def set_state(self, cordanates, speed):
-        self.x, self.y, self.z = cordanates
-        self.speed = speed
-
-class MachineError(object):
-    def __init__(self,message, layer = None):
-        self.timestamp = datetime.datetime.now()
-        self.message = message
-        self.layer = layer
-
-class MachineStatus(object):
-    def __init__(self, status_call_back = None):
-        self._status_call_back = status_call_back
-        self._current_layer = 0
-        self._laser_state = False
-        self._waiting_for_drips = True
-        self._height = 0.0
-        self._model_height = 0.0
-        self._errors = []
-        self._start_time = datetime.datetime.now()
-        self._stop_time = None
-        self._complete = False
-        self._drips = 0
-        self._drips_per_second = 0
-        self._skipped_layers = 0
-        self._lock = threading.Lock()
-
-    def _update(self):
-        if not self._lock.locked():
-            if self._status_call_back:
-                self._lock.acquire()
-                try:
-                    self._status_call_back(self.status())
-                finally:
-                    self._lock.release()
-
-    def drip_call_back(self, drips, height,drips_per_second):
-        self._height = height
-        self._drips = drips
-        self._drips_per_second = drips_per_second
-        self._update()
-
-    def add_layer(self):
-        self._current_layer += 1
-        self._update()
-
-    def skipped_layer(self):
-        self._skipped_layers += 1
-
-    def add_error(self, error):
-        self._errors.append(error)
-        self._update()
-
-    def set_waiting_for_drips(self):
-        self._waiting_for_drips = True
-        self._update()
-
-    def set_not_waiting_for_drips(self):
-        self._waiting_for_drips = False
-        self._update()
-
-    def set_model_height(self, model_height):
-        self._model_height = model_height
-        self._update()
-
-    def set_complete(self):
-        self._complete = True
-        self._update()
-
-    def _elapsed_time(self):
-        return datetime.datetime.now() - self._start_time
-
-    def _status(self):
-        if self._complete:
-            return 'Complete'
-        if (self._drips == 0 and self._current_layer == 0):
-            return 'Starting'
-        else:
-            return 'Running'
-    
-    def _formatted_errors(self):
-        return [ {'time': error.timestamp, 'message' : error.message, 'layer' : error.layer} for error in self._errors ]
-
-    def status(self): 
-        return { 
-            'start_time' : self._start_time,
-            'elapsed_time' : self._elapsed_time(),
-            'current_layer' : self._current_layer,
-            'status': self._status(),
-            'errors' : self._formatted_errors(),
-            'waiting_for_drips' : self._waiting_for_drips,
-            'height' : self._height,
-            'drips' : self._drips,
-            'drips_per_second' : self._drips_per_second,
-            'model_height' : self._model_height,
-            'skipped_layers' : self._skipped_layers,
-        }
 
 class Writer():
     def __init__(self, 
@@ -194,6 +84,70 @@ class Writer():
     def terminate(self):
         self._shutting_down = True
 
+class LayerProcessing():
+    def __init__(self,
+        writer,
+        state,
+        status,
+        zaxis,
+        max_lead_distance,
+        commander,
+        pre_layer_delay,
+        layer_start_command,
+        layer_ended_command
+        ):
+        self._writer = writer
+        self._layer_count = 0
+        self._state = state
+        self._status = status
+        self._zaxis = zaxis
+        self._max_lead_distance = max_lead_distance
+        self._commander = commander
+        self._pre_layer_delay = pre_layer_delay
+        self._layer_start_command = layer_start_command
+        self._layer_ended_command = layer_ended_command
+
+        self._shutting_down = False
+
+    def process(self,layer):
+        self._layer_count += 1
+        ahead_by = 0
+        self._status.add_layer()
+        self._status.set_model_height(layer.z)
+        if self._zaxis:
+            self._zaxis.move_to(layer.z + self._max_lead_distance)
+            self._wait_till(layer.z)
+            ahead_by = self._zaxis.current_z_location_mm() - layer.z
+        if self._should_process(ahead_by):
+            self._commander.send_command(self._layer_start_command)
+            if self._pre_layer_delay:
+                self._writer.wait_till_time(time.time() + self._pre_layer_delay)
+            self._writer.process_layer(layer)
+            self._commander.send_command(self._layer_ended_command)
+        else:
+            logging.warning('Dripping too fast, Skipping layer')
+            print ("Skipped at: %s" % time.time())
+            self._status.skipped_layer()
+
+    def _should_process(self, ahead_by_distance):
+        logging.info("Ahead by: %s" % ahead_by_distance)
+        if not ahead_by_distance:
+            return True
+        if (ahead_by_distance <= self._max_lead_distance):
+            return True
+        return False
+
+    def _wait_till(self, height):
+        while self._zaxis.current_z_location_mm() < height:
+            if self._shutting_down:
+                return
+            self._status.set_waiting_for_drips()
+            self._writer.wait_till_time(time.time() + (0.1))
+        self._status.set_not_waiting_for_drips()
+
+    def terminate(self):
+        self._shutting_down = True
+
 class Controller(threading.Thread,):
     def __init__(self, 
                     laser_control, 
@@ -205,7 +159,7 @@ class Controller(threading.Thread,):
                     max_lead_distance = sys.float_info.max, 
                     abort_on_error=True,
                     override_speed = None,
-                    commander = None,
+                    commander = NullCommander(),
                     layer_start_command = "S",
                     layer_ended_command = "E",
                     print_ended_command = "Z",
@@ -232,8 +186,6 @@ class Controller(threading.Thread,):
         self.state = MachineState()
         self._status = MachineStatus(status_call_back)
 
-        self._writer = Writer(self._override_speed, self.state, self._audio_writer, self._path_to_audio, self._laser_control)
-
         self._zaxis = zaxis
         if self._zaxis:
             self._zaxis.set_call_back(self._status.drip_call_back)
@@ -244,6 +196,27 @@ class Controller(threading.Thread,):
         self._layer_ended_command = layer_ended_command
         self._print_ended_command = print_ended_command
         self._pre_layer_delay = pre_layer_delay
+        
+        self._writer = Writer(
+            self._override_speed, 
+            self.state, 
+            self._audio_writer, 
+            self._path_to_audio, 
+            self._laser_control
+            )
+
+        self._layer_processing = LayerProcessing(
+            self._writer,
+            self.state,
+            self._status,
+            self._zaxis,
+            self._max_lead_distance,
+            self._commander,
+            self._pre_layer_delay,
+            self._layer_start_command,
+            self._layer_ended_command,
+            )
+
 
     def run(self):
         logging.info('Running Controller')
@@ -276,6 +249,8 @@ class Controller(threading.Thread,):
         logging.warning("Shutdown requested")
         if not self._shutting_down:
             self._shutting_down = True
+            self._writer.terminate()
+            self._layer_processing.terminate()
         attempts = 20
         while not self._shut_down and attempts > 0:
             attempts -= 1
@@ -286,76 +261,34 @@ class Controller(threading.Thread,):
         else:
             logging.info("Controller Failed Shutting Down.")
 
-    def _send_command(self, command):
-        if self._commander:
-            self._commander.send_command(command)
-
     def _process_layers(self):
-        ahead_by = None
-        layer_count  = 0
         logging.info('Start Processing Layers')
         while not self._shutting_down:
             try:
                 start = time.time()
                 while self._pause:
-                    # logging.debug("Pause Request")
                     self._pausing = True
                     time.sleep(0.1)
                 self._pausing = False
                 layer = self._layer_generator.next()
-                
-                # logging.debug('Layer Generator Time: %.2f' % (time.time()-start))
-                layer_count += 1
-                self._status.add_layer()
-                self._status.set_model_height(layer.z)
-                if self._zaxis:
-                    self._zaxis.move_to(layer.z + self._max_lead_distance)
-                    self._wait_till(layer.z)
-                    ahead_by = self._zaxis.current_z_location_mm() - layer.z
-                if self._should_process(ahead_by):
-                    self._send_command(self._layer_start_command)
-                    if self._pre_layer_delay:
-                        self._writer.wait_till_time(time.time() + self._pre_layer_delay)
-                    self._writer.process_layer(layer)
-                    self._send_command(self._layer_ended_command)
-                else:
-                    logging.warning('Dripping too fast, Skipping layer')
-                    print ("Skipped at: %s" % time.time())
-                    self._status.skipped_layer()
-                # logging.debug("Layer Total Time: %.2f" % (time.time()-start))
+                self._layer_processing.process(layer)
             except StopIteration:
                 logging.info('Layers Complete')
                 self._shutting_down = True
             except Exception as ex:
-                self._status.add_error(MachineError(str(ex),layer_count))
+                self._status.add_error(MachineError(str(ex),self._status.status()['current_layer']))
                 logging.error('Unexpected Error: %s' % str(ex))
                 if self._abort_on_error:
                     self._terminate()
         logging.info("Processing Layers Complete")
 
-    def _should_process(self, ahead_by_distance):
-        logging.info("Ahead by: %s" % ahead_by_distance)
-        if not ahead_by_distance:
-            return True
-        if (ahead_by_distance <= self._max_lead_distance):
-            return True
-        return False
-
-    def _wait_till(self, height):
-        while self._zaxis.current_z_location_mm() < height:
-            if self._shutting_down:
-                return
-            self._status.set_waiting_for_drips()
-            self._writer.wait_till_time(time.time() + (0.1))
-        self._status.set_not_waiting_for_drips()
-
-
     def _terminate(self):
         logging.info('Controller shutdown requested')
         self._shutting_down = True
         self._writer.terminate()
-        self._send_command(self._layer_ended_command)
-        self._send_command(self._print_ended_command)
+        self._layer_processing.terminate()
+        self._commander.send_command(self._layer_ended_command)
+        self._commander.send_command(self._print_ended_command)
         try:
             self._audio_writer.close()
             logging.info("Audio shutdown correctly")

@@ -7,7 +7,10 @@ class Commander(object):
     def send_command(self, command):
         raise NotImplementedError("This is not implemented")
 
-class SerialCommander(object):
+    def close(self):
+        raise NotImplementedError("This is not implemented")
+
+class SerialCommander(Commander):
     def __init__(self, port, baud= 9600, connection_timeout = 10):
         self._lock = threading.Lock()
         self.port = port
@@ -53,4 +56,6 @@ class NullCommander(Commander):
     def __init__(self):
         pass
     def send_command(self, command):
+        pass
+    def close(self):
         pass
