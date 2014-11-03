@@ -26,7 +26,7 @@ class WriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
-        self.writer = Writer(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
         self.writer.laser_off_override = True
 
         self.writer.process_layer(test_layer)
@@ -39,7 +39,7 @@ class WriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
-        self.writer = Writer(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -50,7 +50,7 @@ class WriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[2.0,2.0],100.0) ])
-        self.writer = Writer(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -64,7 +64,7 @@ class WriterTests(unittest.TestCase):
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-        self.writer = Writer(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -76,7 +76,7 @@ class WriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         audio_writer = None
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
-        self.writer = Writer(100, MachineState(), audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -85,7 +85,7 @@ class WriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
-        self.writer = Writer(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -97,7 +97,7 @@ class WriterTests(unittest.TestCase):
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
 
-        self.writer = Writer(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -108,7 +108,7 @@ class WriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[LateralDraw([0.0,0.0],[0.0,0.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
-        self.writer = Writer(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -122,7 +122,7 @@ class WriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[0.0,0.0],2.0), LateralMove([2.0,2.0],[-1.0,-1.0],2.0) ])
-        self.writer = Writer(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -136,7 +136,7 @@ class WriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[0.0,0.0],2.0), LateralDraw([0.0000001,0.0],[-1.0,-1.0],2.0) ])
-        self.writer = Writer(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -151,7 +151,7 @@ class WriterTests(unittest.TestCase):
         mock_audio_writer = mock_AudioWriter.return_value
         mock_laser_control = mock_LaserControl.return_value
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0], expected_speed + 100.0) ])
-        self.writer = Writer(expected_speed, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(expected_speed, MachineState(), mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         self.writer.process_layer(test_layer)
 
@@ -162,7 +162,7 @@ class WriterTests(unittest.TestCase):
         mock_audio_writer = mock_AudioWriter.return_value
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
-        self.writer = Writer(100, state, mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, state, mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         before = time.time()
         self.writer.wait_till_time(before + 1 )
@@ -177,7 +177,7 @@ class WriterTests(unittest.TestCase):
         mock_audio_writer = mock_AudioWriter.return_value
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
-        self.writer = Writer(100, state, mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        self.writer = LayerWriter(100, state, mock_audio_writer, mock_path_to_audio, mock_laser_control)
 
         before = time.time()
         self.writer.terminate()
@@ -186,7 +186,7 @@ class WriterTests(unittest.TestCase):
 
         self.assertTrue(before + 10 > after )
 
-@patch('infrastructure.controller.Writer')
+@patch('infrastructure.controller.LayerWriter')
 @patch('domain.zaxis.ZAxis')
 class LayerProcessingTest(unittest.TestCase):
 
@@ -250,27 +250,28 @@ class LayerProcessingTest(unittest.TestCase):
         self.assertEqual(1, mock_writer.process_layer.call_count)
         self.assertEqual(2, mock_writer.wait_till_time.call_count)
 
-    # @patch('infrastructure.machine.MachineStatus')
-    # def test_process_should_set_waiting_while_wating_for_z(self, mock_MachineStatus, mock_ZAxis, mock_Writer):
-    #     mock_writer = mock_Writer.return_value
-    #     mock_zaxis = mock_ZAxis.return_value
-    #     mock_machinestatus = mock_MachineStatus.return_value
-    #     state = MachineState()
-    #     zaxis_return_values = [0.0,0.0,1.0,1.0,1.0,1.0]
-    #     def z_axis_side_effect():
-    #         logging.info(zaxis_return_values[0])
-    #         return zaxis_return_values.pop(0)
+    @patch('infrastructure.machine.MachineStatus')
+    def test_process_should_set_waiting_while_wating_for_z(self, mock_MachineStatus, mock_ZAxis, mock_Writer):
+        mock_writer = mock_Writer.return_value
+        mock_zaxis = mock_ZAxis.return_value
+        mock_machinestatus = mock_MachineStatus.return_value
+        state = MachineState()
+        zaxis_return_values = [0.0,1.0,1.0]
+        def z_axis_side_effect():
+            logging.info(zaxis_return_values[0])
+            return zaxis_return_values.pop(0)
+        mock_zaxis.current_z_location_mm = z_axis_side_effect
 
-    #     test_layer = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+        test_layer = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
 
-    #     layer_processing = LayerProcessing(mock_writer, state, mock_machinestatus, mock_zaxis, 0.0, NullCommander(), 0, 'a','b')
+        layer_processing = LayerProcessing(mock_writer, state, mock_machinestatus, mock_zaxis, 0.0, NullCommander(), 0, 'a','b')
 
-    #     layer_processing.process(test_layer)
+        layer_processing.process(test_layer)
 
-    #     self.assertEqual(1, mock_writer.process_layer.call_count)
-    #     self.assertEqual(2, mock_writer.wait_till_time.call_count)
-    #     self.assertEqual(1, mock_machinestatus.set_waiting_for_drips.call_count)
-    #     self.assertEqual(1, mock_machinestatus.set_not_waiting_for_drips.call_count)
+        self.assertEqual(1, mock_writer.process_layer.call_count)
+        self.assertEqual(1, mock_writer.wait_till_time.call_count)
+        self.assertEqual(1, mock_machinestatus.set_waiting_for_drips.call_count)
+        self.assertEqual(1, mock_machinestatus.set_not_waiting_for_drips.call_count)
 
 
 @patch('domain.laser_control.LaserControl')

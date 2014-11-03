@@ -8,7 +8,7 @@ from infrastructure.commander import NullCommander
 from infrastructure.machine import *
 import time
 
-class Writer():
+class LayerWriter():
     def __init__(self, 
         override_speed,
         state,
@@ -25,7 +25,6 @@ class Writer():
         self.laser_off_override = False
         self._shutting_down = False
         self._abort_current_command = False
-
 
     def _almost_equal(self,a,b,sig_fig=5):
         return ( a==b or int(a*10**sig_fig) == int(b*10**sig_fig))
@@ -73,7 +72,6 @@ class Writer():
 
     def abort_current_command(self):
         self._abort_current_command = True
-
 
     def wait_till_time(self, wait_time):
         while time.time() <= wait_time:
@@ -130,11 +128,12 @@ class LayerProcessing():
             self._status.skipped_layer()
 
     def _should_process(self, ahead_by_distance):
-        logging.info("Ahead by: %s" % ahead_by_distance)
         if not ahead_by_distance:
             return True
         if (ahead_by_distance <= self._max_lead_distance):
+            logging.info("Ahead (Acceptable) by: %s" % ahead_by_distance)
             return True
+        logging.info("Ahead (Unacceptably) by: %s" % ahead_by_distance)
         return False
 
     def _wait_till(self, height):
@@ -197,7 +196,7 @@ class Controller(threading.Thread,):
         self._print_ended_command = print_ended_command
         self._pre_layer_delay = pre_layer_delay
         
-        self._writer = Writer(
+        self._writer = LayerWriter(
             self._override_speed, 
             self.state, 
             self._audio_writer, 
