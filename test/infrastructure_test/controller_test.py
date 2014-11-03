@@ -105,15 +105,14 @@ class LayerProcessingTest(unittest.TestCase):
 
     @patch('infrastructure.commander.Commander')
     def test_process_should_write_layer_start_and_end_commands(self, mock_Commander, mock_ZAxis, mock_Writer):
-        max_lead_distance = 1.0
-        mock_writer = mock_Writer.return_value
-        mock_zaxis = mock_ZAxis.return_value
         mock_commander = mock_Commander.return_value
+        mock_zaxis = mock_ZAxis.return_value
+        mock_writer = mock_Writer.return_value
         state = MachineState()
         status = MachineStatus()
         mock_zaxis.current_z_location_mm.return_value = 2.0
         test_layer = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
-        layer_processing = LayerProcessing(mock_writer, state, status, mock_zaxis, max_lead_distance,mock_commander,0,'a','b','z')
+        layer_processing = LayerProcessing(mock_writer, state, status, mock_zaxis, 1.0,mock_commander,0,'a','b','z')
 
         layer_processing.process(test_layer)
 
@@ -122,12 +121,11 @@ class LayerProcessingTest(unittest.TestCase):
     @patch('infrastructure.commander.Commander')
     def test_termiate_should_write_print_end_command_when_terminated(self, mock_Commander, mock_ZAxis,mock_Writer):
         max_lead_distance = 1.0
+        mock_commander = mock_Commander.return_value
         mock_writer = mock_Writer.return_value
         mock_zaxis = mock_ZAxis.return_value
-        mock_commander = mock_Commander.return_value
         state = MachineState()
         status = MachineStatus()
-
         layer_processing = LayerProcessing(mock_writer, state, status, mock_zaxis, max_lead_distance,mock_commander,0,'a','b','z')
 
         layer_processing.terminate()
@@ -135,10 +133,76 @@ class LayerProcessingTest(unittest.TestCase):
         self.assertEquals([call('z')], mock_commander.send_command.call_args_list)
 
     def test_terminate_should_stop_z_axis(self, mock_ZAxis,mock_Writer):
-        pass
+        mock_zaxis = mock_ZAxis.return_value
+        layer_processing = LayerProcessing(
+            mock_Writer.return_value, 
+            MachineState(),
+            MachineStatus(), 
+            mock_zaxis, 
+            1.0,
+            NullCommander(),
+            0,'a','b','z')
+
+        layer_processing.terminate()
+
+        mock_zaxis.close.assert_called_with()
+
+    @patch('infrastructure.commander.Commander')
+    def test_terminate_should_shutdown_commander(self, mock_Commander, mock_ZAxis,mock_Writer):
+        mock_zaxis = mock_ZAxis.return_value
+        mock_commander = mock_Commander.return_value
+        layer_processing = LayerProcessing(
+            mock_Writer.return_value, 
+            MachineState(),
+            MachineStatus(), 
+            mock_zaxis, 
+            1.0,
+            mock_commander,
+            0,'a','b','z')
+
+        layer_processing.terminate()
+
+        mock_commander.close.assert_called_with()
+
 
     def test_init_should_start_z_axis(self, mock_ZAxis,mock_Writer):
-        pass
+        mock_zaxis = mock_ZAxis.return_value
+        layer_processing = LayerProcessing(
+            mock_Writer.return_value, 
+            MachineState(),
+            MachineStatus(), 
+            mock_zaxis, 
+            1.0,
+            NullCommander(),
+            0,'a','b','z')
+        mock_zaxis.start.assert_called_with()
+
+    def test_process_while_shutting_down_should_exit(self, mock_ZAxis,mock_Writer):
+        mock_zaxis = mock_ZAxis.return_value
+        layer_processing = LayerProcessing(
+            mock_Writer.return_value, 
+            MachineState(),
+            MachineStatus(), 
+            mock_zaxis, 
+            1.0,
+            NullCommander(),
+            0,'a','b','z')
+        layer_processing.terminate()
+        with self.assertRaises(Exception):
+            layer_processing.process(Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ]))
+
+    def test_init_should_set_zaxis_call_back(self, mock_ZAxis,mock_Writer):
+        status = MachineStatus()
+        mock_zaxis = mock_ZAxis.return_value
+        layer_processing = LayerProcessing(
+            mock_Writer.return_value, 
+            MachineState(),
+            status, 
+            mock_zaxis, 
+            1.0,
+            NullCommander(),
+            0,'a','b','z')
+        mock_zaxis.set_call_back.assert_called_with(status.drip_call_back)
 
 @patch('domain.laser_control.LaserControl')
 @patch('domain.zaxis.ZAxis')
@@ -366,23 +430,6 @@ class ControllerTests(unittest.TestCase):
         Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator, mock_zaxis)
 
         self.assertTrue(mock_zaxis.set_call_back.called)
-
-    def test_should_call_layer_serial_commands_at_start_and_end_of_layer(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
-        mock_laser_control = mock_LaserControl.return_value
-        mock_path_to_audio = mock_PathToAudio.return_value
-        mock_audio_writer = mock_AudioWriter.return_value
-        mock_commander = MagicMock()
-        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
-        stub_layer_generator = StubLayerGenerator([test_layer])
-        mock_path_to_audio.process.return_value = "SomeAudio"
-        mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-
-        self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator, commander = mock_commander)
-        self.controller.start()
-
-        self.wait_for_controller()
-        self.assertEquals("S", mock_commander.send_command.call_args_list[0][0][0])
-        self.assertEquals("E", mock_commander.send_command.call_args_list[1][0][0])
 
     def test_should_write_moves_if_prelayer_delay(self, mock_LayerGenerator,mock_AudioWriter,mock_PathToAudio,mock_ZAxis,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
