@@ -65,7 +65,6 @@ class LayerProcessing():
                 self._commander.send_command(self._layer_ended_command)
             else:
                 logging.warning('Dripping too fast, Skipping layer')
-                print ("Skipped at: %s" % time.time())
                 self._status.skipped_layer()
 
     def _should_process(self, ahead_by_distance):
@@ -128,7 +127,7 @@ class Controller(threading.Thread,):
         self._shutting_down = False
         self.running = False
         self.starting = True
-        self._shut_down = False
+        self._shutdown = False
         
         self._layer_generator = layer_generator
         
@@ -207,7 +206,7 @@ class Controller(threading.Thread,):
             self._writer.terminate()
             self._layer_processing.terminate()
         attempts = 20
-        while not self._shut_down and attempts > 0:
+        while not self._shutdown and attempts > 0:
             attempts -= 1
             time.sleep(1)
             logging.info("Waiting for Controller Shutdown Correctly")
@@ -242,12 +241,5 @@ class Controller(threading.Thread,):
         self._shutting_down = True
         self._writer.terminate()
         self._layer_processing.terminate()
-        try:
-            self._audio_writer.close()
-            logging.info("Audio shutdown correctly")
-        except Exception as ex:
-            logging.error(ex)
-
-        
-        self._shut_down = True
+        self._shutdown = True
 

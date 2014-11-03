@@ -183,6 +183,28 @@ class LayerWriterTests(unittest.TestCase):
 
         self.assertTrue(before + 10 > after )
 
+    def test_terminate_shutsdown_audio_writer(self,mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_laser_control = mock_LaserControl.return_value
+        state = MachineState()
+        self.writer = LayerWriter(100, state, mock_audio_writer, mock_path_to_audio, mock_laser_control)
+
+        self.writer.terminate()
+
+        mock_audio_writer.close.assert_called_with()
+
+    def test_process_layer_throws_exception_if_shutting_down(self,mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_laser_control = mock_LaserControl.return_value
+        state = MachineState()
+        self.writer = LayerWriter(100, state, mock_audio_writer, mock_path_to_audio, mock_laser_control)
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],  100.0) ])
+        self.writer.terminate()
+
+        with self.assertRaises(Exception):
+            self.writer.process_layer(test_layer)
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
