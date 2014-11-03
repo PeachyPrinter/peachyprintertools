@@ -2,15 +2,12 @@ import threading
 import sys
 import datetime
 import logging
+import time
 
 from domain.commands import *
 from infrastructure.commander import NullCommander
 from infrastructure.machine import *
 from infrastructure.layer_writer import LayerWriter
-
-import time
-
-
 
 class LayerProcessing():
     def __init__(self,
@@ -22,7 +19,8 @@ class LayerProcessing():
         commander,
         pre_layer_delay,
         layer_start_command,
-        layer_ended_command
+        layer_ended_command,
+        print_ended_command
         ):
         self._writer = writer
         self._layer_count = 0
@@ -34,6 +32,7 @@ class LayerProcessing():
         self._pre_layer_delay = pre_layer_delay
         self._layer_start_command = layer_start_command
         self._layer_ended_command = layer_ended_command
+        self._print_ended_command = print_ended_command
 
         self._shutting_down = False
 
@@ -75,6 +74,7 @@ class LayerProcessing():
         self._status.set_not_waiting_for_drips()
 
     def terminate(self):
+        self._commander.send_command(self._print_ended_command)
         self._shutting_down = True
 
 class Controller(threading.Thread,):
@@ -95,37 +95,29 @@ class Controller(threading.Thread,):
                     pre_layer_delay = 0.0
                     ):
         threading.Thread.__init__(self)
-        self._commander = commander
+        
         self.deamon = True
         self._abort_on_error = abort_on_error
-        self._max_lead_distance = max_lead_distance
-        self._override_speed = override_speed
-
+        
         self._shutting_down = False
         self.running = False
         self.starting = True
         self._shut_down = False
         
-        self._laser_control = laser_control
-        self._path_to_audio = path_to_audio
-        self._audio_writer = audio_writer
-
         self._layer_generator = layer_generator
         
         self.state = MachineState()
         self._status = MachineStatus(status_call_back)
 
-        self._zaxis = zaxis
-        if self._zaxis:
-            self._zaxis.set_call_back(self._status.drip_call_back)
-
         self._pause = False
         self._pausing = False
-        self._layer_start_command = layer_start_command
-        self._layer_ended_command = layer_ended_command
-        self._print_ended_command = print_ended_command
-        self._pre_layer_delay = pre_layer_delay
-        
+
+# ----------------------------------------------------------
+
+        self._override_speed = override_speed
+        self._laser_control = laser_control
+        self._path_to_audio = path_to_audio
+        self._audio_writer = audio_writer
         self._writer = LayerWriter(
             self._override_speed, 
             self.state, 
@@ -134,6 +126,16 @@ class Controller(threading.Thread,):
             self._laser_control
             )
 
+# ----------------------------------------------------------
+        self._max_lead_distance = max_lead_distance
+        self._zaxis = zaxis
+        if self._zaxis:
+            self._zaxis.set_call_back(self._status.drip_call_back)
+        self._commander = commander
+        self._layer_start_command = layer_start_command
+        self._layer_ended_command = layer_ended_command
+        self._print_ended_command = print_ended_command
+        self._pre_layer_delay = pre_layer_delay
         self._layer_processing = LayerProcessing(
             self._writer,
             self.state,
@@ -144,6 +146,7 @@ class Controller(threading.Thread,):
             self._pre_layer_delay,
             self._layer_start_command,
             self._layer_ended_command,
+            self._print_ended_command
             )
 
 
@@ -216,8 +219,6 @@ class Controller(threading.Thread,):
         self._shutting_down = True
         self._writer.terminate()
         self._layer_processing.terminate()
-        self._commander.send_command(self._layer_ended_command)
-        self._commander.send_command(self._print_ended_command)
         try:
             self._audio_writer.close()
             logging.info("Audio shutdown correctly")
