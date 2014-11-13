@@ -47,7 +47,7 @@ setup(
       version = version,
       description = 'Tool Set for calibrating the Peachy Printer and printing models',
       options =  { 'build_exe' : buildOptions,  "bdist_msi": bdist_msi_options, 'bdist_dmg' : bdist_dmg_options, 'bdist_mac' : bdist_mac_options },
-      data_files = [('resources',glob('resources/*'))],
+      data_files = [('resources',glob('resources/*.*'))],
       packages=['domain','infrastructure','api','ui'], 
       py_modules=['VERSION','peachyprintertools'],
       executables = executables
