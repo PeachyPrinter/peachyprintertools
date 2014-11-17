@@ -5,7 +5,7 @@ from os import path, listdir
 
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
-from infrastructure.controller import Controller
+from infrastructure.controller import Controller, LayerProcessing
 from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
 from infrastructure.laser_control import AudioModulationLaserControl
@@ -181,7 +181,7 @@ class PrintAPI(object):
             self._zaxis,
             self._configuration.dripper.max_lead_distance_mm,
             self._commander,
-            self._pre_layer_delay,
+            pre_layer_delay,
             self._configuration.serial.layer_started,
             self._configuration.serial.layer_ended,
             self._configuration.serial.print_ended,
@@ -191,7 +191,7 @@ class PrintAPI(object):
             self._writer,
             self._layer_processing,
             layer_generator,
-            status,
+            self._status,
             abort_on_error = abort_on_error,
             )
 
