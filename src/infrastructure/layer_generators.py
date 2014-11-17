@@ -7,12 +7,17 @@ import math
 # -----------Testing Generators ----------------
 
 class StubLayerGenerator(LayerGenerator):
-    def __init__(self, layers = Layer(0.0)):
-        self._layers = layers
+    def __init__(self, layers = Layer(0.0), repeat = False):
+        self._original = layers
+        self._layers = list(self._original)
+        self._repeat = repeat
 
     def next(self):
         if len(self._layers) == 0:
-            raise StopIteration()
+            if self._repeat:
+                self._layers = list(self._original)
+            else:
+                raise StopIteration()
         return self._layers.pop(0)
 
 # -----------Pattern  Generators ----------------

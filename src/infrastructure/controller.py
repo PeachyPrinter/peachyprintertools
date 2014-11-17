@@ -54,7 +54,6 @@ class Controller(threading.Thread,):
             if self._shutting_down:
                 logging.warning("Unexpected Shutdown changing generators")
                 break
-        self.state.set_state([0.0,0.0,1.0],100)
         self._layer_generator = layer_generator
         self._pause = False
 
@@ -95,7 +94,7 @@ class Controller(threading.Thread,):
                 self._status.add_error(MachineError(str(ex),self._status.status()['current_layer']))
                 logging.error('Unexpected Error: %s' % str(ex))
                 if self._abort_on_error:
-                    self._terminate()
+                    self._shutting_down = True
         logging.info("Processing Layers Complete")
 
     def _terminate(self):

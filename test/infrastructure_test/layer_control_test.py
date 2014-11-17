@@ -398,6 +398,91 @@ class LayerProcessingTest(unittest.TestCase):
     def test_init_should_have_sane_defaults(self, mock_ZAxis,mock_Writer):
         self.assertTrue(False)
 
+    # def test_process_should_update_layer_height(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
+    #     expected_model_height = 32.7
+    #     mock_layer_writer = mock_LayerWriter.return_value
+    #     mock_layer_processing = mock_LayerProcessing.return_value
+    #     mock_layer_generator = mock_LayerGenerator.return_value
+    #     mock_layer_generator.next.return_value = Layer(expected_model_height,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+    #     mock_path_to_audio.process.return_value = "SomeAudio"
+    #     mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+    #     self.controller = Controller(mock_layer_writer, mock_layer_processing,mock_layer_generator,Status())
+    #     self.controller.start()
+    #     time.sleep(0.01)
+    #     self.controller.close()
+
+    #     self.wait_for_controller()
+    #     actual = self.controller.get_status()['model_height']
+
+    #     self.assertEquals(expected_model_height,actual)
+
+
+    # def test_set_waiting_while_not_wating_for_z(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
+    #     mock_layer_writer = mock_LayerWriter.return_value
+    #     mock_layer_processing = mock_LayerProcessing.return_value
+    #     mock_zaxis.current_z_location_mm.return_value = 1.0
+    #     mock_layer_generator = mock_LayerGenerator.return_value
+    #     mock_layer_generator.next.return_value =  Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+    #     mock_path_to_audio.process.return_value = "SomeAudio"
+    #     mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+    #     self.controller = Controller(mock_layer_writer, mock_layer_processing,mock_layer_generator,Status())
+    #     self.controller.start()
+
+    #     time.sleep(0.1)
+    #     actual = self.controller.get_status()['waiting_for_drips']
+    #     self.controller.close()
+
+    #     self.wait_for_controller()
+
+    #     self.assertFalse(actual)
+
+    # def test_should_update_machine_status(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
+    #     mock_layer_writer = mock_LayerWriter.return_value
+    #     mock_layer_processing = mock_LayerProcessing.return_value
+    #     test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
+    #     stub_layer_generator = StubLayerGenerator([test_layer])
+    #     mock_path_to_audio.process.return_value = "SomeAudio"
+    #     mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+
+    #     self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
+    #     self.controller.start()
+
+    #     self.wait_for_controller()
+
+    #     self.assertEquals(1, self.controller.get_status()['current_layer'])
+    #     self.assertEquals('Complete',self.controller.get_status()['status'])
+
+    # def test_init_should_set_call_back_on_zaxis(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
+    #     mock_layer_writer = mock_LayerWriter.return_value
+    #     mock_layer_processing = mock_LayerProcessing.return_value
+    #     mock_layer_generator = mock_LayerGenerator.return_value
+    #     Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator, mock_zaxis)
+
+    #     self.assertTrue(mock_zaxis.set_call_back.called)
+
+    # def test_should_write_moves_if_prelayer_delay(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
+    #     mock_layer_writer = mock_LayerWriter.return_value
+    #     mock_layer_processing = mock_LayerProcessing.return_value
+    #     test_layer1 = Layer(0.0,[ LateralDraw([2.0,2.0],[2.0,2.0],100.0) ])
+    #     test_layer2 = Layer(1.0,[ LateralDraw([2.0,2.0],[2.0,2.0],100.0) ])
+    #     stub_layer_generator = StubLayerGenerator([test_layer1, test_layer2])
+    #     mock_path_to_audio.process.return_value = "SomeAudio"
+    #     mock_laser_control.modulate.return_value = "SomeModulatedAudio"
+
+    #     self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator, pre_layer_delay = 0.1)
+    #     self.controller.start()
+
+    #     self.wait_for_controller()
+
+    #     mock_path_to_audio.process.call_count
+
+    #     self.assertTrue( 10 < mock_path_to_audio.process.call_count,mock_path_to_audio.process.call_count) #Calls are appxorimate 
+    #     self.assertTrue( 3000 > mock_path_to_audio.process.call_count,mock_path_to_audio.process.call_count) #Calls are appxorimate 
+
+        
+
+#     # TODO JT
+#     # Skip layers if z at next layer
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
