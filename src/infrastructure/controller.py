@@ -15,13 +15,13 @@ class LayerProcessing():
         writer,
         state,
         status,
-        zaxis,
-        max_lead_distance,
-        commander,
-        pre_layer_delay,
-        layer_start_command,
-        layer_ended_command,
-        print_ended_command
+        zaxis = None,
+        max_lead_distance = 0.0,
+        commander = NullCommander(),
+        pre_layer_delay = 0.0,
+        layer_start_command = None,
+        layer_ended_command = None,
+        print_ended_command = None,
         ):
         self._writer = writer
         self._layer_count = 0
@@ -104,74 +104,29 @@ class LayerProcessing():
 
 class Controller(threading.Thread,):
     def __init__(self, 
-                    laser_control, 
-                    path_to_audio,
-                    audio_writer,
+                    layer_writer,
+                    layer_processer,
                     layer_generator,
-                    zaxis = None,
-                    status_call_back = None, 
-                    max_lead_distance = sys.float_info.max, 
+                    status,
                     abort_on_error=True,
-                    override_speed = None,
-                    commander = NullCommander(),
-                    layer_start_command = "S",
-                    layer_ended_command = "E",
-                    print_ended_command = "Z",
-                    pre_layer_delay = 0.0
                     ):
         threading.Thread.__init__(self)
         
         self.deamon = True
-        self._abort_on_error = abort_on_error
-        
+
         self._shutting_down = False
         self.running = False
         self.starting = True
         self._shutdown = False
-        
-        self._layer_generator = layer_generator
-        
-        self.state = MachineState()
-        self._status = MachineStatus(status_call_back)
-
         self._pause = False
         self._pausing = False
 
-# ----------------------------------------------------------
+        self._abort_on_error = abort_on_error
+        self._layer_generator = layer_generator
+        self._layer_processing = layer_processer
+        self._writer = layer_writer
+        self._status = status
 
-        self._override_speed = override_speed
-        self._laser_control = laser_control
-        self._path_to_audio = path_to_audio
-        self._audio_writer = audio_writer
-        self._writer = LayerWriter(
-            self._override_speed, 
-            self.state, 
-            self._audio_writer, 
-            self._path_to_audio, 
-            self._laser_control
-            )
-
-# ----------------------------------------------------------
-        self._max_lead_distance = max_lead_distance
-        self._zaxis = zaxis
-        self._commander = commander
-        self._layer_start_command = layer_start_command
-        self._layer_ended_command = layer_ended_command
-        self._print_ended_command = print_ended_command
-        self._pre_layer_delay = pre_layer_delay
-
-        self._layer_processing = LayerProcessing(
-            self._writer,
-            self.state,
-            self._status,
-            self._zaxis,
-            self._max_lead_distance,
-            self._commander,
-            self._pre_layer_delay,
-            self._layer_start_command,
-            self._layer_ended_command,
-            self._print_ended_command
-            )
 
 
     def run(self):

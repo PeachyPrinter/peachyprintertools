@@ -3,10 +3,12 @@ import types
 
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
-from infrastructure.controller import Controller
+from infrastructure.controller import Controller, LayerProcessing
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.transformer import TuningTransformer, HomogenousTransformer
 from infrastructure.layer_generators import *
+from infrastructure.machine import *
+from infrastructure.layer_writer import LayerWriter
 from config import devmode
 
 '''The calibration API proivides the tools required to setup a Peacy Printer'''
@@ -49,17 +51,37 @@ class CalibrationAPI(object):
         self._audio_writer = None
         self._controller = None
         logging.debug("Setting up audiowriter")
+
         self._audio_writer = AudioWriter(
             self._configuration.audio.output.sample_rate, 
             self._configuration.audio.output.bit_depth,
             )
         self._current_generator = self._point_generator
-        self._controller = Controller(
+
+        self._state = MachineState()
+        self._status = MachineStatus()
+        
+        self._writer = LayerWriter(
+            self._audio_writer, 
+            self._path_to_audio, 
             self._laser_control,
-            self._path_to_audio,
-            self._audio_writer,
-            self._current_generator
+            self._state, 
             )
+
+        self._layer_processing = LayerProcessing(
+            self._writer,
+            self._state,
+            self._status,
+            )
+
+        self._controller = Controller(
+            self._writer,
+            self._layer_processing,
+            self._current_generator,
+            self._status,
+            abort_on_error = False,
+            )
+
         self.make_pattern_fit()
         self._controller.start()
 

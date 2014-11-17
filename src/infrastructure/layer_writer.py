@@ -5,11 +5,11 @@ from threading import Lock
 
 class LayerWriter():
     def __init__(self, 
-        override_speed,
-        state,
         audio_writer,
         path_to_audio,
-        laser_control
+        laser_control,
+        state,
+        override_speed = None,
         ):
         self._override_speed = override_speed
         self._state = state

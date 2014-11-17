@@ -204,6 +204,10 @@ class LayerProcessingTest(unittest.TestCase):
             0,'a','b','z')
         mock_zaxis.set_call_back.assert_called_with(status.drip_call_back)
 
+    def test_init_should_have_sane_defaults(self, mock_ZAxis,mock_Writer):
+        self.assertTrue(False)
+
+        
 @patch('domain.laser_control.LaserControl')
 @patch('domain.zaxis.ZAxis')
 @patch('infrastructure.audiofiler.PathToAudio')

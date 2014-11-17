@@ -14,6 +14,8 @@ from infrastructure.transformer import HomogenousTransformer
 from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
 from infrastructure.commander import SerialCommander, NullCommander
 from infrastructure.notification import EmailNotificationService, EmailGateway
+from infrastructure.layer_writer import LayerWriter
+from infrastructure.machine import *
 
 class PrintQueueAPI(object):
     def __init__(self, configuration, status_call_back = None):
@@ -161,22 +163,38 @@ class PrintAPI(object):
         override_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
         pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else None
 
-        self._controller = Controller(
+        state = MachineState()
+        self._status = MachineStatus(self._status_call_back)
+
+        self._writer = LayerWriter(
+            audio_writer, 
+            path_to_audio, 
             laser_control,
-            path_to_audio,
-            audio_writer,
-            layer_generator,
-            zaxis = self._zaxis,
-            status_call_back = self._status_call_back,
-            max_lead_distance = self._configuration.dripper.max_lead_distance_mm,
-            abort_on_error = abort_on_error,
-            override_speed = override_speed,
-            commander = self._commander,
-            layer_start_command = self._configuration.serial.layer_started,
-            layer_ended_command = self._configuration.serial.layer_ended,
-            print_ended_command = self._configuration.serial.print_ended,
-            pre_layer_delay = pre_layer_delay
+            state,
+            override_speed, 
             )
+
+        self._layer_processing = LayerProcessing(
+            self._writer,
+            state,
+            self._status,
+            self._zaxis,
+            self._configuration.dripper.max_lead_distance_mm,
+            self._commander,
+            self._pre_layer_delay,
+            self._configuration.serial.layer_started,
+            self._configuration.serial.layer_ended,
+            self._configuration.serial.print_ended,
+            )
+
+        self._controller = Controller(
+            self._writer,
+            self._layer_processing,
+            layer_generator,
+            status,
+            abort_on_error = abort_on_error,
+            )
+
         self._controller.start()
 
     def get_status(self):
