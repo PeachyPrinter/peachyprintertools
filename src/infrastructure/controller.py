@@ -10,6 +10,8 @@ from infrastructure.machine import *
 from infrastructure.layer_writer import LayerWriter
 from threading import Lock
 
+import camera
+
 class LayerProcessing():
     def __init__(self,
         writer,
@@ -34,6 +36,8 @@ class LayerProcessing():
         self._layer_start_command = layer_start_command
         self._layer_ended_command = layer_ended_command
         self._print_ended_command = print_ended_command
+
+        self._camera = camera.CameraControlSpike('testphotos')
 
 
         self._shutting_down = False
@@ -62,6 +66,7 @@ class LayerProcessing():
                 if self._pre_layer_delay:
                     self._writer.wait_till_time(time.time() + self._pre_layer_delay)
                 self._writer.process_layer(layer)
+                # self._camera.take_a_photo()
                 self._commander.send_command(self._layer_ended_command)
             else:
                 logging.warning('Dripping too fast, Skipping layer')
