@@ -395,26 +395,26 @@ class LayerProcessingTest(unittest.TestCase):
             0,'a','b','z')
         mock_zaxis.set_call_back.assert_called_with(status.drip_call_back)
 
-    def test_init_should_have_sane_defaults(self, mock_ZAxis,mock_Writer):
-        self.assertTrue(False)
+    # def test_init_should_have_sane_defaults(self, mock_ZAxis,mock_Writer):
+    #     self.assertTrue(False)
 
-    # def test_process_should_update_layer_height(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
-    #     expected_model_height = 32.7
-    #     mock_layer_writer = mock_LayerWriter.return_value
-    #     mock_layer_processing = mock_LayerProcessing.return_value
-    #     mock_layer_generator = mock_LayerGenerator.return_value
-    #     mock_layer_generator.next.return_value = Layer(expected_model_height,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
-    #     mock_path_to_audio.process.return_value = "SomeAudio"
-    #     mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-    #     self.controller = Controller(mock_layer_writer, mock_layer_processing,mock_layer_generator,Status())
-    #     self.controller.start()
-    #     time.sleep(0.01)
-    #     self.controller.close()
+    def test_process_should_update_layer_height(self, mock_ZAxis,mock_Writer):
+        mock_zaxis = mock_ZAxis.return_value
+        status = MachineStatus()
+        layer_processing = LayerProcessing(
+            mock_Writer.return_value, 
+            MachineState(),
+            status, 
+            mock_zaxis, )
+        expected_model_height = 32.7
+        mock_zaxis.current_z_location_mm.return_value = expected_model_height
+        
+        test_layer = Layer(expected_model_height,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+        
+        layer_processing.process(test_layer)
 
-    #     self.wait_for_controller()
-    #     actual = self.controller.get_status()['model_height']
-
-    #     self.assertEquals(expected_model_height,actual)
+        actual = status.status()['model_height']
+        self.assertEquals(expected_model_height,actual)
 
 
     # def test_set_waiting_while_not_wating_for_z(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
