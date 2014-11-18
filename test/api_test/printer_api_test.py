@@ -1029,7 +1029,13 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         mock_email_notification_service.send_message.assert_called_with("Print Complete","%s is complete" % gcode_path)
 
 
-        
+    # def test_init_should_set_call_back_on_zaxis(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
+    #     mock_layer_writer = mock_LayerWriter.return_value
+    #     mock_layer_processing = mock_LayerProcessing.return_value
+    #     mock_layer_generator = mock_LayerGenerator.return_value
+    #     Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator, mock_zaxis)
+
+    #     self.assertTrue(mock_zaxis.set_call_back.called)
 
 
 if __name__ == '__main__':

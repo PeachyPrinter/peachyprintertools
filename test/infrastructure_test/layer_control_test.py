@@ -395,9 +395,6 @@ class LayerProcessingTest(unittest.TestCase):
             0,'a','b','z')
         mock_zaxis.set_call_back.assert_called_with(status.drip_call_back)
 
-    # def test_init_should_have_sane_defaults(self, mock_ZAxis,mock_Writer):
-    #     self.assertTrue(False)
-
     def test_process_should_update_layer_height(self, mock_ZAxis,mock_Writer):
         mock_zaxis = mock_ZAxis.return_value
         status = MachineStatus()
@@ -444,53 +441,30 @@ class LayerProcessingTest(unittest.TestCase):
         self.assertTrue(  actual[1])
         self.assertFalse( actual[2])
 
-    # def test_should_update_machine_status(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
-    #     mock_layer_writer = mock_LayerWriter.return_value
-    #     mock_layer_processing = mock_LayerProcessing.return_value
-    #     test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
-    #     stub_layer_generator = StubLayerGenerator([test_layer])
-    #     mock_path_to_audio.process.return_value = "SomeAudio"
-    #     mock_laser_control.modulate.return_value = "SomeModulatedAudio"
 
-    #     self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator)
-    #     self.controller.start()
 
-    #     self.wait_for_controller()
-
-    #     self.assertEquals(1, self.controller.get_status()['current_layer'])
-    #     self.assertEquals('Complete',self.controller.get_status()['status'])
-
-    # def test_init_should_set_call_back_on_zaxis(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
-    #     mock_layer_writer = mock_LayerWriter.return_value
-    #     mock_layer_processing = mock_LayerProcessing.return_value
-    #     mock_layer_generator = mock_LayerGenerator.return_value
-    #     Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,mock_layer_generator, mock_zaxis)
-
-    #     self.assertTrue(mock_zaxis.set_call_back.called)
-
-    # def test_should_write_moves_if_prelayer_delay(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
-    #     mock_layer_writer = mock_LayerWriter.return_value
-    #     mock_layer_processing = mock_LayerProcessing.return_value
-    #     test_layer1 = Layer(0.0,[ LateralDraw([2.0,2.0],[2.0,2.0],100.0) ])
-    #     test_layer2 = Layer(1.0,[ LateralDraw([2.0,2.0],[2.0,2.0],100.0) ])
-    #     stub_layer_generator = StubLayerGenerator([test_layer1, test_layer2])
-    #     mock_path_to_audio.process.return_value = "SomeAudio"
-    #     mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-
-    #     self.controller = Controller(mock_laser_control,mock_path_to_audio,mock_audio_writer,stub_layer_generator, pre_layer_delay = 0.1)
-    #     self.controller.start()
-
-    #     self.wait_for_controller()
-
-    #     mock_path_to_audio.process.call_count
-
-    #     self.assertTrue( 10 < mock_path_to_audio.process.call_count,mock_path_to_audio.process.call_count) #Calls are appxorimate 
-    #     self.assertTrue( 3000 > mock_path_to_audio.process.call_count,mock_path_to_audio.process.call_count) #Calls are appxorimate 
-
+    def test_process_should_tell_writer_to_wait_when_prelayer_delay(self, mock_ZAxis,mock_Writer):
+        mock_zaxis = mock_ZAxis.return_value
+        mock_writer = mock_Writer.return_value
+        pre_layer_delay = 0.1
+        status = MachineStatus()
+        layer_processing = LayerProcessing(
+            mock_writer,
+            MachineState(),
+            status, 
+            mock_zaxis, 
+            pre_layer_delay = pre_layer_delay,
+            )
+        mock_zaxis.current_z_location_mm.return_value = 1.0
         
-
-#     # TODO JT
-#     # Skip layers if z at next layer
+        test_layer = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+        
+        start_time = time.time()
+        layer_processing.process(test_layer)
+        end_time = time.time()
+        
+        self.assertTrue(mock_writer.wait_till_time.call_args_list[0][0][0]  >= start_time + pre_layer_delay ,"Was %s, expected: %s" % (mock_writer.wait_till_time.call_args_list[0][0]  ,start_time + pre_layer_delay) )
+        self.assertTrue(mock_writer.wait_till_time.call_args_list[0][0][0]  <= end_time + pre_layer_delay   ,"Was %s, expected: %s" % (mock_writer.wait_till_time.call_args_list[0][0]  ,start_time + pre_layer_delay) )
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
