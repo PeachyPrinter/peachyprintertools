@@ -3,12 +3,12 @@ import types
 
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
-from infrastructure.controller import Controller, LayerProcessing
+from infrastructure.controller import Controller
 from infrastructure.laser_control import AudioModulationLaserControl
 from infrastructure.transformer import TuningTransformer, HomogenousTransformer
 from infrastructure.layer_generators import *
 from infrastructure.machine import *
-from infrastructure.layer_writer import LayerWriter
+from infrastructure.layer_control import LayerWriter, LayerProcessing
 from config import devmode
 
 '''The calibration API proivides the tools required to setup a Peacy Printer'''
@@ -82,7 +82,7 @@ class CalibrationAPI(object):
             abort_on_error = False,
             )
 
-        self.make_pattern_fit()
+        # self.make_pattern_fit()
         self._controller.start()
 
     '''Used to show a single point with no calibration applied'''

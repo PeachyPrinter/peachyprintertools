@@ -9,58 +9,98 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 import test_helpers
 from api.calibration_api import CalibrationAPI
 
+@patch('domain.configuration_manager.ConfigurationManager')
+@patch('api.calibration_api.MachineState')
+@patch('api.calibration_api.MachineStatus')
 @patch('api.calibration_api.Controller')
 @patch('api.calibration_api.PathToAudio')
 @patch('api.calibration_api.TuningTransformer')
 @patch('api.calibration_api.AudioWriter')
 @patch('api.calibration_api.AudioModulationLaserControl')
+@patch('api.calibration_api.LayerWriter') 
+@patch('api.calibration_api.LayerProcessing') 
 @patch('api.calibration_api.SinglePointGenerator')
-@patch('domain.configuration_manager.ConfigurationManager')
+@patch('api.calibration_api.BlinkGenerator')
+@patch('api.calibration_api.CalibrationLineGenerator')
+@patch('api.calibration_api.HilbertGenerator')
+@patch('api.calibration_api.SquareGenerator')
+@patch('api.calibration_api.CircleGenerator')
+@patch('api.calibration_api.SpiralGenerator')
+@patch('api.calibration_api.MemoryHourglassGenerator')
 class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
-    def setUp(self):
-        pass
+    def setup_mocks(self, args):
+        self.mock_ConfigurationManager =                 args[17]
+        self.mock_MachineState =                         args[16]
+        self.mock_MachineStatus =                        args[15]
+        self.mock_Controller =                           args[14]
+        self.mock_PathToAudio =                          args[13]
+        self.mock_TuningTransformer =                    args[12]
+        self.mock_AudioWriter =                          args[11]
+        self.mock_AudioModulationLaserControl =          args[10]
+        self.mock_LayerWriter =                          args[9]
+        self.mock_LayerProcessing =                      args[8]
+        self.mock_SinglePointGenerator =                 args[7]
+        self.mock_BlinkGenerator =                       args[6]
+        self.mock_CalibrationLineGenerator =             args[5]
+        self.mock_HilbertGenerator =                     args[4]
+        self.mock_SquareGenerator =                      args[3]
+        self.mock_CircleGenerator =                      args[2]
+        self.mock_SpiralGenerator =                      args[1]
+        self.mock_MemoryHourglassGenerator =             args[0]
 
-    def test_init_creates_a_controller_with_correct_config(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+
+        self.mock_configuration_manager =                self.mock_ConfigurationManager.return_value
+        self.mock_machine_state =                        self.mock_MachineState.return_value
+        self.mock_machine_status =                       self.mock_MachineStatus.return_value
+        self.mock_controller =                           self.mock_Controller.return_value
+        self.mock_path_to_audio =                        self.mock_PathToAudio.return_value
+        self.mock_tuning_transformer =                   self.mock_TuningTransformer.return_value
+        self.mock_audio_writer =                         self.mock_AudioWriter.return_value
+        self.mock_audio_modulation_laser_control =       self.mock_AudioModulationLaserControl.return_value
+        self.mock_layer_writer =                         self.mock_LayerWriter.return_value
+        self.mock_layer_processing =                     self.mock_LayerProcessing.return_value
+        self.mock_single_point_generator =               self.mock_SinglePointGenerator.return_value
+        self.mock_blink_generator =                      self.mock_BlinkGenerator.return_value
+        self.mock_calibration_line_generator =           self.mock_CalibrationLineGenerator.return_value
+        self.mock_hilbert_generator =                    self.mock_HilbertGenerator.return_value
+        self.mock_square_generator =                     self.mock_SquareGenerator.return_value
+        self.mock_circle_generator =                     self.mock_CircleGenerator.return_value
+        self.mock_spiral_generator =                     self.mock_SpiralGenerator.return_value
+        self.mock_memory_hourglass_generator =           self.mock_MemoryHourglassGenerator.return_value
+
+    def test_init_creates_a_controller_with_correct_config(self, *args):
+        self.setup_mocks(args)
         actual_samples = 7
-        mock_configuration_manager = mock_ConfigurationManager.return_value
-        mock_configuration_manager.load.return_value = self.default_config
-        mock_layer_generator = mock_SinglePointGenerator.return_value
-        mock_laser_control = mock_AudioModulationLaserControl.return_value
-        mock_audiowriter = mock_AudioWriter.return_value
-        mock_transformer = mock_Transformer.return_value
-        mock_pathtoaudio = mock_PathToAudio.return_value
-        mock_controller = mock_Controller.return_value
+        self.mock_audio_modulation_laser_control.actual_samples_per_second = actual_samples
+        self.mock_configuration_manager.load.return_value = self.default_config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
 
-        mock_laser_control.actual_samples_per_second = actual_samples
-
-        calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-
-        mock_SinglePointGenerator.assert_called_with()
-        mock_AudioModulationLaserControl.assert_called_with(
+        self.mock_SinglePointGenerator.assert_called_with()
+        self.mock_AudioModulationLaserControl.assert_called_with(
             self.default_config.audio.output.sample_rate,
             self.default_config.audio.output.modulation_on_frequency,
             self.default_config.audio.output.modulation_off_frequency,
             self.default_config.options.laser_offset
             )
-        mock_Transformer.assert_called_with(
+        self.mock_TuningTransformer.assert_called_with(
             scale = self.default_config.calibration.max_deflection
             )
-        mock_PathToAudio.assert_called_with(
+        self.mock_PathToAudio.assert_called_with(
             actual_samples,
-            mock_transformer,
+            self.mock_tuning_transformer,
             self.default_config.options.laser_thickness_mm
             )
-
-        mock_AudioWriter.assert_called_with(
+        self.mock_AudioWriter.assert_called_with(
             self.default_config.audio.output.sample_rate,
             self.default_config.audio.output.bit_depth
             )
-        mock_Controller.assert_called_with(
-            mock_laser_control,
-            mock_pathtoaudio,
-            mock_audiowriter,
-            mock_layer_generator
+        self.mock_Controller.assert_called_with(
+            self.mock_layer_writer,
+            self.mock_layer_processing,
+            self.mock_single_point_generator,
+            self.mock_machine_status,
+            abort_on_error = False
             )
 
     # def test_stop_should_call_stop_on_controller(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
