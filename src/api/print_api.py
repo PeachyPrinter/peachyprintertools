@@ -106,6 +106,7 @@ class PrintAPI(object):
 
     def _get_zaxis(self):
         if self._configuration.dripper.dripper_type == 'audio':
+            logging.info("Audio Zaxis")
             return AudioDripZAxis(
                 self._configuration.dripper.drips_per_mm, 
                 self._configuration.audio.input.sample_rate,
@@ -115,11 +116,13 @@ class PrintAPI(object):
                 self._configuration.serial.off_command
                 )
         elif self._configuration.dripper.dripper_type == 'emulated':
+            logging.info("Emulated Zaxis")
             return TimedDripZAxis(
                 self._configuration.dripper.drips_per_mm, 
                 drips_per_second = self._configuration.dripper.emulated_drips_per_second
                 )
         elif self._configuration.dripper.dripper_type == 'photo':
+            logging.info("Photo Zaxis")
             return PhotoZAxis(
                 self._configuration.dripper.photo_zaxis_delay 
                 )
@@ -136,17 +139,24 @@ class PrintAPI(object):
             self._configuration.audio.output.modulation_off_frequency,
             self._configuration.options.laser_offset
             )
+
         transformer = HomogenousTransformer(
             self._configuration.calibration.max_deflection,
             self._configuration.calibration.height,
             self._configuration.calibration.lower_points,
             self._configuration.calibration.upper_points,
             )
+
         path_to_audio = PathToAudio(
             laser_control.actual_samples_per_second,
             transformer, 
             self._configuration.options.laser_thickness_mm
             )
+
+        state = MachineState()
+        self._status = MachineStatus(self._status_call_back)
+        
+
         if dry_run:
             audio_writer = None
             self._zaxis = None
@@ -158,18 +168,13 @@ class PrintAPI(object):
                 self._configuration.audio.output.bit_depth,
                 )
             self._zaxis = self._get_zaxis()
+            if self._zaxis:
+                self._zaxis.set_call_back(self._status.drip_call_back)
+                self._zaxis.start()
             abort_on_error = True
 
         override_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
         pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else 0.0
-
-        state = MachineState()
-        self._status = MachineStatus(self._status_call_back)
-        
-        if self._zaxis:
-            self._zaxis.set_call_back(self._status.drip_call_back)
-            self._zaxis.start()
-
 
         self._writer = LayerWriter(
             audio_writer, 
