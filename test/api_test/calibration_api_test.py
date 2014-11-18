@@ -131,33 +131,21 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertEquals([x,y],self.mock_single_point_generator.xy)
 
-    # def test_show_point_should_set_coordanates_on_Single_Point_Generator(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
-    #     mock_configuration_manager = mock_ConfigurationManager.return_value
-    #     mock_configuration_manager.load.return_value = self.default_config
-    #     mock_layer_generator = mock_SinglePointGenerator.return_value
-    #     calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-    #     x,y,z = 0.1,1.0,1.0
+    def test_show_point_should_use_Single_Point_Generator(self, *args):
+        self.setup_mocks(args)
+        self.mock_configuration_manager.load.return_value = self.default_config
+        
+        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        x,y,z = 1.0,0.2,1.0
 
-    #     calibration_api.show_point([x,y,z])
+        calibration_api.show_line()
+        calibration_api.show_point([x,y,z])
 
-    #     self.assertEquals([x,y],mock_layer_generator.xy)
-
-    # def test_show_point_should_use_Single_Point_Generator(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
-    #     mock_configuration_manager = mock_ConfigurationManager.return_value
-    #     mock_configuration_manager.load.return_value = self.default_config
-    #     mock_layer_generator = mock_SinglePointGenerator.return_value
-    #     mock_controller = mock_Controller.return_value
-
-    #     calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-    #     x,y,z = 1.0,0.2,1.0
-
-    #     calibration_api.show_line()
-    #     calibration_api.show_point([x,y,z])
-
-    #     mock_controller.change_generator.assert_called_with(mock_layer_generator)
+        self.mock_controller.change_generator.assert_called_with(self.mock_single_point_generator)
 
     # @patch('api.calibration_api.BlinkGenerator')
-    # def test_show_blink_should_use_blink_Generator(self, mock_BlinkGenerator, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_show_blink_should_use_blink_Generator(self, mock_BlinkGenerator, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
     #     mock_layer_generator = mock_BlinkGenerator.return_value
@@ -171,7 +159,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     #     mock_controller.change_generator.assert_called_with(mock_layer_generator)
 
-    # def test_set_laser_override(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_set_laser_override(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
     #     mock_controller = mock_Controller.return_value
@@ -185,7 +174,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     self.assertFalse(mock_controller.laser_off_override)
 
     # @patch('api.calibration_api.CalibrationLineGenerator')
-    # def test_show_line_should_use_CalibrationLineGenerator(self, mock_CalibrationLineGenerator,mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_show_line_should_use_CalibrationLineGenerator(self, mock_CalibrationLineGenerator,*args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
     #     mock_layer_generator = mock_CalibrationLineGenerator.return_value
@@ -198,7 +188,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     #     mock_controller.change_generator.assert_called_with(mock_layer_generator)
 
-    # def test_get_patterns_should_return_available_test_patterns(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_get_patterns_should_return_available_test_patterns(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
     #     calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
@@ -207,7 +198,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     #     self.assertEquals(set(['Memory Hourglass','NESW','Damping Test','Hilbert Space Filling Curve','Spiral','Square','Circle','Twitch']),set(patterns))
 
-    # def test_change_pattern_should_raise_exception_when_test_patterns_unavailable(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_change_pattern_should_raise_exception_when_test_patterns_unavailable(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
     #     mock_layer_generator = mock_SinglePointGenerator.return_value
@@ -217,7 +209,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #         calibration_api.show_test_pattern("Shrubberies")
 
     # @patch('api.calibration_api.HilbertGenerator')
-    # def test_change_pattern_should_change_pattern_on_controller(self, mock_HilbertGenerator,mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_change_pattern_should_change_pattern_on_controller(self, mock_HilbertGenerator,*args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
     #     mock_controller = mock_Controller.return_value
@@ -226,7 +219,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     calibration_api.show_test_pattern("Hilbert Space Filling Curve")
     #     mock_controller.change_generator.assert_called_with(expected_generator)
 
-    # def test_current_calibration_returns_the_existing_configuration(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_current_calibration_returns_the_existing_configuration(self, *args):
+    #     self.setup_mocks(args)
     #     expected_config = self.default_config
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = expected_config
@@ -234,7 +228,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     #     self.assertEqual(calibration_api.current_calibration(), expected_config.calibration)
 
-    # def test_save_points_should_save_points(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_save_points_should_save_points(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
         
@@ -259,7 +254,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     self.assertConfigurationEqual(expected_config,mock_configuration_manager.save.mock_calls[0][1][0])
 
     # @patch('api.calibration_api.HomogenousTransformer')
-    # def test_show_test_pattern_should_apply_calibration_should_replace_controllers_transformer(self, mock_HomogenousTransformer, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_show_test_pattern_should_apply_calibration_should_replace_controllers_transformer(self, mock_HomogenousTransformer, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
     #     mock_pathtoaudio = mock_PathToAudio.return_value
@@ -278,7 +274,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     #     mock_pathtoaudio.set_transformer.assert_called_with(mock_homogenous_transformer)
 
-    # def test_show_line_should_replace_controllers_transformer(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_show_line_should_replace_controllers_transformer(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
     #     mock_pathtoaudio = mock_PathToAudio.return_value
@@ -294,7 +291,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     mock_Transformer.assert_called_with(scale = self.default_config.calibration.max_deflection)
     #     mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)
 
-    # def test_show_point_should_replace_controllers_transformer(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_show_point_should_replace_controllers_transformer(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_configuration_manager.load.return_value = self.default_config
     #     mock_pathtoaudio = mock_PathToAudio.return_value
@@ -310,7 +308,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     mock_Transformer.assert_called_with(scale = self.default_config.calibration.max_deflection)
     #     mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)
 
-    # def test_get_largest_object_radius_is_the_smallest_calibration_axis_at_z0(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_get_largest_object_radius_is_the_smallest_calibration_axis_at_z0(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     config = self.default_config
     #     expected = 4
@@ -327,7 +326,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     actual = calibration_api.get_largest_object_radius()
     #     self.assertEquals(expected, actual)
 
-    # def test_get_max_deflection_should_return_max_deflection(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_get_max_deflection_should_return_max_deflection(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     config = self.default_config
     #     expected = 0.68
@@ -339,7 +339,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     actual = calibration_api.get_max_deflection()
     #     self.assertEquals(expected, actual)
 
-    # def test_set_max_deflection_should_save_and_update_max_deflection(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_set_max_deflection_should_save_and_update_max_deflection(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_transformer = mock_Transformer.return_value
     #     mock_pathtoaudio = mock_PathToAudio.return_value
@@ -357,7 +358,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     self.assertConfigurationEqual(expected_config,mock_configuration_manager.save.mock_calls[0][1][0])
     #     mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)
 
-    # def test_get_laser_offset_should_return_laser_offset(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_get_laser_offset_should_return_laser_offset(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     config = self.default_config
     #     expected = [0.01,0.01]
@@ -369,7 +371,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     actual = calibration_api.get_laser_offset()
     #     self.assertEquals(expected, actual)
 
-    # def test_set_laser_offset_should_save_and_update_laser_offset(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_set_laser_offset_should_save_and_update_laser_offset(self, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_laser_control = mock_AudioModulationLaserControl.return_value
     #     config = self.default_config
@@ -387,7 +390,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     mock_laser_control.set_offset.assert_called_with(expected)
         
     # @patch('api.calibration_api.SquareGenerator')
-    # def test_show_scale_should_use_Square_Generator_and_Tuning_Transformer(self, mock_SquareGenerator, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+    # def test_show_scale_should_use_Square_Generator_and_Tuning_Transformer(self, mock_SquareGenerator, *args):
+    #     self.setup_mocks(args)
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
     #     mock_squaregenerator = mock_SquareGenerator.return_value
     #     mock_transformer = mock_Transformer.return_value
@@ -402,12 +406,9 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     #     mock_controller.change_generator.assert_called_with(mock_squaregenerator)
     #     mock_pathtoaudio.set_transformer.assert_called_with(mock_transformer)
 
-    # @patch('api.calibration_api.HilbertGenerator')
-    # @patch('api.calibration_api.SquareGenerator')
-    # @patch('api.calibration_api.CircleGenerator')
-    # @patch('api.calibration_api.SpiralGenerator')
-    # @patch('api.calibration_api.MemoryHourglassGenerator')
-    # def test_set_test_pattern_speed_changes_speeds(self,mock_HilbertGenerator,mock_SquareGenerator,mock_CircleGenerator,mock_SpiralGenerator,mock_MemoryHourglassGenerator, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
+
+    # def test_set_test_pattern_speed_changes_speeds(self,*args):
+    #     self.setup_mocks(args)
     #     mock_hilbertgenerator = mock_HilbertGenerator.return_value
     #     mock_squaregenerator = mock_SquareGenerator.return_value
     #     mock_circlegenerator = mock_CircleGenerator.return_value
