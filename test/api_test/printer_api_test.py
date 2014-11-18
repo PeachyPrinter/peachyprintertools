@@ -172,6 +172,7 @@ import test_helpers
 #             end = time.time()
 #             self.assertTrue(expected_delay <=  end-start)
 
+@patch('api.print_api.TimedDripZAxis')
 @patch('api.print_api.SerialCommander')
 @patch('api.print_api.OverLapGenerator')
 @patch('api.print_api.MachineState')
@@ -191,6 +192,7 @@ import test_helpers
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
+        self.mock_TimedDripZAxis =                args[16 ]
         self.mock_SerialCommander =               args[15 ]
         self.mock_OverLapGenerator =              args[14 ]
         self.mock_MachineState =                  args[13 ]
@@ -208,6 +210,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_LayerWriter =                   args[1 ]
         self.mock_LayerProcessing =               args[0 ]
 
+
+        self.mock_timed_drip_zaxis =                self.mock_TimedDripZAxis.return_value
         self.mock_serial_commander =                self.mock_SerialCommander.return_value
         self.mock_over_lap_generator =              self.mock_OverLapGenerator.return_value
         self.mock_machine_state =                   self.mock_MachineState.return_value
@@ -455,179 +459,74 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             )
 
 
-    # def test_print_can_be_stopped_before_started(self):
-    #     api = PrintAPI(self.default_config)
-    #     api.close()
-
-    # @patch('api.print_api.Controller')
-    # @patch('api.print_api.PathToAudio')
-    # @patch('api.print_api.HomogenousTransformer')
-    # @patch('api.print_api.AudioWriter')
-    # @patch('api.print_api.GCodeReader')
-    # @patch('api.print_api.AudioModulationLaserControl')
-    # @patch('api.print_api.AudioDripZAxis')
-    
-    # def test_get_status_calls_controller_status(self, 
-    #         mock_AudioDripZAxis,
-    #         mock_AudioModulationLaserControl,
-    #         mock_GCodeReader,
-    #         mock_AudioWriter,
-    #         mock_Transformer,
-    #         mock_PathToAudio,
-    #         mock_Controller,):
-    #     mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
-    #     mock_audiomodulationlasercontrol.actual_samples_per_second = 7
-    #     mock_controller = mock_Controller.return_value
+    def test_print_can_be_stopped_before_started(self,*args):
+        api = PrintAPI(self.default_config)
+        api.close()
 
 
-    #     api = PrintAPI(self.default_config)
-    #     with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
-    #         api.print_gcode("Spam")
-    #         api.get_status()
+    def test_print_gcode_should_create_serial_commander_if_specified_in_config(self,*args):
+        self.setup_mocks(args)
+        gcode_path = "FakeFile"
 
-    #     mock_controller.get_status.assert_called_with()
+        config = self.default_config
+        config.serial.on = True
 
-    # @patch('api.print_api.Controller')
-    # @patch('api.print_api.PathToAudio')
-    # @patch('api.print_api.HomogenousTransformer')
-    # @patch('api.print_api.AudioWriter')
-    # @patch('api.print_api.GCodeReader')
-    # @patch('api.print_api.AudioModulationLaserControl')
-    # @patch('api.print_api.AudioDripZAxis')
-    # @patch('api.print_api.SubLayerGenerator')
-    # @patch('api.print_api.SerialCommander')
-    # @patch('api.print_api.ShuffleGenerator')
-    # def test_print_gcode_should_create_serial_commander_if_specified_in_config(self,
-    #         mock_ShuffleGenerator,
-    #         mock_SerialCommander,
-    #         mock_SubLayerGenerator, 
-    #         mock_AudioDripZAxis,
-    #         mock_AudioModulationLaserControl,
-    #         mock_GCodeReader,
-    #         mock_AudioWriter,
-    #         mock_Transformer,
-    #         mock_PathToAudio,
-    #         mock_Controller,
-    #         ):
-    #     gcode_path = "FakeFile"
-    #     actual_samples_per_second = 7
-    #     fake_layers = "Fake Layers"
-    #     mock_serialcommander = mock_SerialCommander.return_value
-    #     mock_dripbasedzaxis = mock_AudioDripZAxis.return_value
-    #     mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
-    #     mock_gcodereader = mock_GCodeReader.return_value
-    #     mock_audiowriter = mock_AudioWriter.return_value
-    #     mock_transformer = mock_Transformer.return_value
-    #     mock_pathtoaudio = mock_PathToAudio.return_value
-    #     mock_controller = mock_Controller.return_value
+        api = PrintAPI(config)
 
-    #     mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
-    #     mock_gcodereader.get_layers.return_value = fake_layers
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
 
-    #     config = self.default_config
-    #     config.serial.on = True
-    #     config.serial.port = "COM6"
-    #     config.serial.on_command = "ON"
-    #     config.serial.off_command = "OFF"
-    #     config.options.use_shufflelayers = False
-    #     config.options.use_sublayers = False
-    #     config.options.use_overlap = False
-    #     api = PrintAPI(config)
-    #     with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
-    #         api.print_gcode(gcode_path)
+        self.mock_SerialCommander.assert_called_with(config.serial.port)
 
-    #     mock_SerialCommander.assert_called_with("COM6")
-    #     mock_AudioDripZAxis.assert_called_with(
-    #         config.dripper.drips_per_mm,
-    #         config.audio.input.sample_rate,
-    #         config.audio.input.bit_depth,
-    #         mock_serialcommander,
-    #         config.serial.on_command,
-    #         config.serial.off_command
-    #         )
-    #     mock_Controller.assert_called_with(
-    #         mock_audiomodulationlasercontrol,
-    #         mock_pathtoaudio,
-    #         mock_audiowriter,
-    #         fake_layers,
-    #         zaxis = mock_dripbasedzaxis,
-    #         status_call_back = None,
-    #         max_lead_distance = config.dripper.max_lead_distance_mm,
-    #         abort_on_error = True,
-    #         override_speed = config.cure_rate.draw_speed,
-    #         commander = mock_serialcommander,
-    #         layer_start_command = config.serial.layer_started,
-    #         layer_ended_command = config.serial.layer_ended,
-    #         print_ended_command = config.serial.print_ended,
-    #         pre_layer_delay = None
-    #     )
+        self.mock_LayerProcessing.assert_called_with(
+            self.mock_layer_writer,
+            self.mock_machine_state,
+            self.mock_machine_status,
+            self.mock_audio_drip_zaxis,
+            config.dripper.max_lead_distance_mm,
+            self.mock_serial_commander,
+            config.options.pre_layer_delay,
+            config.serial.layer_started,
+            config.serial.layer_ended,
+            config.serial.print_ended,
+            )
+
+    def test_get_status_calls_controller_status(self,*args):
+        self.setup_mocks(args)
+        api = PrintAPI(self.default_config)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode("Spam")
+            api.get_status()
+
+        self.mock_controller.get_status.assert_called_with()
 
 
-    # @patch('api.print_api.Controller')
-    # @patch('api.print_api.PathToAudio')
-    # @patch('api.print_api.HomogenousTransformer')
-    # @patch('api.print_api.AudioWriter')
-    # @patch('api.print_api.GCodeReader')
-    # @patch('api.print_api.AudioModulationLaserControl')
-    # @patch('api.print_api.TimedDripZAxis')
-    # @patch('api.print_api.SubLayerGenerator')
-    # @patch('api.print_api.NullCommander')
-    # @patch('api.print_api.ShuffleGenerator')
-    # def test_print_gcode_should_use_emulated_dripper_if_specified_in_config(self,
-    #         mock_ShuffleGenerator,
-    #         mock_NullCommander,
-    #         mock_SubLayerGenerator, 
-    #         mock_TimedDripZAxis,
-    #         mock_AudioModulationLaserControl,
-    #         mock_GCodeReader,
-    #         mock_AudioWriter,
-    #         mock_Transformer,
-    #         mock_PathToAudio,
-    #         mock_Controller,
-    #         ):
-    #     gcode_path = "FakeFile"
-    #     actual_samples_per_second = 7
-    #     fake_layers = "Fake Layers"
-    #     mock_timeddripzaxis = mock_TimedDripZAxis.return_value
-    #     mock_audiomodulationlasercontrol = mock_AudioModulationLaserControl.return_value
-    #     mock_nullcommander = mock_NullCommander.return_value
-    #     mock_gcodereader = mock_GCodeReader.return_value
-    #     mock_audiowriter = mock_AudioWriter.return_value
-    #     mock_transformer = mock_Transformer.return_value
-    #     mock_pathtoaudio = mock_PathToAudio.return_value
-    #     mock_controller = mock_Controller.return_value
+    def test_print_gcode_should_use_emulated_dripper_if_specified_in_config(self, * args):
+        self.setup_mocks(args)
+        gcode_path = "FakeFile"
 
-    #     mock_audiomodulationlasercontrol.actual_samples_per_second = actual_samples_per_second
-    #     mock_gcodereader.get_layers.return_value = fake_layers
+        config = self.default_config
+        config.dripper.dripper_type = 'emulated'
 
-    #     config = self.default_config
+        api = PrintAPI(config)
 
-    #     config.dripper.dripper_type = 'emulated'
-    #     config.options.use_shufflelayers = False
-    #     config.options.use_sublayers = False
-    #     config.options.use_overlap = False
-        
-    #     api = PrintAPI(config)
-    #     with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
-    #         api.print_gcode(gcode_path)
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
 
-    #     mock_TimedDripZAxis.assert_called_with(config.dripper.drips_per_mm, drips_per_second = config.dripper.emulated_drips_per_second )
-    #     mock_Controller.assert_called_with(
-    #         mock_audiomodulationlasercontrol,
-    #         mock_pathtoaudio,
-    #         mock_audiowriter,
-    #         fake_layers,
-    #         zaxis = mock_timeddripzaxis,
-    #         status_call_back = None,
-    #         max_lead_distance = config.dripper.max_lead_distance_mm,
-    #         abort_on_error = True,
-    #         override_speed = config.cure_rate.draw_speed,
-    #         commander = mock_nullcommander,
-    #         layer_start_command = config.serial.layer_started,
-    #         layer_ended_command = config.serial.layer_ended,
-    #         print_ended_command = config.serial.print_ended,
-    #         pre_layer_delay = None
-    #         )
+        self.mock_TimedDripZAxis.assert_called_with(config.dripper.drips_per_mm, drips_per_second = config.dripper.emulated_drips_per_second )
+
+        self.mock_LayerProcessing.assert_called_with(
+            self.mock_layer_writer,
+            self.mock_machine_state,
+            self.mock_machine_status,
+            self.mock_timed_drip_zaxis,
+            config.dripper.max_lead_distance_mm,
+            self.mock_null_commander,
+            config.options.pre_layer_delay,
+            config.serial.layer_started,
+            config.serial.layer_ended,
+            config.serial.print_ended,
+            )
 
 
     # @patch('api.print_api.Controller')
