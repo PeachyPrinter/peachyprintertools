@@ -103,34 +103,33 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             abort_on_error = False
             )
 
-    # def test_stop_should_call_stop_on_controller(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
-    #     mock_configuration_manager = mock_ConfigurationManager.return_value
-    #     mock_configuration_manager.load.return_value = self.default_config
-    #     mock_controller = mock_Controller.return_value
-    #     calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+    def test_stop_should_call_stop_on_controller(self, *args):
+        self.setup_mocks(args)
+        self.mock_configuration_manager.load.return_value = self.default_config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
 
-    #     calibration_api.close()
+        calibration_api.close()
 
-    #     mock_controller.close.assert_called_with()
+        self.mock_controller.close.assert_called_with()
 
         
-    # def test_should_load_the_correct_printer(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
-    #     mock_configuration_manager = mock_ConfigurationManager.return_value
-    #     mock_configuration_manager.load.return_value = self.default_config
-    #     calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
+    def test_ini_should_load_the_correct_printer(self, *args):
+        self.setup_mocks(args)
+        self.mock_configuration_manager.load.return_value = self.default_config
+        
+        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
 
-    #     mock_configuration_manager.load.assert_called_with('Spam')
+        self.mock_configuration_manager.load.assert_called_with('Spam')
 
-    # def test_show_point_should_set_coordanates_on_Single_Point_Generator(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
-    #     mock_configuration_manager = mock_ConfigurationManager.return_value
-    #     mock_configuration_manager.load.return_value = self.default_config
-    #     mock_layer_generator = mock_SinglePointGenerator.return_value
-    #     calibration_api = CalibrationAPI(mock_configuration_manager,'Spam')
-    #     x,y,z = 1.0,0.2,1.0
+    def test_show_point_should_set_coordanates_on_Single_Point_Generator(self, *args):
+        self.setup_mocks(args)
+        self.mock_configuration_manager.load.return_value = self.default_config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        x,y,z = 1.0,0.2,1.0
 
-    #     calibration_api.show_point([x,y,z])
+        calibration_api.show_point([x,y,z])
 
-    #     self.assertEquals([x,y],mock_layer_generator.xy)
+        self.assertEquals([x,y],self.mock_single_point_generator.xy)
 
     # def test_show_point_should_set_coordanates_on_Single_Point_Generator(self, mock_ConfigurationManager,mock_SinglePointGenerator,mock_AudioModulationLaserControl,mock_AudioWriter,mock_Transformer,mock_PathToAudio,mock_Controller):
     #     mock_configuration_manager = mock_ConfigurationManager.return_value
