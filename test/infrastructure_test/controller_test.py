@@ -48,14 +48,19 @@ class ControllerTests(unittest.TestCase):
         mock_layer_processing.terminate.assert_called_with()
 
 
-    def test_run_should_update_machine_status_on_error(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
-        self.assertEquals(1,0)
-
     def test_run_should_update_machine_status_on_complete(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
-        self.assertEquals(1,0)
+        mock_layer_writer = mock_LayerWriter.return_value
+        mock_layer_processing = mock_LayerProcessing.return_value
+        test_layer1 = Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
+        stub_layer_generator = StubLayerGenerator([test_layer1])
+        
+        self.controller = Controller(mock_layer_writer, mock_layer_processing,stub_layer_generator,MachineStatus(), True )
+        self.controller.start()
+
+        self.wait_for_controller()
+
+        self.assertEquals("Complete", self.controller.get_status()['status'])
     
-    def test_run_should_process_all_layers_and_shutdown(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
-        self.assertEquals(1,0)
            
     def test_run_should_record_errors_and_abort(self, mock_LayerGenerator,mock_LayerWriter,mock_LayerProcessing):
         mock_layer_writer = mock_LayerWriter.return_value
@@ -69,7 +74,7 @@ class ControllerTests(unittest.TestCase):
 
         self.wait_for_controller()
 
-        self.assertEquals(1, len(self.controller.get_status()['errors']))
+        self.assertTrue(1 <=  len(self.controller.get_status()['errors']))
         self.assertEquals("Something Broke", self.controller.get_status()['errors'][0]['message'])
         mock_layer_writer.terminate.assert_called_with()
         mock_layer_processing.terminate.assert_called_with()
