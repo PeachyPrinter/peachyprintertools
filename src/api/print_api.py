@@ -5,7 +5,7 @@ from os import path, listdir
 
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
-from infrastructure.controller import Controller, LayerProcessing
+from infrastructure.controller import Controller
 from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
 from infrastructure.laser_control import AudioModulationLaserControl
@@ -14,7 +14,7 @@ from infrastructure.transformer import HomogenousTransformer
 from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
 from infrastructure.commander import SerialCommander, NullCommander
 from infrastructure.notification import EmailNotificationService, EmailGateway
-from infrastructure.layer_writer import LayerWriter
+from infrastructure.layer_control import LayerWriter, LayerProcessing
 from infrastructure.machine import *
 
 class PrintQueueAPI(object):
@@ -161,10 +161,15 @@ class PrintAPI(object):
             abort_on_error = True
 
         override_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
-        pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else None
+        pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else 0.0
 
         state = MachineState()
         self._status = MachineStatus(self._status_call_back)
+        
+        if self._zaxis:
+            self._zaxis.set_call_back(self._status.drip_call_back)
+            self._zaxis.start()
+
 
         self._writer = LayerWriter(
             audio_writer, 

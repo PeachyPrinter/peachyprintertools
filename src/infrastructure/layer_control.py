@@ -122,11 +122,6 @@ class LayerProcessing():
         self._shutdown = False
         self._lock = Lock()
 
-        if self._zaxis:
-            self._zaxis.set_call_back(self._status.drip_call_back)
-            self._zaxis.start()
-            
-
     def process(self,layer):
         if self._shutting_down or self._shutdown:
             raise Exception("LayerProcessing alreay shutdown")
