@@ -422,7 +422,7 @@ class DripperConfiguration(ConfigurationBase):
 
 class CalibrationConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._max_deflection = self.get(source, u'max_deflection', 0.75)
+        self._max_deflection = self.get(source, u'max_deflection', 0.95)
         self._height = self.get(source, u'height',40.0)
         self._lower_points = [ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in source.get(u'lower_points', [[[0.0, 1.0],[-40.0, 40.0]],[[1.0, 0.0],[40.0, -40.0]],[[0.0, 0.0],[-40.0, -40.0]], [[1.0, 1.0],[40.0, 40.0]]]) ]
         self._upper_points = [ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in source.get(u'upper_points', [[[0.0, 1.0],[-30.0, 30.0]],[[1.0, 0.0],[30.0, -30.0]],[[0.0, 0.0],[-30.0, -30.0]], [[1.0, 1.0],[30.0, 30.0]]]) ]
