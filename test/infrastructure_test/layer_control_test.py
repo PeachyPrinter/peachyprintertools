@@ -207,7 +207,7 @@ class LayerWriterTests(unittest.TestCase):
             self.writer.process_layer(test_layer)
 
 
-@patch('infrastructure.layer_writer.LayerWriter')
+@patch('infrastructure.layer_control.LayerWriter')
 @patch('domain.zaxis.ZAxis')
 class LayerProcessingTest(unittest.TestCase):
 
@@ -355,19 +355,6 @@ class LayerProcessingTest(unittest.TestCase):
 
         mock_commander.close.assert_called_with()
 
-
-    def test_init_should_start_z_axis(self, mock_ZAxis,mock_Writer):
-        mock_zaxis = mock_ZAxis.return_value
-        layer_processing = LayerProcessing(
-            mock_Writer.return_value, 
-            MachineState(),
-            MachineStatus(), 
-            mock_zaxis, 
-            1.0,
-            NullCommander(),
-            0,'a','b','z')
-        mock_zaxis.start.assert_called_with()
-
     def test_process_while_shutting_down_should_exit(self, mock_ZAxis,mock_Writer):
         mock_zaxis = mock_ZAxis.return_value
         layer_processing = LayerProcessing(
@@ -381,19 +368,6 @@ class LayerProcessingTest(unittest.TestCase):
         layer_processing.terminate()
         with self.assertRaises(Exception):
             layer_processing.process(Layer(1.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ]))
-
-    def test_init_should_set_zaxis_call_back(self, mock_ZAxis,mock_Writer):
-        status = MachineStatus()
-        mock_zaxis = mock_ZAxis.return_value
-        layer_processing = LayerProcessing(
-            mock_Writer.return_value, 
-            MachineState(),
-            status, 
-            mock_zaxis, 
-            1.0,
-            NullCommander(),
-            0,'a','b','z')
-        mock_zaxis.set_call_back.assert_called_with(status.drip_call_back)
 
     def test_process_should_update_layer_height(self, mock_ZAxis,mock_Writer):
         mock_zaxis = mock_ZAxis.return_value

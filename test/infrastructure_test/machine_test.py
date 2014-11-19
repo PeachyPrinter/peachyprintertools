@@ -8,7 +8,7 @@ sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
 import infrastructure
-from infrastructure.controller import *
+from infrastructure.machine import *
 from domain.commands import *
 
 

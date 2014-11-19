@@ -15,7 +15,7 @@ class PeachyPrinterTools(Tk):
     def __init__(self,parent, path):
         Tk.__init__(self,parent)
         self.path = path
-        self.geometry("800x600")
+        self.geometry("800x700")
         self.title('Peachy Printer Tools')
 
         if sys.platform != 'darwin':
