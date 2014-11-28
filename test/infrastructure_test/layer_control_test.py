@@ -46,13 +46,13 @@ class LayerWriterTests(unittest.TestCase):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
-        test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[2.0,2.0],100.0) ])
+        test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[2.0,2.0],100.0), LateralDraw([2.0,2.0],[2.9,2.9],100.0) ])
         self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), 100)
 
         self.writer.process_layer(test_layer)
 
         self.assertEqual(1,mock_laser_control.set_laser_off.call_count)
-        self.assertEqual(0,mock_laser_control.set_laser_on.call_count)
+        self.assertEqual(1,mock_laser_control.set_laser_on.call_count)
 
     def test_process_layer_should_output_modulate_audio_for_movement_commands(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
@@ -114,21 +114,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_laser_control.set_laser_off.assert_called_with()
         self.assertEqual(([0.0,0.0,0.0],[2.0,2.0,0.0],2.0), mock_path_to_audio.process.call_args_list[1][0])
 
-    def test_process_layer_if_move_command_start_and_current_pos_are_not_the_same_should_move_to_new_posisition(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
-        mock_laser_control = mock_LaserControl.return_value
-        mock_path_to_audio = mock_PathToAudio.return_value
-        mock_audio_writer = mock_AudioWriter.return_value
-        test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[0.0,0.0],2.0), LateralMove([2.0,2.0],[-1.0,-1.0],2.0) ])
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), 100)
-
-        self.writer.process_layer(test_layer)
-
-        self.assertEqual(2, mock_laser_control.modulate.call_count)
-        self.assertEqual(2, mock_path_to_audio.process.call_count)
-        mock_laser_control.set_laser_off.assert_called_with()
-        self.assertEqual(([0.0,0.0,0.0],[-1.0,-1.0,0.0],2.0), mock_path_to_audio.process.call_args_list[1][0])
-
-    def test_process_layer_if_move_command_start_and_current_pos_are_close_to_the_same_should_not_move_to_new_posisition(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
+    def test_process_layer_if_move_command_start_and_current_pos_are_close_to_the_same_should_not_move_to_new_posisition_for_draw(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
@@ -137,10 +123,22 @@ class LayerWriterTests(unittest.TestCase):
 
         self.writer.process_layer(test_layer)
 
-        self.assertEqual(2, mock_laser_control.modulate.call_count)
-        self.assertEqual(2, mock_path_to_audio.process.call_count)
-        mock_laser_control.set_laser_off.assert_called_with()
-        self.assertEqual(([0.0,0.0,0.0],[-1.0,-1.0,0.0],2.0), mock_path_to_audio.process.call_args_list[1][0])
+        self.assertEqual(1, mock_laser_control.modulate.call_count)
+        self.assertEqual(1, mock_path_to_audio.process.call_count)
+        self.assertEqual(([0.0,0.0,0.0],[-1.0,-1.0,0.0],2.0), mock_path_to_audio.process.call_args_list[0][0])
+
+    def test_process_layer_if_move_command_start_and_current_pos_are_close_to_the_same_should_not_move_to_new_posisition_for_move(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[1.0,1.0],2.0), LateralMove([1.0,1.0],[1.000001,1.0],2.0) ])
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), 100)
+
+        self.writer.process_layer(test_layer)
+
+        self.assertEqual(0, mock_laser_control.modulate.call_count)
+        self.assertEqual(0, mock_path_to_audio.process.call_count)
+        self.assertEqual(0, mock_laser_control.set_laser_off.call_count)
 
     def test_process_layer_should_use_max_speed_if_provided(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
         expected_speed = 2.0

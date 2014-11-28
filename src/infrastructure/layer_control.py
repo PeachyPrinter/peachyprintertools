@@ -26,7 +26,7 @@ class LayerWriter():
         self._lock = Lock()
 
     def _almost_equal(self,a,b,sig_fig=5):
-        return ( a==b or int(a*10**sig_fig) == int(b*10**sig_fig))
+        return ( a==b or (abs(a - b) <= 1.0 / 10.0**sig_fig))
 
     def _same_posisition(self,pos_1,pos_2):
         return self._almost_equal(pos_1[0],pos_2[0]) and self._almost_equal(pos_1[1],pos_2[1])
@@ -46,8 +46,6 @@ class LayerWriter():
                     if not self._same_posisition(self._state.xy, command.start):
                         self._move_lateral(command.start,layer.z,command.speed)
                     self._draw_lateral(command.end, layer.z, command.speed )
-                elif type(command) == LateralMove:
-                    self._move_lateral(command.end, layer.z, command.speed)
 
     def _move_lateral(self,(to_x,to_y), to_z,speed):
         self._laser_control.set_laser_off()
