@@ -11,9 +11,11 @@ class LayerWriter():
         path_to_audio,
         laser_control,
         state,
+        move_distance_to_ignore = 0.00001,
         override_speed = None,
         ):
         self._override_speed = override_speed
+        self._move_distance_to_ignore = move_distance_to_ignore
         self._state = state
         self._audio_writer = audio_writer
         self._path_to_audio = path_to_audio
@@ -25,8 +27,8 @@ class LayerWriter():
         self._shutdown = False
         self._lock = Lock()
 
-    def _almost_equal(self,a,b,sig_fig=5):
-        return ( a==b or (abs(a - b) <= 1.0 / 10.0**sig_fig))
+    def _almost_equal(self,a,b):
+        return ( a==b or (abs(a - b) <= self._move_distance_to_ignore))
 
     def _same_posisition(self,pos_1,pos_2):
         return self._almost_equal(pos_1[0],pos_2[0]) and self._almost_equal(pos_1[1],pos_2[1])
