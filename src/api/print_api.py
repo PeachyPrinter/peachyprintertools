@@ -183,7 +183,7 @@ class PrintAPI(object):
             state,
             move_distance_to_ignore = self._configuration.options.laser_thickness_mm,
             override_speed = override_speed, 
-            wait_speed = self._configuration.options.wait_after_move_milliseconds * self._configuration.options.laser_thickness_mm
+            wait_speed = (float(self._configuration.options.wait_after_move_milliseconds) / 1000.0) * self._configuration.options.laser_thickness_mm
             )
 
         self._layer_processing = LayerProcessing(

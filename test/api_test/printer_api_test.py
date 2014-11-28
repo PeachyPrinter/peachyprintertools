@@ -305,7 +305,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_machine_state,
             move_distance_to_ignore = config.options.laser_thickness_mm,
             override_speed = config.cure_rate.draw_speed, 
-            wait_speed = config.options.wait_after_move_milliseconds * config.options.laser_thickness_mm
+            wait_speed = (config.options.wait_after_move_milliseconds / 1000.0) * config.options.laser_thickness_mm
             )
 
         self.mock_LayerProcessing.assert_called_with(
@@ -369,7 +369,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_machine_state,
             move_distance_to_ignore = config.options.laser_thickness_mm,
             override_speed = config.cure_rate.draw_speed, 
-            wait_speed = config.options.wait_after_move_milliseconds * config.options.laser_thickness_mm,
+            wait_speed = (config.options.wait_after_move_milliseconds / 1000.0) * config.options.laser_thickness_mm,
             )
 
     def test_print_gcode_should_print_sublayers_if_requested(self,*args):

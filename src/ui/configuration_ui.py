@@ -112,6 +112,8 @@ class SetupOptionsUI(PeachyFrame):
         self.max_lead_distance_entry_text.set(self._configuration_api.get_max_lead_distance_mm())
         self.scaling_factor_entry_text = DoubleVar()
         self.scaling_factor_entry_text.set(self._configuration_api.get_scaling_factor())
+        self.wait_after_move_entry_text =IntVar()
+        self.wait_after_move_entry_text.set(self._configuration_api.get_wait_after_move_milliseconds())
 
         self._use_sublayers = IntVar()
         self._use_sublayers.set(self._configuration_api.get_use_sublayers())
@@ -132,13 +134,16 @@ class SetupOptionsUI(PeachyFrame):
         Label(self).grid(column=1,row=15)
 
         Label(self, text = "Spot Diameter (mm) [0.5]" ).grid(column=0,row=20,sticky=N+S+E)
-        Entry(self, textvariable = self.laser_thickness_entry_text).grid(column=1, row=20)
+        Entry(self, textvariable = self.laser_thickness_entry_text, width = 6).grid(column=1, row=20,sticky=N+S+W)
 
         Label(self, text = "Maximum Lead Distance (mm) [0.5]" ).grid(column=0,row=40,sticky=N+S+E)
-        Entry(self, textvariable = self.max_lead_distance_entry_text).grid(column=1, row=40)
+        Entry(self, textvariable = self.max_lead_distance_entry_text, width = 6).grid(column=1, row=40,sticky=N+S+W)
 
-        Label(self, text = "Scale Image [1.0]" ).grid(column=0,row=45,sticky=N+S+E)
-        Entry(self, textvariable = self.scaling_factor_entry_text).grid(column=1, row=45)
+        Label(self, text = "Scale Image [1.0]" ).grid(column=2,row=20,sticky=N+S+E)
+        Entry(self, textvariable = self.scaling_factor_entry_text, width = 6).grid(column=3, row=20,sticky=N+S+W)
+
+        Label(self, text = "Wait After Move (milliseconds) [5]" ).grid(column=2,row=40,sticky=N+S+E)
+        Entry(self, textvariable = self.wait_after_move_entry_text, width = 6).grid(column=3, row=40,sticky=N+S+W)
 
         Label(self).grid(column=1,row=50)
 
@@ -174,26 +179,27 @@ class SetupOptionsUI(PeachyFrame):
         self._serial_port = StringVar()
         self._serial_port.set(self._configuration_api.get_serial_port())
 
-        Checkbutton(serial_frame, text="Use Serial Drip Control", variable = self._use_serial, command=self._showhide_serial).grid(column=0, row = 10)
-        Label(serial_frame,text="Serial Port").grid(column=0, row=20,sticky=N+S+E)
+        Checkbutton(serial_frame, text="Use Serial Drip Control", variable = self._use_serial, command=self._showhide_serial).grid(column=0, row = 10, columnspan=4,sticky=N+S+W)
+        Label(serial_frame,text=" Port").grid(column=0, row=20,sticky=N+S+E)
         self._serial_port_entry = Entry(serial_frame,textvariable=self._serial_port)
-        self._serial_port_entry.grid(column=1, row=20)
-        Label(serial_frame,text="Serial On Command").grid(column=0, row=30,sticky=N+S+E)
-        self._serial_on_entry = Entry(serial_frame,textvariable=self._serial_on_command)
+        self._serial_port_entry.grid(column=1, row=20, columnspan= 3)
+
+        Label(serial_frame,text="Camera On").grid(column=0, row=30,sticky=N+S+E)
+        self._serial_on_entry = Entry(serial_frame,textvariable=self._serial_on_command, width = 2)
         self._serial_on_entry.grid(column=1, row=30)
-        Label(serial_frame,text="Serial Off Command").grid(column=0, row=40,sticky=N+S+E)
-        self._serial_off_entry = Entry(serial_frame,textvariable=self._serial_off_command)
+        Label(serial_frame,text="Camera Off").grid(column=0, row=40,sticky=N+S+E)
+        self._serial_off_entry = Entry(serial_frame,textvariable=self._serial_off_command, width = 2)
         self._serial_off_entry.grid(column=1, row=40)
 
-        Label(serial_frame,text="Serial Layer Started Command").grid(column=0, row=50,sticky=N+S+E)
-        self._serial_layer_start_entry = Entry(serial_frame,textvariable=self._serial_layer_start_command)
-        self._serial_layer_start_entry.grid(column=1, row=50)
-        Label(serial_frame,text="Serial Layer Ended Command").grid(column=0, row=60,sticky=N+S+E)
-        self._serial_layer_end_entry = Entry(serial_frame,textvariable=self._serial_layer_end_command)
-        self._serial_layer_end_entry.grid(column=1, row=60)
-        Label(serial_frame,text="Serial Print Ended Command").grid(column=0, row=70,sticky=N+S+E)
-        self._serial_print_end_entry = Entry(serial_frame,textvariable=self._serial_print_end_command)
-        self._serial_print_end_entry.grid(column=1, row=70)
+        Label(serial_frame,text="Layer Started").grid(column=2, row=30,sticky=N+S+E)
+        self._serial_layer_start_entry = Entry(serial_frame,textvariable=self._serial_layer_start_command, width = 2)
+        self._serial_layer_start_entry.grid(column=3, row=30)
+        Label(serial_frame,text="Layer Ended").grid(column=2, row=40,sticky=N+S+E)
+        self._serial_layer_end_entry = Entry(serial_frame,textvariable=self._serial_layer_end_command, width = 2)
+        self._serial_layer_end_entry.grid(column=3, row=40)
+        Label(serial_frame,text="Print Ended").grid(column=2, row=50,sticky=N+S+E)
+        self._serial_print_end_entry = Entry(serial_frame,textvariable=self._serial_print_end_command, width = 2)
+        self._serial_print_end_entry.grid(column=3, row=50)
 
         self._showhide_serial()
 
@@ -209,10 +215,10 @@ class SetupOptionsUI(PeachyFrame):
         self._pre_layer_delay.set(self._configuration_api.get_pre_layer_delay())
         
         Label(devmode_options_frame,text="Print Queue Delay (Seconds)").grid(column=0, row=70)
-        Entry(devmode_options_frame,textvariable=self._print_queue_delay).grid(column=1, row=70)
+        Entry(devmode_options_frame,textvariable=self._print_queue_delay, width = 6).grid(column=1, row=70)
 
-        Label(devmode_options_frame,text="Pre Layer Delay (Seconds)").grid(column=0, row=75)
-        Entry(devmode_options_frame,textvariable=self._pre_layer_delay).grid(column=1, row=75)
+        Label(devmode_options_frame,text="Pre Layer Delay (Seconds)").grid(column=2, row=70)
+        Entry(devmode_options_frame,textvariable=self._pre_layer_delay, width = 6).grid(column=3, row=70)
 
 
         if not devmode:
@@ -286,6 +292,7 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_laser_thickness_mm(float(self.laser_thickness_entry_text.get()))
         self._configuration_api.set_max_lead_distance_mm(float(self.max_lead_distance_entry_text.get()))
         self._configuration_api.set_scaling_factor(float(self.scaling_factor_entry_text.get()))
+        self._configuration_api.set_wait_after_move_milliseconds(self.wait_after_move_entry_text.get())
 
         self._configuration_api.set_sublayer_height_mm(float(self.sublayer_height_entry_text.get()))
         self._configuration_api.set_overlap_amount_mm(float(self.overlap_amount_entry_text.get()))
