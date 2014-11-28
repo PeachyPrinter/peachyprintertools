@@ -23,6 +23,7 @@ class LayerWriter():
         self._laser_control = laser_control
         self.laser_off_override = False
         self._wait_speed = wait_speed
+        logging.info("Wait Speed: %s" % self._wait_speed )
 
         self._abort_current_command = False
         self._shutting_down = False
