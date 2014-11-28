@@ -197,7 +197,19 @@ class OptionsConfiguration(ConfigurationBase):
         self._use_overlap = self.get(source, u'use_overlap',True)
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
         self._pre_layer_delay = self.get(source, u'pre_layer_delay',0.0)
+        self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds',5)
 
+    @property
+    def wait_after_move_milliseconds(self):
+        return self._wait_after_move_milliseconds
+
+    @wait_after_move_milliseconds.setter
+    def wait_after_move_milliseconds(self, value):
+        _type = types.IntType
+        if type(value) == _type:
+            self._wait_after_move_milliseconds = value
+        else:
+            raise ValueError("Wait after move milliseconds must be of %s" % (str(_type)))
 
     @property
     def pre_layer_delay(self):

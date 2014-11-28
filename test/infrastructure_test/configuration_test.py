@@ -152,6 +152,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_use_overlap = "WRONG"
         expected_print_queue_delay = True
         expected_pre_layer_delay = True
+        expected_wait_after_move_milliseconds = True
 
 
         expected_drips_per_mm = True
@@ -231,7 +232,8 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             config.options.print_queue_delay = expected_print_queue_delay
         with self.assertRaises(Exception):
             config.options.pre_layer_delay = expected_pre_layer_delay
-
+        with self.assertRaises(Exception):
+            config.options.wait_after_move_milliseconds = expected_wait_after_move_milliseconds
 
         with self.assertRaises(Exception):
             config.serial.on = expected_use_serial_zaxis
@@ -275,6 +277,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_use_overlap = True
         expected_print_queue_delay = 0.0
         expected_pre_layer_delay = 1.0
+        expected_wait_after_move_milliseconds = 5
 
         expected_max_deflection = 75.2
         expected_calibration_height = 1.0
@@ -310,6 +313,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.options.use_overlap                  = expected_use_overlap
         original_config.options.print_queue_delay            = expected_print_queue_delay
         original_config.options.pre_layer_delay              = expected_pre_layer_delay
+        original_config.options.wait_after_move_milliseconds = expected_wait_after_move_milliseconds
         
         original_config.dripper.drips_per_mm                 = expected_drips_per_mm
         original_config.dripper.dripper_type                 = expected_dripper_type
@@ -358,7 +362,8 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_use_sublayers, config.options.use_sublayers )
         self.assertEquals(expected_use_overlap, config.options.use_overlap )
         self.assertEquals(expected_pre_layer_delay, config.options.pre_layer_delay )
-
+        self.assertEquals(expected_wait_after_move_milliseconds, config.options.wait_after_move_milliseconds )
+        
         self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm )
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )
         self.assertEquals(type(expected_dripper_type), type(config.dripper.dripper_type) )
@@ -384,7 +389,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_layer_ended, config.serial.layer_ended )
         self.assertEquals(type(expected_print_ended), type(config.serial.print_ended) )
         self.assertEquals(expected_print_ended, config.serial.print_ended )
-
 
 class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     
@@ -528,6 +532,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         del tmp['options']['use_overlap']
         del tmp['options']['print_queue_delay']
         del tmp['options']['pre_layer_delay']
+        del tmp['options']['wait_after_move_milliseconds']
         del tmp['dripper']['drips_per_mm']
         del tmp['dripper']['max_lead_distance_mm']
         del tmp['dripper']['dripper_type']
