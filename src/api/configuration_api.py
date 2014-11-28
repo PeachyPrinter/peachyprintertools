@@ -77,6 +77,9 @@ class ConfigurationAPI(object):
     def _zero_or_positive_float(self, value):
         return (type(value) == types.FloatType  and value >= 0.0)
 
+    def _zero_or_positive_int(self, value):
+        return (type(value) == types.IntType  and value >= 0.0)
+
     # ----------------------------------- Audio Setup ------------------------------------------
     _BEST_AUDIO_OUT_OPTIONS = [
         AudioSetting(48000, '16 bit'), 
@@ -339,6 +342,19 @@ class ConfigurationAPI(object):
 
 
     # ----------------------------- General Setup --------------------------------------
+
+    '''Returns the wait after move milliseconds'''
+    def get_wait_after_move_milliseconds(self):
+        return self._current_config.options.wait_after_move_milliseconds
+
+    '''Sets the wait after move milliseconds'''
+    def set_wait_after_move_milliseconds(self, delay_milliseconds):
+        if self._zero_or_positive_int(delay_milliseconds):
+            self._current_config.options.wait_after_move_milliseconds = delay_milliseconds
+            self.save()
+        else:
+            raise Exception("Wait after move milliseconds must be a positive int number")
+
 
     '''Returns the pre layer delay'''
     def get_pre_layer_delay(self):

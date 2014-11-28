@@ -562,6 +562,33 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
     # ----------------------------- General Setup --------------------------------------
 
     @patch.object(ConfigurationManager, 'load' )
+    def test_get_wait_after_move_milliseconds_returns_wait_after_move_milliseconds(self, mock_load):
+        expected = 7
+        config = self.default_config
+        config.options.wait_after_move_milliseconds = expected
+        mock_load.return_value =  config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_wait_after_move_milliseconds())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_pre_layer_delay_sets_wait_after_move_milliseconds(self, mock_save, mock_load):
+        expected_milliseconds = 7
+        config =  self.default_config
+        expected = config
+        expected.options.wait_after_move_milliseconds = expected_milliseconds
+        mock_load.return_value =  config 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_wait_after_move_milliseconds(expected_milliseconds)
+
+        self.assertEquals(expected_milliseconds,configuration_API.get_wait_after_move_milliseconds())
+        mock_save.assert_called_with(expected)
+
+    @patch.object(ConfigurationManager, 'load' )
     def test_get_pre_layer_delay_returns_delay(self, mock_load):
         expected = 7.0
         config = self.default_config
