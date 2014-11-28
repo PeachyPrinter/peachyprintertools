@@ -303,7 +303,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_path_to_audio, 
             self.mock_audio_modulation_laser_control,
             self.mock_machine_state,
-            config.cure_rate.draw_speed, 
+            move_distance_to_ignore = config.options.laser_thickness_mm,
+            override_speed = config.cure_rate.draw_speed, 
             )
 
         self.mock_LayerProcessing.assert_called_with(
@@ -350,7 +351,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.print_ended,
             )
 
-    def test_print_gcode_should_create_required_classes_and_start_it_without_override_speed_if_specified(self, *args):
+    def test_print_gcode_should_create_required_classes_and_start_it_with_override_speed_if_specified(self, *args):
         self.setup_mocks(args)
         gcode_path = "FakeFile"
         config = self.default_config
@@ -365,7 +366,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_path_to_audio, 
             self.mock_audio_modulation_laser_control,
             self.mock_machine_state,
-            config.cure_rate.draw_speed, 
+            move_distance_to_ignore = config.options.laser_thickness_mm,
+            override_speed = config.cure_rate.draw_speed, 
             )
 
     def test_print_gcode_should_print_sublayers_if_requested(self,*args):

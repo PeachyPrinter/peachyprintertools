@@ -181,7 +181,8 @@ class PrintAPI(object):
             path_to_audio, 
             laser_control,
             state,
-            override_speed, 
+            move_distance_to_ignore = self._configuration.options.laser_thickness_mm,
+            override_speed = override_speed, 
             )
 
         self._layer_processing = LayerProcessing(
