@@ -42,6 +42,21 @@ class LayerWriterTests(unittest.TestCase):
 
         self.assertEqual(1,mock_laser_control.set_laser_on.call_count)
 
+    def test_process_layer_should_wait_after_move_before_draw_commands(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        test_layer = Layer(0.0,[ LateralDraw([2.0,2.0],[1.0,1.0],100.0) ])
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100, wait_speed = 5)
+
+        self.writer.process_layer(test_layer)
+
+        self.assertEqual(1,mock_laser_control.set_laser_off.call_count)
+        self.assertEqual(1,mock_laser_control.set_laser_on.call_count)
+        self.assertEqual(([0.0,0.0,0.0],[2.0,2.0,0.0],100.0), mock_path_to_audio.process.call_args_list[0][0])
+        self.assertEqual(([2.0,2.0,0.0],[2.0,2.0,0.0],5.0), mock_path_to_audio.process.call_args_list[1][0])
+
+
     def test_process_layer_should_turn_off_laser_for_move_commands(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
         mock_laser_control = mock_LaserControl.return_value
         mock_path_to_audio = mock_PathToAudio.return_value

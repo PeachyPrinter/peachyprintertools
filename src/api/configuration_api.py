@@ -355,7 +355,6 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Wait after move milliseconds must be a positive int number")
 
-
     '''Returns the pre layer delay'''
     def get_pre_layer_delay(self):
         return self._current_config.options.pre_layer_delay
