@@ -23,7 +23,7 @@ class Goer(Tk):
         self.am = AudioModulationLaserControl(sampling_rate, self.on_frequency, self.off_frequency, offset)
         self.am.set_laser_on()
 
-        self.after(100, self.write)
+        self.after(10, self.write)
 
         Label(self,text="Q to quit").grid(column = 1, row = 1)
         self.grid()
