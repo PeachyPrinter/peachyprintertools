@@ -379,5 +379,18 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_spiral_generator.set_speed.assert_called_with(150.0)
         self.mock_memory_hourglass_generator.set_speed.assert_called_with(150.0)
 
+    def test_init_calulates_pattern_radius(self,*args):
+        self.setup_mocks(args)
+
+        self.mock_configuration_manager.load.return_value = self.default_config
+
+        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+
+        self.mock_hilbert_generator.set_radius.assert_called_with(40.0)
+        self.mock_square_generator.set_radius.assert_called_with(40.0)
+        self.mock_circle_generator.set_radius.assert_called_with(40.0)
+        self.mock_spiral_generator.set_radius.assert_called_with(40.0)
+        self.mock_memory_hourglass_generator.set_radius.assert_called_with(40.0)
+
 if __name__ == '__main__':
     unittest.main()

@@ -34,6 +34,7 @@ class CalibrationAPI(object):
             'NESW' : NESWGenerator(),
             'Twitch' : TwitchGenerator(),
             }
+            
         self._current_generator = self._point_generator
 
         self._laser_control = AudioModulationLaserControl(
@@ -82,7 +83,7 @@ class CalibrationAPI(object):
             abort_on_error = False,
             )
 
-        # self.make_pattern_fit()
+        self.make_pattern_fit()
         self._controller.start()
 
     '''Used to show a single point with no calibration applied'''
@@ -211,6 +212,7 @@ class CalibrationAPI(object):
                 lowest = abs(x)
             if abs(y) < lowest:
                 lowest = abs(y)
+        logging.info("Calulated max radius of object as: %s mm" % lowest) 
         return lowest
 
     def stop(self):
