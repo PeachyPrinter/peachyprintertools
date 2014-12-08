@@ -156,6 +156,7 @@ class PrintStatusUI(PeachyFrame):
         self._current_height = StringVar()
         self._current_model_height = StringVar()
         self._current_drips = IntVar()
+        self._current_drips_per_second = DoubleVar()
         self._waiting_for_drips = StringVar()
         self._skipped_layers = IntVar()
         self._status = StringVar()
@@ -177,6 +178,9 @@ class PrintStatusUI(PeachyFrame):
 
         Label(self, text = "Drips" ).grid(column=0,row=40)
         Label(self, textvariable = self._current_drips ).grid(column=1,row=40)
+
+        Label(self, text = "Drips Per Second" ).grid(column=0,row=45)
+        Label(self, textvariable = self._current_drips_per_second).grid(column=1,row=45)
 
         Label(self, text = "Waiting for drips" ).grid(column=0,row=50)
         Label(self, textvariable = self._waiting_for_drips ).grid(column=1,row=50)
@@ -239,6 +243,7 @@ class PrintStatusUI(PeachyFrame):
         self._current_height.set("%.2f" % status['height'])
         self._current_model_height.set("%.2f" % status['model_height'])
         self._current_drips.set(status['drips'])
+        self._current_drips_per_second.set(status['drips_per_second'])
         self._waiting_for_drips.set("Yes" if status['waiting_for_drips'] else "No")
         self._skipped_layers.set(status['skipped_layers'])
         self._status.set(status['status'])
