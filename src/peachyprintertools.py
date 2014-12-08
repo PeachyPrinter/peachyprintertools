@@ -50,9 +50,17 @@ def setup_logging(args):
     if not isinstance(logging_level, int):
         raise ValueError('Invalid log level: %s' % args.loglevel)
     if args.console:
-        logging.basicConfig(stream = sys.stdout,format=logging_format, level=logging_level)
+        rootLogger = logging.getLogger()
+        logFormatter = logging.Formatter(logging_format)
+        fileHandler = logging.FileHandler(logfile)
+        fileHandler.setFormatter(logFormatter)
+        rootLogger.addHandler(fileHandler)
+        consoleHandler = logging.StreamHandler()
+        consoleHandler.setFormatter(logFormatter)
+        rootLogger.addHandler(consoleHandler)
     else:
         logging.basicConfig(filename = logfile ,format=logging_format, level=logging_level)
+
 
 if __name__ == "__main__":
     if not os.path.exists(config.PEACHY_PATH):
