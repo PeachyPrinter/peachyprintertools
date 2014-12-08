@@ -6,6 +6,7 @@ import config
 import argparse
 import os
 import sys
+import time
 from Tkinter import *
 from infrastructure.configuration import FileBasedConfigurationManager
 from api.configuration_api import ConfigurationAPI
@@ -42,7 +43,11 @@ class PeachyPrinterTools(Tk):
         sys.exit(0)
 
 def setup_logging(args):
-    logfile = os.path.join(config.PEACHY_PATH,'peachyprinter.log' )
+    if args.devmode:
+        timestr = time.strftime("%Y-%m-%d-%H:%M:%S")
+        logfile = os.path.join(config.PEACHY_PATH,'peachyprinter-%s.log' % timestr )
+    else:  
+        logfile = os.path.join(config.PEACHY_PATH,'peachyprinter.log' )
     if os.path.isfile(logfile):
         os.remove(logfile)
     logging_format = '%(levelname)s: %(asctime)s %(module)s - %(message)s'
