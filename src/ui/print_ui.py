@@ -192,11 +192,58 @@ class PrintStatusUI(PeachyFrame):
         Label(self, textvariable = self._status).grid(column=1,row=60)
 
         self.options_frame = LabelFrame(self, text="In Print Options", padx=5, pady=5)
-        self.options_frame.grid(column=12,row=10,rowspan = 60,sticky=N+S+E+W)
+        self.options_frame.grid(column=4,row=0,rowspan = 60,sticky=N+S+E+W)
         self.options_frame.grid_remove()
 
         Label(self.options_frame, text = 'Drips Per Second').grid(column=0,row=10)
         RylanSpinbox(self.options_frame, from_=0.0, to=100.0, increment= 0.1, command = self._dps_changed, textvariable = self._drips_per_second_setting).grid(column=1,row=10)
+
+        Label(self).grid(column=0,row=64)
+
+        self.settings_frame = LabelFrame(self, text="Current Settings", padx=5, pady=5)
+        self.settings_frame.grid(column=0,row=65,columnspan = 13,sticky=N+S+E+W)
+        CONFIG_OPTION = "NOTHING"
+        self.setting_sublayers = StringVar()
+        Label(self.settings_frame, text = "Sublayers (mm): ").grid(column=0,row=10, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_sublayers ).grid(column=1,row=10,sticky=W, padx=10)
+        self.setting_overlap = StringVar()
+        Label(self.settings_frame, text = "Overlap (mm): ").grid(column=0,row=20, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_overlap ).grid(column=1,row=20,sticky=W, padx=10)
+        self.setting_shuffled = StringVar()
+        Label(self.settings_frame, text = "Shuffling Starting Points: ").grid(column=0,row=30, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_shuffled ).grid(column=1,row=30,sticky=W, padx=10)
+        self.setting_lead_distance = StringVar()
+        Label(self.settings_frame, text = "Maximum Lead Distance (mm): ").grid(column=0,row=40, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_lead_distance ).grid(column=1,row=40,sticky=W, padx=10)
+        self.setting_wait_after_move = StringVar()
+        Label(self.settings_frame, text = "Wait After Move (ms): ").grid(column=0,row=50, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_wait_after_move ).grid(column=1,row=50,sticky=W, padx=10)
+        self.setting_scale = StringVar()
+        Label(self.settings_frame, text = "Scale: ").grid(column=0,row=60, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_scale).grid(column=1,row=60,sticky=W, padx=10)
+        self.setting_spot_size = StringVar()
+        Label(self.settings_frame, text = "Laser Spot Diameter: ").grid(column=0,row=70, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_spot_size ).grid(column=1,row=70,sticky=W, padx=10)
+        self.setting_speed = StringVar()
+        Label(self.settings_frame, text = "Speed (mm/s): ").grid(column=0,row=80, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_speed ).grid(column=1,row=80,sticky=W, padx=10)
+       
+        self.setting_audio_depth = StringVar()
+        Label(self.settings_frame, text = "Audio Depth: ").grid(column=3,row=10, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_audio_depth ).grid(column=4,row=10,sticky=W, padx=10)
+        self.setting_audio_hz = StringVar()
+        Label(self.settings_frame, text = "Audio Frequency: ").grid(column=3,row=20, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_audio_hz ).grid(column=4,row=20,sticky=W, padx=10)
+        self.setting_mod_on = StringVar()
+        Label(self.settings_frame, text = "Modulation on: ").grid(column=3,row=30, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_mod_on ).grid(column=4,row=30,sticky=W, padx=10)
+        self.setting_mod_off = StringVar()
+        Label(self.settings_frame, text = "Modulation off: ").grid(column=3,row=40, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_mod_off ).grid(column=4,row=40,sticky=W, padx=10)
+        self.setting_dripmm = StringVar()
+        Label(self.settings_frame, text = "Drips per mm: ").grid(column=3,row=50, sticky=E)
+        Label(self.settings_frame, textvariable = self.setting_dripmm ).grid(column=4,row=50,sticky=W, padx=10)
+
 
         Label(self).grid(column=0,row=70)
         
@@ -207,11 +254,38 @@ class PrintStatusUI(PeachyFrame):
         
         self.update()
 
+    def _load_config_data(self):
+        if self._print_api.configuration.options.use_sublayers:
+            self.setting_sublayers.set(self._print_api.configuration.options.sublayer_height_mm)
+        else:
+            self.setting_sublayers.set("Disabled")
+        if self._print_api.configuration.options.use_overlap:
+            self.setting_overlap.set(self._print_api.configuration.options.overlap_amount)
+        else:
+            self.setting_overlap.set("Disabled")
+        if self._print_api.configuration.options.use_shufflelayers:
+            self.setting_shuffled.set("Enabled")
+        else:
+            self.setting_shuffled.set("Disabled")
+        self.setting_lead_distance.set(self._print_api.configuration.dripper.max_lead_distance_mm)
+        self.setting_wait_after_move.set(self._print_api.configuration.options.wait_after_move_milliseconds)
+        self.setting_scale.set(self._print_api.configuration.options.scaling_factor)
+        self.setting_spot_size.set(self._print_api.configuration.options.laser_thickness_mm)
+        self.setting_speed.set(self._print_api.configuration.cure_rate.draw_speed)
+
+        self.setting_audio_depth.set(self._print_api.configuration.audio.output.bit_depth)
+        self.setting_audio_hz.set(self._print_api.configuration.audio.output.sample_rate)
+        self.setting_mod_on.set(self._print_api.configuration.audio.output.modulation_on_frequency)
+        self.setting_mod_off.set(self._print_api.configuration.audio.output.modulation_off_frequency)
+        self.setting_dripmm.set(self._print_api.configuration.dripper.drips_per_mm)
+
+
     def _start_printing(self):
         self._stop_button_text.set("Abort Print")
         
         if 'filename' in self.kwargs:
             self._print_api = PrintAPI(self.kwargs['config'],status_call_back = self.status_call_back)
+            self._load_config_data()
             file_name = self.kwargs['filename']
             self._print_api.print_gcode(file_name)
             if self._print_api.can_set_drips_per_second():

@@ -84,6 +84,9 @@ class PrintAPI(object):
         else:
             self._notification_service = None
 
+    @property
+    def configuration(self):
+        return self._configuration
 
     def print_gcode(self, file_name, print_sub_layers = True, dry_run = False):
         self._current_file_name = file_name
