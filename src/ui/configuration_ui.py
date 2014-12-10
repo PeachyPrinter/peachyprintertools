@@ -184,10 +184,10 @@ class SetupOptionsUI(PeachyFrame):
         self._serial_port_entry = Entry(serial_frame,textvariable=self._serial_port)
         self._serial_port_entry.grid(column=1, row=20, columnspan= 3)
 
-        Label(serial_frame,text="Camera On").grid(column=0, row=30,sticky=N+S+E)
+        Label(serial_frame,text="Dripper On").grid(column=0, row=30,sticky=N+S+E)
         self._serial_on_entry = Entry(serial_frame,textvariable=self._serial_on_command, width = 2)
         self._serial_on_entry.grid(column=1, row=30)
-        Label(serial_frame,text="Camera Off").grid(column=0, row=40,sticky=N+S+E)
+        Label(serial_frame,text="Dripper Off").grid(column=0, row=40,sticky=N+S+E)
         self._serial_off_entry = Entry(serial_frame,textvariable=self._serial_off_command, width = 2)
         self._serial_off_entry.grid(column=1, row=40)
 
