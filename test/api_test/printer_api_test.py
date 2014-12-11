@@ -592,6 +592,17 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.mock_audio_drip_zaxis.set_call_back.assert_called_with(self.mock_machine_status.drip_call_back)
 
+    def test_configuration_returns_configuration(self, *args):
+        self.setup_mocks(args)
+        gcode_path = "FakeFile"
+        config = self.default_config
+        config.email.on = True
+        api = PrintAPI(config)
+
+        self.assertEqual(config,api.configuration)
+    
+
+
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
