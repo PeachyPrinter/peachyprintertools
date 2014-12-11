@@ -63,6 +63,7 @@ def setup_logging(args):
         consoleHandler = logging.StreamHandler()
         consoleHandler.setFormatter(logFormatter)
         rootLogger.addHandler(consoleHandler)
+        rootLogger.setLevel(logging_level)
     else:
         logging.basicConfig(filename = logfile ,format=logging_format, level=logging_level)
 
