@@ -239,7 +239,7 @@ class LayerProcessingTest(unittest.TestCase):
         self.assertEquals(1, status.status()['skipped_layers'],"Was: %s" % status.status()['skipped_layers'])
         self.assertEquals(0, mock_writer.process_layer.call_count)
 
-    def test_process_should_print_while_dripping_until_max_lead(self, mock_ZAxis, mock_Writer):
+    def test_process_should_print_while_dripping_until_half_max_lead(self, mock_ZAxis, mock_Writer):
         max_lead_distance = 1.0
         mock_writer = mock_Writer.return_value
         mock_zaxis = mock_ZAxis.return_value
@@ -253,7 +253,7 @@ class LayerProcessingTest(unittest.TestCase):
 
         self.assertEquals(0, status.status()['skipped_layers'])
         self.assertEquals(1, mock_writer.process_layer.call_count)
-        mock_zaxis.move_to.assert_has_calls([call(2.0)])
+        mock_zaxis.move_to.assert_has_calls([call(1.5)])
 
     def test_process_should_ignore_z_in_layer_if_z_axis_none(self, mock_ZAxis, mock_Writer):
         mock_writer = mock_Writer.return_value
