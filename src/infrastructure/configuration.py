@@ -193,6 +193,7 @@ class OptionsConfiguration(ConfigurationBase):
         self._scaling_factor = self.get(source, u'scaling_factor',1.0)
         self._overlap_amount = self.get(source, u'overlap_amount',1.0)
         self._use_shufflelayers = self.get(source, u'use_shufflelayers', True)
+        
         self._use_sublayers = self.get(source, u'use_sublayers', False)
         self._use_overlap = self.get(source, u'use_overlap',True)
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)

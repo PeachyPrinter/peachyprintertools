@@ -11,8 +11,9 @@ from mock import patch, MagicMock,mock_open
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
 
+from infrastructure.configuration import *
 from infrastructure.configuration import FileBasedConfigurationManager as ConfigurationManager
-from infrastructure.configuration import Configuration, ConfigurationGenerator, EmailConfiguration, CureRateConfiguration
+
 import test_helpers
 
 
@@ -130,18 +131,8 @@ class EmailConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_sender, config.email.sender )
         self.assertEquals(expected_recipient, config.email.recipient )
 
-class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
-
+class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
-        expected_name = True
-
-        expected_output_bit_depth = True
-        expected_output_sample_frequency = True
-        expected_on_modulation_frequency = True
-        expected_off_modulation_frequency = True
-        expected_input_bit_depth = True
-        expected_input_sample_frequency = True
-
         expected_sublayer_height_mm = True
         expected_laser_thickness_mm = True
         expected_laser_offset = True
@@ -154,6 +145,96 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_pre_layer_delay = True
         expected_wait_after_move_milliseconds = True
 
+
+        options_config = OptionsConfiguration()
+
+        with self.assertRaises(Exception):
+            options_config.options.sublayer_height_mm = expected_sublayer_height_mm
+        with self.assertRaises(Exception):
+            options_config.options.laser_thickness_mm = expected_laser_thickness_mm
+        with self.assertRaises(Exception):
+            options_config.options.scaling_factor = expected_scaling_factor
+        with self.assertRaises(Exception):
+            options_config.options.laser_offset = expected_laser_offset
+        with self.assertRaises(Exception):
+            options_config.options.overlap_amount = expected_overlap_amount
+        with self.assertRaises(Exception):
+            options_config.options.use_shufflelayers = expected_use_shufflelayers
+        with self.assertRaises(Exception):
+            options_config.options.use_sublayers = expected_use_sublayers
+        with self.assertRaises(Exception):
+            options_config.options.use_overlap = expected_use_overlap
+        with self.assertRaises(Exception):
+            options_config.options.print_queue_delay = expected_print_queue_delay
+        with self.assertRaises(Exception):
+            options_config.options.pre_layer_delay = expected_pre_layer_delay
+        with self.assertRaises(Exception):
+            options_config.options.wait_after_move_milliseconds = expected_wait_after_move_milliseconds
+
+    def test_can_create_json_and_load_from_json(self):
+        expected_sublayer_height_mm = 0.
+        expected_laser_thickness_mm = 0.1
+        expected_scaling_factor = 1.0
+        expected_overlap_amount = 1.0 
+        expected_use_shufflelayers = True
+        expected_use_sublayers = True
+        expected_use_overlap = True
+        expected_print_queue_delay = 0.0
+        expected_pre_layer_delay = 1.0
+        expected_wait_after_move_milliseconds = 5
+        expected_laser_offset = [ 0.1, 0.1]
+
+
+        original_config = Configuration()
+
+        original_config.options.sublayer_height_mm           = expected_sublayer_height_mm
+        original_config.options.laser_thickness_mm           = expected_laser_thickness_mm
+        original_config.options.laser_offset                 = expected_laser_offset
+        original_config.options.overlap_amount               = expected_overlap_amount
+        original_config.options.use_shufflelayers            = expected_use_shufflelayers
+        original_config.options.use_sublayers                = expected_use_sublayers
+        original_config.options.use_overlap                  = expected_use_overlap
+        original_config.options.print_queue_delay            = expected_print_queue_delay
+        original_config.options.pre_layer_delay              = expected_pre_layer_delay
+        original_config.options.wait_after_move_milliseconds = expected_wait_after_move_milliseconds
+        original_config.options.scaling_factor               = expected_scaling_factor
+
+        actual_json = json.loads(original_config.toJson())
+        config = Configuration(source = actual_json)
+
+        self.assertEquals(type(expected_sublayer_height_mm), type(config.options.sublayer_height_mm) )
+        self.assertEquals(type(expected_laser_thickness_mm), type(config.options.laser_thickness_mm) )
+        self.assertEquals(type(expected_laser_offset), type(config.options.laser_offset) )
+        self.assertEquals(type(expected_scaling_factor), type(config.options.scaling_factor) )
+        self.assertEquals(type(expected_overlap_amount), type(config.options.overlap_amount) )
+        self.assertEquals(type(expected_use_shufflelayers), type(config.options.use_shufflelayers) )
+        self.assertEquals(type(expected_use_sublayers), type(config.options.use_sublayers) )
+        self.assertEquals(type(expected_use_overlap), type(config.options.use_overlap) )
+        self.assertEquals(type(expected_pre_layer_delay), type(config.options.pre_layer_delay) )
+        self.assertEquals(type(expected_wait_after_move_milliseconds), type(config.options.wait_after_move_milliseconds) )
+
+        self.assertEquals(expected_sublayer_height_mm, config.options.sublayer_height_mm )
+        self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm )
+        self.assertEquals(expected_laser_offset, config.options.laser_offset )
+        self.assertEquals(expected_scaling_factor, config.options.scaling_factor )
+        self.assertEquals(expected_overlap_amount, config.options.overlap_amount )
+        self.assertEquals(expected_use_shufflelayers, config.options.use_shufflelayers )
+        self.assertEquals(expected_use_sublayers, config.options.use_sublayers )
+        self.assertEquals(expected_use_overlap, config.options.use_overlap )
+        self.assertEquals(expected_pre_layer_delay, config.options.pre_layer_delay )
+        self.assertEquals(expected_wait_after_move_milliseconds, config.options.wait_after_move_milliseconds )
+
+class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
+
+    def test_set_should_fail_for_incorrect_values(self):
+        expected_name = True
+
+        expected_output_bit_depth = True
+        expected_output_sample_frequency = True
+        expected_on_modulation_frequency = True
+        expected_off_modulation_frequency = True
+        expected_input_bit_depth = True
+        expected_input_sample_frequency = True
 
         expected_drips_per_mm = True
         expected_dripper_type = True
@@ -213,29 +294,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             config.calibration.max_deflection = expected_max_deflection
 
         with self.assertRaises(Exception):
-            config.options.sublayer_height_mm = expected_sublayer_height_mm
-        with self.assertRaises(Exception):
-            config.options.laser_thickness_mm = expected_laser_thickness_mm
-        with self.assertRaises(Exception):
-            config.options.scaling_factor = expected_scaling_factor
-        with self.assertRaises(Exception):
-            config.options.laser_offset = expected_laser_offset
-        with self.assertRaises(Exception):
-            config.options.overlap_amount = expected_overlap_amount
-        with self.assertRaises(Exception):
-            config.options.use_shufflelayers = expected_use_shufflelayers
-        with self.assertRaises(Exception):
-            config.options.use_sublayers = expected_use_sublayers
-        with self.assertRaises(Exception):
-            config.options.use_overlap = expected_use_overlap
-        with self.assertRaises(Exception):
-            config.options.print_queue_delay = expected_print_queue_delay
-        with self.assertRaises(Exception):
-            config.options.pre_layer_delay = expected_pre_layer_delay
-        with self.assertRaises(Exception):
-            config.options.wait_after_move_milliseconds = expected_wait_after_move_milliseconds
-
-        with self.assertRaises(Exception):
             config.serial.on = expected_use_serial_zaxis
         with self.assertRaises(Exception):
             config.serial.port = expected_serial_port
@@ -261,29 +319,16 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_input_bit_depth = "8"
         expected_input_sample_frequency = 4800
 
-        expected_sublayer_height_mm = 0.
-        expected_laser_thickness_mm = 0.1
-        expected_scaling_factor = 1.0
-        
         expected_drips_per_mm = 10.1
         expected_dripper_type = "audio"
         expected_dripper_emulated_drips_per_second = 1.0
         expected_max_lead_distance_mm = 0.2
         expected_photo_zaxis_delay = 2.0
 
-        expected_overlap_amount = 1.0 
-        expected_use_shufflelayers = True
-        expected_use_sublayers = True
-        expected_use_overlap = True
-        expected_print_queue_delay = 0.0
-        expected_pre_layer_delay = 1.0
-        expected_wait_after_move_milliseconds = 5
-
         expected_max_deflection = 75.2
         expected_calibration_height = 1.0
         expected_calibration_lower_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
         expected_calibration_upper_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
-        expected_laser_offset = [ 0.1, 0.1]
         
         expected_use_serial_zaxis = True
         expected_serial_port = "COM2"
@@ -303,17 +348,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.audio.output.modulation_off_frequency= expected_off_modulation_frequency
         original_config.audio.input.bit_depth                = expected_input_bit_depth
         original_config.audio.input.sample_rate              = expected_input_sample_frequency
-
-        original_config.options.sublayer_height_mm           = expected_sublayer_height_mm
-        original_config.options.laser_thickness_mm           = expected_laser_thickness_mm
-        original_config.options.laser_offset                 = expected_laser_offset
-        original_config.options.overlap_amount               = expected_overlap_amount
-        original_config.options.use_shufflelayers            = expected_use_shufflelayers
-        original_config.options.use_sublayers                = expected_use_sublayers
-        original_config.options.use_overlap                  = expected_use_overlap
-        original_config.options.print_queue_delay            = expected_print_queue_delay
-        original_config.options.pre_layer_delay              = expected_pre_layer_delay
-        original_config.options.wait_after_move_milliseconds = expected_wait_after_move_milliseconds
         
         original_config.dripper.drips_per_mm                 = expected_drips_per_mm
         original_config.dripper.dripper_type                 = expected_dripper_type
@@ -325,7 +359,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.calibration.height                   = expected_calibration_height
         original_config.calibration.lower_points             = expected_calibration_lower_points
         original_config.calibration.upper_points             = expected_calibration_upper_points
-        original_config.options.scaling_factor               = expected_scaling_factor
 
         original_config.serial.on                            = expected_use_serial_zaxis
         original_config.serial.port                          = expected_serial_port
@@ -352,17 +385,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(type(expected_input_bit_depth), type(config.audio.input.bit_depth) )
         self.assertEquals(expected_input_bit_depth, config.audio.input.bit_depth )
         self.assertEquals(expected_input_sample_frequency, config.audio.input.sample_rate )
-
-        self.assertEquals(expected_sublayer_height_mm, config.options.sublayer_height_mm )
-        self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm )
-        self.assertEquals(expected_laser_offset, config.options.laser_offset )
-        self.assertEquals(expected_scaling_factor, config.options.scaling_factor )
-        self.assertEquals(expected_overlap_amount, config.options.overlap_amount )
-        self.assertEquals(expected_use_shufflelayers, config.options.use_shufflelayers )
-        self.assertEquals(expected_use_sublayers, config.options.use_sublayers )
-        self.assertEquals(expected_use_overlap, config.options.use_overlap )
-        self.assertEquals(expected_pre_layer_delay, config.options.pre_layer_delay )
-        self.assertEquals(expected_wait_after_move_milliseconds, config.options.wait_after_move_milliseconds )
         
         self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm )
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )

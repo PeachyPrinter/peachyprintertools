@@ -600,8 +600,6 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         api = PrintAPI(config)
 
         self.assertEqual(config,api.configuration)
-    
-
 
 
 if __name__ == '__main__':
