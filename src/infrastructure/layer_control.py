@@ -136,7 +136,7 @@ class LayerProcessing():
             self._status.add_layer()
             self._status.set_model_height(layer.z)
             if self._zaxis:
-                self._zaxis.move_to(layer.z + self._max_lead_distance)
+                self._zaxis.move_to(layer.z + self._max_lead_distance / 2.0)
                 self._wait_till(layer.z)
                 ahead_by = self._zaxis.current_z_location_mm() - layer.z
             if self._should_process(ahead_by):
