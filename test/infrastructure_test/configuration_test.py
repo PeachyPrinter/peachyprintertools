@@ -138,7 +138,7 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_laser_offset = True
         expected_scaling_factor = True
         expected_overlap_amount = True
-        expected_shufflelayers_frequency = True
+        expected_shuffle_layers_amount = True
         expected_use_shufflelayers = "WRONG"
         expected_use_sublayers = "WRONG"
         expected_use_overlap = "WRONG"
@@ -151,7 +151,7 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         options_config = OptionsConfiguration()
 
         with self.assertRaises(Exception):
-            options_config.options.shufflelayers_frequency = expected_shufflelayers_frequency
+            options_config.options.shuffle_layers_amount = expected_shuffle_layers_amount
         with self.assertRaises(Exception):
             options_config.options.post_fire_delay = expected_post_fire_delay
         with self.assertRaises(Exception):
@@ -178,7 +178,7 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             options_config.options.wait_after_move_milliseconds = expected_wait_after_move_milliseconds
 
     def test_can_create_json_and_load_from_json(self):
-        expected_shufflelayers_frequency = 1.0
+        expected_shuffle_layers_amount = 1.0
         expected_post_fire_delay = 5
         expected_sublayer_height_mm = 0.
         expected_laser_thickness_mm = 0.1
@@ -194,7 +194,7 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
 
 
         original_config = Configuration()
-        original_config.options.shufflelayers_frequency      = expected_shufflelayers_frequency
+        original_config.options.shuffle_layers_amount        = expected_shuffle_layers_amount
         original_config.options.post_fire_delay              = expected_post_fire_delay
         original_config.options.sublayer_height_mm           = expected_sublayer_height_mm
         original_config.options.laser_thickness_mm           = expected_laser_thickness_mm
@@ -211,7 +211,7 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         actual_json = json.loads(original_config.toJson())
         config = Configuration(source = actual_json)
   
-        self.assertEquals(type(expected_shufflelayers_frequency), type(config.options.shufflelayers_frequency) )
+        self.assertEquals(type(expected_shuffle_layers_amount), type(config.options.shuffle_layers_amount) )
         self.assertEquals(type(expected_post_fire_delay), type(config.options.post_fire_delay) )
         self.assertEquals(type(expected_sublayer_height_mm), type(config.options.sublayer_height_mm) )
         self.assertEquals(type(expected_laser_thickness_mm), type(config.options.laser_thickness_mm) )
@@ -224,7 +224,7 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(type(expected_pre_layer_delay), type(config.options.pre_layer_delay) )
         self.assertEquals(type(expected_wait_after_move_milliseconds), type(config.options.wait_after_move_milliseconds) )
 
-        self.assertEquals(expected_shufflelayers_frequency, config.options.shufflelayers_frequency )
+        self.assertEquals(expected_shuffle_layers_amount, config.options.shuffle_layers_amount )
         self.assertEquals(expected_post_fire_delay, config.options.post_fire_delay )
         self.assertEquals(expected_sublayer_height_mm, config.options.sublayer_height_mm )
         self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm )

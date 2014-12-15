@@ -187,7 +187,7 @@ class EmailConfiguration(ConfigurationBase):
 
 class OptionsConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._shufflelayers_frequency = self.get(source, u'shufflelayers_frequency', 1.0)
+        self._shuffle_layers_amount = self.get(source, u'shuffle_layers_amount', 1.0)
         self._post_fire_delay = self.get(source, u'post_fire_delay', 5)
         self._laser_offset = self.get(source, u'laser_offset', [0.0,0.0])
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm', 0.01)
@@ -215,14 +215,14 @@ class OptionsConfiguration(ConfigurationBase):
             raise ValueError("Post Fire Delay must be of %s" % (str(_type)))
 
     @property
-    def shufflelayers_frequency(self):
-        return self._shufflelayers_frequency
+    def shuffle_layers_amount(self):
+        return self._shuffle_layers_amount
 
-    @shufflelayers_frequency.setter
-    def shufflelayers_frequency(self, value):
+    @shuffle_layers_amount.setter
+    def shuffle_layers_amount(self, value):
         _type = types.FloatType
         if type(value) == _type:
-            self._pre_layer_delay = value
+            self._shuffle_layers_amount = value
         else:
             raise ValueError("Shuffle Layers must be of %s" % (str(_type)))
 

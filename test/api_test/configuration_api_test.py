@@ -878,6 +878,33 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_shuffle_amount_returns_the_amount(self, mock_load):
+        expected = 0.1
+        expected_config = self.default_config
+        expected_config.options.shuffle_layers_amount = expected
+        mock_load.return_value =  expected_config
+
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_shuffle_layers_amount())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_shuffle_layers_amount_returns_amount(self, mock_save, mock_load):
+        shuffle_layers_amount = 7.0
+        config =  self.default_config
+        expected = config
+        expected.options.shuffle_layers_amount = shuffle_layers_amount
+        mock_load.return_value =  config 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_shuffle_layers_amount(shuffle_layers_amount)
+
+        self.assertEquals(shuffle_layers_amount,configuration_API.get_shuffle_layers_amount())
+        mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_overlap_amount_mm_returns_the_overlap(self, mock_load):

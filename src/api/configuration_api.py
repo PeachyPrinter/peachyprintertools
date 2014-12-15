@@ -439,6 +439,18 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Overlap Amount must be a positive floating point number")
 
+    '''Gets the Shuffle Layers Amount for each layer'''
+    def get_shuffle_layers_amount(self):
+        return self._current_config.options.shuffle_layers_amount
+
+    '''Sets the Shuffle Layers Amount for each layer'''
+    def set_shuffle_layers_amount(self, shuffle_layers_amount):
+        if self._positive_float(shuffle_layers_amount):
+            self._current_config.options.shuffle_layers_amount = shuffle_layers_amount
+            self.save()
+        else:
+            raise Exception("Shuffle Layers Amount must be a positive floating point number")
+
     '''Gets the Shuffle layers setting'''
     def get_use_shufflelayers(self):
         return self._current_config.options.use_shufflelayers
