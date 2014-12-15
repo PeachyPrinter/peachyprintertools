@@ -187,18 +187,44 @@ class EmailConfiguration(ConfigurationBase):
 
 class OptionsConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
+        self._shufflelayers_frequency = self.get(source, u'shufflelayers_frequency', 1.0)
+        self._post_fire_delay = self.get(source, u'post_fire_delay', 5)
         self._laser_offset = self.get(source, u'laser_offset', [0.0,0.0])
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm', 0.01)
         self._laser_thickness_mm = self.get(source, u'laser_thickness_mm',0.5)
         self._scaling_factor = self.get(source, u'scaling_factor',1.0)
         self._overlap_amount = self.get(source, u'overlap_amount',1.0)
         self._use_shufflelayers = self.get(source, u'use_shufflelayers', True)
-        
+
         self._use_sublayers = self.get(source, u'use_sublayers', False)
         self._use_overlap = self.get(source, u'use_overlap',True)
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
         self._pre_layer_delay = self.get(source, u'pre_layer_delay',0.0)
         self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds',5)
+
+    @property
+    def post_fire_delay(self):
+        return self._post_fire_delay
+
+    @post_fire_delay.setter
+    def post_fire_delay(self, value):
+        _type = types.IntType
+        if type(value) == _type:
+            self._wait_after_move_milliseconds = value
+        else:
+            raise ValueError("Post Fire Delay must be of %s" % (str(_type)))
+
+    @property
+    def shufflelayers_frequency(self):
+        return self._shufflelayers_frequency
+
+    @shufflelayers_frequency.setter
+    def shufflelayers_frequency(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._pre_layer_delay = value
+        else:
+            raise ValueError("Shuffle Layers must be of %s" % (str(_type)))
 
     @property
     def wait_after_move_milliseconds(self):
