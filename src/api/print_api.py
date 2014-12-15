@@ -101,7 +101,7 @@ class PrintAPI(object):
         if self._configuration.options.use_sublayers and print_sub_layers:
             layer_generator = SubLayerGenerator(layer_generator, self._configuration.options.sublayer_height_mm)
         if self._configuration.options.use_shufflelayers:
-            layer_generator = ShuffleGenerator(layer_generator)
+            layer_generator = ShuffleGenerator(layer_generator,self._configuration.options.shuffle_layers_amount)
         if self._configuration.options.use_overlap:
             layer_generator = OverLapGenerator(layer_generator, self._configuration.options.overlap_amount)
             

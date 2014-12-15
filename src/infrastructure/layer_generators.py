@@ -429,8 +429,9 @@ class SubLayerGenerator(LayerGenerator):
             self._running = False
 
 class ShuffleGenerator(LayerGenerator):
-    def __init__(self,layer_generator):
+    def __init__(self,layer_generator,amount):
         self._layer_generator = layer_generator
+        self._amount = amount
         self._shuffle_point = 0
 
     def __iter__(self):
@@ -444,9 +445,9 @@ class ShuffleGenerator(LayerGenerator):
 
     def _shuffle(self, layer):
         if self._shuffle_point >= len(layer.commands):
-            self._shuffle_point = 0
-        layer.commands = layer.commands[self._shuffle_point:] + layer.commands[:self._shuffle_point]
-        self._shuffle_point +=1
+            self._shuffle_point = 0.0
+        layer.commands = layer.commands[int(self._shuffle_point):] + layer.commands[:int(self._shuffle_point)]
+        self._shuffle_point += self._amount
         return layer
 
     def _load_layer(self):

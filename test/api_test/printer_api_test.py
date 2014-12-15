@@ -446,7 +446,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             api.print_gcode(gcode_path)
 
         self.mock_SubLayerGenerator.assert_called_with("LayerGenerator", config.options.sublayer_height_mm)
-        self.mock_ShuffleGenerator.assert_called_with(self.mock_sub_layer_generator)
+        self.mock_ShuffleGenerator.assert_called_with(self.mock_sub_layer_generator,config.options.shuffle_layers_amount)
         self.mock_OverLapGenerator.assert_called_with(self.mock_shuffle_generator,config.options.overlap_amount)
         
 
