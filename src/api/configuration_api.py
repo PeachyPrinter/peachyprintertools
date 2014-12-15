@@ -439,6 +439,18 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Overlap Amount must be a positive floating point number")
 
+    '''Gets the Post Fire Delay for each layer'''
+    def get_post_fire_delay(self):
+        return self._current_config.options.post_fire_delay
+
+    '''Sets the Post Fire Delay for each layer'''
+    def set_post_fire_delay(self, post_fire_delay):
+        if self._zero_or_positive_int(post_fire_delay):
+            self._current_config.options.post_fire_delay = post_fire_delay
+            self.save()
+        else:
+            raise Exception("Post Fire Delay must be a positive integer number")
+
     '''Gets the Shuffle Layers Amount for each layer'''
     def get_shuffle_layers_amount(self):
         return self._current_config.options.shuffle_layers_amount

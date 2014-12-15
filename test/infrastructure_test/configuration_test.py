@@ -210,7 +210,7 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
 
         actual_json = json.loads(original_config.toJson())
         config = Configuration(source = actual_json)
-  
+
         self.assertEquals(type(expected_shuffle_layers_amount), type(config.options.shuffle_layers_amount) )
         self.assertEquals(type(expected_post_fire_delay), type(config.options.post_fire_delay) )
         self.assertEquals(type(expected_sublayer_height_mm), type(config.options.sublayer_height_mm) )

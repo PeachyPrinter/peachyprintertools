@@ -210,7 +210,7 @@ class OptionsConfiguration(ConfigurationBase):
     def post_fire_delay(self, value):
         _type = types.IntType
         if type(value) == _type:
-            self._wait_after_move_milliseconds = value
+            self._post_fire_delay = value
         else:
             raise ValueError("Post Fire Delay must be of %s" % (str(_type)))
 
