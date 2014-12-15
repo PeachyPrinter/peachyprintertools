@@ -67,6 +67,7 @@ class LayerWriter():
             self._laser_control.set_laser_off()
         else:
             self._laser_control.set_laser_on()
+        if laser_was_off and self._post_fire_delay_speed:
             self._write_lateral(self._state.x,self._state.y,self._state.z,self._post_fire_delay_speed)
         self._write_lateral(to_x,to_y,to_z,speed)
     

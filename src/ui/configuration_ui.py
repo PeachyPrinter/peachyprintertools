@@ -114,6 +114,8 @@ class SetupOptionsUI(PeachyFrame):
         self.scaling_factor_entry_text.set(self._configuration_api.get_scaling_factor())
         self.wait_after_move_entry_text =IntVar()
         self.wait_after_move_entry_text.set(self._configuration_api.get_wait_after_move_milliseconds())
+        self.post_fire_delay_entry_text =IntVar()
+        self.post_fire_delay_entry_text.set(self._configuration_api.get_post_fire_delay())
 
         self._use_sublayers = IntVar()
         self._use_sublayers.set(self._configuration_api.get_use_sublayers())
@@ -124,6 +126,8 @@ class SetupOptionsUI(PeachyFrame):
 
         self.sublayer_height_entry_text = DoubleVar()
         self.sublayer_height_entry_text.set(self._configuration_api.get_sublayer_height_mm())
+        self._shuffle_layers_amount = DoubleVar()
+        self._shuffle_layers_amount.set(self._configuration_api.get_shuffle_layers_amount())
         self.overlap_amount_entry_text = DoubleVar()
         self.overlap_amount_entry_text.set(self._configuration_api.get_overlap_amount_mm())
 
@@ -145,17 +149,22 @@ class SetupOptionsUI(PeachyFrame):
         Label(self, text = "Wait After Move (milliseconds) [5]" ).grid(column=2,row=40,sticky=N+S+E)
         Entry(self, textvariable = self.wait_after_move_entry_text, width = 6).grid(column=3, row=40,sticky=N+S+W)
 
+        Label(self, text = "Laser Post Fire Delay (milliseconds) [5]" ).grid(column=2,row=45,sticky=N+S+E)
+        Entry(self, textvariable = self.post_fire_delay_entry_text, width = 6).grid(column=3, row=45,sticky=N+S+W)
+
         Label(self).grid(column=1,row=50)
 
         Checkbutton(self, text="Use Sublayers", variable = self._use_sublayers, command=self._update_field_visibility).grid(column=0, row = 60, sticky=W)
         Entry(self, textvariable = self.sublayer_height_entry_text).grid(column=1, row=60)
         Label(self, text = "Sublayer Size (mm) [0.01]" ).grid(column=2,row=60,sticky=N+S+W)
 
-        Checkbutton(self, text="Use Overlap", variable = self._use_shufflelayers, command=self._update_field_visibility).grid(column=0, row = 70, sticky=W)
+        Checkbutton(self, text="Use Overlap", variable = self._use_overlap, command=self._update_field_visibility).grid(column=0, row = 70, sticky=W)
         Entry(self, textvariable = self.overlap_amount_entry_text).grid(column=1, row=70)
         Label(self, text = "Overlap Amount (mm) [1.0]" ).grid(column=2,row=70,sticky=N+S+W)
 
-        Checkbutton(self, text="Use Shuffled Starting Points", variable = self._use_overlap, command=self._update_field_visibility).grid(column=0, row = 80, sticky=W)
+        Checkbutton(self, text="Use Shuffled Starting Points", variable = self._use_shufflelayers, command=self._update_field_visibility).grid(column=0, row = 80, sticky=W)
+        Entry(self, textvariable = self._shuffle_layers_amount).grid(column=1, row=80)
+        Label(self, text = "Shuffle Amount [1.0]" ).grid(column=2,row=80,sticky=N+S+W)
 
         Label(self).grid(column=1,row=90)
 
@@ -293,8 +302,10 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_max_lead_distance_mm(float(self.max_lead_distance_entry_text.get()))
         self._configuration_api.set_scaling_factor(float(self.scaling_factor_entry_text.get()))
         self._configuration_api.set_wait_after_move_milliseconds(self.wait_after_move_entry_text.get())
+        self._configuration_api.set_post_fire_delay(self.post_fire_delay_entry_text.get())
 
         self._configuration_api.set_sublayer_height_mm(float(self.sublayer_height_entry_text.get()))
+        self._configuration_api.set_shuffle_layers_amount(float(self._shuffle_layers_amount.get()))
         self._configuration_api.set_overlap_amount_mm(float(self.overlap_amount_entry_text.get()))
 
         self._configuration_api.set_use_sublayers(bool(self._use_sublayers.get()))
