@@ -13,8 +13,10 @@ class LayerWriter():
         state,
         move_distance_to_ignore = 0.00001,
         override_speed = None,
-        wait_speed = None
+        wait_speed = None,
+        post_fire_delay_speed = None,
         ):
+        self._post_fire_delay_speed = post_fire_delay_speed
         self._override_speed = override_speed
         self._move_distance_to_ignore = move_distance_to_ignore
         self._state = state
@@ -22,8 +24,8 @@ class LayerWriter():
         self._path_to_audio = path_to_audio
         self._laser_control = laser_control
         self.laser_off_override = False
-        self._wait_speed = wait_speed
-        logging.info("Wait Speed: %s" % self._wait_speed )
+        self._after_move_wait_speed = wait_speed
+        logging.info("Wait Speed: %s" % self._after_move_wait_speed )
 
         self._abort_current_command = False
         self._shutting_down = False
@@ -55,17 +57,18 @@ class LayerWriter():
     def _move_lateral(self,(to_x,to_y), to_z,speed):
         self._laser_control.set_laser_off()
         self._write_lateral(to_x,to_y,to_z,speed)
-        if self._wait_speed:
-            self._write_lateral(to_x,to_y,to_z,self._wait_speed)
+        if self._after_move_wait_speed:
+            self._write_lateral(to_x,to_y,to_z,self._after_move_wait_speed)
 
 
     def _draw_lateral(self,(to_x,to_y), to_z,speed):
+        laser_was_off = not self._laser_control.laser_is_on()
         if self.laser_off_override:
             self._laser_control.set_laser_off()
         else:
             self._laser_control.set_laser_on()
-        for i in range(0,1):
-            self._write_lateral(to_x,to_y,to_z,speed)
+            self._write_lateral(self._state.x,self._state.y,self._state.z,self._post_fire_delay_speed)
+        self._write_lateral(to_x,to_y,to_z,speed)
     
     def _write_lateral(self,to_x,to_y, to_z,speed):
         if self._override_speed and speed > self._override_speed:
