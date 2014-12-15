@@ -254,6 +254,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_shufflelayers = False
         config.options.use_sublayers = False
         config.options.use_overlap = False
+        config.options.post_fire_delay = 5
         api = PrintAPI(config)
 
         with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
@@ -305,7 +306,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_machine_state,
             move_distance_to_ignore = config.options.laser_thickness_mm,
             override_speed = config.cure_rate.draw_speed, 
-            wait_speed = 100.0
+            wait_speed = 100.0,
+            post_fire_delay_speed = 100.0,
             )
 
         self.mock_LayerProcessing.assert_called_with(
@@ -369,7 +371,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_machine_state,
             move_distance_to_ignore = config.options.laser_thickness_mm,
             override_speed = config.cure_rate.draw_speed, 
-            wait_speed = 100.0
+            wait_speed = 100.0,
+            post_fire_delay_speed = 100.0
             )
 
     def test_print_gcode_should_print_sublayers_if_requested(self,*args):
