@@ -444,9 +444,8 @@ class ShuffleGenerator(LayerGenerator):
         return self._shuffle(self._layer_generator.next())
 
     def _shuffle(self, layer):
-        if self._shuffle_point >= len(layer.commands):
-            self._shuffle_point = 0.0
-        layer.commands = layer.commands[int(self._shuffle_point):] + layer.commands[:int(self._shuffle_point)]
+        shuffle_amount = int(self._shuffle_point) % len(layer.commands)
+        layer.commands = layer.commands[shuffle_amount:] + layer.commands[:shuffle_amount]
         self._shuffle_point += self._amount
         return layer
 
