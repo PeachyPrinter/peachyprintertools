@@ -162,9 +162,9 @@ class SetupOptionsUI(PeachyFrame):
         Entry(self, textvariable = self.overlap_amount_entry_text).grid(column=1, row=70)
         Label(self, text = "Overlap Amount (mm) [1.0]" ).grid(column=2,row=70,sticky=N+S+W)
 
-        Checkbutton(self, text="Use Shuffled Starting Points", variable = self._use_shufflelayers, command=self._update_field_visibility).grid(column=0, row = 80, sticky=W)
+        Checkbutton(self, text="Use Spirialed Starting Points", variable = self._use_shufflelayers, command=self._update_field_visibility).grid(column=0, row = 80, sticky=W)
         Entry(self, textvariable = self._shuffle_layers_amount).grid(column=1, row=80)
-        Label(self, text = "Shuffle Amount [1.0]" ).grid(column=2,row=80,sticky=N+S+W)
+        Label(self, text = "Spiral Amount Per Layer [1.0]" ).grid(column=2,row=80,sticky=N+S+W)
 
         Label(self).grid(column=1,row=90)
 
