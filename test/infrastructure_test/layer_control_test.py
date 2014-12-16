@@ -23,7 +23,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
         self.writer.laser_off_override = True
 
         self.writer.process_layer(test_layer)
@@ -36,7 +36,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -47,7 +47,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralDraw([2.0,2.0],[1.0,1.0],100.0) ])
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100, wait_speed = 5)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 100.0, wait_speed = 5)
 
         self.writer.process_layer(test_layer)
 
@@ -62,7 +62,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[2.0,2.0],100.0), LateralDraw([2.0,2.0],[2.9,2.9],100.0) ])
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -76,7 +76,7 @@ class LayerWriterTests(unittest.TestCase):
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
         mock_path_to_audio.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -88,7 +88,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         audio_writer = None
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],100.0) ])
-        self.writer = LayerWriter(audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100)
+        self.writer = LayerWriter(audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -97,7 +97,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0) ])
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -109,7 +109,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
 
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -120,7 +120,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[LateralDraw([0.0,0.0],[0.0,0.0],2.0), LateralDraw([2.0,2.0],[-1.0,-1.0],2.0) ])
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 100)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -134,7 +134,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[0.0,0.0],2.0), LateralDraw([0.0000001,0.0],[-1.0,-1.0],2.0) ])
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -147,7 +147,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         test_layer = Layer(0.0,[ LateralMove([0.0,0.0],[1.0,1.0],2.0), LateralMove([1.0,1.0],[1.000001,1.0],2.0) ])
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed =100)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, MachineState(), override_speed = 2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -155,7 +155,7 @@ class LayerWriterTests(unittest.TestCase):
         self.assertEqual(0, mock_path_to_audio.process.call_count)
         self.assertEqual(0, mock_laser_control.set_laser_off.call_count)
 
-    def test_process_layer_should_use_max_speed_if_provided(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
+    def test_process_layer_should_use_override_speed_if_provided_and_faster(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
         expected_speed = 2.0
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
@@ -165,14 +165,26 @@ class LayerWriterTests(unittest.TestCase):
 
         self.writer.process_layer(test_layer)
 
-        mock_path_to_audio.process.assert_called_with([0.0,0.0,0.0],[2.0,2.0,0.0],2.0)
+        mock_path_to_audio.process.assert_called_with([0.0,0.0,0.0],[2.0,2.0,0.0],expected_speed)
+
+    def test_process_layer_should_use_override_speed_if_provided_and_slower(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
+        expected_speed = 2.0
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_laser_control = mock_LaserControl.return_value
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0], expected_speed - 1.0) ])
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control,MachineState(),override_speed = expected_speed, )
+
+        self.writer.process_layer(test_layer)
+
+        mock_path_to_audio.process.assert_called_with([0.0,0.0,0.0],[2.0,2.0,0.0],expected_speed)
 
     def test_wait_till_time_will_move_to_existing_space(self, mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_audio_writer = mock_AudioWriter.return_value
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, state, override_speed =100 )
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, state, override_speed = 2.0 )
 
         before = time.time()
         self.writer.wait_till_time(before + 1 )
@@ -187,7 +199,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_audio_writer = mock_AudioWriter.return_value
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, state, override_speed =100, post_fire_delay_speed=100.0 )
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, state, override_speed = 100.0, post_fire_delay_speed=100.0 )
 
         mock_laser_control.laser_is_on.return_value = False
         before = time.time()
@@ -222,7 +234,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_audio_writer = mock_AudioWriter.return_value
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, state, override_speed =100 )
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control, state, override_speed = 2.0 )
 
         self.writer.terminate()
 
@@ -233,7 +245,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_audio_writer = mock_AudioWriter.return_value
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
-        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control,state,override_speed =100,)
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control,state,override_speed = 2.0,)
         test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],  100.0) ])
         self.writer.terminate()
 
