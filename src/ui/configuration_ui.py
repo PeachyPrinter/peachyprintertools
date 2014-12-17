@@ -185,6 +185,8 @@ class SetupOptionsUI(PeachyFrame):
         self._serial_print_end_command = StringVar()
         self._serial_print_end_command.set(self._configuration_api.get_print_ended_command())
 
+
+
         self._serial_port = StringVar()
         self._serial_port.set(self._configuration_api.get_serial_port())
 
@@ -222,12 +224,21 @@ class SetupOptionsUI(PeachyFrame):
         self._print_queue_delay.set(self._configuration_api.get_print_queue_delay())
         self._pre_layer_delay = DoubleVar()
         self._pre_layer_delay.set(self._configuration_api.get_pre_layer_delay())
+        self._write_wav_files = IntVar()
+        self._write_wav_files.set(self._configuration_api.get_write_wav_files())
+        self._write_wav_files_folder = StringVar()
+        self._write_wav_files_folder.set(self._configuration_api.get_write_wav_files_folder())
+
         
         Label(devmode_options_frame,text="Print Queue Delay (Seconds)").grid(column=0, row=70)
         Entry(devmode_options_frame,textvariable=self._print_queue_delay, width = 6).grid(column=1, row=70)
 
         Label(devmode_options_frame,text="Pre Layer Delay (Seconds)").grid(column=2, row=70)
         Entry(devmode_options_frame,textvariable=self._pre_layer_delay, width = 6).grid(column=3, row=70)
+
+        Checkbutton(devmode_options_frame, text="Print To Wave Files", variable = self._write_wav_files ).grid(column=0, row = 71,sticky=N+S+W)
+        Label(devmode_options_frame,text="Wav Folder").grid(column=2,row = 71)
+        Entry(devmode_options_frame,textvariable=self._write_wav_files_folder, width = 60).grid(column=2, row=71)
 
 
         if not devmode:
@@ -328,6 +339,8 @@ class SetupOptionsUI(PeachyFrame):
         if devmode:
             self._configuration_api.set_print_queue_delay(self._print_queue_delay.get())
             self._configuration_api.set_pre_layer_delay(self._pre_layer_delay.get())
+            self._configuration_api.set_write_wav_files(bool(self._write_wav_files.get()))
+            self._configuration_api.set_write_wav_files_folder(  self._write_wav_files_folder.get())
 
         self.navigate(SetupUI, printer = self._current_printer)
 
