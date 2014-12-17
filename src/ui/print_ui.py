@@ -164,7 +164,7 @@ class PrintStatusUI(PeachyFrame):
         self._stop_button_text = StringVar()
         self._stop_button_text.set("Abort Print")
         self._drips_per_second_setting = DoubleVar()
-        self._canvas_height = 10
+        self._canvas_height = 20
         self._canvas_width  = 600
         self._drip_circle_radius = (self._canvas_height - 4) / 2
 
@@ -326,31 +326,31 @@ class PrintStatusUI(PeachyFrame):
             self._current_height.set("%.2f" % self._raw_status['height'])
             self._current_model_height.set("%.2f" % self._raw_status['model_height'])
             self._current_drips.set(self._raw_status['drips'])
-            self._current_drips_per_second.set(self._raw_status['drips_per_second'])
+            self._current_drips_per_second.set("%.2f" % self._raw_status['drips_per_second'])
             self._waiting_for_drips.set("Yes" if self._raw_status['waiting_for_drips'] else "No")
             self._skipped_layers.set(self._raw_status['skipped_layers'])
             self._status.set(self._raw_status['status'])
             if (self._raw_status['status'] == "Complete"):
                 self._stop_button_text.set("Finished")
-            if len(self._raw_status['drip_history'] > 2):
+            if len(self._raw_status['drip_history']) > 2:
                 self.canvas.grid()
                 self.update_canvas()
         self.after(125,self.update_display)
 
     def update_canvas(self):
         self.canvas.delete('all')
-        for value in map_values(
+        for value in self.map_values(
                         self._raw_status['drip_history'][0],
                         self._raw_status['drip_history'][-1],
                         self._drip_circle_radius + 1,
                         self._canvas_width - self._drip_circle_radius -1,
                         self._raw_status['drip_history']):
-            self.canvas.create_oval(value - self._drip_circle_radius, 2, value + self._drip_circle_radius, self._canvas_height - 2, fill="blue", width=0)
+            self.canvas.create_line(value, 1, value , self._canvas_height - 1, fill="red", width=0)
 
-    def map_values(old_lo,old_hi,new_lo,new_high,values):
+    def map_values(self,old_lo,old_hi,new_lo,new_high,values):
         old_range = (old_hi - old_lo)  
         new_range = (new_high - new_lo)  
-        return[ (((value - old_lo) * NewRange) / old_range) + new_lo for value in values ]
+        return[ (((value - old_lo) * new_range) / old_range) + new_lo for value in values ]
 
 
 
