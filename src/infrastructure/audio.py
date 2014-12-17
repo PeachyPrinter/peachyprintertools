@@ -4,6 +4,7 @@ import numpy as np
 import math
 import time
 import types
+from domain.data_writer import DataWriter
 
 audio_formats = {
             '32 bit Floating Point': pyaudio.paFloat32, 
@@ -57,17 +58,6 @@ class AudioSetup(object):
                 pa.terminate()
         return { 'input' : inputs, 'output' : outputs}
 
-
-class DataWriter(object):
-    
-    def write_chunk(self, chunk):
-        raise NotImplementedError('write_chunk unimplmented')
-
-    def next_layer(self, layer):
-        raise NotImplementedError('next_layer unimplmented')
-
-    def close(self):
-        pass
 
 class AudioWriter(DataWriter):
     def __init__(self, sample_rate, bit_depth, buffer_divisor = 2):
