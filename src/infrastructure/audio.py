@@ -58,7 +58,18 @@ class AudioSetup(object):
         return { 'input' : inputs, 'output' : outputs}
 
 
-class AudioWriter(object):
+class DataWriter(object):
+    
+    def write_chunk(self, chunk):
+        raise NotImplementedError('write_chunk unimplmented')
+
+    def next_layer(self, layer):
+        raise NotImplementedError('next_layer unimplmented')
+
+    def close(self):
+        pass
+
+class AudioWriter(DataWriter):
     def __init__(self, sample_rate, bit_depth, buffer_divisor = 2):
         self._sample_rate = sample_rate
         self._bit_depth = bit_depth

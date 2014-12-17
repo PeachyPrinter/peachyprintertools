@@ -7,7 +7,7 @@ from threading import Lock
 
 class LayerWriter():
     def __init__(self, 
-        audio_writer,
+        data_writer,
         path_to_audio,
         laser_control,
         state,
@@ -20,7 +20,7 @@ class LayerWriter():
         self._override_speed = override_speed
         self._move_distance_to_ignore = move_distance_to_ignore
         self._state = state
-        self._audio_writer = audio_writer
+        self._data_writer = data_writer
         self._path_to_audio = path_to_audio
         self._laser_control = laser_control
         self.laser_off_override = False
@@ -42,6 +42,8 @@ class LayerWriter():
         if self._shutting_down or self._shutdown:
             raise Exception("LayerWriter already shutdown")
         with self._lock:
+            if self._data_writer:
+                self._data_writer.next_layer(layer.z)
             for command in layer.commands:
                 # logging.info("Processing command: %s" % command)
                 if self._shutting_down:
@@ -77,8 +79,8 @@ class LayerWriter():
         to_xyz = [to_x,to_y,to_z]
         path = self._path_to_audio.process(self._state.xyz,to_xyz , speed)
         modulated_path = self._laser_control.modulate(path)
-        if self._audio_writer:
-            self._audio_writer.write_chunk(modulated_path)
+        if self._data_writer:
+            self._data_writer.write_chunk(modulated_path)
         self._state.set_state(to_xyz,speed)
 
     def abort_current_command(self):
@@ -95,7 +97,7 @@ class LayerWriter():
         with self._lock:
             self._shutdown = True
             try:
-                self._audio_writer.close()
+                self._data_writer.close()
                 logging.info("Audio shutdown correctly")
             except Exception as ex:
                 logging.error(ex)

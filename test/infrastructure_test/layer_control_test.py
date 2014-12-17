@@ -253,6 +253,22 @@ class LayerWriterTests(unittest.TestCase):
             self.writer.process_layer(test_layer)
 
 
+    def test_process_layer_should_call_new_layer_with_layer_height(self,mock_AudioWriter,mock_PathToAudio,mock_LaserControl):
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_audio_writer = mock_AudioWriter.return_value
+        mock_laser_control = mock_LaserControl.return_value
+        state = MachineState()
+        self.writer = LayerWriter(mock_audio_writer, mock_path_to_audio, mock_laser_control,state,override_speed = 2.0,)
+        test_layer = Layer(0.0,[ LateralDraw([0.0,0.0],[2.0,2.0],  100.0) ])
+
+        self.writer.process_layer(Layer(0.4, commands = [
+            LateralMove([0.0,0.0],[1.0,1.0],100.0),
+            LateralDraw([1.0,1.0],[2.0,2.0],100.0),
+            ]))
+        mock_audio_writer.next_layer.assert_called_with(0.4)
+        self.writer.terminate()
+
+
 @patch('infrastructure.layer_control.LayerWriter')
 @patch('domain.zaxis.ZAxis')
 class LayerProcessingTest(unittest.TestCase):
