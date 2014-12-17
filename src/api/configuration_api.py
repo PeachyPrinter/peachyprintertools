@@ -343,6 +343,25 @@ class ConfigurationAPI(object):
 
     # ----------------------------- General Setup --------------------------------------
 
+    '''Returns the write wav files flag'''
+    def get_write_wav_files(self):
+        return self._current_config.options.write_wav_files
+
+    '''Sets the write wav files flag'''
+    def set_write_wav_files(self, option):
+        self._current_config.options.write_wav_files = option
+        self.save()
+
+
+    '''Returns the wave file folder'''
+    def get_write_wav_files_folder(self):
+        return self._current_config.options.write_wav_files_folder
+
+    '''Sets the wave file folder'''
+    def set_write_wav_files_folder(self, folder):
+        self._current_config.options.write_wav_files_folder = folder
+        self.save()
+
     '''Returns the wait after move milliseconds'''
     def get_wait_after_move_milliseconds(self):
         return self._current_config.options.wait_after_move_milliseconds

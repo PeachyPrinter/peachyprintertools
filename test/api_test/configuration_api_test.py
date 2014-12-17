@@ -560,6 +560,59 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         mock_serial_commander.close.assert_called_with()
 
     # ----------------------------- General Setup --------------------------------------
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_write_wav_files_folder_returns_write_wav_files_folder(self, mock_load):
+        expected = "temp"
+        config = self.default_config
+        config.options.write_wav_files_folder = expected
+        mock_load.return_value =  config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_write_wav_files_folder())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_write_wav_files_sets_write_wav_files(self, mock_save, mock_load):
+        expected_milliseconds = "some_folder"
+        config =  self.default_config
+        expected = config
+        expected.options.write_wav_files = expected_milliseconds
+        mock_load.return_value =  config 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_write_wav_files(expected_milliseconds)
+
+        self.assertEquals(expected_milliseconds,configuration_API.get_write_wav_files())
+        mock_save.assert_called_with(expected)
+
+    @patch.object(ConfigurationManager, 'load' )
+    def test_get_write_wav_files_returns_write_wav_files(self, mock_load):
+        expected = True
+        config = self.default_config
+        config.options.write_wav_files = expected
+        mock_load.return_value =  config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertEquals(expected,configuration_API.get_write_wav_files())
+
+    @patch.object(ConfigurationManager, 'load' )
+    @patch.object(ConfigurationManager, 'save' )
+    def test_set_write_wav_files_sets_write_wav_files(self, mock_save, mock_load):
+        expected_milliseconds = True
+        config =  self.default_config
+        expected = config
+        expected.options.write_wav_files = expected_milliseconds
+        mock_load.return_value =  config 
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_write_wav_files(expected_milliseconds)
+
+        self.assertEquals(expected_milliseconds,configuration_API.get_write_wav_files())
+        mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load' )
     def test_get_wait_after_move_milliseconds_returns_wait_after_move_milliseconds(self, mock_load):
@@ -574,7 +627,7 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(ConfigurationManager, 'load' )
     @patch.object(ConfigurationManager, 'save' )
-    def test_set_pre_layer_delay_sets_wait_after_move_milliseconds(self, mock_save, mock_load):
+    def test_set_wait_after_move_milliseconds_sets_wait_after_move_milliseconds(self, mock_save, mock_load):
         expected_milliseconds = 7
         config =  self.default_config
         expected = config
