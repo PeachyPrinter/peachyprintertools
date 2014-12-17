@@ -211,7 +211,7 @@ class PrintStatusUI(PeachyFrame):
         Label(self.settings_frame, text = "Overlap (mm): ").grid(column=0,row=20, sticky=E)
         Label(self.settings_frame, textvariable = self.setting_overlap ).grid(column=1,row=20,sticky=W, padx=10)
         self.setting_shuffled = StringVar()
-        Label(self.settings_frame, text = "Shuffling Starting Points: ").grid(column=0,row=30, sticky=E)
+        Label(self.settings_frame, text = "Spiral Starting Points: ").grid(column=0,row=30, sticky=E)
         Label(self.settings_frame, textvariable = self.setting_shuffled ).grid(column=1,row=30,sticky=W, padx=10)
         self.setting_lead_distance = StringVar()
         Label(self.settings_frame, text = "Maximum Lead Distance (mm): ").grid(column=0,row=40, sticky=E)

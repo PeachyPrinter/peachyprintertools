@@ -58,7 +58,7 @@ class LayerWriter():
         self._laser_control.set_laser_off()
         self._write_lateral(to_x,to_y,to_z,speed)
         if self._after_move_wait_speed:
-            self._write_lateral(to_x,to_y,to_z,self._after_move_wait_speed)
+            self._write_lateral(to_x,to_y,to_z,self._after_move_wait_speed,ignore_override = True)
 
 
     def _draw_lateral(self,(to_x,to_y), to_z,speed):
@@ -67,11 +67,12 @@ class LayerWriter():
             self._laser_control.set_laser_off()
         else:
             self._laser_control.set_laser_on()
-            self._write_lateral(self._state.x,self._state.y,self._state.z,self._post_fire_delay_speed)
+        if laser_was_off and self._post_fire_delay_speed:
+            self._write_lateral(self._state.x,self._state.y,self._state.z,self._post_fire_delay_speed, ignore_override = True)
         self._write_lateral(to_x,to_y,to_z,speed)
     
-    def _write_lateral(self,to_x,to_y, to_z,speed):
-        if self._override_speed and speed > self._override_speed:
+    def _write_lateral(self,to_x,to_y, to_z,speed, ignore_override = False):
+        if self._override_speed and not ignore_override:
             speed = self._override_speed
         to_xyz = [to_x,to_y,to_z]
         path = self._path_to_audio.process(self._state.xyz,to_xyz , speed)

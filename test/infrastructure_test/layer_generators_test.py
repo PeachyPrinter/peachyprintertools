@@ -270,6 +270,33 @@ class ShuffleGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(StopIteration):
             shuffle_generator.next()
 
+    def test_shuffle_generator_should_not_fail_if_shuflle_points_lager_then_layer_commands(self):
+        command1 = LateralDraw([0.0,0.0],[0.0,0.0],100.0)
+        command2 = LateralDraw([0.0,0.0],[1.0,1.0],100.0)
+        command3 = LateralDraw([0.0,0.0],[2.0,2.0],100.0)
+        command4 = LateralDraw([0.0,0.0],[3.0,3.0],100.0)
+        layer1 = Layer(0.0,[ command1, command2,command3, command4 ])
+        layer2 = Layer(0.1,[ command1, command2,command3, command4 ])
+        layer3 = Layer(0.2,[ command1, command2,command3, command4 ])
+        layer4 = Layer(0.3,[ command1, command2,command3, command4 ])
+
+        shuffled_layer1 = Layer(0.0,[ command1, command2, command3, command4, ])
+        shuffled_layer2 = Layer(0.1,[ command3, command4, command1, command2, ])
+        shuffled_layer3 = Layer(0.2,[ command1, command2, command3, command4, ])
+        shuffled_layer4 = Layer(0.3,[ command3, command4, command1, command2, ])
+
+
+        expected_layers = (shuffled_layer1,shuffled_layer2,shuffled_layer3,shuffled_layer4)
+        inital_generator = StubLayerGenerator([layer1,layer2,layer3,layer4])
+
+        shuffle_generator = ShuffleGenerator(inital_generator,6)
+        for expected_layer in expected_layers:
+            l = shuffle_generator.next()
+            self.assertLayerEquals(expected_layer,l)
+
+        with self.assertRaises(StopIteration):
+            shuffle_generator.next()
+
 class OverLapGeneratorTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_next_should_return_input_when_single_command(self):
         expected_layer = Layer(0.0, commands = [LateralDraw([0.0,0.0],[1.0,1.0],100.0)])
