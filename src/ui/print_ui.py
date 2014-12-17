@@ -149,6 +149,7 @@ class VerifyStatusUI(PeachyFrame):
 class PrintStatusUI(PeachyFrame):
 
     def initialize(self):
+        self._raw_status = None
         self.grid()
         self._print_api = None
         self._elapsed_time = StringVar()
@@ -251,7 +252,7 @@ class PrintStatusUI(PeachyFrame):
         Button(self,textvariable=self._stop_button_text, command=self._stop_button_click).grid(column=2,row=80)
 
         self._start_printing()
-        
+        self.after(125,self.update_display)
         self.update()
 
     def _load_config_data(self):
@@ -307,22 +308,27 @@ class PrintStatusUI(PeachyFrame):
         self._print_api.close()
         self._start_printing()
 
-    def status_call_back(self,status):
-        total_seconds = int(status['elapsed_time'].total_seconds())
-        hours, remainder = divmod(total_seconds,60*60)
-        minutes, seconds = divmod(remainder,60)
+    def update_display(self):
+        if self._raw_status:
+            total_seconds = int(self._raw_status['elapsed_time'].total_seconds())
+            hours, remainder = divmod(total_seconds,60*60)
+            minutes, seconds = divmod(remainder,60)
 
-        self._elapsed_time.set("%02d:%02d:%02d" % (hours,minutes,seconds))
-        self._current_layer.set(status['current_layer'])
-        self._current_height.set("%.2f" % status['height'])
-        self._current_model_height.set("%.2f" % status['model_height'])
-        self._current_drips.set(status['drips'])
-        self._current_drips_per_second.set(status['drips_per_second'])
-        self._waiting_for_drips.set("Yes" if status['waiting_for_drips'] else "No")
-        self._skipped_layers.set(status['skipped_layers'])
-        self._status.set(status['status'])
-        if (status['status'] == "Complete"):
-            self._stop_button_text.set("Finished")
+            self._elapsed_time.set("%02d:%02d:%02d" % (hours,minutes,seconds))
+            self._current_layer.set(self._raw_status['current_layer'])
+            self._current_height.set("%.2f" % self._raw_status['height'])
+            self._current_model_height.set("%.2f" % self._raw_status['model_height'])
+            self._current_drips.set(self._raw_status['drips'])
+            self._current_drips_per_second.set(self._raw_status['drips_per_second'])
+            self._waiting_for_drips.set("Yes" if self._raw_status['waiting_for_drips'] else "No")
+            self._skipped_layers.set(self._raw_status['skipped_layers'])
+            self._status.set(self._raw_status['status'])
+            if (self._raw_status['status'] == "Complete"):
+                self._stop_button_text.set("Finished")
+        self.after(125,self.update_display)
+
+    def status_call_back(self,status):
+        self._raw_status = status
 
     def _dps_changed(self):
         self._print_api.set_drips_per_second(self._drips_per_second_setting.get())
