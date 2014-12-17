@@ -80,7 +80,7 @@ class DripDetectorTests(unittest.TestCase):
         samples = len([ struct.Struct("h").unpack_from(frames, offset)[0] for offset in range(0, len(frames), struct.Struct("h").size) ])
         expected_call_backs = int((samples * 1.0 / sample_rate * 1.0) * call_backs_per_second)
         expected_average = 7.6
-        expected_history = [4663,22528,35252,45112,54276,63272,71958,80491,88803,96884,104836,112588,120192,127514,134632,141518,148215,154673,160981,167104,172941,178508]
+        expected_history = [4619,22484,35208,45068,54232,63228,71914,80447,88759,96840,104792,112544,120148,127470,134588,141474,148171,154629,160937,167060,172897,178464]
         dd = DripDetector(sample_rate, call_back = self.call_back, calls_back_per_second = call_backs_per_second)
         
         dd.process_frames(frames)
@@ -262,7 +262,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.assertEquals(2, self.calls)
         self.assertEquals(1, self.drips)
         self.assertEquals(1, self.height)
-        self.assertAlmostEquals(55.3, self.drips_per_second, places =0)
+        self.assertAlmostEquals(58.5, self.drips_per_second, places =0)
         self.assertEqual(1, self.adza.current_z_location_mm())
 
     def test_should_be_able_to_set_call_back(self,mock_PyAudio):
@@ -281,8 +281,8 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.assertEquals(2, self.calls)
         self.assertEquals(1, self.drips)
         self.assertEquals(1, self.height)
-        self.assertEquals([869] , self.drip_history)
-        self.assertAlmostEquals(55.3, self.drips_per_second, places =0)
+        self.assertEquals([821] , self.drip_history)
+        self.assertAlmostEquals(58.4, self.drips_per_second, places =0)
         self.assertEqual(1, self.adza.current_z_location_mm())
 
     def test_should_be_able_to_set_drips_per_mm(self,mock_PyAudio):

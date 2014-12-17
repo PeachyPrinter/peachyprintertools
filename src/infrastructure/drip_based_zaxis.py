@@ -32,8 +32,8 @@ class DripDetector(object):
         self._threshold = Threshold(self.sample_rate)
         self._indrip = 0
         self._debounce = 0
-        self._min_sample_size = sample_rate * 0.005
-        self._debounce_time = sample_rate * 0.08
+        self._min_sample_size = sample_rate * 0.004
+        self._debounce_time = sample_rate * 0.004
         self._this_drip_recorded = False
         self._peak = 0
         self._min_value = 0
