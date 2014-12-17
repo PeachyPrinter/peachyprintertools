@@ -172,6 +172,7 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
             end = time.time()
             self.assertTrue(expected_delay <=  end-start)
 
+@patch('api.print_api.FileWriter')
 @patch('api.print_api.EmailNotificationService')
 @patch('api.print_api.EmailGateway')
 @patch('api.print_api.PhotoZAxis')
@@ -195,6 +196,7 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
+        self.mock_FileWriter =                    args[20 ]
         self.mock_EmailNotificationService =      args[19 ]
         self.mock_EmailGateway =                  args[18 ]
         self.mock_PhotoZAxis =                    args[17 ]
@@ -216,6 +218,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_LayerWriter =                   args[1 ]
         self.mock_LayerProcessing =               args[0 ]
 
+        self.mock_filewriter =                      self.mock_FileWriter.return_value
         self.mock_email_notification_service =      self.mock_EmailNotificationService.return_value
         self.mock_email_gateway =                   self.mock_EmailGateway.return_value
         self.mock_photo_zaxis =                     self.mock_PhotoZAxis.return_value
@@ -353,6 +356,42 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.layer_ended,
             config.serial.print_ended,
             )
+
+    def test_print_gcode_should_create_required_classes_and_start_it_with_file_writer(self, *args):
+        self.setup_mocks(args)
+        gcode_path = "FakeFile"
+        config = self.default_config
+        config.options.write_wav_files = True
+        config.options.write_wav_files_folder = 'Magic Beans'
+        api = PrintAPI(config)
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as m:
+            api.print_gcode(gcode_path)
+
+        self.mock_LayerWriter.assert_called_with(
+            self.mock_filewriter, 
+            self.mock_path_to_audio, 
+            self.mock_audio_modulation_laser_control,
+            self.mock_machine_state,
+            move_distance_to_ignore = config.options.laser_thickness_mm,
+            override_speed = config.cure_rate.draw_speed, 
+            wait_speed = 100.0,
+            post_fire_delay_speed = 100.0
+            )
+        self.mock_LayerProcessing.assert_called_with(
+            self.mock_layer_writer,
+            self.mock_machine_state,
+            self.mock_machine_status,
+            self.mock_photo_zaxis,
+            config.dripper.max_lead_distance_mm,
+            self.mock_null_commander ,
+            config.options.pre_layer_delay,
+            config.serial.layer_started,
+            config.serial.layer_ended,
+            config.serial.print_ended,
+            )
+        self.mock_PhotoZAxis.assert_called_with(0)
+
 
     def test_print_gcode_should_create_required_classes_and_start_it_with_override_speed_if_specified(self, *args):
         self.setup_mocks(args)

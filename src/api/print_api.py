@@ -4,6 +4,7 @@ import time
 from os import path, listdir
 
 from infrastructure.audio import AudioWriter
+from infrastructure.file import FileWriter
 from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
 from infrastructure.drip_based_zaxis import AudioDripZAxis
@@ -165,6 +166,14 @@ class PrintAPI(object):
             self._zaxis = None
             zaxis_control = None
             abort_on_error = False
+        elif self._configuration.options.write_wav_files:
+            data_writer = FileWriter(
+                self._configuration.audio.output.sample_rate, 
+                self._configuration.audio.output.bit_depth,
+                self._configuration.options.write_wav_files_folder,
+                )
+            self._zaxis = PhotoZAxis(0)
+            abort_on_error = True
         else:
             data_writer = AudioWriter(
                 self._configuration.audio.output.sample_rate, 
