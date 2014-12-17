@@ -38,6 +38,7 @@ class MachineStatus(object):
         self._complete = False
         self._drips = 0
         self._drips_per_second = 0
+        self._drip_history = []
         self._skipped_layers = 0
         self._lock = threading.Lock()
 
@@ -50,10 +51,11 @@ class MachineStatus(object):
                 finally:
                     self._lock.release()
 
-    def drip_call_back(self, drips, height,drips_per_second):
+    def drip_call_back(self, drips, height,drips_per_second,drip_history = []):
         self._height = height
         self._drips = drips
         self._drips_per_second = drips_per_second
+        self._drip_history = drip_history
         self._update()
 
     def add_layer(self):
@@ -110,4 +112,5 @@ class MachineStatus(object):
             'drips_per_second' : self._drips_per_second,
             'model_height' : self._model_height,
             'skipped_layers' : self._skipped_layers,
+            'drip_history' : self._drip_history
         }

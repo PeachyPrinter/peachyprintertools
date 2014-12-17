@@ -144,10 +144,16 @@ class MachineStatusTests(unittest.TestCase):
 
     def test_drip_call_back_updates_height(self):
         status = MachineStatus()
-        status.drip_call_back(67,12,12.2)
+        status.drip_call_back(67,12,12.2, [])
         self.assertEqual(12, status.status()['height'])
         self.assertEqual(67, status.status()['drips'])
         self.assertEqual(12.2, status.status()['drips_per_second'])
+
+    def test_drip_call_back_updates_history(self):
+        status = MachineStatus()
+        status.drip_call_back(67,12,12.2, [12,13])
+        self.assertEqual([12,13], status.status()['drip_history'])
+
 
 
     def test_any_change_should_call_call_back(self):
