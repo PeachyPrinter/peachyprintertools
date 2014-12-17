@@ -161,12 +161,12 @@ class PrintAPI(object):
         
 
         if dry_run:
-            audio_writer = None
+            data_writer = None
             self._zaxis = None
             zaxis_control = None
             abort_on_error = False
         else:
-            audio_writer = AudioWriter(
+            data_writer = AudioWriter(
                 self._configuration.audio.output.sample_rate, 
                 self._configuration.audio.output.bit_depth,
                 )
@@ -183,7 +183,7 @@ class PrintAPI(object):
             post_fire_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.post_fire_delay) / 1000.0) 
 
         self._writer = LayerWriter(
-            audio_writer, 
+            data_writer, 
             path_to_audio, 
             laser_control,
             state,

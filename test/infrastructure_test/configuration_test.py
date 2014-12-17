@@ -146,6 +146,8 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_pre_layer_delay = True
         expected_post_fire_delay = True
         expected_wait_after_move_milliseconds = True
+        expected_write_wav_files = "WRONG"
+        expected_write_wav_files_folder = True
 
 
         options_config = OptionsConfiguration()
@@ -176,6 +178,10 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             options_config.options.pre_layer_delay = expected_pre_layer_delay
         with self.assertRaises(Exception):
             options_config.options.wait_after_move_milliseconds = expected_wait_after_move_milliseconds
+        with self.assertRaises(Exception):
+            options_config.options.write_wave_files = expected_write_wav_files
+        with self.assertRaises(Exception):
+            options_config.options.write_wave_files_folder = expected_write_wav_files_folder
 
     def test_can_create_json_and_load_from_json(self):
         expected_shuffle_layers_amount = 1.0
@@ -191,6 +197,8 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_pre_layer_delay = 1.0
         expected_wait_after_move_milliseconds = 5
         expected_laser_offset = [ 0.1, 0.1]
+        expected_write_wav_files = False
+        expected_write_wav_files_folder = 'tmp'
 
 
         original_config = Configuration()
@@ -207,6 +215,8 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.options.pre_layer_delay              = expected_pre_layer_delay
         original_config.options.wait_after_move_milliseconds = expected_wait_after_move_milliseconds
         original_config.options.scaling_factor               = expected_scaling_factor
+        original_config.options.write_wave_files             = expected_write_wav_files
+        original_config.options.write_wave_files_folder      = expected_write_wav_files_folder
 
         actual_json = json.loads(original_config.toJson())
         config = Configuration(source = actual_json)
@@ -223,6 +233,8 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(type(expected_use_overlap), type(config.options.use_overlap) )
         self.assertEquals(type(expected_pre_layer_delay), type(config.options.pre_layer_delay) )
         self.assertEquals(type(expected_wait_after_move_milliseconds), type(config.options.wait_after_move_milliseconds) )
+        self.assertEquals(type(expected_write_wav_files), type(config.options.write_wav_files) )
+        self.assertEquals(type(expected_write_wav_files_folder), type(config.options.write_wav_files_folder) )
 
         self.assertEquals(expected_shuffle_layers_amount, config.options.shuffle_layers_amount )
         self.assertEquals(expected_post_fire_delay, config.options.post_fire_delay )
@@ -236,6 +248,8 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_use_overlap, config.options.use_overlap )
         self.assertEquals(expected_pre_layer_delay, config.options.pre_layer_delay )
         self.assertEquals(expected_wait_after_move_milliseconds, config.options.wait_after_move_milliseconds )
+        self.assertEquals(expected_write_wav_files, config.options.write_wav_files )
+        self.assertEquals(expected_write_wav_files_folder, config.options.write_wav_files_folder )
 
 class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
 

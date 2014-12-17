@@ -109,7 +109,6 @@ class CureRateConfiguration(ConfigurationBase):
         else:
             raise ValueError("Use draw Speed must be of %s was %s" % (_type, type(value)))
 
-
 class EmailConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._on = self.get(source, u'on', False)
@@ -201,6 +200,33 @@ class OptionsConfiguration(ConfigurationBase):
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
         self._pre_layer_delay = self.get(source, u'pre_layer_delay',0.0)
         self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds',5)
+        self._write_wav_files = self.get(source, u'write_wav_files',False)
+        self._write_wav_files_folder= self.get(source, u'write_wav_files_folder','tmp')
+
+
+    @property
+    def write_wav_files(self):
+        return self._write_wav_files
+
+    @write_wav_files.setter
+    def write_wav_files(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._write_wav_files = value
+        else:
+            raise ValueError("Write Wav Files must be of %s" % (str(_type)))
+
+    @property
+    def write_wav_files_folder(self):
+        return self._write_wav_files_folder
+
+    @write_wav_files_folder.setter
+    def write_wav_files_folder(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._write_wav_files_folder = value
+        else:
+            raise ValueError("Write Wav Files Folder must be of %s" % (str(_type)))
 
     @property
     def post_fire_delay(self):
