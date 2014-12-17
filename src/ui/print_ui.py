@@ -164,6 +164,13 @@ class PrintStatusUI(PeachyFrame):
         self._stop_button_text = StringVar()
         self._stop_button_text.set("Abort Print")
         self._drips_per_second_setting = DoubleVar()
+        self._canvas_height = 10
+        self._canvas_width  = 600
+        self._drip_circle_radius = (self._canvas_height - 4) / 2
+
+        self.canvas = Canvas(self,height = self._canvas_height, width = self._canvas_width, bg = 'black')
+        self.canvas.grid(column = 0 ,row = 51,columnspan = 4)
+        self.canvas.grid_remove()
 
         Label(self, text = "Elapsed Time" ).grid(column=0,row=10)
         Label(self, textvariable = self._elapsed_time ).grid(column=1,row=10)
@@ -325,7 +332,28 @@ class PrintStatusUI(PeachyFrame):
             self._status.set(self._raw_status['status'])
             if (self._raw_status['status'] == "Complete"):
                 self._stop_button_text.set("Finished")
+            if len(self._raw_status['drip_history'] > 2):
+                self.canvas.grid()
+                self.update_canvas()
         self.after(125,self.update_display)
+
+    def update_canvas(self):
+        self.canvas.delete('all')
+        for value in map_values(
+                        self._raw_status['drip_history'][0],
+                        self._raw_status['drip_history'][-1],
+                        self._drip_circle_radius + 1,
+                        self._canvas_width - self._drip_circle_radius -1,
+                        self._raw_status['drip_history']):
+            self.canvas.create_oval(value - self._drip_circle_radius, 2, value + self._drip_circle_radius, self._canvas_height - 2, fill="blue", width=0)
+
+    def map_values(old_lo,old_hi,new_lo,new_high,values):
+        old_range = (old_hi - old_lo)  
+        new_range = (new_high - new_lo)  
+        return[ (((value - old_lo) * NewRange) / old_range) + new_lo for value in values ]
+
+
+
 
     def status_call_back(self,status):
         self._raw_status = status

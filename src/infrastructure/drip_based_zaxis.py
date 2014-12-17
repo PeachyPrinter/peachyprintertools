@@ -56,6 +56,7 @@ class DripDetector(object):
     def _process_value_chunk(self,values):
         self._threshold.add_value(values)
         current_threshold = -1 * self._threshold.threshold()
+        logging.info("Processing Input Audio Chunk")
         
         for value in values:
             self._samples += 1
@@ -168,8 +169,8 @@ class AudioDripZAxis(ZAxis, threading.Thread):
     def run(self):
         stream = self._get_stream()
         while self.running:
-            self._update_state()
             self.drip_detector.process_frames(self._get_frames(stream))
+            self._update_state()
         self._commander.send_command(self._dripper_off_command)
         stream.stop_stream()
         stream.close()

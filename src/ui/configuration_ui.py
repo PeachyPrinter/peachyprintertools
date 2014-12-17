@@ -465,7 +465,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         else:
             raise Exception('Unsupported Dripper: %s ' % self._dripper_type.get() )
 
-    def _drips_updated(self, drips, height, drips_per_second):
+    def _drips_updated(self, drips, height, drips_per_second, drip_history = []):
         self._drip_count.set(drips)
         self._current_height_mm.set('%.2F' % height)
         self._average_drips.set("%0.2f" % drips_per_second)
