@@ -42,6 +42,8 @@ class DripDetector(object):
         self._samples_since_call_back = 0
         self._samples_since_drip = 0
         self._drips_per_second = 0.0
+        self._drip_history = []
+        self._samples = 0
 
     def _get_value_chunk(self,seq):
         return (seq[pos:pos + self.sample_rate] for pos in xrange(0, len(seq), self.sample_rate ))
@@ -56,6 +58,7 @@ class DripDetector(object):
         current_threshold = -1 * self._threshold.threshold()
         
         for value in values:
+            self._samples += 1
             self._samples_since_drip +=1
             if value < current_threshold:
                 if self._peak > value:
@@ -72,6 +75,7 @@ class DripDetector(object):
             if self._indrip >= self._min_sample_size:
                 if value <= self._peak * 0.5 and self._this_drip_recorded == False:
                     self._drips += 1
+                    self._drip_history.append(self._samples)
                     self.update_average()
                     self._peak = self._peak * 0.5
                     self._this_drip_recorded = True
@@ -80,7 +84,8 @@ class DripDetector(object):
                 self._samples_since_call_back += 1
                 if self._samples_since_call_back >= self._call_back_samples:
                     self._samples_since_call_back = 0
-                    self._call_back(self._drips, self._drips_per_second)
+                    self._drip_history = self._drip_history[-100:]
+                    self._call_back(self._drips, self._drips_per_second, self._drip_history)
 
     def update_average(self):
         dripsec = self.sample_rate * 1.0 / self._samples_since_drip * 1.00
@@ -130,10 +135,10 @@ class AudioDripZAxis(ZAxis, threading.Thread):
     def set_call_back(self, call_back):
         self._drip_call_back = call_back
 
-    def _call_back(self, drips, average_drips):
+    def _call_back(self, drips, average_drips, drip_history):
         self._drips = drips
         if self._drip_call_back:
-            self._drip_call_back(drips,self.current_z_location_mm(),average_drips)
+            self._drip_call_back(drips,self.current_z_location_mm(),average_drips,drip_history)
 
     def reset(self):
         self.drip_detector = DripDetector(self._sample_rate, self._call_back)

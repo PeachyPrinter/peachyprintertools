@@ -25,14 +25,16 @@ class DripDetectorTests(unittest.TestCase):
         self.calls = 0
         self.drips = 0
         self.average_drips = 0
+        self.drip_history = []
 
     def teardown(self):
         pass
 
-    def call_back(self, drips, average_drips):
+    def call_back(self, drips, average_drips, drip_history):
         self.calls += 1
         self.drips = drips
         self.average_drips = average_drips
+        self.drip_history = drip_history
 
     def test_audio_samples(self):
         files = [ [file_name, int(file_name.split('_')[0])] for file_name in os.listdir(self.test_file_path) if file_name.endswith('.wav') ]
@@ -78,6 +80,7 @@ class DripDetectorTests(unittest.TestCase):
         samples = len([ struct.Struct("h").unpack_from(frames, offset)[0] for offset in range(0, len(frames), struct.Struct("h").size) ])
         expected_call_backs = int((samples * 1.0 / sample_rate * 1.0) * call_backs_per_second)
         expected_average = 7.6
+        expected_history = [4663,22528,35252,45112,54276,63272,71958,80491,88803,96884,104836,112588,120192,127514,134632,141518,148215,154673,160981,167104,172941,178508]
         dd = DripDetector(sample_rate, call_back = self.call_back, calls_back_per_second = call_backs_per_second)
         
         dd.process_frames(frames)
@@ -85,6 +88,7 @@ class DripDetectorTests(unittest.TestCase):
         self.assertEquals(expected_call_backs, self.calls)
         self.assertEquals(22, self.drips)
         self.assertAlmostEquals(expected_average,self.average_drips, places = 1)
+        self.assertEquals(expected_history,self.drip_history,)
 
 class ThresholdTests(unittest.TestCase):
     def test_threshold_is_fast(self):
@@ -165,6 +169,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.drips = 0
         self.height = 0
         self.drips_per_second = 0
+        self.drip_history = []
     
     def tearDown(self):
         if self.adza:
@@ -186,11 +191,12 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         while self.stream.get_read_available() > 0:
             time.sleep(0.1)
 
-    def call_back(self, drips, height, drips_per_second):
+    def call_back(self, drips, height, drips_per_second, drip_history = []):
         self.calls += 1
         self.drips = drips
         self.height = height
         self.drips_per_second = drips_per_second
+        self.drip_history = drip_history
 
     def test_shuts_down_correctly(self,mock_PyAudio):
         mock_pyaudio = self.setup_mock(mock_PyAudio)
@@ -275,6 +281,7 @@ class AudioDripZAxisTests(unittest.TestCase, ):
         self.assertEquals(2, self.calls)
         self.assertEquals(1, self.drips)
         self.assertEquals(1, self.height)
+        self.assertEquals([869] , self.drip_history)
         self.assertAlmostEquals(55.3, self.drips_per_second, places =0)
         self.assertEqual(1, self.adza.current_z_location_mm())
 
