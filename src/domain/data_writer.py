@@ -5,7 +5,7 @@ class DataWriter(object):
         raise NotImplementedError('write_chunk unimplmented')
 
     def next_layer(self, layer):
-        raise NotImplementedError('next_layer unimplmented')
+        pass
 
     def close(self):
         pass
