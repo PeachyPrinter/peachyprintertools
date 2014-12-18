@@ -211,17 +211,20 @@ class TwitchGenerator(TestLayerGenerator):
     def __init__(self, speed = 100.0, radius = 20.0):
         self.set_speed(speed)
         self.set_radius(radius)
-        self.path =  [
-                 [ 0.625 ,  1.000 ], [  0.625 ,  0.500 ], [  0.125,  0.125 ], [  0.625, -0.500 ], [  0.625, -1.000 ], 
-                 [ 1.000,  -0.625 ], [  0.500,  -0.625 ], [ -0.125, -0.125 ], [ -0.500, -0.625 ], [ -1.000, -0.625 ], 
-                ]
+        self.path =  [([ -0.500,  -1.000 ],1), ([  -0.500, 1.000 ],1)]
+                 # , ([  0.000, -1.000 ],1), ([ -1.000, 1.000 ],1), ]
+        for r in range(1, 100):
+            xd =  0.5 * ((( r % 2 ) * 2) - 1)
+            yd = 1.0 - float(r) * 2.0  / 100.0
+            self.path.append(([xd,yd], float(r) / 4))
+
 
     def next(self):
         layer = Layer(0.0)
-        last = [ a * self._radius for a in self.path[-1:][0] ]
-        for point in self.path:
+        last = [ a * self._radius for a in self.path[-1:][0][0] ]
+        for (point , s ) in self.path:
             scaled_point = [ a * self._radius for a in point ]
-            layer.commands.append(LateralDraw(last,scaled_point, self._speed))
+            layer.commands.append(LateralDraw(last,scaled_point, self._speed * s))
             last = scaled_point
         return layer
 
