@@ -16,14 +16,14 @@ const int layerEndCommand = 69;
 const int printCompleteCommand = 77;
 
 //Constants -- THESE CAN BE CHANGED
-const int minStepperMicroSeconds = 2000;
+const int minStepperMicroSeconds = 1000;
 const int maxForwardDripSpeed = 1;
 const int maxReverseDripSpeed = 1;
 const bool emulateDripsInReverse = false;
 const int stepperSteps = 200;
 const int berrings = 3;
-const int stepsPerDrip = 200;
-const int dripTimems = 5;
+const int stepsPerDrip = 30;
+const int dripTimems = 25;
 
 // Enviroment
 long steps = 0;
@@ -32,7 +32,9 @@ bool dripper_on = false;
 bool dripper_reverse = false;
 long lastCommand = 0;
 bool stopped = false;
-int inDripTime = 0;
+long inDrip = 0;
+long inRecover = 0;
+long lastRecordedDripSteps = 0;
 
 
 void setup() {
@@ -73,11 +75,29 @@ void drip_reverse(){
 }
 
 void drip() {
-  if (steps % stepsPerDrip == 0){
-     digitalWrite(DRIP_PIN, LOW);
-     delay(dripTimems);
-     digitalWrite(DRIP_PIN, HIGH);
-     delay(dripTimems);
+  if (inDrip > 0){
+    if (millis() >= inDrip){
+      digitalWrite(DRIP_PIN, HIGH);
+      inDrip = 0;
+      inRecover = millis() + dripTimems;
+    }
+   }
+  if (steps % stepsPerDrip == 0 && lastRecordedDripSteps != steps){
+    if (inDrip > 0){
+      int remain = inDrip - millis();
+      delay(max(0,remain));
+      inDrip = 0;
+      inRecover = millis() + dripTimems;
+    }
+    if (inRecover > 0){
+     int remain = inRecover - millis();
+     delay(max(0,remain));
+     inRecover = 0;
+    }
+    digitalWrite(DRIP_PIN, LOW);
+    inDrip = millis() + dripTimems;
+    Serial.print("Drips: ");
+    Serial.println(steps / stepsPerDrip);
   }
 }
 
@@ -106,6 +126,10 @@ void processSerial(){
   } else if (incommingByte == dripOffCommand) {
     Serial.println("STOPPED DRIPPING");
     dripper_on = false;
+  } else if (incommingByte == printCompleteCommand) {
+    Serial.println("Print Complete");
+    dripper_on = false;
+    dripper_reverse = true;
   } else if (incommingByte == 'D') {
     Serial.println("OK");
   }
