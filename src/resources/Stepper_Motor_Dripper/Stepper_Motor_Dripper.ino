@@ -15,34 +15,41 @@ const int layerStartCommand = 83;
 const int layerEndCommand = 69;
 const int printCompleteCommand = 77;
 
-//Constants
-const int minStepperMicroSeconds = 75;
+//Constants -- THESE CAN BE CHANGED
+const int minStepperMicroSeconds = 2000;
 const int maxForwardDripSpeed = 1;
 const int maxReverseDripSpeed = 1;
 const bool emulateDripsInReverse = false;
 const int stepperSteps = 200;
 const int berrings = 3;
-const int steps_per_drip = 3;
+const int stepsPerDrip = 200;
+const int dripTimems = 5;
 
 // Enviroment
-int drips = 0;
+long steps = 0;
 int incommingByte = 0;
 bool dripper_on = false;
+bool dripper_reverse = false;
 long lastCommand = 0;
+bool stopped = false;
+int inDripTime = 0;
 
 
 void setup() {
-  
   pinMode(STEPPER_DIRECTION_PIN, OUTPUT);
+  digitalWrite(STEPPER_DIRECTION_PIN,LOW);
   pinMode(STEPPER_STEP_PIN, OUTPUT);
+  digitalWrite(STEPPER_STEP_PIN,LOW);
   pinMode(RX_LED_PIN, OUTPUT);
+  digitalWrite(RX_LED_PIN,LOW);
   pinMode(DRIP_PIN, OUTPUT);
+  digitalWrite(DRIP_PIN,HIGH);
 
   pinMode(FORCE_REVERSE_PIN, INPUT);
   pinMode(EMERGENCY_STOP_PIN, INPUT);
   pinMode(REWIND_AFTER_PRINT_SELECTOR, INPUT);
 
-  //attachInterrupt(0, emergencyStop, RISING);
+  attachInterrupt(0, emergencyStop, LOW);
   
   Serial.begin(115200);
 }
@@ -53,7 +60,7 @@ void drip_forward(){
   delayMicroseconds(minStepperMicroSeconds);
   digitalWrite(STEPPER_STEP_PIN, LOW);
   delayMicroseconds(minStepperMicroSeconds);
-  drips++;
+  steps++;
 }
 
 void drip_reverse(){
@@ -62,38 +69,62 @@ void drip_reverse(){
   delayMicroseconds(minStepperMicroSeconds);
   digitalWrite(STEPPER_STEP_PIN, LOW);
   delayMicroseconds(minStepperMicroSeconds);
-  drips--;
+  steps--;
+}
+
+void drip() {
+  if (steps % stepsPerDrip == 0){
+     digitalWrite(DRIP_PIN, LOW);
+     delay(dripTimems);
+     digitalWrite(DRIP_PIN, HIGH);
+     delay(dripTimems);
+  }
 }
 
 void emergencyStop(){
-  Serial.write("EMERGENCY STOP\n");
-  while (true){
-    delay(1000);
+  if (stopped){
+    Serial.println("EMERGENCY STOP -- RESUMED");
+    stopped = false;
+  } else {
+    Serial.println("EMERGENCY STOP");
+    stopped = true;
   }
 }
 
-
-void loop() {
+void processSerial(){
   if (Serial.available() > 0) {
     incommingByte = Serial.read();
-
-
+    digitalWrite(RX_LED_PIN, HIGH);
   } else {
     incommingByte = ' ';
+    digitalWrite(RX_LED_PIN, LOW);
   }
-  
   if (incommingByte == dripOnCommand) {
-    Serial.write("DRIPPING\n");
+    Serial.println("DRIPPING");
+    dripper_reverse = false;
     dripper_on = true;
   } else if (incommingByte == dripOffCommand) {
-    Serial.write("STOPPED DRIPPING\n");
+    Serial.println("STOPPED DRIPPING");
     dripper_on = false;
   } else if (incommingByte == 'D') {
-    Serial.write("OK\n");
+    Serial.println("OK");
+  }
+}
+
+void loop() {
+  processSerial();
+  if (digitalRead(FORCE_REVERSE_PIN) == LOW){
+    dripper_on = false;
+    dripper_reverse = true;
   }
 
-  if (dripper_on){
-    drip_forward();
+  if (dripper_on && !stopped){
+      drip_forward();
+  } else if (dripper_reverse && !stopped) {
+    if (steps > 0){
+      drip_reverse();
+    }
   }
 
+  drip();
 }
