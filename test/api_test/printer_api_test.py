@@ -383,7 +383,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.layer_ended,
             config.serial.print_ended,
             )
-        self.mock_PhotoZAxis.assert_called_with(0)
+        self.mock_PhotoZAxis.assert_called_with(0.0, 0)
 
     def test_print_gcode_should_create_required_classes_and_start_it_with_override_speed_if_specified(self, *args):
         self.setup_mocks(args)
@@ -538,7 +538,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
             api.print_gcode(gcode_path)
 
-        self.mock_TimedDripZAxis.assert_called_with(config.dripper.drips_per_mm, drips_per_second=config.dripper.emulated_drips_per_second)
+        self.mock_TimedDripZAxis.assert_called_with(config.dripper.drips_per_mm, 0.0, drips_per_second=config.dripper.emulated_drips_per_second)
         self.mock_LayerProcessing.assert_called_with(
             self.mock_layer_writer,
             self.mock_machine_state,
@@ -562,7 +562,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
             api.print_gcode(gcode_path)
 
-        self.mock_PhotoZAxis.assert_called_with(config.dripper.photo_zaxis_delay)
+        self.mock_PhotoZAxis.assert_called_with(0.0, config.dripper.photo_zaxis_delay)
         self.mock_LayerProcessing.assert_called_with(
             self.mock_layer_writer,
             self.mock_machine_state,

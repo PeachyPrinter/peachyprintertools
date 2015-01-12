@@ -8,20 +8,22 @@ import logging
 class TimedDripZAxis(ZAxis, threading.Thread):
     def __init__(self,
                  drips_per_mm,
+                 starting_height,
                  call_back=None,
                  calls_back_per_second=15,
                  drips_per_second=1.0
                  ):
         threading.Thread.__init__(self)
+        super(TimedDripZAxis, self).__init__(starting_height)
         self._drips_per_mm = drips_per_mm
         self._drips_per_second = drips_per_second
         self.shutdown = False
-        self.running = True
+        self.running = False
         self.start_time = 0
         self._call_back = call_back
         self._time_to_wait = 1.0 / (calls_back_per_second * 1.0)
         self._drips_history = 0.0
-        self._height_history = 0.0
+        self._height_history = self._starting_height
 
     def set_call_back(self, call_back):
         self._call_back = call_back
@@ -41,9 +43,12 @@ class TimedDripZAxis(ZAxis, threading.Thread):
         self._drips_per_mm = drips_per_mm
 
     def current_z_location_mm(self):
-        current_time = time.time() - self.start_time
-        height = (current_time * self._drips_per_second) / self._drips_per_mm
-        return self._height_history + height
+        if self.running:
+            current_time = time.time() - self.start_time
+            height = (current_time * self._drips_per_second) / self._drips_per_mm
+            return self._height_history + height
+        else:
+            return self._height_history
 
     def update_data(self):
         if self._call_back:
@@ -53,6 +58,7 @@ class TimedDripZAxis(ZAxis, threading.Thread):
             self._call_back(math.ceil(self._drips_history + drips), self._height_history + height, self._drips_per_second)
 
     def run(self):
+        self.running = True
         self.start_time = time.time()
         while self.running:
             start = time.time()
@@ -65,14 +71,16 @@ class TimedDripZAxis(ZAxis, threading.Thread):
         logging.info('Ignoring move to %s' % height_mm)
 
     def close(self):
-        self.running = False
-        while not self.shutdown:
-            time.sleep(0.1)
+        if self.running:
+            self.running = False
+            while not self.shutdown:
+                time.sleep(0.1)
 
 
 class PhotoZAxis(ZAxis):
-    def __init__(self, height_change_delay=1.0, call_back=None):
-        self._current_height = 0.0
+    def __init__(self, starting_height, height_change_delay=1.0, call_back=None):
+        super(PhotoZAxis, self).__init__(starting_height)
+        self._current_height = self._starting_height
         self._next_height = None
         self._time_of_change = None
         self._next_change = 0

@@ -123,12 +123,14 @@ class PrintAPI(object):
         elif self._configuration.dripper.dripper_type == 'emulated':
             logging.info("Emulated Zaxis")
             return TimedDripZAxis(
-                self._configuration.dripper.drips_per_mm, 
+                self._configuration.dripper.drips_per_mm,
+                0.0, #TODO JT actually start with a starting height
                 drips_per_second = self._configuration.dripper.emulated_drips_per_second
                 )
         elif self._configuration.dripper.dripper_type == 'photo':
             logging.info("Photo Zaxis")
             return PhotoZAxis(
+                0.0, #TODO JT actually start with a starting height
                 self._configuration.dripper.photo_zaxis_delay 
                 )
 
@@ -160,7 +162,6 @@ class PrintAPI(object):
 
         state = MachineState()
         self._status = MachineStatus(self._status_call_back)
-        
 
         if dry_run:
             data_writer = None
@@ -173,7 +174,10 @@ class PrintAPI(object):
                 self._configuration.audio.output.bit_depth,
                 self._configuration.options.write_wav_files_folder,
                 )
-            self._zaxis = PhotoZAxis(0)
+            self._zaxis = PhotoZAxis(
+                0.0, #TODO JT actually start with a starting height 
+                0
+                )
             abort_on_error = True
         else:
             data_writer = AudioWriter(
