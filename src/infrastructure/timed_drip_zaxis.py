@@ -4,13 +4,14 @@ import math
 from domain.zaxis import ZAxis
 import logging
 
+
 class TimedDripZAxis(ZAxis, threading.Thread):
-    def __init__(self, 
-        drips_per_mm, 
-        call_back = None, 
-        calls_back_per_second = 15, 
-        drips_per_second = 1.0
-        ):
+    def __init__(self,
+                 drips_per_mm,
+                 call_back=None,
+                 calls_back_per_second=15,
+                 drips_per_second=1.0
+                 ):
         threading.Thread.__init__(self)
         self._drips_per_mm = drips_per_mm
         self._drips_per_second = drips_per_second
@@ -47,9 +48,9 @@ class TimedDripZAxis(ZAxis, threading.Thread):
     def update_data(self):
         if self._call_back:
             current_time = time.time() - self.start_time
-            drips =  current_time * self._drips_per_second
+            drips = current_time * self._drips_per_second
             height = drips / self._drips_per_mm
-            self._call_back(math.ceil(self._drips_history + drips),self._height_history + height,self._drips_per_second)
+            self._call_back(math.ceil(self._drips_history + drips), self._height_history + height, self._drips_per_second)
 
     def run(self):
         self.start_time = time.time()
@@ -68,8 +69,9 @@ class TimedDripZAxis(ZAxis, threading.Thread):
         while not self.shutdown:
             time.sleep(0.1)
 
+
 class PhotoZAxis(ZAxis):
-    def __init__(self, height_change_delay = 1.0, call_back = None):
+    def __init__(self, height_change_delay=1.0, call_back=None):
         self._current_height = 0.0
         self._next_height = None
         self._time_of_change = None
@@ -79,12 +81,12 @@ class PhotoZAxis(ZAxis):
 
     def start(self):
         self.move_to(0)
-        
+
     def close(self):
         pass
 
     def current_z_location_mm(self):
-        if (self._next_height != None):
+        if (self._next_height is not None):
             if (self._time_of_change and self._time_of_change <= time.time()):
                 self._current_height = self._next_height
                 self._next_height = None
@@ -99,6 +101,6 @@ class PhotoZAxis(ZAxis):
         if self._call_back:
             self._call_back(0, self._current_height, 0)
 
-    def move_to(self,height_mm):
+    def move_to(self, height_mm):
         self._time_of_change = time.time() + self._height_change_delay
         self._next_height = height_mm
