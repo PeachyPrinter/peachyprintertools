@@ -1,24 +1,19 @@
 import threading
-import sys
-import datetime
 import logging
 import time
-
 from domain.commands import *
-from threading import Lock
 from infrastructure.machine import MachineError
 
 
 class Controller(threading.Thread,):
-    def __init__(self, 
-                    layer_writer,
-                    layer_processer,
-                    layer_generator,
-                    status,
-                    abort_on_error=True,
-                    ):
+    def __init__(self,
+                 layer_writer,
+                 layer_processer,
+                 layer_generator,
+                 status,
+                 abort_on_error=True,
+                 ):
         threading.Thread.__init__(self)
-        
         self.deamon = True
 
         self._shutting_down = False
@@ -33,8 +28,6 @@ class Controller(threading.Thread,):
         self._layer_processing = layer_processer
         self._writer = layer_writer
         self._status = status
-
-
 
     def run(self):
         logging.info('Running Controller')
@@ -80,7 +73,6 @@ class Controller(threading.Thread,):
         logging.info('Start Processing Layers')
         while not self._shutting_down:
             try:
-                start = time.time()
                 while self._pause:
                     self._pausing = True
                     time.sleep(0.1)
@@ -91,7 +83,7 @@ class Controller(threading.Thread,):
                 logging.info('Layers Complete')
                 self._shutting_down = True
             except Exception as ex:
-                self._status.add_error(MachineError(str(ex),self._status.status()['current_layer']))
+                self._status.add_error(MachineError(str(ex), self._status.status()['current_layer']))
                 logging.error('Unexpected Error: %s' % str(ex))
                 if self._abort_on_error:
                     self._shutting_down = True
@@ -103,4 +95,3 @@ class Controller(threading.Thread,):
         self._writer.terminate()
         self._layer_processing.terminate()
         self._shutdown = True
-
