@@ -71,13 +71,14 @@ class PrintQueueAPI(object):
 
 
 class PrintAPI(object):
-    def __init__(self, configuration, status_call_back=None):
+    def __init__(self, configuration, start_height=0.0, status_call_back=None):
         logging.info('Print API Startup')
         self._configuration = configuration
         logging.info('Printer Name: %s' % self._configuration.name)
         self._controller = None
         self._status_call_back = status_call_back
         self._zaxis = None
+        self._start_height = start_height
         self._current_file_name = None
         self._current_file = None
         if self._configuration.email.on:
@@ -113,7 +114,7 @@ class PrintAPI(object):
             logging.info("Audio Zaxis")
             return AudioDripZAxis(
                 self._configuration.dripper.drips_per_mm,
-                0.0, #TODO JT actually start with a starting height
+                self._start_height,
                 self._configuration.audio.input.sample_rate,
                 self._configuration.audio.input.bit_depth,
                 self._commander,
@@ -124,13 +125,13 @@ class PrintAPI(object):
             logging.info("Emulated Zaxis")
             return TimedDripZAxis(
                 self._configuration.dripper.drips_per_mm,
-                0.0, #TODO JT actually start with a starting height
+                self._start_height,
                 drips_per_second=self._configuration.dripper.emulated_drips_per_second
                 )
         elif self._configuration.dripper.dripper_type == 'photo':
             logging.info("Photo Zaxis")
             return PhotoZAxis(
-                0.0, #TODO JT actually start with a starting height
+                self._start_height,
                 self._configuration.dripper.photo_zaxis_delay
                 )
 
@@ -174,7 +175,7 @@ class PrintAPI(object):
                 self._configuration.options.write_wav_files_folder,
                 )
             self._zaxis = PhotoZAxis(
-                0.0, #TODO JT actually start with a starting height 
+                self._start_height,
                 0
                 )
             abort_on_error = True

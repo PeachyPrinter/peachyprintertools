@@ -185,9 +185,9 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 @patch('api.print_api.AudioDripZAxis')
 @patch('api.print_api.SubLayerGenerator')
 @patch('api.print_api.NullCommander')
-@patch('api.print_api.ShuffleGenerator') 
-@patch('api.print_api.LayerWriter') 
-@patch('api.print_api.LayerProcessing') 
+@patch('api.print_api.ShuffleGenerator')
+@patch('api.print_api.LayerWriter')
+@patch('api.print_api.LayerProcessing')
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
@@ -262,7 +262,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.mock_AudioDripZAxis.assert_called_with(
             config.dripper.drips_per_mm,
-            0.0,  #TODO JT make this use somthing
+            0.0,
             config.audio.input.sample_rate,
             config.audio.input.bit_depth,
             self.mock_null_commander,
@@ -327,6 +327,36 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             abort_on_error=abort_on_error,
             )
 
+    def test_print_gcode_should_use_start_height(self, *args):
+        self.setup_mocks(args)
+        expected_start_height = 7.7
+        gcode_path = "FakeFile"
+        actual_samples_per_second = 7
+        fake_layers = "Fake Layers"
+
+        self.mock_audio_modulation_laser_control.actual_samples_per_second = actual_samples_per_second
+        self.mock_g_code_reader.get_layers.return_value = fake_layers
+
+        config = self.default_config
+        api = PrintAPI(config, start_height=expected_start_height)
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as mocked_open:
+            api.print_gcode(gcode_path)
+            self.mock_GCodeReader.assert_called_with(
+                mocked_open.return_value,
+                scale=config.options.scaling_factor
+                )
+
+        self.mock_AudioDripZAxis.assert_called_with(
+            config.dripper.drips_per_mm,
+            expected_start_height,
+            config.audio.input.sample_rate,
+            config.audio.input.bit_depth,
+            self.mock_null_commander,
+            config.serial.on_command,
+            config.serial.off_command
+            )
+
     def test_print_gcode_should_create_required_classes_and_start_it_with_pre_layer_delay(self, *args):
         self.setup_mocks(args)
         gcode_path = "FakeFile"
@@ -384,6 +414,21 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.print_ended,
             )
         self.mock_PhotoZAxis.assert_called_with(0.0, 0)
+
+
+    def test_print_gcode_should_create_file_writer_with_start_height(self, *args):
+        self.setup_mocks(args)
+        expected_start_height = 7.8
+        gcode_path = "FakeFile"
+        config = self.default_config
+        config.options.write_wav_files = True
+        config.options.write_wav_files_folder = 'Magic Beans'
+        api = PrintAPI(config, start_height=expected_start_height)
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
+            api.print_gcode(gcode_path)
+
+        self.mock_PhotoZAxis.assert_called_with(expected_start_height, 0)
 
     def test_print_gcode_should_create_required_classes_and_start_it_with_override_speed_if_specified(self, *args):
         self.setup_mocks(args)
@@ -552,6 +597,19 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.print_ended,
             )
 
+    def test_print_gcode_should_use_emulated_dripper_and_start_height(self, * args):
+        self.setup_mocks(args)
+        expected_start_height = 7.7
+        gcode_path = "FakeFile"
+        config = self.default_config
+        config.dripper.dripper_type = 'emulated'
+        api = PrintAPI(config, start_height=expected_start_height)
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
+            api.print_gcode(gcode_path)
+
+        self.mock_TimedDripZAxis.assert_called_with(config.dripper.drips_per_mm, expected_start_height, drips_per_second=config.dripper.emulated_drips_per_second)
+
     def test_print_gcode_should_use_photo_dripper_if_specified_in_config(self, * args):
         self.setup_mocks(args)
         gcode_path = "FakeFile"
@@ -575,6 +633,19 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.layer_ended,
             config.serial.print_ended,
             )
+
+    def test_print_gcode_should_use_photo_dripper_and_start_height(self, * args):
+        self.setup_mocks(args)
+        expected_start_height = 7.7
+        gcode_path = "FakeFile"
+        config = self.default_config
+        config.dripper.dripper_type = 'photo'
+        api = PrintAPI(config, start_height=expected_start_height)
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
+            api.print_gcode(gcode_path)
+
+        self.mock_PhotoZAxis.assert_called_with(expected_start_height, config.dripper.photo_zaxis_delay)
 
     def test_set_drips_per_second_throws_error_if_not_using_emulated_drips(self, *args):
         self.setup_mocks(args)
