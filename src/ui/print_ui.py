@@ -256,7 +256,7 @@ class PrintStatusUI(PeachyFrame):
         Label(self).grid(column=0, row=64)
 
         self.settings_frame = LabelFrame(self, text="Current Settings", padx=5, pady=5)
-        self.settings_frame.grid(column=0, row=65,columnspan=13, sticky=N+S+E+W)
+        self.settings_frame.grid(column=0, row=65, columnspan=13, sticky=N+S+E+W)
         CONFIG_OPTION = "NOTHING"
         self.setting_sublayers = StringVar()
         Label(self.settings_frame, text="Sublayers (mm): ").grid(column=0, row=10, sticky=E)
@@ -398,7 +398,7 @@ class PrintStatusUI(PeachyFrame):
         new_range = (new_high - new_lo)
         return [(((value - old_lo) * new_range) / old_range) + new_lo for value in values]
 
-    def status_call_back(self,status):
+    def status_call_back(self, status):
         self._raw_status = status
 
     def _dps_changed(self):
