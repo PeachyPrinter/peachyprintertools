@@ -257,7 +257,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             api.print_gcode(gcode_path)
             self.mock_GCodeReader.assert_called_with(
                 mocked_open.return_value,
-                scale=config.options.scaling_factor
+                scale=config.options.scaling_factor,
+                start_height=0.0
                 )
 
         self.mock_AudioDripZAxis.assert_called_with(
@@ -344,7 +345,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             api.print_gcode(gcode_path)
             self.mock_GCodeReader.assert_called_with(
                 mocked_open.return_value,
-                scale=config.options.scaling_factor
+                scale=config.options.scaling_factor,
+                start_height=expected_start_height
                 )
 
         self.mock_AudioDripZAxis.assert_called_with(

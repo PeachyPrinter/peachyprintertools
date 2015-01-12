@@ -94,7 +94,7 @@ class PrintAPI(object):
     def print_gcode(self, file_name, print_sub_layers=True, dry_run=False):
         self._current_file_name = file_name
         self._current_file = open(file_name, 'r')
-        gcode_reader = GCodeReader(self._current_file, scale=self._configuration.options.scaling_factor)
+        gcode_reader = GCodeReader(self._current_file, scale=self._configuration.options.scaling_factor, start_height=self._start_height)
         gcode_layer_generator = gcode_reader.get_layers()
         layer_generator = gcode_layer_generator
         logging.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
