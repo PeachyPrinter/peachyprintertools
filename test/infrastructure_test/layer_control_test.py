@@ -292,8 +292,8 @@ class LayerWriterTests(unittest.TestCase):
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
         self.writer = LayerWriter(
-            mock_audio_writer, mock_path_to_audio, mock_laser_control, state, override_speed=2.0,)
-        test_layer = Layer(0.0, [LateralDraw([0.0, 0.0], [2.0, 2.0],  100.0)])
+            mock_audio_writer, mock_path_to_audio, mock_laser_control, state, override_speed=2.0,
+            )
 
         self.writer.process_layer(Layer(0.4, commands=[
             LateralMove([0.0, 0.0], [1.0, 1.0], 100.0),
@@ -317,7 +317,8 @@ class LayerProcessingTest(unittest.TestCase):
         test_layer = Layer(0.0, [LateralDraw(
             [0.0, 0.0], [2.0, 2.0], 2.0), LateralDraw([2.0, 2.0], [-1.0, -1.0], 2.0)])
         layer_processing = LayerProcessing(
-            mock_writer, state, status, mock_zaxis, max_lead_distance, NullCommander(), 0, 'a', 'b', 'z')
+            mock_writer, state, status, mock_zaxis, max_lead_distance, NullCommander(), 0, 'a', 'b', 'z'
+            )
 
         layer_processing.process(test_layer)
 
@@ -335,7 +336,8 @@ class LayerProcessingTest(unittest.TestCase):
         test_layer = Layer(1.0, [LateralDraw(
             [0.0, 0.0], [2.0, 2.0], 2.0), LateralDraw([2.0, 2.0], [-1.0, -1.0], 2.0)])
         layer_processing = LayerProcessing(
-            mock_writer, state, status, mock_zaxis, max_lead_distance, NullCommander(), 0, 'a', 'b', 'z')
+            mock_writer, state, status, mock_zaxis, max_lead_distance, NullCommander(), 0, 'a', 'b', 'z'
+            )
 
         layer_processing.process(test_layer)
 
@@ -345,12 +347,12 @@ class LayerProcessingTest(unittest.TestCase):
 
     def test_process_should_ignore_z_in_layer_if_z_axis_none(self, mock_ZAxis, mock_Writer):
         mock_writer = mock_Writer.return_value
-        mock_zaxis = mock_ZAxis.return_value
         state = MachineState()
         status = MachineStatus()
         test_layer = Layer(1.0, [LateralDraw([2.0, 2.0], [0.0, 0.0], 2.0)])
         layer_processing = LayerProcessing(
-            mock_writer, state, status, None, 0.0, NullCommander(), 0, 'a', 'b', 'z')
+            mock_writer, state, status, None, 0.0, NullCommander(), 0, 'a', 'b', 'z'
+            )
 
         layer_processing.process(test_layer)
 

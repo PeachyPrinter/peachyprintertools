@@ -2,7 +2,6 @@ import time
 import logging
 from domain.commands import *
 from infrastructure.commander import NullCommander
-
 from threading import Lock
 
 
