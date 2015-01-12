@@ -373,7 +373,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_machine_status,
             self.mock_audio_drip_zaxis,
             config.dripper.max_lead_distance_mm,
-            self.mock_null_commander ,
+            self.mock_null_commander,
             config.options.pre_layer_delay,
             config.serial.layer_started,
             config.serial.layer_ended,
@@ -414,7 +414,6 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.print_ended,
             )
         self.mock_PhotoZAxis.assert_called_with(0.0, 0)
-
 
     def test_print_gcode_should_create_file_writer_with_start_height(self, *args):
         self.setup_mocks(args)

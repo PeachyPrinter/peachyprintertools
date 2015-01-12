@@ -1,12 +1,11 @@
 from Tkinter import *
-import tkMessageBox
 import tkFileDialog
 from ui.ui_tools import *
 from ui.main_ui import MainUI
 from api.print_api import PrintAPI, PrintQueueAPI
 from api.configuration_api import ConfigurationAPI
-
 from config import devmode
+
 
 class PrintUI(PeachyFrame):
 
@@ -16,20 +15,23 @@ class PrintUI(PeachyFrame):
         self.file_opt['initialdir'] = '.'
         self.file_opt['parent'] = self
         self.file_opt['title'] = 'Select file to print'
-        self.file_opt['filetypes'] = [('GCode files', '.gcode'),('all files', '.*'), ]
+        self.file_opt['filetypes'] = [('GCode files', '.gcode'), ('all files', '.*'), ]
         self.file_opt['defaultextension'] = '.gcode'
         self.folder_opt = {}
         self.folder_opt['initialdir'] = '.'
         self.folder_opt['parent'] = self
         self.folder_opt['title'] = 'Select file to print'
-        
-        
+
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._printer_selection_current = StringVar()
 
+        self._start_at_height_option = IntVar()
+        self._start_at_height_entry = DoubleVar()
+        self._start_at_height_entry.set(0.0)
+
         if not self._configuration_api.get_available_printers():
             self._configuration_api.add_printer("Peachy Printer")
-        available_printers = self._configuration_api.get_available_printers() 
+        available_printers = self._configuration_api.get_available_printers()
 
         if 'printer' in self.kwargs.keys():
             printer = self.kwargs['printer']
@@ -38,35 +40,75 @@ class PrintUI(PeachyFrame):
         self._printer_selection_current.set(printer)
         self._printer_selected(printer)
 
-        OptionMenu(self, self._printer_selection_current, *available_printers, command = self._printer_selected).grid(column=1,row=10,sticky=N+S+E+W)
-        Label(self).grid(column=1,row=20)
-        Button(self,text=u"Verify G Code", command=self.verify_g_code_click).grid(column=1,row=25,sticky=N+S+E+W)
-        Button(self,text=u"Print G Code", command=self.print_g_code_click).grid(column=1,row=30,sticky=N+S+E+W)
+        OptionMenu(self, self._printer_selection_current, *available_printers, command=self._printer_selected).grid(column=1, row=10, sticky=N+S+E+W)
+        Label(self).grid(column=1, row=20)
+        Button(self, text=u"Verify G Code", command=self.verify_g_code_click).grid(column=1, row=25, sticky=N+S+E+W)
+        Button(self, text=u"Print G Code", command=self.print_g_code_click).grid(column=1, row=30, sticky=N+S+E+W)
+        Checkbutton(self, text=u'Start at height', variable=self._start_at_height_option, command=self._start_at_height).grid(column=2, row=30, sticky=N+S+E+W)
+        self._start_at_height_entry_field = Entry(self, textvariable=self._start_at_height_entry, width=7)
+        self._start_at_height_entry_field.grid(column=3, row=30)
+        self._start_at_height_entry_field.grid_remove()
+        self._start_at_height_entry_label = Label(self, text="mm")
+        self._start_at_height_entry_label.grid(column=4, row=30)
+        self._start_at_height_entry_label.grid_remove()
+
         if devmode:
-            Button(self,text=u"Print GCode Queue", command=self.print_g_code_queue_click).grid(column=1,row=35,sticky=N+S+E+W)
-        Label(self).grid(column=1,row=40)
-        Button(self,text=u"Back", command=self._back).grid(column=0,row=50)
+            Button(self, text=u"Print GCode Queue", command=self.print_g_code_queue_click).grid(column=1, row=35, sticky=N+S+E+W)
+        Label(self).grid(column=1, row=40)
+        Button(self, text=u"Back", command=self._back).grid(column=0, row=50)
 
         self.update()
+
+    def _start_at_height(self):
+        if self._start_at_height_option.get():
+            self._start_at_height_entry_field.grid()
+            self._start_at_height_entry_label.grid()
+        else:
+            self._start_at_height_entry_field.grid_remove()
+            self._start_at_height_entry_label.grid_remove()
 
     def _printer_selected(self, selection):
         self._configuration_api.load_printer(selection)
 
+    def get_height(self):
+        if self._start_at_height_option.get():
+            return self._start_at_height_entry.get()
+        else:
+            return 0.0
+
     def print_g_code_click(self):
         filename = tkFileDialog.askopenfilename(**self.file_opt)
         if filename:
-            self.navigate(PrintStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
+            self.navigate(
+                PrintStatusUI,
+                printer=self._printer_selection_current.get(),
+                filename=filename,
+                height=self.get_height(),
+                config=self._configuration_api.get_current_config(),
+                calling_class=PrintUI
+                )
 
     def print_g_code_queue_click(self):
         foldername = tkFileDialog.askdirectory(**self.folder_opt)
         if foldername:
-            self.navigate(PrintStatusUI, printer =self._printer_selection_current.get(), foldername = foldername, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
-
+            self.navigate(
+                PrintStatusUI,
+                printer=self._printer_selection_current.get(),
+                foldername=foldername,
+                config=self._configuration_api.get_current_config(),
+                calling_class=PrintUI
+                )
 
     def verify_g_code_click(self):
         filename = tkFileDialog.askopenfilename(**self.file_opt)
         if filename:
-            self.navigate(VerifyStatusUI, printer =self._printer_selection_current.get(), filename = filename, config = self._configuration_api.get_current_config(), calling_class = PrintUI)
+            self.navigate(
+                VerifyStatusUI,
+                printer=self._printer_selection_current.get(),
+                filename=filename,
+                height=self.get_height(),
+                config=self._configuration_api.get_current_config(),
+                calling_class=PrintUI)
 
     def _back(self):
         self.navigate(MainUI)
@@ -74,11 +116,11 @@ class PrintUI(PeachyFrame):
     def close(self):
         pass
 
+
 class VerifyStatusUI(PeachyFrame):
 
     def initialize(self):
         self.grid()
-        
         self._elapsed_time = StringVar()
         self._current_layer = IntVar()
         self._current_height = StringVar()
