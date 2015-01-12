@@ -5,17 +5,19 @@ from infrastructure.commander import NullCommander
 
 from threading import Lock
 
+
 class LayerWriter():
-    def __init__(self, 
-        data_writer,
-        path_to_audio,
-        laser_control,
-        state,
-        move_distance_to_ignore = 0.00001,
-        override_speed = None,
-        wait_speed = None,
-        post_fire_delay_speed = None,
-        ):
+
+    def __init__(self,
+                 data_writer,
+                 path_to_audio,
+                 laser_control,
+                 state,
+                 move_distance_to_ignore=0.00001,
+                 override_speed=None,
+                 wait_speed=None,
+                 post_fire_delay_speed=None,
+                 ):
         self._post_fire_delay_speed = post_fire_delay_speed
         self._override_speed = override_speed
         self._move_distance_to_ignore = move_distance_to_ignore
@@ -25,18 +27,18 @@ class LayerWriter():
         self._laser_control = laser_control
         self.laser_off_override = False
         self._after_move_wait_speed = wait_speed
-        logging.info("Wait Speed: %s" % self._after_move_wait_speed )
+        logging.info("Wait Speed: %s" % self._after_move_wait_speed)
 
         self._abort_current_command = False
         self._shutting_down = False
         self._shutdown = False
         self._lock = Lock()
 
-    def _almost_equal(self,a,b):
-        return ( a==b or (abs(a - b) <= self._move_distance_to_ignore))
+    def _almost_equal(self, a, b):
+        return (a == b or (abs(a - b) <= self._move_distance_to_ignore))
 
-    def _same_posisition(self,pos_1,pos_2):
-        return self._almost_equal(pos_1[0],pos_2[0]) and self._almost_equal(pos_1[1],pos_2[1])
+    def _same_posisition(self, pos_1, pos_2):
+        return self._almost_equal(pos_1[0], pos_2[0]) and self._almost_equal(pos_1[1], pos_2[1])
 
     def process_layer(self, layer):
         if self._shutting_down or self._shutdown:
@@ -53,35 +55,37 @@ class LayerWriter():
                     return
                 if type(command) == LateralDraw:
                     if not self._same_posisition(self._state.xy, command.start):
-                        self._move_lateral(command.start,layer.z,command.speed)
-                    self._draw_lateral(command.end, layer.z, command.speed )
+                        self._move_lateral(
+                            command.start, layer.z, command.speed)
+                    self._draw_lateral(command.end, layer.z, command.speed)
 
-    def _move_lateral(self,(to_x,to_y), to_z,speed):
+    def _move_lateral(self, (to_x, to_y), to_z, speed):
         self._laser_control.set_laser_off()
-        self._write_lateral(to_x,to_y,to_z,speed)
+        self._write_lateral(to_x, to_y, to_z, speed)
         if self._after_move_wait_speed:
-            self._write_lateral(to_x,to_y,to_z,self._after_move_wait_speed,ignore_override = True)
+            self._write_lateral(
+                to_x, to_y, to_z, self._after_move_wait_speed, ignore_override=True)
 
-
-    def _draw_lateral(self,(to_x,to_y), to_z,speed):
+    def _draw_lateral(self, (to_x, to_y), to_z, speed):
         laser_was_off = not self._laser_control.laser_is_on()
         if self.laser_off_override:
             self._laser_control.set_laser_off()
         else:
             self._laser_control.set_laser_on()
         if laser_was_off and self._post_fire_delay_speed:
-            self._write_lateral(self._state.x,self._state.y,self._state.z,self._post_fire_delay_speed, ignore_override = True)
-        self._write_lateral(to_x,to_y,to_z,speed)
-    
-    def _write_lateral(self,to_x,to_y, to_z,speed, ignore_override = False):
+            self._write_lateral(
+                self._state.x, self._state.y, self._state.z, self._post_fire_delay_speed, ignore_override=True)
+        self._write_lateral(to_x, to_y, to_z, speed)
+
+    def _write_lateral(self, to_x, to_y, to_z, speed, ignore_override=False):
         if self._override_speed and not ignore_override:
             speed = self._override_speed
-        to_xyz = [to_x,to_y,to_z]
-        path = self._path_to_audio.process(self._state.xyz,to_xyz , speed)
+        to_xyz = [to_x, to_y, to_z]
+        path = self._path_to_audio.process(self._state.xyz, to_xyz, speed)
         modulated_path = self._laser_control.modulate(path)
         if self._data_writer:
             self._data_writer.write_chunk(modulated_path)
-        self._state.set_state(to_xyz,speed)
+        self._state.set_state(to_xyz, speed)
 
     def abort_current_command(self):
         self._abort_current_command = True
@@ -90,7 +94,8 @@ class LayerWriter():
         while time.time() <= wait_time:
             if self._shutting_down:
                 return
-            self._move_lateral(self._state.xy, self._state.z,self._state.speed)
+            self._move_lateral(
+                self._state.xy, self._state.z, self._state.speed)
 
     def terminate(self):
         self._shutting_down = True
@@ -104,18 +109,19 @@ class LayerWriter():
 
 
 class LayerProcessing():
+
     def __init__(self,
-        writer,
-        state,
-        status,
-        zaxis = None,
-        max_lead_distance = 0.0,
-        commander = NullCommander(),
-        pre_layer_delay = 0.0,
-        layer_start_command = None,
-        layer_ended_command = None,
-        print_ended_command = None,
-        ):
+                 writer,
+                 state,
+                 status,
+                 zaxis=None,
+                 max_lead_distance=0.0,
+                 commander=NullCommander(),
+                 pre_layer_delay=0.0,
+                 layer_start_command=None,
+                 layer_ended_command=None,
+                 print_ended_command=None,
+                 ):
         self._writer = writer
         self._layer_count = 0
         self._state = state
@@ -128,12 +134,11 @@ class LayerProcessing():
         self._layer_ended_command = layer_ended_command
         self._print_ended_command = print_ended_command
 
-
         self._shutting_down = False
         self._shutdown = False
         self._lock = Lock()
 
-    def process(self,layer):
+    def process(self, layer):
         if self._shutting_down or self._shutdown:
             raise Exception("LayerProcessing alreay shutdown")
         with self._lock:
@@ -148,7 +153,8 @@ class LayerProcessing():
             if self._should_process(ahead_by):
                 self._commander.send_command(self._layer_start_command)
                 if self._pre_layer_delay:
-                    self._writer.wait_till_time(time.time() + self._pre_layer_delay)
+                    self._writer.wait_till_time(
+                        time.time() + self._pre_layer_delay)
                 self._writer.process_layer(layer)
                 self._commander.send_command(self._layer_ended_command)
             else:
