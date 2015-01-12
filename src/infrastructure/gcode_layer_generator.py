@@ -2,31 +2,32 @@ import collections
 from domain.commands import *
 from domain.layer_generator import LayerGenerator
 import logging
-import sys
+
 
 class GCodeReader(object):
-    def __init__(self, file_object, scale = 1.0):
+    def __init__(self, file_object, scale=1.0):
         self.file_object = file_object
         self.scale = scale
 
     def check(self):
-        layers = GCodeToLayerGenerator(self.file_object, scale = self.scale)
+        layers = GCodeToLayerGenerator(self.file_object, scale=self.scale)
         for layer in layers:
             pass
         return layers.errors
 
     def get_layers(self):
-        return GCodeToLayerGenerator(self.file_object, scale = self.scale)
+        return GCodeToLayerGenerator(self.file_object, scale=self.scale)
+
 
 class GCodeToLayerGenerator(LayerGenerator):
-    def __init__(self, file_object,scale = 1.0):
+    def __init__(self, file_object, scale=1.0):
         super(GCodeToLayerGenerator, self).__init__()
         self.errors = []
         self.warning = []
         self._file_object = file_object
         self._line_number = 0
         self._current_z = 0.0
-        self._gcode_command_reader = GCodeCommandReader(scale = scale)
+        self._gcode_command_reader = GCodeCommandReader(scale=scale)
         self._command_queue = collections.deque()
         self._file_complete = False
 
@@ -42,7 +43,7 @@ class GCodeToLayerGenerator(LayerGenerator):
     def _populate_buffer(self):
         try:
             gcode_line = self._file_object.next()
-            self._line_number +=1
+            self._line_number += 1
             try:
                 commands = self._gcode_command_reader.to_command(gcode_line.strip())
                 for command in commands:
@@ -58,7 +59,7 @@ class GCodeToLayerGenerator(LayerGenerator):
             layer.commands = layer.commands[:-1]
         return layer
 
-    def _get_layer(self, layer = None):
+    def _get_layer(self, layer=None):
         generating_layer = True
         while generating_layer:
             try:
@@ -73,7 +74,7 @@ class GCodeToLayerGenerator(LayerGenerator):
                     if layer:
                         layer.commands.append(command)
                     else:
-                        layer = Layer(0.0, [ command ])
+                        layer = Layer(0.0, [command])
             except IndexError:
                 if self._file_complete:
                     if layer:
@@ -83,12 +84,14 @@ class GCodeToLayerGenerator(LayerGenerator):
                 else:
                     self._populate_buffer()
 
+
 class GCodeCommandReader(object):
     _INCHES2MM = 25.4
-    def __init__(self, verbose = False, scale = 1.0):
+
+    def __init__(self, verbose=False, scale=1.0):
         super(GCodeCommandReader, self).__init__()
         self._mm_per_s = None
-        self._current_xy = [0.0,0.0]
+        self._current_xy = [0.0, 0.0]
         self._current_z_pos = 0.0
         self._layer_height = None
         self._units = 'mm'
@@ -99,7 +102,7 @@ class GCodeCommandReader(object):
             return []
         commands = gcode.split(' ')
         if commands[0] in self._COMMAND_HANDLERS:
-            return self._COMMAND_HANDLERS[commands[0]](self,gcode)
+            return self._COMMAND_HANDLERS[commands[0]](self, gcode)
         logging.error('Unsupported Command: %s' % (gcode))
         raise Exception('Unsupported Command: %s' % (gcode))
 
@@ -128,53 +131,52 @@ class GCodeCommandReader(object):
         if not self._mm_per_s:
             logging.error("Feed Rate Never Specified")
             raise Exception("Feed Rate Never Specified")
-        if z_mm != None:
-            if x_mm != None or y_mm != None:
+        if z_mm is not None:
+            if x_mm is not None or y_mm is not None:
                 logging.warning("Vertically angled writes are not supported...yet")
-                up = self._get_vertical_movement(z_mm,write)
-                over = self._get_lateral_movement([x_mm,y_mm], write)
+                up = self._get_vertical_movement(z_mm, write)
+                over = self._get_lateral_movement([x_mm, y_mm], write)
                 return up + over
-            return self._get_vertical_movement(z_mm,write)
-        elif x_mm != None and y_mm != None:
-            return self._get_lateral_movement([x_mm,y_mm], write)
+            return self._get_vertical_movement(z_mm, write)
+        elif x_mm is not None and y_mm is not None:
+            return self._get_lateral_movement([x_mm, y_mm], write)
         else:
             return []
 
     def _get_vertical_movement(self, z_mm, write):
         self._zaxis_change(z_mm)
-        commands = [ ]
+        commands = []
         if write:
             distance_to_traverse = z_mm - self._current_z_pos
             layers = int(distance_to_traverse / self._layer_height)
             commands = []
             for layer in range(0, layers + 1):
                 next_layer_height = self._current_z_pos + self._layer_height
-                commands.append(VerticalMove(self._current_z_pos, next_layer_height ,self._mm_per_s))
-                commands.append(LateralDraw(self._current_xy,self._current_xy,self._mm_per_s))
+                commands.append(VerticalMove(self._current_z_pos, next_layer_height, self._mm_per_s))
+                commands.append(LateralDraw(self._current_xy, self._current_xy, self._mm_per_s))
                 self._current_z_pos = next_layer_height
         else:
-            commands.append(VerticalMove(self._current_z_pos,z_mm,self._mm_per_s))
+            commands.append(VerticalMove(self._current_z_pos, z_mm, self._mm_per_s))
         self._current_z_pos = z_mm
         return commands
-
 
     def _get_lateral_movement(self, xy_mm, write):
         command = []
         if write:
-            command = [ LateralDraw(self._current_xy,xy_mm,self._mm_per_s) ]
+            command = [LateralDraw(self._current_xy, xy_mm, self._mm_per_s)]
         else:
-            command = [ LateralMove(self._current_xy,xy_mm,self._mm_per_s) ]
+            command = [LateralMove(self._current_xy, xy_mm, self._mm_per_s)]
         self._current_xy = xy_mm
         return command
 
-    def _zaxis_change(self,z_mm):
+    def _zaxis_change(self, z_mm):
         if self._current_z_pos and self._current_z_pos > z_mm:
             logging.error("Negitive Vertical Movement Unsupported")
             raise Exception("Negitive Vertical Movement Unsupported")
         else:
-            self._update_layer_height(self._current_z_pos,z_mm)
-    
-    def _to_mm_per_second(self,value_per_minute):
+            self._update_layer_height(self._current_z_pos, z_mm)
+
+    def _to_mm_per_second(self, value_per_minute):
         if self._units == 'inches':
             return value_per_minute * self._INCHES2MM / 60.0
         else:
@@ -186,7 +188,6 @@ class GCodeCommandReader(object):
         else:
             return value
 
-
     def _update_layer_height(self, current_height, new_height):
         if current_height:
             this_layer_height = new_height - current_height
@@ -197,7 +198,7 @@ class GCodeCommandReader(object):
                 self._layer_height = this_layer_height
 
     def _can_ignore(self, command):
-        if command in [ '\n', '' ]:
+        if command in ['\n', '']:
             return True
         for prefix in self._IGNORABLE_PREFIXES:
             if command.startswith(prefix):
@@ -211,17 +212,17 @@ class GCodeCommandReader(object):
         self._units = 'inches'
 
     _COMMAND_HANDLERS = {
-        'G01' : _command_draw,
-        'G1'  : _command_draw,
-        'G0'  : _command_draw,
-        'G01' : _command_draw,
-        'G21' : _units_mm,
-        'G20' : _units_inches
+        'G01': _command_draw,
+        'G1' : _command_draw,
+        'G0' : _command_draw,
+        'G01': _command_draw,
+        'G21': _units_mm,
+        'G20': _units_inches
     }
 
-    _IGNORABLE_PREFIXES = [ 
+    _IGNORABLE_PREFIXES = [
     ';', # Comment
     'M', # Miscilanious / Machine Specific
     'O', # Title
     'G90', # Absolute Posisitioning Currently assumed
-    ] 
+    ]
