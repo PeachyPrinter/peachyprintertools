@@ -1,5 +1,4 @@
 import logging
-import threading
 import time
 from os import path, listdir
 
@@ -18,8 +17,9 @@ from infrastructure.notification import EmailNotificationService, EmailGateway
 from infrastructure.layer_control import LayerWriter, LayerProcessing
 from infrastructure.machine import *
 
+
 class PrintQueueAPI(object):
-    def __init__(self, configuration, status_call_back = None):
+    def __init__(self, configuration, status_call_back=None):
         self._configuration = configuration
         self._files = []
         self._api = None
@@ -41,10 +41,9 @@ class PrintQueueAPI(object):
             else:
                 logging.info('Print Queue Complete')
 
-
     def print_next(self):
         afile = self._files.pop(0)
-        logging.info("Printing Next File: %s" % afile )
+        logging.info("Printing Next File: %s" % afile)
         self._api = PrintAPI(self._configuration, self.call_back)
         self._api.print_gcode(afile)
 
@@ -56,7 +55,7 @@ class PrintQueueAPI(object):
         if not path.isdir(folder):
             logging.info('Folder Specified Does Not Exist')
             raise Exception('Folder Specified Does Not Exist')
-        all_files = [ path.join(folder,item) for item in listdir(folder) if item.endswith('.gcode') ]
+        all_files = [path.join(folder, item) for item in listdir(folder) if item.endswith('.gcode')]
         if len(all_files) == 0:
             logging.info('Folder Contains No Valid Files')
             raise Exception('Folder Contains No Valid Files')
@@ -69,8 +68,10 @@ class PrintQueueAPI(object):
 
 
 '''API designed to use configuration to print a thing'''
+
+
 class PrintAPI(object):
-    def __init__(self, configuration, status_call_back = None):
+    def __init__(self, configuration, status_call_back=None):
         logging.info('Print API Startup')
         self._configuration = configuration
         logging.info('Printer Name: %s' % self._configuration.name)
@@ -80,8 +81,8 @@ class PrintAPI(object):
         self._current_file_name = None
         self._current_file = None
         if self._configuration.email.on:
-            self._email_gateway = EmailGateway(self._configuration.email.host,self._configuration.email.port)
-            self._notification_service = EmailNotificationService(self._email_gateway,self._configuration.email.sender, self._configuration.email.recipient)
+            self._email_gateway = EmailGateway(self._configuration.email.host, self._configuration.email.port)
+            self._notification_service = EmailNotificationService(self._email_gateway, self._configuration.email.sender, self._configuration.email.recipient)
         else:
             self._notification_service = None
 
@@ -89,10 +90,10 @@ class PrintAPI(object):
     def configuration(self):
         return self._configuration
 
-    def print_gcode(self, file_name, print_sub_layers = True, dry_run = False):
+    def print_gcode(self, file_name, print_sub_layers=True, dry_run=False):
         self._current_file_name = file_name
-        self._current_file = open(file_name,'r')
-        gcode_reader = GCodeReader(self._current_file, scale = self._configuration.options.scaling_factor)
+        self._current_file = open(file_name, 'r')
+        gcode_reader = GCodeReader(self._current_file, scale=self._configuration.options.scaling_factor)
         gcode_layer_generator = gcode_reader.get_layers()
         layer_generator = gcode_layer_generator
         logging.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
@@ -102,22 +103,21 @@ class PrintAPI(object):
         if self._configuration.options.use_sublayers and print_sub_layers:
             layer_generator = SubLayerGenerator(layer_generator, self._configuration.options.sublayer_height_mm)
         if self._configuration.options.use_shufflelayers:
-            layer_generator = ShuffleGenerator(layer_generator,self._configuration.options.shuffle_layers_amount)
+            layer_generator = ShuffleGenerator(layer_generator, self._configuration.options.shuffle_layers_amount)
         if self._configuration.options.use_overlap:
             layer_generator = OverLapGenerator(layer_generator, self._configuration.options.overlap_amount)
-            
         self.print_layers(layer_generator, dry_run)
 
     def _get_zaxis(self):
         if self._configuration.dripper.dripper_type == 'audio':
             logging.info("Audio Zaxis")
             return AudioDripZAxis(
-                self._configuration.dripper.drips_per_mm, 
+                self._configuration.dripper.drips_per_mm,
                 0.0, #TODO JT actually start with a starting height
                 self._configuration.audio.input.sample_rate,
                 self._configuration.audio.input.bit_depth,
                 self._commander,
-                self._configuration.serial.on_command, 
+                self._configuration.serial.on_command,
                 self._configuration.serial.off_command
                 )
         elif self._configuration.dripper.dripper_type == 'emulated':
@@ -125,18 +125,18 @@ class PrintAPI(object):
             return TimedDripZAxis(
                 self._configuration.dripper.drips_per_mm,
                 0.0, #TODO JT actually start with a starting height
-                drips_per_second = self._configuration.dripper.emulated_drips_per_second
+                drips_per_second=self._configuration.dripper.emulated_drips_per_second
                 )
         elif self._configuration.dripper.dripper_type == 'photo':
             logging.info("Photo Zaxis")
             return PhotoZAxis(
                 0.0, #TODO JT actually start with a starting height
-                self._configuration.dripper.photo_zaxis_delay 
+                self._configuration.dripper.photo_zaxis_delay
                 )
 
-    def print_layers(self, layer_generator, dry_run = False):
+    def print_layers(self, layer_generator, dry_run=False):
         if self._configuration.serial.on:
-            self._commander = SerialCommander( self._configuration.serial.port )
+            self._commander = SerialCommander(self._configuration.serial.port)
         else:
             self._commander = NullCommander()
 
@@ -156,7 +156,7 @@ class PrintAPI(object):
 
         path_to_audio = PathToAudio(
             laser_control.actual_samples_per_second,
-            transformer, 
+            transformer,
             self._configuration.options.laser_thickness_mm
             )
 
@@ -166,11 +166,10 @@ class PrintAPI(object):
         if dry_run:
             data_writer = None
             self._zaxis = None
-            zaxis_control = None
             abort_on_error = False
         elif self._configuration.options.write_wav_files:
             data_writer = FileWriter(
-                self._configuration.audio.output.sample_rate, 
+                self._configuration.audio.output.sample_rate,
                 self._configuration.audio.output.bit_depth,
                 self._configuration.options.write_wav_files_folder,
                 )
@@ -181,7 +180,7 @@ class PrintAPI(object):
             abort_on_error = True
         else:
             data_writer = AudioWriter(
-                self._configuration.audio.output.sample_rate, 
+                self._configuration.audio.output.sample_rate,
                 self._configuration.audio.output.bit_depth,
                 )
             self._zaxis = self._get_zaxis()
@@ -194,17 +193,17 @@ class PrintAPI(object):
         pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else 0.0
         post_fire_delay_speed = None
         if self._configuration.options.post_fire_delay:
-            post_fire_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.post_fire_delay) / 1000.0) 
+            post_fire_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.post_fire_delay) / 1000.0)
 
         self._writer = LayerWriter(
-            data_writer, 
-            path_to_audio, 
+            data_writer,
+            path_to_audio,
             laser_control,
             state,
-            move_distance_to_ignore = self._configuration.options.laser_thickness_mm,
-            override_speed = override_speed, 
-            wait_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.wait_after_move_milliseconds) / 1000.0) ,
-            post_fire_delay_speed = post_fire_delay_speed,
+            move_distance_to_ignore=self._configuration.options.laser_thickness_mm,
+            override_speed=override_speed,
+            wait_speed=self._configuration.options.laser_thickness_mm / (float(self._configuration.options.wait_after_move_milliseconds) / 1000.0),
+            post_fire_delay_speed=post_fire_delay_speed,
             )
 
         self._layer_processing = LayerProcessing(
@@ -225,7 +224,7 @@ class PrintAPI(object):
             self._layer_processing,
             layer_generator,
             self._status,
-            abort_on_error = abort_on_error,
+            abort_on_error=abort_on_error,
             )
 
         self._controller.start()
@@ -254,11 +253,11 @@ class PrintAPI(object):
             return 0.0
 
     def verify_gcode(self, file_name):
-        self.print_gcode(file_name,  print_sub_layers = False,  dry_run = True)
+        self.print_gcode(file_name,  print_sub_layers=False,  dry_run=True)
 
     def close(self):
         if self._zaxis:
-            self._zaxis.close()   #Work around for windows not closing.
+            self._zaxis.close()
         if self._controller:
             self._controller.close()
         else:
