@@ -172,6 +172,7 @@ class ConfigurationAPI(object):
             self._commander = SerialCommander(self._current_config.serial.port)
         self._drip_detector = AudioDripZAxis(
             1,
+            0.0,
             self._current_config.audio.input.sample_rate, 
             self._current_config.audio.input.bit_depth, 
             NullCommander(),

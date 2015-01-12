@@ -113,6 +113,7 @@ class PrintAPI(object):
             logging.info("Audio Zaxis")
             return AudioDripZAxis(
                 self._configuration.dripper.drips_per_mm, 
+                0.0, #TODO JT actually start with a starting height
                 self._configuration.audio.input.sample_rate,
                 self._configuration.audio.input.bit_depth,
                 self._commander,

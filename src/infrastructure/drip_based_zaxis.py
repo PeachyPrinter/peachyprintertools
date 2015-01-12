@@ -101,6 +101,7 @@ class DripDetector(object):
 class AudioDripZAxis(ZAxis, threading.Thread):
     def __init__(self,
                  drips_per_mm,
+                 starting_height,
                  sample_rate,
                  bit_depth,
                  commander,
@@ -108,6 +109,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
                  dripper_off_command,
                  drip_call_back=None,):
         threading.Thread.__init__(self)
+        super(AudioDripZAxis, self).__init__(starting_height)
         self._last_command = ('', 0)
         self._drips_per_mm = drips_per_mm
         self._sample_rate = sample_rate
@@ -144,7 +146,7 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         self._drips = 0
 
     def current_z_location_mm(self):
-        return self._drips * 1.0 / self._drips_per_mm
+        return self._starting_height + (self._drips * 1.0 / self._drips_per_mm)
 
     def set_drips_per_mm(self, drips_per_mm):
         self._drips_per_mm = drips_per_mm
