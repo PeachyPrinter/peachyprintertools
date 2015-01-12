@@ -5,24 +5,26 @@ import logging
 
 
 class GCodeReader(object):
-    def __init__(self, file_object, scale=1.0):
+    def __init__(self, file_object, scale=1.0, start_height=None):
+        self._start_height = start_height
         self.file_object = file_object
         self.scale = scale
 
     def check(self):
-        layers = GCodeToLayerGenerator(self.file_object, scale=self.scale)
+        layers = GCodeToLayerGenerator(self.file_object, scale=self.scale, start_height=self._start_height)
         for layer in layers:
             pass
         return layers.errors
 
     def get_layers(self):
-        return GCodeToLayerGenerator(self.file_object, scale=self.scale)
+        return GCodeToLayerGenerator(self.file_object, scale=self.scale, start_height=self._start_height)
 
 
 class GCodeToLayerGenerator(LayerGenerator):
-    def __init__(self, file_object, scale=1.0):
+    def __init__(self, file_object, scale=1.0, start_height=None):
         super(GCodeToLayerGenerator, self).__init__()
         self.errors = []
+        self._start_height = start_height
         self.warning = []
         self._file_object = file_object
         self._line_number = 0
@@ -38,7 +40,10 @@ class GCodeToLayerGenerator(LayerGenerator):
         return self.next()
 
     def next(self):
-        return self._get_layer(None)
+        layer = self._get_layer(None)
+        while layer.z < self._start_height:
+            layer = self._get_layer(None)
+        return layer
 
     def _populate_buffer(self):
         try:

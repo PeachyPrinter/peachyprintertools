@@ -35,7 +35,7 @@ class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
 
         gcode_reader = GCodeReader(test_gcode, scale=0.1)
         gcode_reader.get_layers()
-        mock_GCodeToLayerGenerator.assert_called_with(test_gcode, scale=0.1)
+        mock_GCodeToLayerGenerator.assert_called_with(test_gcode, scale=0.1, start_height=None)
 
     @patch('infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
     def test_check_should_use_scale(self, mock_GCodeToLayerGenerator):
@@ -44,7 +44,17 @@ class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
 
         gcode_reader = GCodeReader(test_gcode, scale=0.1)
         gcode_reader.check()
-        mock_GCodeToLayerGenerator.assert_called_with(test_gcode, scale=0.1)
+        mock_GCodeToLayerGenerator.assert_called_with(test_gcode, scale=0.1, start_height=None)
+
+    @patch('infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
+    def test_check_should_use_start_height(self, mock_GCodeToLayerGenerator):
+        line = "Fake Gcode"
+        test_gcode = StringIO.StringIO("%s\n" % line)
+        expected_start_height = 7
+
+        gcode_reader = GCodeReader(test_gcode, start_height=expected_start_height)
+        gcode_reader.check()
+        mock_GCodeToLayerGenerator.assert_called_with(test_gcode, scale=1.0, start_height=expected_start_height)
 
 
 class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
@@ -150,6 +160,29 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
         test_gcode = StringIO.StringIO(gcode_line)
         layer_generator = GCodeToLayerGenerator(test_gcode)
         expected = [Layer(0.1, [command2]), Layer(0.2, [command4])]
+
+        actual = list(layer_generator)
+
+        self.assertLayersEquals(expected, actual)
+
+    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    def test_returns_multiple_layers_start_at_start_height(self, mock_GCodeCommandReader):
+        return_values = [[]]
+        for i in range(0, 51):
+            height = float(i) / 10.0
+            return_values[0].append(VerticalMove(height - 0.1, height, 100.0))
+            return_values[0].append(LateralDraw([float((i-1) % 2), float((i-1) % 2)], [float(i % 2), float(i % 2)], 100.0))
+
+        def side_effect(self):
+            return return_values.pop()
+
+        mock_gcode_command_reader = mock_GCodeCommandReader.return_value
+        mock_gcode_command_reader.to_command.side_effect = side_effect
+
+        gcode_line = "G01 Z0.1 F100.0"
+        test_gcode = StringIO.StringIO(gcode_line)
+        layer_generator = GCodeToLayerGenerator(test_gcode, start_height=4.9)
+        expected = [Layer(4.9, [LateralDraw([0.0, 0.0], [1.0, 1.0], 100.0)]), Layer(5.0, [LateralDraw([1.0, 1.0], [0.0, 0.0], 100.0)])]
 
         actual = list(layer_generator)
 
