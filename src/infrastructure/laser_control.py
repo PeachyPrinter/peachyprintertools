@@ -6,6 +6,15 @@ from fractions import gcd
 from domain.laser_control import LaserControl
 
 
+class SerialDataControl(LaserControl):
+    def __init__(self, sampling_rate, on_frequency, off_frequency, offset):
+        pass
+        # self.connection = SerialMessanger()
+
+    def modulate(self, data):
+        pass
+
+
 class AudioModulationLaserControl(LaserControl):
     _MODULATION_AMPLITUDE_RATIO = 0.25
     _SOURCE_AMPLITUDE_RATIO = 1.0 - _MODULATION_AMPLITUDE_RATIO

@@ -1,3 +1,4 @@
+
 import logging
 import pyaudio
 import numpy as np
@@ -59,6 +60,14 @@ class AudioSetup(object):
             if pa:
                 pa.terminate()
         return {'input': inputs, 'output': outputs}
+
+
+class NullWriter(DataWriter):
+    def __init__(self, *args, **kwargs):
+        pass
+
+    def write_chunk(self, chunk):
+        pass
 
 
 class AudioWriter(DataWriter):
