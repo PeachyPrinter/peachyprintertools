@@ -4,15 +4,81 @@ import logging
 from fractions import gcd
 
 from domain.laser_control import LaserControl
+from messages import *
+
+import serial
+
+
+class HACKCON(object):
+    HEADER = '@'
+    FOOTER = 'A'
+    ESCAPE = 'B'
+
+    def __init__(self):
+        self.conn = serial.Serial('/dev/ttyACM0')
+
+    def register(self, type_id, handler):
+        logging.info("REGISTERED: %s: %s" % (type_id, handler.__name__))
+
+    def send(self, type_id, data):
+        packet = self.HEADER + self.escape(chr(type_id) + data) + self.FOOTER
+        self.conn.write(packet)
+        logging.info("SENT: %s" % repr(packet))
+
+    def escape(self, data):
+        out = ''
+        for character in data:
+            if ord(character) in [self.HEADER, self.FOOTER, self.ESCAPE]:
+                out += self.ESCAPE +'%c' % ((~ord(character)) & 0xFF)
+            else:
+                out += character
+        return out
 
 
 class SerialDataControl(LaserControl):
-    def __init__(self, sampling_rate, on_frequency, off_frequency, offset):
-        pass
-        # self.connection = SerialMessanger()
+    NACK_ID = 0
+    ACK_ID = 1
+    MOVE_ID = 2
+
+    def __init__(self, sampling_rate, on_frequency, off_frequency, offset, connection):
+        self._x_offset, self._y_offset = offset
+
+        self._connection = connection
+        self._connection.register(self.NACK_ID, self.nackHandler)
+        self._connection.register(self.ACK_ID, self.ackHandler)
+        self._message_id = 0
+        self.asdfscale = pow(2, 16) -1
+        off_laser_steps = sampling_rate / off_frequency
+        on_laser_steps = sampling_rate / on_frequency
+        lcm = self._lcm([off_laser_steps, on_laser_steps])
+        self.actual_samples_per_second = sampling_rate / lcm
+
+
+    def _lcm(self, numbers):
+        return reduce(lambda x, y: (x*y)/gcd(x,y), numbers, 1)
 
     def modulate(self, data):
+        for (x, y) in data:
+            out_x = int(x * self.asdfscale)
+            out_y = int(y * self.asdfscale)
+            logging.info(x)
+            logging.info(out_x)
+            if self.laser_is_on:
+                laser = self.scale = pow(2, 8)
+            message = Move(self._message_id, out_x, out_y, laser).to_protobuf_bytes()
+            self._message_id += 1
+            self._connection.send(self.MOVE_ID, message)
+        return data
+
+    def ackHandler(self, ack_data):
         pass
+
+    def nackHandler(self, nack_data):
+        pass
+
+    def set_offset(self, offset):
+        self._x_offset, self._y_offset = offset
+
 
 
 class AudioModulationLaserControl(LaserControl):

@@ -4,7 +4,7 @@ import types
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
-from infrastructure.laser_control import AudioModulationLaserControl
+from infrastructure.laser_control import *
 from infrastructure.transformer import TuningTransformer, HomogenousTransformer
 from infrastructure.layer_generators import *
 from infrastructure.machine import *
@@ -37,11 +37,13 @@ class CalibrationAPI(object):
             
         self._current_generator = self._point_generator
 
-        self._laser_control = AudioModulationLaserControl(
+        #HACKED
+        self._laser_control = SerialDataControl(
             self._configuration.audio.output.sample_rate,
             self._configuration.audio.output.modulation_on_frequency,
             self._configuration.audio.output.modulation_off_frequency,
-            self._configuration.options.laser_offset
+            self._configuration.options.laser_offset,
+            HACKCON()
             )
         transformer = TuningTransformer(scale = self._configuration.calibration.max_deflection)
         self._path_to_audio= PathToAudio(
