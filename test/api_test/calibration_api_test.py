@@ -3,8 +3,8 @@ import os
 import sys
 from mock import patch
 
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 import test_helpers
 from api.calibration_api import CalibrationAPI
@@ -19,8 +19,8 @@ from api.calibration_api import CalibrationAPI
 @patch('api.calibration_api.TuningTransformer')
 @patch('api.calibration_api.AudioWriter')
 @patch('api.calibration_api.AudioDisseminator')
-@patch('api.calibration_api.LayerWriter') 
-@patch('api.calibration_api.LayerProcessing') 
+@patch('api.calibration_api.LayerWriter')
+@patch('api.calibration_api.LayerProcessing')
 @patch('api.calibration_api.SinglePointGenerator')
 @patch('api.calibration_api.BlinkGenerator')
 @patch('api.calibration_api.CalibrationLineGenerator')
@@ -80,7 +80,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         actual_samples = 7
         self.mock_audio_disseminator.samples_per_second = actual_samples
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         self.mock_SinglePointGenerator.assert_called_with()
         self.mock_AudioDisseminator.assert_called_with(
@@ -92,7 +92,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.default_config.options.laser_offset
             )
         self.mock_TuningTransformer.assert_called_with(
-            scale = self.default_config.calibration.max_deflection
+            scale=self.default_config.calibration.max_deflection
             )
         self.mock_PathToAudio.assert_called_with(
             actual_samples,
@@ -108,46 +108,45 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_layer_processing,
             self.mock_single_point_generator,
             self.mock_machine_status,
-            abort_on_error = False
+            abort_on_error=False
             )
 
     def test_stop_should_call_stop_on_controller(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         calibration_api.close()
 
         self.mock_controller.close.assert_called_with()
 
-        
     def test_ini_should_load_the_correct_printer(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+
+        CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         self.mock_configuration_manager.load.assert_called_with('Spam')
 
     def test_show_point_should_set_coordanates_on_Single_Point_Generator(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
-        x,y,z = 1.0,0.2,1.0
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        x, y, z = 1.0, 0.2, 1.0
 
-        calibration_api.show_point([x,y,z])
+        calibration_api.show_point([x, y, z])
 
-        self.assertEquals([x,y],self.mock_single_point_generator.xy)
+        self.assertEquals([x, y], self.mock_single_point_generator.xy)
 
     def test_show_point_should_use_Single_Point_Generator(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
-        x,y,z = 1.0,0.2,1.0
+
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        x, y, z = 1.0, 0.2, 1.0
 
         calibration_api.show_line()
-        calibration_api.show_point([x,y,z])
+        calibration_api.show_point([x, y, z])
 
         self.mock_controller.change_generator.assert_called_with(self.mock_single_point_generator)
 
@@ -155,11 +154,11 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
-        x,y,z = 1.0,0.2,1.0
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        x, y, z = 1.0, 0.2, 1.0
 
         calibration_api.show_line()
-        calibration_api.show_blink([x,y,z])
+        calibration_api.show_blink([x, y, z])
 
         self.mock_controller.change_generator.assert_called_with(self.mock_blink_generator)
 
@@ -167,8 +166,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
-        x,y,z = 1.0,0.2,1.0
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         calibration_api.set_laser_off_override(True)
         self.assertTrue(self.mock_controller.laser_off_override)
@@ -176,12 +174,11 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertFalse(self.mock_controller.laser_off_override)
 
     @patch('api.calibration_api.CalibrationLineGenerator')
-    def test_show_line_should_use_CalibrationLineGenerator(self, mock_CalibrationLineGenerator,*args):
+    def test_show_line_should_use_CalibrationLineGenerator(self, mock_CalibrationLineGenerator, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
-        x,y,z = 1.0,0.2,1.0
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         calibration_api.show_line()
 
@@ -190,26 +187,26 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def test_get_patterns_should_return_available_test_patterns(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         patterns = calibration_api.get_test_patterns()
 
-        self.assertEquals(set(['Memory Hourglass','NESW','Damping Test','Hilbert Space Filling Curve','Spiral','Square','Circle','Twitch']),set(patterns))
+        self.assertEquals(set(['Memory Hourglass', 'NESW', 'Damping Test', 'Hilbert Space Filling Curve', 'Spiral', 'Square', 'Circle', 'Twitch']),set(patterns))
 
     def test_change_pattern_should_raise_exception_when_test_patterns_unavailable(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         with self.assertRaises(Exception):
             calibration_api.show_test_pattern("Shrubberies")
 
     @patch('api.calibration_api.HilbertGenerator')
-    def test_change_pattern_should_change_pattern_on_controller(self, mock_HilbertGenerator,*args):
+    def test_change_pattern_should_change_pattern_on_controller(self, mock_HilbertGenerator, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
         calibration_api.show_test_pattern("Hilbert Space Filling Curve")
         self.mock_controller.change_generator.assert_called_with(self.mock_hilbert_generator)
 
@@ -217,66 +214,64 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         expected_config = self.default_config
         self.mock_configuration_manager.load.return_value = expected_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         self.assertEqual(calibration_api.current_calibration(), expected_config.calibration)
 
     def test_save_points_should_save_points(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        
-        expected_lower = { 
-                (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0),
-                (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0)
+        expected_lower = {
+                (1.0, 1.0): (1.0,  1.0), (0.0, 1.0): (-1.0,  1.0),
+                (1.0, 0.0): (1.0, -1.0), (0.0, 0.0): (-1.0, -1.0)
                 }
-        expected_upper = { 
-                (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0),
-                (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0)
+        expected_upper = {
+                (1.0, 1.0): (1.0,  1.0), (0.0, 1.0): (-1.0,  1.0),
+                (1.0, 0.0): (1.0, -1.0), (0.0, 0.0): (-1.0, -1.0)
                 }
         expected_height = 1.0
-
         expected_config = self.default_config
         expected_config.calibration.height = expected_height
         expected_config.calibration.lower_points = expected_lower
         expected_config.calibration.upper_points = expected_upper
-        
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
-        calibration_api.save_points(expected_height,expected_lower, expected_upper)
 
-        self.assertConfigurationEqual(expected_config,self.mock_configuration_manager.save.mock_calls[0][1][0])
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api.save_points(expected_height, expected_lower, expected_upper)
+
+        self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
 
     @patch('api.calibration_api.HomogenousTransformer')
     def test_show_test_pattern_should_apply_calibration_should_replace_controllers_transformer(self, mock_HomogenousTransformer, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         calibration_api.show_test_pattern('Hilbert Space Filling Curve')
 
-        self.mock_HomogenousTransformer.assert_called_with( 
+        self.mock_HomogenousTransformer.assert_called_with(
             self.default_config.calibration.max_deflection,
             self.default_config.calibration.height,
             self.default_config.calibration.lower_points,
-            self.default_config.calibration.upper_points, 
+            self.default_config.calibration.upper_points,
             )
 
         self.mock_path_to_audio.set_transformer.assert_called_with(self.mock_homogenous_transformer)
 
     def test_show_line_should_replace_controllers_transformer(self, *args):
         self.setup_mocks(args)
-        self.mock_configuration_manager.load.return_value = self.default_config        
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        self.mock_configuration_manager.load.return_value = self.default_config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         calibration_api.show_test_pattern('Hilbert Space Filling Curve')
         calibration_api.show_line()
 
-        self.mock_TuningTransformer.assert_called_with(scale = self.default_config.calibration.max_deflection)
+        self.mock_TuningTransformer.assert_called_with(scale=self.default_config.calibration.max_deflection)
         self.mock_path_to_audio.set_transformer.assert_called_with(self.mock_tuning_transformer)
 
     def test_show_point_should_replace_controllers_transformer(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         calibration_api.show_test_pattern('Hilbert Space Filling Curve')
         calibration_api.show_point()
@@ -287,15 +282,15 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         config = self.default_config
         expected = 4
-        config.calibration.lower_points = { 
-                (1.0, 1.0):( 7.0,  7.0),
-                (0.0, 1.0):(-7.0,  7.0),
-                (1.0, 0.0):( 7.0, -7.0),
-                (0.0, 0.0):(-expected, -7.0)
+        config.calibration.lower_points = {
+                (1.0, 1.0): ( 7.0,  7.0),
+                (0.0, 1.0): (-7.0,  7.0),
+                (1.0, 0.0): ( 7.0, -7.0),
+                (0.0, 0.0): (-expected, -7.0)
                 }
         self.mock_configuration_manager.load.return_value = config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         actual = calibration_api.get_largest_object_radius()
         self.assertEquals(expected, actual)
@@ -304,10 +299,10 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         config = self.default_config
         expected = 0.68
-        config.calibration.max_deflection =  expected
+        config.calibration.max_deflection = expected
         self.mock_configuration_manager.load.return_value = config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         actual = calibration_api.get_max_deflection()
         self.assertEquals(expected, actual)
@@ -320,22 +315,21 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         expected_config.calibration.max_deflection = expected
         config.calibration.max_deflection = 0.11
         self.mock_configuration_manager.load.return_value = config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api.set_max_deflection(expected)
 
-        actual = calibration_api.set_max_deflection(expected)
-        
-        self.assertConfigurationEqual(expected_config,self.mock_configuration_manager.save.mock_calls[0][1][0])
+        self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
         self.mock_path_to_audio.set_transformer.assert_called_with(self.mock_tuning_transformer)
 
     def test_get_laser_offset_should_return_laser_offset(self, *args):
         self.setup_mocks(args)
         config = self.default_config
-        expected = [0.01,0.01]
-        config.options.laser_offset =  expected
+        expected = [0.01, 0.01]
+        config.options.laser_offset = expected
         self.mock_configuration_manager.load.return_value = config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         actual = calibration_api.get_laser_offset()
         self.assertEquals(expected, actual)
@@ -344,38 +338,34 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         config = self.default_config
         expected_config = self.default_config
-        expected = [0.01,0.01]
+        expected = [0.01, 0.01]
         expected_config.options.laser_offset = expected
-        config.laser_offset = [0.55,0.55]
+        config.laser_offset = [0.55, 0.55]
         self.mock_configuration_manager.load.return_value = config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api.set_laser_offset(expected)
 
-        actual = calibration_api.set_laser_offset(expected)
-        
-        self.assertConfigurationEqual(expected_config,self.mock_configuration_manager.save.mock_calls[0][1][0])
+        self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
         self.mock_audio_disseminator.set_offset.assert_called_with(expected)
-        
+
     @patch('api.calibration_api.SquareGenerator')
     def test_show_scale_should_use_Square_Generator_and_Tuning_Transformer(self, mock_SquareGenerator, *args):
         self.setup_mocks(args)
-        mock_squaregenerator = mock_SquareGenerator.return_value
         self.mock_configuration_manager.load.return_value = self.default_config
-
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         calibration_api.show_scale()
-        
+
         self.mock_controller.change_generator.assert_called_with(self.mock_square_generator)
         self.mock_path_to_audio.set_transformer.assert_called_with(self.mock_tuning_transformer)
 
-
-    def test_set_test_pattern_speed_changes_speeds(self,*args):
+    def test_set_test_pattern_speed_changes_speeds(self, *args):
         self.setup_mocks(args)
 
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
         calibration_api.set_test_pattern_speed(150.0)
 
         self.mock_hilbert_generator.set_speed.assert_called_with(150.0)
@@ -384,12 +374,11 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_spiral_generator.set_speed.assert_called_with(150.0)
         self.mock_memory_hourglass_generator.set_speed.assert_called_with(150.0)
 
-    def test_init_calulates_pattern_radius(self,*args):
+    def test_init_calulates_pattern_radius(self, *args):
         self.setup_mocks(args)
 
         self.mock_configuration_manager.load.return_value = self.default_config
-
-        calibration_api = CalibrationAPI(self.mock_configuration_manager,'Spam')
+        CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         self.mock_hilbert_generator.set_radius.assert_called_with(40.0)
         self.mock_square_generator.set_radius.assert_called_with(40.0)

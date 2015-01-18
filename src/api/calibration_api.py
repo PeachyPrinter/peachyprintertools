@@ -25,28 +25,28 @@ class CalibrationAPI(object):
         self._alignment_generator = CalibrationLineGenerator()
         self._scale_generator = SquareGenerator(speed=1, radius=1)
 
-        self._test_patterns = { 
-            'Hilbert Space Filling Curve' : HilbertGenerator(),
-            'Square' : SquareGenerator(),
-            'Circle' : CircleGenerator(),
-            'Spiral' : SpiralGenerator(),
-            'Memory Hourglass' : MemoryHourglassGenerator(),
-            'Damping Test' : DampingTestGenerator(),
-            'NESW' : NESWGenerator(),
-            'Twitch' : TwitchGenerator(),
+        self._test_patterns = {
+            'Hilbert Space Filling Curve': HilbertGenerator(),
+            'Square': SquareGenerator(),
+            'Circle': CircleGenerator(),
+            'Spiral': SpiralGenerator(),
+            'Memory Hourglass': MemoryHourglassGenerator(),
+            'Damping Test': DampingTestGenerator(),
+            'NESW': NESWGenerator(),
+            'Twitch': TwitchGenerator(),
             }
-            
+
         self._current_generator = self._point_generator
 
-        self._laser_control =LaserControl()
-        transformer = TuningTransformer(scale = self._configuration.calibration.max_deflection)
+        self._laser_control = LaserControl()
+        transformer = TuningTransformer(scale=self._configuration.calibration.max_deflection)
 
         self._audio_writer = None
         self._controller = None
         logging.debug("Setting up audiowriter")
 
         self._audio_writer = AudioWriter(
-            self._configuration.audio.output.sample_rate, 
+            self._configuration.audio.output.sample_rate,
             self._configuration.audio.output.bit_depth,
             )
         self._current_generator = self._point_generator
@@ -63,17 +63,17 @@ class CalibrationAPI(object):
             self._configuration.options.laser_offset
             )
 
-        self._path_to_audio= PathToAudio(
+        self._path_to_audio = PathToAudio(
             self._disseminator.samples_per_second,
             transformer,
             self._configuration.options.laser_thickness_mm
             )
 
         self._writer = LayerWriter(
-            self._disseminator, 
-            self._path_to_audio, 
+            self._disseminator,
+            self._path_to_audio,
             self._laser_control,
-            self._state, 
+            self._state,
             )
 
         self._layer_processing = LayerProcessing(
@@ -87,26 +87,26 @@ class CalibrationAPI(object):
             self._layer_processing,
             self._current_generator,
             self._status,
-            abort_on_error = False,
+            abort_on_error=False,
             )
 
         self.make_pattern_fit()
         self._controller.start()
 
     '''Used to show a single point with no calibration applied'''
-    def show_point(self,xyz = [0.5,0.5,0.5]):
+    def show_point(self, xyz=[0.5, 0.5, 0.5]):
         logging.info('Showing point')
-        x,y,z = xyz
-        self._point_generator.xy = [x,y]
+        x, y, z = xyz
+        self._point_generator.xy = [x, y]
         if (self._current_generator != self._point_generator):
             self._unapply_calibration()
             self._update_generator(self._point_generator)
 
     '''Used to show a blinking point with no calibration applied used for aligning on and off laser posisition'''
-    def show_blink(self,xyz = [0.5,0.5,0.0]):
+    def show_blink(self, xyz=[0.5, 0.5, 0.0]):
         logging.info('Showing blink')
-        x,y,z = xyz
-        self._blink_generator.xy = [x,y]
+        x, y, z = xyz
+        self._blink_generator.xy = [x, y]
         if (self._current_generator != self._blink_generator):
             self._unapply_calibration()
             self._update_generator(self._blink_generator)
@@ -118,7 +118,7 @@ class CalibrationAPI(object):
         self._update_generator(self._alignment_generator)
 
     '''Used to show a test pattern with calibration applied'''
-    def show_test_pattern(self,pattern):
+    def show_test_pattern(self, pattern):
         logging.info('Showing test pattern %s' % pattern)
         if pattern in self._test_patterns.keys():
             self._apply_calibration()
@@ -156,8 +156,8 @@ class CalibrationAPI(object):
         self._save()
 
     '''Changes the speed at which the test pattern is drawn in mm/sec'''
-    def set_test_pattern_speed(self,speed):
-        [ pattern.set_speed(speed) for pattern in self._test_patterns.values() ]
+    def set_test_pattern_speed(self, speed):
+        [pattern.set_speed(speed) for pattern in self._test_patterns.values()]
 
     '''returns a list of test patterns'''
     def get_test_patterns(self):
@@ -176,9 +176,9 @@ class CalibrationAPI(object):
 
     def _save(self):
         self._configuration_manager.save(self._configuration)
-        self.make_pattern_fit() #TODO make this better.
+        self.make_pattern_fit()
 
-    #deprecated
+    # deprecated
     def make_pattern_fit(self):
         for pattern in self._test_patterns.values():
             pattern.set_radius(self.get_largest_object_radius())
@@ -192,7 +192,6 @@ class CalibrationAPI(object):
         self._controller.change_generator(self._current_generator)
 
     def _apply_calibration(self):
-        
         self._path_to_audio.set_transformer(
             HomogenousTransformer(
                 self._configuration.calibration.max_deflection,
@@ -204,9 +203,9 @@ class CalibrationAPI(object):
 
     def _unapply_calibration(self):
         self._path_to_audio.set_transformer(
-            TuningTransformer(scale = self._configuration.calibration.max_deflection))
-    
-    def _validate_points(self,points):
+            TuningTransformer(scale=self._configuration.calibration.max_deflection))
+
+    def _validate_points(self, points):
         if (len(points) != 4):
             return False
         return True
@@ -214,12 +213,12 @@ class CalibrationAPI(object):
     '''Based on current calibrations_gets_maximum_size_of_object at the base layer'''
     def get_largest_object_radius(self):
         lowest = None
-        for (x,y) in self._configuration.calibration.lower_points.values():
+        for (x, y) in self._configuration.calibration.lower_points.values():
             if not lowest or abs(x) < lowest:
                 lowest = abs(x)
             if abs(y) < lowest:
                 lowest = abs(y)
-        logging.info("Calulated max radius of object as: %s mm" % lowest) 
+        logging.info("Calulated max radius of object as: %s mm" % lowest)
         return lowest
 
     def stop(self):
