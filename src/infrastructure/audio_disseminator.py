@@ -24,11 +24,15 @@ class AudioDisseminator(Disseminator):
         off_laser_steps = sampling_rate / off_frequency
         on_laser_steps = sampling_rate / on_frequency
         lcm = self._lcm([off_laser_steps, on_laser_steps])
-        self.actual_samples_per_second = sampling_rate / lcm
+        self._actual_samples_per_second = sampling_rate / lcm
 
         self.off_laser_wave = numpy.array(self._get_cos_wave(off_laser_steps, lcm / off_laser_steps))
         self.on_laser_wave = numpy.array(self._get_cos_wave(on_laser_steps, lcm / on_laser_steps))
         logging.info("Started audio modulation with On Frequency: %s and Off Frequency: %s" % (on_frequency, off_frequency))
+
+    @property
+    def samples_per_second(self):
+        return self._actual_samples_per_second
 
     def _lcm(self, numbers):
         return reduce(lambda x, y: (x * y)/gcd(x, y), numbers, 1)
@@ -41,9 +45,6 @@ class AudioDisseminator(Disseminator):
                 cos_wave = math.cos(i * 1.0 / steps * 1.0 * scale)
                 wave.append(cos_wave)
         return wave
-
-    def set_offset(self, offset):
-        self._x_offset, self._y_offset = offset
 
     def _modulate(self, data):
         if self._laser_control.laser_is_on():
@@ -59,5 +60,15 @@ class AudioDisseminator(Disseminator):
                 l = numpy.multiply([self._MODULATION_AMPLITUDE_RATIO + ((left + self._x_offset) * self._SOURCE_AMPLITUDE_RATIO)], pattern)
                 yield numpy.column_stack((l, r))
 
+    def set_offset(self, offset):
+        self._x_offset, self._y_offset = offset
+
     def process(self, data):
-        self._audio_data_writer.write_chunk(self._modulate(data))
+        modulated = self._modulate(data)
+        self._audio_data_writer.write_chunk(modulated)
+
+    def next_layer(self, height):
+        self._audio_data_writer.next_layer(height)
+
+    def close(self):
+        self._audio_data_writer.close()

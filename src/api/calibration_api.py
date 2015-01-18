@@ -1,17 +1,18 @@
 import logging
-import types
-
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
-from infrastructure.laser_control import AudioModulationLaserControl
+from domain.laser_control import LaserControl
+from infrastructure.audio_disseminator import AudioDisseminator
 from infrastructure.transformer import TuningTransformer, HomogenousTransformer
 from infrastructure.layer_generators import *
 from infrastructure.machine import *
 from infrastructure.layer_control import LayerWriter, LayerProcessing
-from config import devmode
+
 
 '''The calibration API proivides the tools required to setup a Peacy Printer'''
+
+
 class CalibrationAPI(object):
     def __init__(self, configuration_manager, printer):
         logging.info("Calibartion API Startup")
@@ -22,7 +23,7 @@ class CalibrationAPI(object):
         self._point_generator = SinglePointGenerator()
         self._blink_generator = BlinkGenerator()
         self._alignment_generator = CalibrationLineGenerator()
-        self._scale_generator = SquareGenerator(speed = 1, radius = 1)
+        self._scale_generator = SquareGenerator(speed=1, radius=1)
 
         self._test_patterns = { 
             'Hilbert Space Filling Curve' : HilbertGenerator(),
@@ -37,18 +38,9 @@ class CalibrationAPI(object):
             
         self._current_generator = self._point_generator
 
-        self._laser_control = AudioModulationLaserControl(
-            self._configuration.audio.output.sample_rate,
-            self._configuration.audio.output.modulation_on_frequency,
-            self._configuration.audio.output.modulation_off_frequency,
-            self._configuration.options.laser_offset
-            )
+        self._laser_control =LaserControl()
         transformer = TuningTransformer(scale = self._configuration.calibration.max_deflection)
-        self._path_to_audio= PathToAudio(
-            self._laser_control.actual_samples_per_second,
-            transformer,
-            self._configuration.options.laser_thickness_mm
-            )
+
         self._audio_writer = None
         self._controller = None
         logging.debug("Setting up audiowriter")
@@ -61,9 +53,24 @@ class CalibrationAPI(object):
 
         self._state = MachineState()
         self._status = MachineStatus()
-        
+
+        self._disseminator = AudioDisseminator(
+            self._laser_control,
+            self._audio_writer,
+            self._configuration.audio.output.sample_rate,
+            self._configuration.audio.output.modulation_on_frequency,
+            self._configuration.audio.output.modulation_off_frequency,
+            self._configuration.options.laser_offset
+            )
+
+        self._path_to_audio= PathToAudio(
+            self._disseminator.samples_per_second,
+            transformer,
+            self._configuration.options.laser_thickness_mm
+            )
+
         self._writer = LayerWriter(
-            self._audio_writer, 
+            self._disseminator, 
             self._path_to_audio, 
             self._laser_control,
             self._state, 
@@ -145,7 +152,7 @@ class CalibrationAPI(object):
     '''Sets the currently configured offset for laser on and off'''
     def set_laser_offset(self, laser_offset):
         self._configuration.options.laser_offset = laser_offset
-        self._laser_control.set_offset(laser_offset)
+        self._disseminator.set_offset(laser_offset)
         self._save()
 
     '''Changes the speed at which the test pattern is drawn in mm/sec'''

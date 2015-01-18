@@ -8,7 +8,8 @@ from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
 from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
-from infrastructure.laser_control import AudioModulationLaserControl
+from domain.laser_control import LaserControl
+from infrastructure.audio_disseminator import AudioDisseminator
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
 from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
@@ -141,24 +142,13 @@ class PrintAPI(object):
         else:
             self._commander = NullCommander()
 
-        laser_control = AudioModulationLaserControl(
-            self._configuration.audio.output.sample_rate,
-            self._configuration.audio.output.modulation_on_frequency,
-            self._configuration.audio.output.modulation_off_frequency,
-            self._configuration.options.laser_offset
-            )
+        laser_control = LaserControl()
 
         transformer = HomogenousTransformer(
             self._configuration.calibration.max_deflection,
             self._configuration.calibration.height,
             self._configuration.calibration.lower_points,
             self._configuration.calibration.upper_points,
-            )
-
-        path_to_audio = PathToAudio(
-            laser_control.actual_samples_per_second,
-            transformer,
-            self._configuration.options.laser_thickness_mm
             )
 
         state = MachineState()
@@ -190,6 +180,21 @@ class PrintAPI(object):
                 self._zaxis.start()
             abort_on_error = True
 
+        audio_disseminator = AudioDisseminator(
+            laser_control,
+            data_writer,
+            self._configuration.audio.output.sample_rate,
+            self._configuration.audio.output.modulation_on_frequency,
+            self._configuration.audio.output.modulation_off_frequency,
+            self._configuration.options.laser_offset
+            )
+
+        path_to_audio = PathToAudio(
+            audio_disseminator.samples_per_second,
+            transformer,
+            self._configuration.options.laser_thickness_mm
+            )
+
         override_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
         pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else 0.0
         post_fire_delay_speed = None
@@ -197,7 +202,7 @@ class PrintAPI(object):
             post_fire_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.post_fire_delay) / 1000.0)
 
         self._writer = LayerWriter(
-            data_writer,
+            audio_disseminator,
             path_to_audio,
             laser_control,
             state,

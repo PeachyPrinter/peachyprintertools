@@ -2,6 +2,7 @@ import logging
 import pyaudio
 import numpy as np
 import math
+import time
 from domain.data_writer import DataWriter
 
 audio_formats = {
@@ -122,7 +123,7 @@ class AudioWriter(DataWriter):
         data = np.array(list(chunk))
         frames = self._to_frame(data)
         self._outstream.write(frames)
-        # logging.debug('Wrote chunk: %s' % (time.time() - start))
+        # logging.info('Wrote chunk: %s' % (time.time() - start))
 
     def _to_frame(self, values):
         if (self._format == pyaudio.paFloat32):

@@ -25,7 +25,7 @@ class AudioDisseminatorTests(unittest.TestCase, TestHelpers):
         self.mock_audio_writer = MagicMock()
 
     def test_when_laser_off_modulate_it_at_off_frequency(self):
-        deseminator = AudioDisseminator(self.laser_control, self.mock_audio_writer,self.sample_rate, self.on_frequency, self.off_frequency, self.offset)
+        deseminator = AudioDisseminator(self.laser_control, self.mock_audio_writer, self.sample_rate, self.on_frequency, self.off_frequency, self.offset)
         self.laser_control.set_laser_off()
         sample_data_chunk = numpy.array([(0, 0)])
         po1 = math.cos(0.0 / 8.0 * 2.0 * math.pi) * self._MODULATION_AMPLITUDE_RATIO
@@ -45,7 +45,7 @@ class AudioDisseminatorTests(unittest.TestCase, TestHelpers):
 
     def test_when_laser_off_modulate_it_at_off_frequency_with_offset(self):
         offset = [0.1, 0.1]
-        deseminator = AudioDisseminator(self.laser_control, self.mock_audio_writer,self.sample_rate, self.on_frequency, self.off_frequency, offset)
+        deseminator = AudioDisseminator(self.laser_control, self.mock_audio_writer, self.sample_rate, self.on_frequency, self.off_frequency, offset)
         self.laser_control.set_laser_off()
         sample_data_chunk = numpy.array([(0, 0)])
         po1 = math.cos(0.0 / 8.0 * 2.0 * math.pi) * (self._MODULATION_AMPLITUDE_RATIO + (0.1 * self._SOURCE_AMPLITUDE_RATIO))
@@ -171,6 +171,29 @@ class AudioDisseminatorTests(unittest.TestCase, TestHelpers):
         actual_data = self.mock_audio_writer.write_chunk.call_args[0][0].next()
 
         self.assertNumpyArrayEquals(expected_data, actual_data)
+
+    def test_next_layer_should_call_audio_writer_with_next_layer_height(self):
+        next_height = 7.7
+        deseminator = AudioDisseminator(self.laser_control, self.mock_audio_writer, self.sample_rate, self.on_frequency, self.off_frequency,  self.offset)
+        deseminator.next_layer(next_height)
+
+        self.mock_audio_writer.next_layer.assert_called_with(next_height)
+
+    def test_close_calls_close_on_audio_writer(self):
+        deseminator = AudioDisseminator(self.laser_control, self.mock_audio_writer, self.sample_rate, self.on_frequency, self.off_frequency,  self.offset)
+        deseminator.close()
+
+        self.mock_audio_writer.close.assert_called_with()
+
+    def test_samples_per_second_is_lcm_of_on_off_freq(self):
+        deseminator = AudioDisseminator(
+            self.laser_control,
+            self.mock_audio_writer,
+            self.sample_rate,
+            100,
+            10,
+            self.offset)
+        self.assertEquals(10, deseminator.samples_per_second)
 
 
 if __name__ == '__main__':

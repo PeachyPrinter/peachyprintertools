@@ -166,7 +166,7 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
             end = time.time()
             self.assertTrue(expected_delay <= end-start)
 
-
+@patch('api.print_api.LaserControl')
 @patch('api.print_api.FileWriter')
 @patch('api.print_api.EmailNotificationService')
 @patch('api.print_api.EmailGateway')
@@ -181,7 +181,7 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 @patch('api.print_api.HomogenousTransformer')
 @patch('api.print_api.AudioWriter')
 @patch('api.print_api.GCodeReader')
-@patch('api.print_api.AudioModulationLaserControl')
+@patch('api.print_api.AudioDisseminator')
 @patch('api.print_api.AudioDripZAxis')
 @patch('api.print_api.SubLayerGenerator')
 @patch('api.print_api.NullCommander')
@@ -191,6 +191,7 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
+        self.mock_LaserControl =                  args[21]
         self.mock_FileWriter =                    args[20]
         self.mock_EmailNotificationService =      args[19]
         self.mock_EmailGateway =                  args[18]
@@ -205,7 +206,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_HomogenousTransformer =         args[9]
         self.mock_AudioWriter =                   args[8]
         self.mock_GCodeReader =                   args[7]
-        self.mock_AudioModulationLaserControl =   args[6]
+        self.mock_AudioDisseminator =   args[6]
         self.mock_AudioDripZAxis =                args[5]
         self.mock_SubLayerGenerator =             args[4]
         self.mock_NullCommander =                 args[3]
@@ -213,6 +214,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_LayerWriter =                   args[1]
         self.mock_LayerProcessing =               args[0]
 
+        self.mock_laser_control =                   self.mock_LaserControl.return_value
         self.mock_filewriter =                      self.mock_FileWriter.return_value
         self.mock_email_notification_service =      self.mock_EmailNotificationService.return_value
         self.mock_email_gateway =                   self.mock_EmailGateway.return_value
@@ -227,7 +229,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_homogenous_transformer =          self.mock_HomogenousTransformer.return_value
         self.mock_audio_writer =                    self.mock_AudioWriter.return_value
         self.mock_g_code_reader =                   self.mock_GCodeReader.return_value
-        self.mock_audio_modulation_laser_control =  self.mock_AudioModulationLaserControl.return_value
+        self.mock_audio_disseminator =              self.mock_AudioDisseminator.return_value
         self.mock_audio_drip_zaxis =                self.mock_AudioDripZAxis.return_value
         self.mock_sub_layer_generator =             self.mock_SubLayerGenerator.return_value
         self.mock_null_commander =                  self.mock_NullCommander.return_value
@@ -243,7 +245,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         fake_layers = "Fake Layers"
         abort_on_error = True
 
-        self.mock_audio_modulation_laser_control.actual_samples_per_second = actual_samples_per_second
+        self.mock_audio_disseminator.samples_per_second = actual_samples_per_second
         self.mock_g_code_reader.get_layers.return_value = fake_layers
 
         config = self.default_config
@@ -271,7 +273,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.off_command
             )
 
-        self.mock_AudioModulationLaserControl.assert_called_with(
+        self.mock_AudioDisseminator.assert_called_with(
+            self.mock_laser_control,
+            self.mock_audio_writer,
             config.audio.output.sample_rate,
             config.audio.output.modulation_on_frequency,
             config.audio.output.modulation_off_frequency,
@@ -297,9 +301,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             )
 
         self.mock_LayerWriter.assert_called_with(
-            self.mock_audio_writer,
+            self.mock_audio_disseminator,
             self.mock_path_to_audio,
-            self.mock_audio_modulation_laser_control,
+            self.mock_laser_control,
             self.mock_machine_state,
             move_distance_to_ignore=config.options.laser_thickness_mm,
             override_speed=config.cure_rate.draw_speed,
@@ -335,7 +339,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         actual_samples_per_second = 7
         fake_layers = "Fake Layers"
 
-        self.mock_audio_modulation_laser_control.actual_samples_per_second = actual_samples_per_second
+        self.mock_audio_disseminator.actual_samples_per_second = actual_samples_per_second
         self.mock_g_code_reader.get_layers.return_value = fake_layers
 
         config = self.default_config
@@ -394,15 +398,16 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             api.print_gcode(gcode_path)
 
         self.mock_LayerWriter.assert_called_with(
-            self.mock_filewriter,
+            self.mock_audio_disseminator,
             self.mock_path_to_audio,
-            self.mock_audio_modulation_laser_control,
+            self.mock_laser_control,
             self.mock_machine_state,
             move_distance_to_ignore=config.options.laser_thickness_mm,
             override_speed=config.cure_rate.draw_speed,
             wait_speed=100.0,
             post_fire_delay_speed=100.0
             )
+
         self.mock_LayerProcessing.assert_called_with(
             self.mock_layer_writer,
             self.mock_machine_state,
@@ -442,9 +447,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             api.print_gcode(gcode_path)
 
         self.mock_LayerWriter.assert_called_with(
-            self.mock_audio_writer,
+            self.mock_audio_disseminator,
             self.mock_path_to_audio,
-            self.mock_audio_modulation_laser_control,
+            self.mock_laser_control,
             self.mock_machine_state,
             move_distance_to_ignore=config.options.laser_thickness_mm,
             override_speed=config.cure_rate.draw_speed,
@@ -684,7 +689,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         actual_samples_per_second = 7
         fake_layers = "Fake Layers"
 
-        self.mock_audio_modulation_laser_control.actual_samples_per_second = actual_samples_per_second
+        self.mock_audio_disseminator.actual_samples_per_second = actual_samples_per_second
         self.mock_g_code_reader.get_layers.return_value = fake_layers
 
         config = self.default_config
