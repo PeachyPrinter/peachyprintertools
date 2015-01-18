@@ -9,8 +9,9 @@ class AudioDisseminator(Disseminator):
     _MODULATION_AMPLITUDE_RATIO = 0.25
     _SOURCE_AMPLITUDE_RATIO = 1.0 - _MODULATION_AMPLITUDE_RATIO
 
-    def __init__(self, laser_control, sampling_rate, on_frequency, off_frequency, offset):
+    def __init__(self, laser_control, audio_data_writer, sampling_rate, on_frequency, off_frequency, offset):
         self._laser_control = laser_control
+        self._audio_data_writer = audio_data_writer
         self._x_offset, self._y_offset = offset
         logging.info("Laser Control: Modulation On: %s" % on_frequency)
         logging.info("Laser Control: Modulation Off: %s" % off_frequency)
@@ -44,7 +45,7 @@ class AudioDisseminator(Disseminator):
     def set_offset(self, offset):
         self._x_offset, self._y_offset = offset
 
-    def modulate(self, data):
+    def _modulate(self, data):
         if self._laser_control.laser_is_on():
             pattern = self.on_laser_wave
             for (left, right) in data:
@@ -57,3 +58,6 @@ class AudioDisseminator(Disseminator):
                 r = numpy.multiply([self._MODULATION_AMPLITUDE_RATIO + ((right + self._y_offset) * self._SOURCE_AMPLITUDE_RATIO)], pattern)
                 l = numpy.multiply([self._MODULATION_AMPLITUDE_RATIO + ((left + self._x_offset) * self._SOURCE_AMPLITUDE_RATIO)], pattern)
                 yield numpy.column_stack((l, r))
+
+    def process(self, data):
+        self._audio_data_writer.write_chunk(self._modulate(data))
