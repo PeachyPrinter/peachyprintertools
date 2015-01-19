@@ -10,6 +10,8 @@ from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
 from domain.laser_control import LaserControl
 from infrastructure.audio_disseminator import AudioDisseminator
+from infrastructure.micro_disseminator import MicroDisseminator
+from infrastructure.communicator import SerialCommunicator
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
 from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
@@ -164,33 +166,48 @@ class PrintAPI(object):
                 self._configuration.audio.output.bit_depth,
                 self._configuration.options.write_wav_files_folder,
                 )
-            self._zaxis = PhotoZAxis(
-                self._start_height,
-                0
-                )
+            self._zaxis = PhotoZAxis(self._start_height, 0)
             abort_on_error = True
-        else:
+            disseminator = AudioDisseminator(
+                laser_control,
+                data_writer,
+                self._configuration.audio.output.sample_rate,
+                self._configuration.audio.output.modulation_on_frequency,
+                self._configuration.audio.output.modulation_off_frequency,
+                self._configuration.options.laser_offset
+                )
+        elif self._configuration.circut.circut_type == 'Analog':
             data_writer = AudioWriter(
                 self._configuration.audio.output.sample_rate,
                 self._configuration.audio.output.bit_depth,
                 )
             self._zaxis = self._get_zaxis()
-            if self._zaxis:
-                self._zaxis.set_call_back(self._status.drip_call_back)
-                self._zaxis.start()
             abort_on_error = True
-
-        audio_disseminator = AudioDisseminator(
-            laser_control,
-            data_writer,
-            self._configuration.audio.output.sample_rate,
-            self._configuration.audio.output.modulation_on_frequency,
-            self._configuration.audio.output.modulation_off_frequency,
-            self._configuration.options.laser_offset
-            )
+            disseminator = AudioDisseminator(
+                laser_control,
+                data_writer,
+                self._configuration.audio.output.sample_rate,
+                self._configuration.audio.output.modulation_on_frequency,
+                self._configuration.audio.output.modulation_off_frequency,
+                self._configuration.options.laser_offset
+                )
+        elif self._configuration.circut.circut_type == 'Digital':
+            self._zaxis = self._get_zaxis()
+            abort_on_error = True
+            communicator = SerialCommunicator(
+                self._configuration.micro_com.port,
+                self._configuration.micro_com.header,
+                self._configuration.micro_com.footer,
+                self._configuration.micro_com.escape,
+                )
+            disseminator = MicroDisseminator(
+                laser_control,
+                communicator,
+                self._configuration.micro_com.rate
+                )
 
         path_to_audio = PathToAudio(
-            audio_disseminator.samples_per_second,
+            disseminator.samples_per_second,
             transformer,
             self._configuration.options.laser_thickness_mm
             )
@@ -202,7 +219,7 @@ class PrintAPI(object):
             post_fire_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.post_fire_delay) / 1000.0)
 
         self._writer = LayerWriter(
-            audio_disseminator,
+            disseminator,
             path_to_audio,
             laser_control,
             state,
@@ -224,6 +241,10 @@ class PrintAPI(object):
             self._configuration.serial.layer_ended,
             self._configuration.serial.print_ended,
             )
+
+        if self._zaxis:
+            self._zaxis.set_call_back(self._status.drip_call_back)
+            self._zaxis.start()
 
         self._controller = Controller(
             self._writer,

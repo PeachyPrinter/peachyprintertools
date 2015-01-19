@@ -166,6 +166,8 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
             end = time.time()
             self.assertTrue(expected_delay <= end-start)
 
+@patch('api.print_api.MicroDisseminator')
+@patch('api.print_api.SerialCommunicator')
 @patch('api.print_api.LaserControl')
 @patch('api.print_api.FileWriter')
 @patch('api.print_api.EmailNotificationService')
@@ -191,6 +193,8 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
+        self.mock_MicroDisseminator =             args[23]
+        self.mock_SerialCommunicator =            args[22]
         self.mock_LaserControl =                  args[21]
         self.mock_FileWriter =                    args[20]
         self.mock_EmailNotificationService =      args[19]
@@ -214,6 +218,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_LayerWriter =                   args[1]
         self.mock_LayerProcessing =               args[0]
 
+        self.mock_micro_disseminator =              self.mock_MicroDisseminator.return_value
+        self.mock_serial_communicator =             self.mock_SerialCommunicator.return_value
         self.mock_laser_control =                   self.mock_LaserControl.return_value
         self.mock_filewriter =                      self.mock_FileWriter.return_value
         self.mock_email_notification_service =      self.mock_EmailNotificationService.return_value
@@ -330,6 +336,70 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             fake_layers,
             self.mock_machine_status,
             abort_on_error=abort_on_error,
+            )
+
+    def test_print_gcode_should_create_required_classes_and_start_it_for_digital(self, *args):
+        self.setup_mocks(args)
+
+        gcode_path = "FakeFile"
+        actual_samples_per_second = 7
+        fake_layers = "Fake Layers"
+
+        self.mock_micro_disseminator.samples_per_second = actual_samples_per_second
+        self.mock_g_code_reader.get_layers.return_value = fake_layers
+
+        config = self.default_config
+        config.options.use_shufflelayers = False
+        config.options.use_sublayers = False
+        config.options.use_overlap = False
+        config.options.post_fire_delay = 5
+        config.circut.circut_type = 'Digital'
+        api = PrintAPI(config)
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as mocked_open:
+            api.print_gcode(gcode_path)
+            self.mock_GCodeReader.assert_called_with(
+                mocked_open.return_value,
+                scale=config.options.scaling_factor,
+                start_height=0.0
+                )
+
+        self.mock_SerialCommunicator.assert_called_with(
+            config.micro_com.port,
+            config.micro_com.header,
+            config.micro_com.footer,
+            config.micro_com.escape,
+            )
+        self.mock_MicroDisseminator.assert_called_with(
+            self.mock_laser_control,
+            self.mock_serial_communicator,
+            config.micro_com.rate
+            )
+
+        self.assertEquals(0, self.mock_AudioWriter.call_count)
+
+        self.mock_HomogenousTransformer.assert_called_with(
+            config.calibration.max_deflection,
+            config.calibration.height,
+            config.calibration.lower_points,
+            config.calibration.upper_points,
+            )
+
+        self.mock_PathToAudio.assert_called_with(
+            actual_samples_per_second,
+            self.mock_homogenous_transformer,
+            config.options.laser_thickness_mm
+            )
+
+        self.mock_LayerWriter.assert_called_with(
+            self.mock_micro_disseminator,
+            self.mock_path_to_audio,
+            self.mock_laser_control,
+            self.mock_machine_state,
+            move_distance_to_ignore=config.options.laser_thickness_mm,
+            override_speed=config.cure_rate.draw_speed,
+            wait_speed=100.0,
+            post_fire_delay_speed=100.0,
             )
 
     def test_print_gcode_should_use_start_height(self, *args):
