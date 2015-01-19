@@ -2,8 +2,10 @@ import logging
 from infrastructure.audio import AudioWriter
 from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
+from infrastructure.communicator import SerialCommunicator
 from domain.laser_control import LaserControl
 from infrastructure.audio_disseminator import AudioDisseminator
+from infrastructure.micro_disseminator import MicroDisseminator
 from infrastructure.transformer import TuningTransformer, HomogenousTransformer
 from infrastructure.layer_generators import *
 from infrastructure.machine import *
@@ -45,23 +47,37 @@ class CalibrationAPI(object):
         self._controller = None
         logging.debug("Setting up audiowriter")
 
-        self._audio_writer = AudioWriter(
-            self._configuration.audio.output.sample_rate,
-            self._configuration.audio.output.bit_depth,
-            )
+
         self._current_generator = self._point_generator
 
         self._state = MachineState()
         self._status = MachineStatus()
 
-        self._disseminator = AudioDisseminator(
-            self._laser_control,
-            self._audio_writer,
-            self._configuration.audio.output.sample_rate,
-            self._configuration.audio.output.modulation_on_frequency,
-            self._configuration.audio.output.modulation_off_frequency,
-            self._configuration.options.laser_offset
+        if self._configuration.circut.circut_type == 'Digital':
+            self._communicator = SerialCommunicator(
+                self._configuration.micro_com.port,
+                self._configuration.micro_com.header,
+                self._configuration.micro_com.footer,
+                self._configuration.micro_com.escape,
+                )
+            self._disseminator = MicroDisseminator(
+                self._laser_control,
+                self._communicator,
+                self._configuration.micro_com.rate
+                )
+        else:
+            self._audio_writer = AudioWriter(
+                self._configuration.audio.output.sample_rate,
+                self._configuration.audio.output.bit_depth,
             )
+            self._disseminator = AudioDisseminator(
+                self._laser_control,
+                self._audio_writer,
+                self._configuration.audio.output.sample_rate,
+                self._configuration.audio.output.modulation_on_frequency,
+                self._configuration.audio.output.modulation_off_frequency,
+                self._configuration.options.laser_offset
+                )
 
         self._path_to_audio = PathToAudio(
             self._disseminator.samples_per_second,

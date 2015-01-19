@@ -8,7 +8,7 @@ from infrastructure.commander import NullCommander, SerialCommander
 
 '''Details the audio settings'''
 class AudioSetting(object):
-    def __init__(self, sample_frequency, bit_depth, recommended=False, current=False):
+    def __init__(self, sample_frequency, bit_depth, recommended=False, current= False):
         self.sample_frequency = sample_frequency
         self.bit_depth = bit_depth
         self.recommended = recommended

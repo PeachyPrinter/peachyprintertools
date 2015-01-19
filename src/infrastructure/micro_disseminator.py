@@ -36,4 +36,4 @@ class MicroDisseminator(Disseminator):
         return self._data_rate
 
     def close(self):
-        pass
+        self._communication.close()

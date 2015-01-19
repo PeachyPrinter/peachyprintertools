@@ -9,6 +9,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 import test_helpers
 from api.calibration_api import CalibrationAPI
 
+@patch('api.calibration_api.SerialCommunicator')
+@patch('api.calibration_api.MicroDisseminator')
 @patch('api.calibration_api.LaserControl')
 @patch('domain.configuration_manager.ConfigurationManager')
 @patch('api.calibration_api.HomogenousTransformer')
@@ -32,6 +34,8 @@ from api.calibration_api import CalibrationAPI
 class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
+        self.mock_SerialCommunicator =                   args[21]
+        self.mock_MicroDisseminator =                    args[20]
         self.mock_LaserControl =                         args[19]
         self.mock_ConfigurationManager =                 args[18]
         self.mock_HomogenousTransformer =                args[17]
@@ -53,7 +57,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_SpiralGenerator =                      args[1]
         self.mock_MemoryHourglassGenerator =             args[0]
 
-
+        self.mock_serial_communicator =                  self.mock_SerialCommunicator.return_value
+        self.mock_micro_disseminator =                   self.mock_MicroDisseminator.return_value
         self.mock_laser_control =                        self.mock_LaserControl.return_value
         self.mock_configuration_manager =                self.mock_ConfigurationManager.return_value
         self.mock_homogenous_transformer =               self.mock_HomogenousTransformer.return_value
@@ -103,6 +108,58 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.default_config.audio.output.sample_rate,
             self.default_config.audio.output.bit_depth
             )
+        self.mock_Controller.assert_called_with(
+            self.mock_layer_writer,
+            self.mock_layer_processing,
+            self.mock_single_point_generator,
+            self.mock_machine_status,
+            abort_on_error=False
+            )
+
+    def test_init_creates_a_controller_with_digital_config(self, *args):
+        self.setup_mocks(args)
+        actual_samples = 77
+        self.mock_micro_disseminator.samples_per_second = actual_samples
+        config = self.default_config
+        config.circut.circut_type = 'Digital'
+        self.mock_configuration_manager.load.return_value = config
+        CalibrationAPI(self.mock_configuration_manager, 'Spam')
+
+        self.mock_SinglePointGenerator.assert_called_with()
+
+        self.assertEquals(0, self.mock_AudioDisseminator.call_count)
+
+        self.mock_MicroDisseminator.assert_called_with(
+            self.mock_laser_control,
+            self.mock_serial_communicator,
+            self.default_config.micro_com.rate
+            )
+
+        self.mock_SerialCommunicator.assert_called_with(
+            self.default_config.micro_com.port,
+            self.default_config.micro_com.header,
+            self.default_config.micro_com.footer,
+            self.default_config.micro_com.escape,
+            )
+
+        self.mock_TuningTransformer.assert_called_with(
+            scale=self.default_config.calibration.max_deflection
+            )
+
+        self.mock_PathToAudio.assert_called_with(
+            actual_samples,
+            self.mock_tuning_transformer,
+            self.default_config.options.laser_thickness_mm
+            )
+
+        self.mock_LayerWriter.assert_called_with(
+            self.mock_micro_disseminator,
+            self.mock_path_to_audio,
+            self.mock_laser_control,
+            self.mock_machine_state
+            )
+
+        self.assertEqual(0, self.mock_AudioWriter.call_count)
         self.mock_Controller.assert_called_with(
             self.mock_layer_writer,
             self.mock_layer_processing,

@@ -75,6 +75,11 @@ class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
             call(MoveMessage(2, 65535, 32767, 255)),
             ])
 
+    def test_close_calls_close_on_communicator(self):
+        micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
+        micro_disseminator.close()
+        self.mock_comm.close.assert_called_with()
+
 
 if __name__ == '__main__':
     unittest.main()
