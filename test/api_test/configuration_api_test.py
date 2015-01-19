@@ -1230,6 +1230,46 @@ class CircutSetupMixInTest(object):
         configuration_API.set_circut_type('Digital')
 
 
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_circut_sets_and_gets(self, mock_save, mock_load):
+        expected_port          = 'COM55'
+        expected_rate          = 8458
+        expected_header        = '@'
+        expected_footer        = 'A'
+        expected_escape        = 'B'
+        expected_circut_type   = 'Digital'
+        expected_version       = 'r96986'
+
+        mock_load.return_value = self.default_config
+        expected = self.default_config
+        expected.micro_com.port       = expected_port
+        expected.micro_com.rate       = expected_rate
+        expected.micro_com.header     = expected_header
+        expected.micro_com.footer     = expected_footer
+        expected.micro_com.escape     = expected_escape
+        expected.circut.circut_type   = expected_circut_type
+        expected.circut.version       = expected_version
+
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_micro_com_port(expected_port)
+        configuration_API.set_micro_com_rate(expected_rate)
+        configuration_API.set_micro_com_header(expected_header)
+        configuration_API.set_micro_com_footer(expected_footer)
+        configuration_API.set_micro_com_escape(expected_escape)
+        configuration_API.set_circut_type(expected_circut_type)
+        configuration_API.set_circut_version(expected_version)
+
+        self.assertEquals(expected_port,        configuration_API.get_micro_com_port())
+        self.assertEquals(expected_rate,        configuration_API.get_micro_com_rate())
+        self.assertEquals(expected_header,      configuration_API.get_micro_com_header())
+        self.assertEquals(expected_footer,      configuration_API.get_micro_com_footer())
+        self.assertEquals(expected_escape,      configuration_API.get_micro_com_escape())
+        self.assertEquals(expected_circut_type, configuration_API.get_circut_type())
+        self.assertEquals(expected_version,     configuration_API.get_circut_version())
+
 
 class ConfigurationAPITest(
         unittest.TestCase,

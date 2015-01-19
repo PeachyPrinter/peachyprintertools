@@ -560,11 +560,51 @@ class AdvancedSetupMixin(object):
 
 class CircutSetupMixIn(object):
     _CIRCUT_TYPES = ['Analog', 'Digital']
-    
+
     def set_circut_type(self, circut_type):
         if not circut_type in self._CIRCUT_TYPES:
             logging.warning("Specified circut type %s is invalid" % circut_type)
             raise Exception("Specified circut type %s is invalid" % circut_type)
+        self._current_config.circut.circut_type = circut_type
+
+    def set_micro_com_port(self, port):
+        self._current_config.micro_com.port = port
+
+    def set_micro_com_rate(self, rate):
+        self._current_config.micro_com.rate = rate
+
+    def set_micro_com_header(self, header):
+        self._current_config.micro_com.header = header
+
+    def set_micro_com_footer(self, footer):
+        self._current_config.micro_com.footer = footer
+
+    def set_micro_com_escape(self, escape):
+        self._current_config.micro_com.escape = escape
+
+    def set_circut_version(self, version):
+        self._current_config.circut.version = version
+
+    def get_micro_com_port(self):
+        return self._current_config.micro_com.port
+
+    def get_micro_com_rate(self):
+        return self._current_config.micro_com.rate
+
+    def get_micro_com_header(self):
+        return self._current_config.micro_com.header
+
+    def get_micro_com_footer(self):
+        return self._current_config.micro_com.footer
+
+    def get_micro_com_escape(self):
+        return self._current_config.micro_com.escape
+
+    def get_circut_type(self):
+        return self._current_config.circut.circut_type
+
+    def get_circut_version(self):
+        return self._current_config.circut.version
 
 
 '''Api for adjusting setting for the peachy current_printer.

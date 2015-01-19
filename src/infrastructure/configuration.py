@@ -957,7 +957,6 @@ class ConfigurationGenerator(object):
         configuration.micro_com.header                     = '@'
         configuration.micro_com.footer                     = 'A'
         configuration.micro_com.escape                     = 'B'
-        
         configuration.circut.circut_type                   = 'Analog'
         configuration.circut.version                       = 'r1.99-r3'
 
