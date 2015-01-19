@@ -1,5 +1,6 @@
 import logging
 from domain.disseminator import Disseminator
+from infrastructure.messages import Move
 
 
 class MicroDisseminator(Disseminator):
@@ -9,7 +10,9 @@ class MicroDisseminator(Disseminator):
         self._communication = comunication
 
     def process(self, data):
-        raise NotImplementedError()
+        for (x, y) in data:
+            data = Move(int(x), int(y), self._laser_control.laser_power())
+            self._communication.send(data)
 
     def next_layer(self, height):
         pass

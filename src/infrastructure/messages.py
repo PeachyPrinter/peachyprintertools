@@ -34,3 +34,12 @@ class Move(ProtoBuffableMessage):
     @classmethod
     def from_bytes(self, bytes):
         raise NotImplementedError()
+
+    def __eq__(self, other):
+        if (self.__class__ == other.__class__ and
+            self._x_pos == other._x_pos and
+            self._y_pos == other._y_pos and
+            self ._laser_power == other._laser_power):
+            return True
+        else:
+            return False
