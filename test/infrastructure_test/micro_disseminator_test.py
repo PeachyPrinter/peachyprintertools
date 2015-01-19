@@ -18,5 +18,13 @@ class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
         micro_disseminator = MicroDisseminator(LaserControl(), MagicMock(), expected_samples_per_second)
         self.assertEquals(expected_samples_per_second, micro_disseminator.samples_per_second)
 
+    def test_next_layer_does_nothing(self):
+        micro_disseminator = MicroDisseminator(LaserControl(), MagicMock(), 8000)
+        micro_disseminator.next_layer(7.7)
+
+    def test_process_should_call_communicator_with_correct_command(self):
+        pass
+
+
 if __name__ == '__main__':
     unittest.main()
