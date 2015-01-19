@@ -29,9 +29,6 @@ class AudioSetting(object):
         else:
             return "%s Hz, %s" % (self.sample_frequency, self.bit_depth)
 
-class CircutConfigurationMixIn(object):
-    pass
-
 
 class AudioSetupMixIn(object):
     _BEST_AUDIO_OUT_OPTIONS = [
@@ -561,6 +558,15 @@ class AdvancedSetupMixin(object):
         self.save()
 
 
+class CircutSetupMixIn(object):
+    _CIRCUT_TYPES = ['Analog', 'Digital']
+    
+    def set_circut_type(self, circut_type):
+        if not circut_type in self._CIRCUT_TYPES:
+            logging.warning("Specified circut type %s is invalid" % circut_type)
+            raise Exception("Specified circut type %s is invalid" % circut_type)
+
+
 '''Api for adjusting setting for the peachy current_printer.
 This API is still in active development and as is subject dramatic change'''
 
@@ -572,6 +578,7 @@ class ConfigurationAPI(
     GeneralSetupMixIn,
     EmailSetupMixin,
     AdvancedSetupMixin,
+    CircutSetupMixIn
     ):
 
     def __init__(self, configuration_manager):

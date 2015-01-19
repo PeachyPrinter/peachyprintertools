@@ -14,76 +14,7 @@ from infrastructure.drip_based_zaxis import AudioDripZAxis
 import test_helpers
 
 
-class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
-
-    @patch.object(ConfigurationManager, 'new')
-    @patch.object(ConfigurationManager, 'save')
-    def test_add_printer_should_save_itself(self, mock_save, mock_new):
-        capi = ConfigurationAPI(ConfigurationManager())
-        mock_new.return_value = "Some Printer Config"
-
-        capi.add_printer("NewName")
-
-        mock_new.assert_called_with("NewName")
-        mock_save.assert_called_with("Some Printer Config")
-
-    @patch.object(ConfigurationManager, 'list')
-    def test_get_available_printers_lists_printers(self, mock_list):
-        printers = ['Tom', 'Dick', 'Harry']
-        capi = ConfigurationAPI(ConfigurationManager())
-        mock_list.return_value = printers
-
-        actual = capi.get_available_printers()
-
-        mock_list.assert_called_with()
-        self.assertEqual(printers, actual)
-
-    def test_current_printer_returns_none_when_no_printer_loaded(self):
-        capi = ConfigurationAPI(ConfigurationManager())
-
-        actual = capi.current_printer()
-
-        self.assertEqual(None, actual)
-
-    @patch.object(ConfigurationManager, 'save')
-    @patch.object(ConfigurationManager, 'new')
-    def test_current_printer_returns_printer_name(self, mock_new, mock_save):
-        capi = ConfigurationAPI(ConfigurationManager())
-        name = "Spam"
-        config = self.default_config
-        config.name = name
-        mock_new.return_value = config
-        capi.add_printer('Spam')
-
-        actual = capi.current_printer()
-
-        self.assertEqual('Spam', actual)
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_load_printer_calls_load(self, mock_load):
-        printer_name = 'MegaPrint'
-        mock_load.return_value = {'name': printer_name}
-        capi = ConfigurationAPI(ConfigurationManager())
-
-        capi.load_printer(printer_name)
-
-        mock_load.assert_called_with(printer_name)
-
-#     @patch.object(ConfigurationManager, 'load')
-#     def test_cannot_add_printer_that_already_exists(self, mock_load):
-#         pass
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_config_returns_current_config(self, mock_load):
-        expected = {'name': 'MegaPrint'}
-        mock_load.return_value = expected
-        capi = ConfigurationAPI(ConfigurationManager())
-        capi.load_printer('printer')
-
-        actual = capi.get_current_config()
-
-        self.assertEquals(expected, actual)
-
-# ----------------------------------- Audio Setup ------------------------------------------
+class AudioSetupMixInTest(object):
     @patch.object(AudioSetup, 'get_valid_sampling_options')
     @patch.object(ConfigurationManager, 'load')
     def test_get_available_audio_options_should_get_list_of_settings(self, mock_load, mock_get_valid_sampling_options):
@@ -274,7 +205,8 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
-    # ------------------------------- Drip Setup --------------------------------------
+
+class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
@@ -541,7 +473,245 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         mock_SerialCommander.assert_called_with("COM1")
         mock_serial_commander.close.assert_called_with()
 
-    # ----------------------------- General Setup --------------------------------------
+
+class CureTestSetupMixInTest(object):
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_cure_test_total_height_must_exceed_base_height(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(10, 1, 1, 2)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 1, 1, 2)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_cure_test_final_speed_exceeds_start_speed(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, 1)
+
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 1, 1)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_cure_test_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test('a', 10, 10, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 'a', 10, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 'a', 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, 'a')
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, 1, 'a')
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(-1, 10, 10, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, -10, 10, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, -1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, -1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, 1, -1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 0, 10, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 0, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, 0)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, 1, 0)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_cure_test_returns_a_layer_generator(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        cure_test = configuration_API.get_cure_test(0, 1, 1, 2)
+        cure_test.next()
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_speed_at_height_must_exceed_base_height(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(10, 1, 1, 2, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 1, 1, 2, 1)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_speed_at_height_must_have_height_between_total_and_base(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(0, 10, 1, 2, 11)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(2, 10, 1, 2, 0)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_speed_at_height_final_speed_exceeds_start_speed(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 10, 1, 1)
+
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 1, 1, 1)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_speed_at_height_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height('a', 10, 10, 1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 'a', 10, 1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 'a', 1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 10, 'a', 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 10, 1, 'a', 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(-1, 10, 10, 1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, -10, 10, 1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, -1, 1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 10, -1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 10, 1, -1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 0, 10, 1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 0, 1, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 10, 0, 1)
+        with self.assertRaises(Exception):
+            configuration_API.get_speed_at_height(1, 10, 10, 1, 0, 1)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_speed_at_height_returns_a_correct_height(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        speed = configuration_API.get_speed_at_height(0, 1, 10, 20, 0.5)
+        self.assertEquals(15, speed)
+
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_speed_should_throw_exception_if_less_then_or_0(self, mock_save, mock_load):
+        mock_load.return_value = self.default_config
+        expected_config = self.default_config
+        expected_config.cure_rate.draw_speed = 121.0
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.set_speed(-1)
+        with self.assertRaises(Exception):
+            configuration_API.set_speed(0)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_layer_settings(self, mock_load):
+        config = self.default_config
+        config.options.use_shufflelayers = True
+        config.options.use_sublayers = True
+        config.options.use_overlap = True
+
+        mock_load.return_value = config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        self.assertTrue(configuration_API.get_use_shufflelayers())
+        self.assertTrue(configuration_API.get_use_sublayers())
+        self.assertTrue(configuration_API.get_use_overlap())
+
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_layer_settings(self, mock_save, mock_load):
+        mock_load.return_value = self.default_config
+        expected = self.default_config
+        expected.options.use_shufflelayers = False
+        expected.options.use_sublayers = False
+        expected.options.use_overlap = False
+
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_use_shufflelayers(False)
+        configuration_API.set_use_sublayers(False)
+        configuration_API.set_use_overlap(False)
+
+        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
+
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(ConfigurationManager, 'save')
+    def test_get_and_set_cure_test_details(self, mock_save, mock_load):
+        expected_base_height = 3.0
+        expected_total_height = 33.0
+        expected_start_speed = 10.0
+        expected_finish_speed = 100.0
+        expected_draw_speed = 75.0
+        expected_use_draw_speed = False
+
+        expected_config = self.default_config
+
+        expected_config.cure_rate.base_height = expected_base_height
+        expected_config.cure_rate.total_height = expected_total_height
+        expected_config.cure_rate.start_speed = expected_start_speed
+        expected_config.cure_rate.finish_speed = expected_finish_speed
+        expected_config.cure_rate.draw_speed = expected_draw_speed
+        expected_config.cure_rate.use_draw_speed = expected_use_draw_speed
+
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        configuration_API.set_cure_rate_base_height(expected_base_height)
+        configuration_API.set_cure_rate_total_height(expected_total_height)
+        configuration_API.set_cure_rate_start_speed(expected_start_speed)
+        configuration_API.set_cure_rate_finish_speed(expected_finish_speed)
+        configuration_API.set_cure_rate_draw_speed(expected_draw_speed)
+        configuration_API.set_cure_rate_use_draw_speed(expected_use_draw_speed)
+
+        configuration_API.save()
+
+        self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
+
+        self.assertEquals(expected_base_height,    configuration_API.get_cure_rate_base_height())
+        self.assertEquals(expected_total_height,   configuration_API.get_cure_rate_total_height())
+        self.assertEquals(expected_start_speed,    configuration_API.get_cure_rate_start_speed())
+        self.assertEquals(expected_finish_speed,   configuration_API.get_cure_rate_finish_speed())
+        self.assertEquals(expected_draw_speed,     configuration_API.get_cure_rate_draw_speed())
+        self.assertEquals(expected_use_draw_speed, configuration_API.get_cure_rate_use_draw_speed())
+
+
+class GeneralSetupMixInTest(object):
+
     @patch.object(ConfigurationManager, 'load')
     def test_get_write_wav_files_folder_returns_write_wav_files_folder(self, mock_load):
         expected = "temp"
@@ -830,68 +1000,6 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
             configuration_API.set_sublayer_height_mm(1)
 
     @patch.object(ConfigurationManager, 'load')
-    def test_get_serial_options_loads_correctly(self, mock_load):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        actual_enabled = configuration_API.get_serial_enabled()
-        actual_port = configuration_API.get_serial_port()
-        actual_on = configuration_API.get_serial_on_command()
-        actual_off = configuration_API.get_serial_off_command()
-        actual_layer_start = configuration_API.get_layer_started_command()
-        actual_layer_ended = configuration_API.get_layer_ended_command()
-
-        self.assertEquals(self.default_config.serial.on, actual_enabled)
-        self.assertEquals(self.default_config.serial.port, actual_port)
-        self.assertEquals(self.default_config.serial.on_command, actual_on)
-        self.assertEquals(self.default_config.serial.off_command, actual_off)
-        self.assertEquals(self.default_config.serial.layer_started, actual_layer_start)
-        self.assertEquals(self.default_config.serial.layer_ended, actual_layer_ended)
-
-    @patch.object(ConfigurationManager, 'load')
-    @patch.object(ConfigurationManager, 'save')
-    def test_set_serial_options_loads_correctly(self, mock_save, mock_load):
-        expected_enabled = True
-        expected_port = 'com54'
-        expected_on = 'GOGOGO'
-        expected_off = 'STOPSTOP'
-        expected_layer_start = 'S'
-        expected_layer_end = 'E'
-        expected_print_end = 'Z'
-
-        mock_load.return_value = self.default_config
-        expected = self.default_config
-        expected.serial.on                = expected_enabled
-        expected.serial.port              = expected_port
-        expected.serial.on_command        = expected_on
-        expected.serial.off_command       = expected_off
-        expected.serial.layer_started     = expected_layer_start
-        expected.serial.layer_ended       = expected_layer_end
-        expected.serial.print_ended       = expected_print_end
-
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        configuration_API.set_serial_enabled(expected_enabled)
-        configuration_API.set_serial_port(expected_port)
-        configuration_API.set_serial_on_command(expected_on)
-        configuration_API.set_serial_off_command(expected_off)
-        configuration_API.set_layer_started_command(expected_layer_start)
-        configuration_API.set_layer_ended_command(expected_layer_end)
-        configuration_API.set_print_ended_command(expected_print_end)
-
-        self.assertEquals(expected_enabled, configuration_API.get_serial_enabled())
-        self.assertEquals(expected_port, configuration_API.get_serial_port())
-        self.assertEquals(expected_on, configuration_API.get_serial_on_command())
-        self.assertEquals(expected_off, configuration_API.get_serial_off_command())
-        self.assertEquals(expected_layer_start, configuration_API.get_layer_started_command())
-        self.assertEquals(expected_layer_end, configuration_API.get_layer_ended_command())
-        self.assertEquals(expected_print_end, configuration_API.get_print_ended_command())
-
-        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
-
-    @patch.object(ConfigurationManager, 'load')
     def test_get_post_fire_delay_returns_the_amount(self, mock_load):
         expected = 3
         expected_config = self.default_config
@@ -1003,6 +1111,9 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(print_queue_delay, configuration_API.get_print_queue_delay())
         mock_save.assert_called_with(expected)
 
+
+class EmailSetupMixInTest(object):
+
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
     def test_get_and_set_email_details(self, mock_save, mock_load):
@@ -1040,240 +1151,150 @@ class ConfigurationAPITest(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_sender, configuration_API.get_email_sender())
         self.assertEquals(expected_recipient, configuration_API.get_email_recipient())
 
-#-----------------------------------------Cure Test Setup Tests -----------------------------------
+
+class AdvancedSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
-    def test_get_cure_test_total_height_must_exceed_base_height(self, mock_load):
+    def test_get_serial_options_loads_correctly(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(10, 1, 1, 2)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 1, 1, 2)
+        actual_enabled = configuration_API.get_serial_enabled()
+        actual_port = configuration_API.get_serial_port()
+        actual_on = configuration_API.get_serial_on_command()
+        actual_off = configuration_API.get_serial_off_command()
+        actual_layer_start = configuration_API.get_layer_started_command()
+        actual_layer_ended = configuration_API.get_layer_ended_command()
 
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_cure_test_final_speed_exceeds_start_speed(self, mock_load):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 10, 1)
-
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 1, 1)
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_cure_test_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test('a', 10, 10, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 'a', 10, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 'a', 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 10, 'a')
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 10, 1, 'a')
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(-1, 10, 10, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, -10, 10, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, -1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 10, -1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 10, 1, -1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 0, 10, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 0, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 10, 0)
-        with self.assertRaises(Exception):
-            configuration_API.get_cure_test(1, 10, 10, 1, 0)
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_cure_test_returns_a_layer_generator(self, mock_load):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        cure_test = configuration_API.get_cure_test(0, 1, 1, 2)
-        cure_test.next()
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_speed_at_height_must_exceed_base_height(self, mock_load):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(10, 1, 1, 2, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 1, 1, 2, 1)
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_speed_at_height_must_have_height_between_total_and_base(self, mock_load):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(0, 10, 1, 2, 11)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(2, 10, 1, 2, 0)
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_speed_at_height_final_speed_exceeds_start_speed(self, mock_load):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 10, 1, 1)
-
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 1, 1, 1)
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_speed_at_height_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height('a', 10, 10, 1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 'a', 10, 1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 'a', 1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 10, 'a', 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 10, 1, 'a', 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(-1, 10, 10, 1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, -10, 10, 1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, -1, 1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 10, -1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 10, 1, -1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 0, 10, 1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 0, 1, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 10, 0, 1)
-        with self.assertRaises(Exception):
-            configuration_API.get_speed_at_height(1, 10, 10, 1, 0, 1)
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_speed_at_height_returns_a_correct_height(self, mock_load):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        speed = configuration_API.get_speed_at_height(0, 1, 10, 20, 0.5)
-        self.assertEquals(15, speed)
+        self.assertEquals(self.default_config.serial.on, actual_enabled)
+        self.assertEquals(self.default_config.serial.port, actual_port)
+        self.assertEquals(self.default_config.serial.on_command, actual_on)
+        self.assertEquals(self.default_config.serial.off_command, actual_off)
+        self.assertEquals(self.default_config.serial.layer_started, actual_layer_start)
+        self.assertEquals(self.default_config.serial.layer_ended, actual_layer_ended)
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
-    def test_set_speed_should_throw_exception_if_less_then_or_0(self, mock_save, mock_load):
-        mock_load.return_value = self.default_config
-        expected_config = self.default_config
-        expected_config.cure_rate.draw_speed = 121.0
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+    def test_set_serial_options_loads_correctly(self, mock_save, mock_load):
+        expected_enabled = True
+        expected_port = 'com54'
+        expected_on = 'GOGOGO'
+        expected_off = 'STOPSTOP'
+        expected_layer_start = 'S'
+        expected_layer_end = 'E'
+        expected_print_end = 'Z'
 
-        with self.assertRaises(Exception):
-            configuration_API.set_speed(-1)
-        with self.assertRaises(Exception):
-            configuration_API.set_speed(0)
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_layer_settings(self, mock_load):
-        config = self.default_config
-        config.options.use_shufflelayers = True
-        config.options.use_sublayers = True
-        config.options.use_overlap = True
-
-        mock_load.return_value = config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        self.assertTrue(configuration_API.get_use_shufflelayers())
-        self.assertTrue(configuration_API.get_use_sublayers())
-        self.assertTrue(configuration_API.get_use_overlap())
-
-    @patch.object(ConfigurationManager, 'load')
-    @patch.object(ConfigurationManager, 'save')
-    def test_set_layer_settings(self, mock_save, mock_load):
         mock_load.return_value = self.default_config
         expected = self.default_config
-        expected.options.use_shufflelayers = False
-        expected.options.use_sublayers = False
-        expected.options.use_overlap = False
+        expected.serial.on                = expected_enabled
+        expected.serial.port              = expected_port
+        expected.serial.on_command        = expected_on
+        expected.serial.off_command       = expected_off
+        expected.serial.layer_started     = expected_layer_start
+        expected.serial.layer_ended       = expected_layer_end
+        expected.serial.print_ended       = expected_print_end
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_use_shufflelayers(False)
-        configuration_API.set_use_sublayers(False)
-        configuration_API.set_use_overlap(False)
+        configuration_API.set_serial_enabled(expected_enabled)
+        configuration_API.set_serial_port(expected_port)
+        configuration_API.set_serial_on_command(expected_on)
+        configuration_API.set_serial_off_command(expected_off)
+        configuration_API.set_layer_started_command(expected_layer_start)
+        configuration_API.set_layer_ended_command(expected_layer_end)
+        configuration_API.set_print_ended_command(expected_print_end)
+
+        self.assertEquals(expected_enabled, configuration_API.get_serial_enabled())
+        self.assertEquals(expected_port, configuration_API.get_serial_port())
+        self.assertEquals(expected_on, configuration_API.get_serial_on_command())
+        self.assertEquals(expected_off, configuration_API.get_serial_off_command())
+        self.assertEquals(expected_layer_start, configuration_API.get_layer_started_command())
+        self.assertEquals(expected_layer_end, configuration_API.get_layer_ended_command())
+        self.assertEquals(expected_print_end, configuration_API.get_print_ended_command())
 
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
+
+class CircutSetupMixInTest(object):
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
-    def test_get_and_set_cure_test_details(self, mock_save, mock_load):
-        expected_base_height = 3.0
-        expected_total_height = 33.0
-        expected_start_speed = 10.0
-        expected_finish_speed = 100.0
-        expected_draw_speed = 75.0
-        expected_use_draw_speed = False
-
-        expected_config = self.default_config
-
-        expected_config.cure_rate.base_height = expected_base_height
-        expected_config.cure_rate.total_height = expected_total_height
-        expected_config.cure_rate.start_speed = expected_start_speed
-        expected_config.cure_rate.finish_speed = expected_finish_speed
-        expected_config.cure_rate.draw_speed = expected_draw_speed
-        expected_config.cure_rate.use_draw_speed = expected_use_draw_speed
-
+    def test_set_circut_type_raises_exception_in_wrong_type(self, mock_save, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
+        with self.assertRaises(Exception):
+            configuration_API.set_circut_type('Booya')
+        configuration_API.set_circut_type('Analog')
+        configuration_API.set_circut_type('Digital')
 
-        configuration_API.set_cure_rate_base_height(expected_base_height)
-        configuration_API.set_cure_rate_total_height(expected_total_height)
-        configuration_API.set_cure_rate_start_speed(expected_start_speed)
-        configuration_API.set_cure_rate_finish_speed(expected_finish_speed)
-        configuration_API.set_cure_rate_draw_speed(expected_draw_speed)
-        configuration_API.set_cure_rate_use_draw_speed(expected_use_draw_speed)
 
-        configuration_API.save()
 
-        self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
+class ConfigurationAPITest(
+        unittest.TestCase,
+        test_helpers.TestHelpers,
+        AudioSetupMixInTest,
+        DripperSetupMixInTest,
+        CureTestSetupMixInTest,
+        GeneralSetupMixInTest,
+        EmailSetupMixInTest,
+        AdvancedSetupMixInTest,
+        CircutSetupMixInTest,
+        ):
 
-        self.assertEquals(expected_base_height,    configuration_API.get_cure_rate_base_height())
-        self.assertEquals(expected_total_height,   configuration_API.get_cure_rate_total_height())
-        self.assertEquals(expected_start_speed,    configuration_API.get_cure_rate_start_speed())
-        self.assertEquals(expected_finish_speed,   configuration_API.get_cure_rate_finish_speed())
-        self.assertEquals(expected_draw_speed,     configuration_API.get_cure_rate_draw_speed())
-        self.assertEquals(expected_use_draw_speed, configuration_API.get_cure_rate_use_draw_speed())
+    @patch.object(ConfigurationManager, 'new')
+    @patch.object(ConfigurationManager, 'save')
+    def test_add_printer_should_save_itself(self, mock_save, mock_new):
+        capi = ConfigurationAPI(ConfigurationManager())
+        mock_new.return_value = "Some Printer Config"
+
+        capi.add_printer("NewName")
+
+        mock_new.assert_called_with("NewName")
+        mock_save.assert_called_with("Some Printer Config")
+
+    @patch.object(ConfigurationManager, 'list')
+    def test_get_available_printers_lists_printers(self, mock_list):
+        printers = ['Tom', 'Dick', 'Harry']
+        capi = ConfigurationAPI(ConfigurationManager())
+        mock_list.return_value = printers
+
+        actual = capi.get_available_printers()
+
+        mock_list.assert_called_with()
+        self.assertEqual(printers, actual)
+
+    def test_current_printer_returns_none_when_no_printer_loaded(self):
+        capi = ConfigurationAPI(ConfigurationManager())
+
+        actual = capi.current_printer()
+
+        self.assertEqual(None, actual)
+
+    @patch.object(ConfigurationManager, 'save')
+    @patch.object(ConfigurationManager, 'new')
+    def test_current_printer_returns_printer_name(self, mock_new, mock_save):
+        capi = ConfigurationAPI(ConfigurationManager())
+        name = "Spam"
+        config = self.default_config
+        config.name = name
+        mock_new.return_value = config
+        capi.add_printer('Spam')
+
+        actual = capi.current_printer()
+
+        self.assertEqual('Spam', actual)
+
+    @patch.object(ConfigurationManager, 'load')
+    def test_load_printer_calls_load(self, mock_load):
+        printer_name = 'MegaPrint'
+        mock_load.return_value = {'name': printer_name}
+        capi = ConfigurationAPI(ConfigurationManager())
+
+        capi.load_printer(printer_name)
+
+        mock_load.assert_called_with(printer_name)
 
 
 class AudioSettingsTest(unittest.TestCase, test_helpers.TestHelpers):
