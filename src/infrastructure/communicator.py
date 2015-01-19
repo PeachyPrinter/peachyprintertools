@@ -14,3 +14,7 @@ class SerialCommunicator(object):
 
     def send(self, message):
         pass
+
+class NullCommunicator(object):
+    def send(self, message):
+        pass

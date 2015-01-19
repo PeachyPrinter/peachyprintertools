@@ -11,7 +11,7 @@ from infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
 from domain.laser_control import LaserControl
 from infrastructure.audio_disseminator import AudioDisseminator
 from infrastructure.micro_disseminator import MicroDisseminator
-from infrastructure.communicator import SerialCommunicator
+from infrastructure.communicator import SerialCommunicator, NullCommunicator
 from infrastructure.gcode_layer_generator import GCodeReader
 from infrastructure.transformer import HomogenousTransformer
 from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
@@ -112,8 +112,21 @@ class PrintAPI(object):
             layer_generator = OverLapGenerator(layer_generator, self._configuration.options.overlap_amount)
         self.print_layers(layer_generator, dry_run)
 
-    def _get_zaxis(self):
-        if self._configuration.dripper.dripper_type == 'audio':
+    def _get_zaxis(self, dry_run):
+        if dry_run:
+            return None
+        elif self._configuration.options.write_wav_files:
+            return PhotoZAxis(
+                self._start_height,
+                0.0
+                )
+        elif self._configuration.dripper.dripper_type == 'photo':
+            logging.info("Photo Zaxis")
+            return PhotoZAxis(
+                self._start_height,
+                self._configuration.dripper.photo_zaxis_delay
+                )
+        elif self._configuration.dripper.dripper_type == 'audio':
             logging.info("Audio Zaxis")
             return AudioDripZAxis(
                 self._configuration.dripper.drips_per_mm,
@@ -131,12 +144,46 @@ class PrintAPI(object):
                 self._start_height,
                 drips_per_second=self._configuration.dripper.emulated_drips_per_second
                 )
-        elif self._configuration.dripper.dripper_type == 'photo':
-            logging.info("Photo Zaxis")
-            return PhotoZAxis(
-                self._start_height,
-                self._configuration.dripper.photo_zaxis_delay
+
+    def _get_digital_disseminator(self, dry_run):
+            if dry_run:
+                communicator = NullCommunicator()
+            else:
+                communicator = SerialCommunicator(
+                    self._configuration.micro_com.port,
+                    self._configuration.micro_com.header,
+                    self._configuration.micro_com.footer,
+                    self._configuration.micro_com.escape,
+                    )
+            return MicroDisseminator(
+                self.laser_control,
+                communicator,
+                self._configuration.micro_com.rate
                 )
+
+    def _get_analog_disseminator(self, dry_run):
+        if dry_run:
+            data_writer = None
+        elif self._configuration.options.write_wav_files:
+            data_writer = FileWriter(
+                self._configuration.audio.output.sample_rate,
+                self._configuration.audio.output.bit_depth,
+                self._configuration.options.write_wav_files_folder,
+                )
+        else:
+            data_writer = AudioWriter(
+                self._configuration.audio.output.sample_rate,
+                self._configuration.audio.output.bit_depth,
+                )
+
+        return AudioDisseminator(
+            self.laser_control,
+            data_writer,
+            self._configuration.audio.output.sample_rate,
+            self._configuration.audio.output.modulation_on_frequency,
+            self._configuration.audio.output.modulation_off_frequency,
+            self._configuration.options.laser_offset
+            )
 
     def print_layers(self, layer_generator, dry_run=False):
         if self._configuration.serial.on:
@@ -144,7 +191,7 @@ class PrintAPI(object):
         else:
             self._commander = NullCommander()
 
-        laser_control = LaserControl()
+        self.laser_control = LaserControl()
 
         transformer = HomogenousTransformer(
             self._configuration.calibration.max_deflection,
@@ -157,54 +204,17 @@ class PrintAPI(object):
         self._status = MachineStatus(self._status_call_back)
 
         if dry_run:
-            data_writer = None
-            self._zaxis = None
             abort_on_error = False
-        elif self._configuration.options.write_wav_files:
-            data_writer = FileWriter(
-                self._configuration.audio.output.sample_rate,
-                self._configuration.audio.output.bit_depth,
-                self._configuration.options.write_wav_files_folder,
-                )
-            self._zaxis = PhotoZAxis(self._start_height, 0)
+        else:
             abort_on_error = True
-            disseminator = AudioDisseminator(
-                laser_control,
-                data_writer,
-                self._configuration.audio.output.sample_rate,
-                self._configuration.audio.output.modulation_on_frequency,
-                self._configuration.audio.output.modulation_off_frequency,
-                self._configuration.options.laser_offset
-                )
-        elif self._configuration.circut.circut_type == 'Analog':
-            data_writer = AudioWriter(
-                self._configuration.audio.output.sample_rate,
-                self._configuration.audio.output.bit_depth,
-                )
-            self._zaxis = self._get_zaxis()
-            abort_on_error = True
-            disseminator = AudioDisseminator(
-                laser_control,
-                data_writer,
-                self._configuration.audio.output.sample_rate,
-                self._configuration.audio.output.modulation_on_frequency,
-                self._configuration.audio.output.modulation_off_frequency,
-                self._configuration.options.laser_offset
-                )
+
+        self._zaxis = self._get_zaxis(dry_run)
+        
+        if self._configuration.circut.circut_type == 'Analog':
+            disseminator = self._get_analog_disseminator(dry_run)
+
         elif self._configuration.circut.circut_type == 'Digital':
-            self._zaxis = self._get_zaxis()
-            abort_on_error = True
-            communicator = SerialCommunicator(
-                self._configuration.micro_com.port,
-                self._configuration.micro_com.header,
-                self._configuration.micro_com.footer,
-                self._configuration.micro_com.escape,
-                )
-            disseminator = MicroDisseminator(
-                laser_control,
-                communicator,
-                self._configuration.micro_com.rate
-                )
+            disseminator = self._get_digital_disseminator(dry_run)
 
         path_to_audio = PathToAudio(
             disseminator.samples_per_second,
@@ -221,7 +231,7 @@ class PrintAPI(object):
         self._writer = LayerWriter(
             disseminator,
             path_to_audio,
-            laser_control,
+            self.laser_control,
             state,
             move_distance_to_ignore=self._configuration.options.laser_thickness_mm,
             override_speed=override_speed,
