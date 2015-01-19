@@ -28,6 +28,76 @@ class ConfigurationBase(object):
                 d[unicode(key)[1:]] = value
         return d
 
+
+class MicroComConfiguration(ConfigurationBase):
+    def __init__(self, source = {}):
+        self._port   = self.get(source, u'port',  '/dev/ttyACM0')
+        self._rate   = self.get(source, u'rate', 8000)
+        self._header = self.get(source, u'header', "@")
+        self._footer = self.get(source, u'footer', "A")
+        self._escape = self.get(source, u'escape', 'B')
+
+    @property
+    def port(self):
+        return self._port
+
+    @port.setter
+    def port(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._port = value
+        else:
+            raise ValueError("Port must be of %s was %s" % (_type, type(value)))
+    
+    @property
+    def rate(self):
+        return self._rate
+
+    @rate.setter
+    def rate(self, value):
+        _type = types.IntType
+        if type(value) == _type:
+            self._rate = value
+        else:
+            raise ValueError("Rate must be of %s was %s" % (_type, type(value)))
+    
+    @property
+    def header(self):
+        return self._header
+
+    @header.setter
+    def header(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._header = value
+        else:
+            raise ValueError("Header must be of %s was %s" % (_type, type(value)))
+    
+    @property
+    def footer(self):
+        return self._footer
+
+    @footer.setter
+    def footer(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._footer = value
+        else:
+            raise ValueError("Footer must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def escape(self):
+        return self._escape
+
+    @escape.setter
+    def escape(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._escape = value
+        else:
+            raise ValueError("Escape must be of %s was %s" % (_type, type(value)))
+
+
 class CureRateConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._base_height    = self.get(source, u'base_height',  3.0)
@@ -743,6 +813,7 @@ class Configuration(ConfigurationBase):
         self._options = OptionsConfiguration(source = source.get(u'options', {}))
         self._email = EmailConfiguration(source = source.get(u'email', {}))
         self._cure_rate = CureRateConfiguration(source = source.get(u'cure_rate', {}))
+        self._micro_com = MicroComConfiguration(source = source.get(u'micro_com', {}))
 
     def toJson(self):
         di = self.toDict()
@@ -775,6 +846,10 @@ class Configuration(ConfigurationBase):
     @property
     def cure_rate(self):
         return self._cure_rate
+
+    @property
+    def micro_com(self):
+        return self._micro_com
 
     @property
     def name(self):
