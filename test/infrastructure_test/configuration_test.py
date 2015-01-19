@@ -6,15 +6,45 @@ import hashlib
 
 from StringIO import StringIO
 
-from mock import patch, MagicMock,mock_open
+from mock import patch, MagicMock, mock_open
 
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from infrastructure.configuration import *
 from infrastructure.configuration import FileBasedConfigurationManager as ConfigurationManager
 
 import test_helpers
+
+
+class CircutConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
+    def test_set_should_fail_for_incorrect_values(self):
+        expected_circut_type = True
+        expected_version = True
+
+        circut = CircutConfiguration()
+
+        with self.assertRaises(Exception):
+            circut.circut_type = expected_circut_type
+        with self.assertRaises(Exception):
+            circut.version = expected_version
+
+    def test_can_create_json_and_load_from_json(self):
+        expected_circut_type = 'Analog'
+        expected_version = 'r1.99-r3'
+        original_config = Configuration()
+        original_config.circut.circut_type = expected_circut_type
+        original_config.circut.version = expected_version
+
+        actual_json = json.loads(original_config.toJson())
+        config = Configuration(source=actual_json)
+
+        self.assertEquals(type(expected_circut_type),    type(config.circut.circut_type))
+        self.assertEquals(type(expected_version),    type(config.circut.version))
+        self.assertEquals(expected_circut_type,      config.circut.circut_type)
+        self.assertEquals(expected_version,      config.circut.version)
+
+
 
 class MicroComTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
@@ -48,21 +78,20 @@ class MicroComTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config = Configuration()
 
         original_config.micro_com.port      = expected_port
-        original_config.micro_com.rate     = expected_rate
-        original_config.micro_com.header      = expected_header
-        original_config.micro_com.footer     = expected_footer
-        original_config.micro_com.escape       = expected_escape
+        original_config.micro_com.rate      = expected_rate
+        original_config.micro_com.header    = expected_header
+        original_config.micro_com.footer    = expected_footer
+        original_config.micro_com.escape    = expected_escape
 
 
         actual_json = json.loads(original_config.toJson())
-        config = Configuration(source = actual_json)
+        config = Configuration(source=actual_json)
 
         self.assertEquals(type(expected_port),    type(config.micro_com.port))
         self.assertEquals(type(expected_rate),    type(config.micro_com.rate))
         self.assertEquals(type(expected_header),  type(config.micro_com.header))
         self.assertEquals(type(expected_footer),  type(config.micro_com.footer))
         self.assertEquals(type(expected_escape),  type(config.micro_com.escape))
-
 
         self.assertEquals(expected_port,      config.micro_com.port)
         self.assertEquals(expected_rate,      config.micro_com.rate)

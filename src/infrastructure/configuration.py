@@ -28,6 +28,34 @@ class ConfigurationBase(object):
                 d[unicode(key)[1:]] = value
         return d
 
+class CircutConfiguration(ConfigurationBase):
+    def __init__(self, source={}):
+        self._circut_type   = self.get(source, u'circut_type', 'Analog')
+        self._version = self.get(source, u'version', 'r1.99-6f')
+
+    @property
+    def circut_type(self):
+        return self._circut_type
+
+    @circut_type.setter
+    def circut_type(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._circut_type = value
+        else:
+            raise ValueError("Circut Type must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def version(self):
+        return self._version
+
+    @version.setter
+    def version(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._version = value
+        else:
+            raise ValueError("Version must be of %s was %s" % (_type, type(value)))
 
 class MicroComConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -805,19 +833,20 @@ class AudioConfiguration(ConfigurationBase):
 
 class Configuration(ConfigurationBase):
     def __init__(self, source = {}):
-        self._name = self.get(source, u'name','Peachy Printer')
-        self._audio = AudioConfiguration(source = source.get(u'audio', {}))
-        self._serial = SerialConfiguration(source = source.get(u'serial', {}))
-        self._calibration = CalibrationConfiguration(source = source.get(u'calibration', {}))
-        self._dripper = DripperConfiguration(source = source.get(u'dripper', {}))
-        self._options = OptionsConfiguration(source = source.get(u'options', {}))
-        self._email = EmailConfiguration(source = source.get(u'email', {}))
-        self._cure_rate = CureRateConfiguration(source = source.get(u'cure_rate', {}))
-        self._micro_com = MicroComConfiguration(source = source.get(u'micro_com', {}))
+        self._name = self.get(source, u'name', 'Peachy Printer')
+        self._audio = AudioConfiguration(source=source.get(u'audio', {}))
+        self._serial = SerialConfiguration(source=source.get(u'serial', {}))
+        self._calibration = CalibrationConfiguration(source=source.get(u'calibration', {}))
+        self._dripper = DripperConfiguration(source=source.get(u'dripper', {}))
+        self._options = OptionsConfiguration(source=source.get(u'options', {}))
+        self._email = EmailConfiguration(source=source.get(u'email', {}))
+        self._cure_rate = CureRateConfiguration(source=source.get(u'cure_rate', {}))
+        self._micro_com = MicroComConfiguration(source=source.get(u'micro_com', {}))
+        self._circut = CircutConfiguration(source=source.get(u'circut', {}))
 
     def toJson(self):
         di = self.toDict()
-        return json.dumps(di, sort_keys = True, indent =2)
+        return json.dumps(di, sort_keys=True, indent=2)
 
     @property
     def audio(self):
@@ -826,7 +855,7 @@ class Configuration(ConfigurationBase):
     @property
     def serial(self):
         return self._serial
-    
+
     @property
     def calibration(self):
         return self._calibration
@@ -850,6 +879,10 @@ class Configuration(ConfigurationBase):
     @property
     def micro_com(self):
         return self._micro_com
+
+    @property
+    def circut(self):
+        return self._circut
 
     @property
     def name(self):
@@ -919,17 +952,23 @@ class ConfigurationGenerator(object):
         configuration.cure_rate.draw_speed                 = 100.0
         configuration.cure_rate.use_draw_speed             = True
 
-
+        configuration.micro_com.port                       = '/dev/ttyACM0'
+        configuration.micro_com.rate                       = 8000
+        configuration.micro_com.header                     = '@'
+        configuration.micro_com.footer                     = 'A'
+        configuration.micro_com.escape                     = 'B'
+        
+        configuration.circut.circut_type                   = 'Analog'
+        configuration.circut.version                       = 'r1.99-r3'
 
         return configuration
 
+
 class FileBasedConfigurationManager(ConfigurationManager):
-    
     CONFIGURATION_EXTENSION = '.cfg'
 
     def __init__(self):
         pass
-
 
     def list(self):
         printers = []
@@ -963,12 +1002,11 @@ class FileBasedConfigurationManager(ConfigurationManager):
                 logging.error("Error loading file: %s" % ex)
                 return None
 
-
     def save(self, configuration):
         filename = self._get_file_name(configuration.name)
-        with open(filename,'w') as file_handle:
+        with open(filename, 'w') as file_handle:
             file_handle.write(configuration.toJson())
-        
+
     def new(self, printer_name):
         new_printer_config = ConfigurationGenerator().default_configuration()
         new_printer_config.name = printer_name
@@ -980,7 +1018,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         return config.PEACHY_PATH
 
     def _get_file_name(self, name):
-        safe_name = ''.join( l for l in name if l.isalnum() )
+        safe_name = ''.join(l for l in name if l.isalnum())
         filename = safe_name + self.CONFIGURATION_EXTENSION
         return os.path.join(self._path(), filename)
 
