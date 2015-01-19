@@ -621,7 +621,7 @@ class SetupCircutUI(PeachyFrame):
             self.disable_frame(self._digital_frame)
 
     def _get_recommend_audio_index(self, options):
-        for i in range(0,len(options)):
+        for i in range(0, len(options)):
             if options[i].endswith('(Recommended)'):
                 return i
         return 0
@@ -645,6 +645,7 @@ class SetupCircutUI(PeachyFrame):
         self._configuration_api.set_micro_com_escape(self._escape.get())
         self._configuration_api.set_circut_type(self._circut_type.get())
         self._configuration_api.set_circut_version(self._version.get())
+        self._configuration_api.save()
 
         self.navigate(SetupUI)
 
