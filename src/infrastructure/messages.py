@@ -8,7 +8,7 @@ except Exception as ex:
 
 
 class ProtoBuffableMessage(object):
-    type_id = 0
+    TYPE_ID = 0
 
     def get_bytes(self):
         raise NotImplementedError()
@@ -19,7 +19,7 @@ class ProtoBuffableMessage(object):
 
 
 class MoveMessage(ProtoBuffableMessage):
-    type_id = 1
+    TYPE_ID = 1
 
     def __init__(self, identifier, x_pos, y_pos, laser_power):
         self._id = identifier
