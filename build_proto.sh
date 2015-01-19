@@ -1,0 +1,1 @@
+protoc -I=src/resources/proto --python_out=src/infrastructure src/resources/proto/move.proto

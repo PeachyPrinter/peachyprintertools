@@ -1,0 +1,15 @@
+message Move {
+  required int32 id = 1;
+  required int32 x = 2;
+  required int32 y = 3;
+  required int32 laserPower = 4;
+}
+
+message Ack{
+    required int32 id = 1;
+}
+
+message Nack{
+    required int32 id = 1;
+    required int32 reason = 2;
+}
