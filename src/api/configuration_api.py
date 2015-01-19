@@ -29,69 +29,22 @@ class AudioSetting(object):
         else:
             return "%s Hz, %s" % (self.sample_frequency, self.bit_depth)
 
+class CircutConfigurationMixIn(object):
+    pass
 
-'''Api for adjusting setting for the peachy current_printer.
-This API is still in active development and as is subject dramatic change'''
-class ConfigurationAPI(object):
-    def __init__(self, configuration_manager):
-        self._configuration_manager = configuration_manager
-        self._current_config = None
-        self._audio_setup = AudioSetup()
-        self._drip_detector = None
-        self._marked_drips = None
-        self._commander = None
 
-    '''Returns the currently loaded printer name'''
-    def current_printer(self):
-        if self._current_config:
-            return self._current_config.name
-        else:
-            logging.debug('Current config missing')
-            return None
-
-    '''Returns the current printer config in json'''
-    def get_current_config(self):
-        return self._current_config
-
-    '''Returns a list of available printers'''
-    def get_available_printers(self):
-        return self._configuration_manager.list()
-
-    '''Adds a printer by name with default settings'''
-    def add_printer(self, name):
-        self._current_config = self._configuration_manager.new(name)
-        self.save()
-
-    '''Loads a previous configured printer by name'''
-    def load_printer(self, name):
-        self._current_config = self._configuration_manager.load(name)
-        logging.debug("Loaded config:\n%s" % self._current_config)
-    
-    '''Saves the currently selected config'''
-    def save(self):
-        self._configuration_manager.save(self._current_config)
-
-    def _positive_float(self, value):
-        return (type(value) == types.FloatType  and value > 0.0)
-
-    def _zero_or_positive_float(self, value):
-        return (type(value) == types.FloatType  and value >= 0.0)
-
-    def _zero_or_positive_int(self, value):
-        return (type(value) == types.IntType  and value >= 0.0)
-
-    # ----------------------------------- Audio Setup ------------------------------------------
+class AudioSetupMixIn(object):
     _BEST_AUDIO_OUT_OPTIONS = [
-        AudioSetting(48000, '16 bit'), 
+        AudioSetting(48000, '16 bit'),
         AudioSetting(48000, '24 bit'),
-        AudioSetting(48000, '32 bit Floating Point'), 
-        AudioSetting(44100, '16 bit'), 
+        AudioSetting(48000, '32 bit Floating Point'),
+        AudioSetting(44100, '16 bit'),
         AudioSetting(44100, '32 bit'),
-        AudioSetting(44100, '32 bit Floating Point'), 
+        AudioSetting(44100, '32 bit Floating Point'),
         ]
-        
-    _BEST_AUDIO_IN_OPTIONS = [ 
-        AudioSetting(48000, '16 bit'), 
+
+    _BEST_AUDIO_IN_OPTIONS = [
+        AudioSetting(48000, '16 bit'),
         AudioSetting(44100, '16 bit')
         ]
 
@@ -150,7 +103,8 @@ class ConfigurationAPI(object):
         self._current_config.audio.input.sample_rate = audio_setting.sample_frequency
         self.save()
 
-    # ------------------------------- Drip Setup --------------------------------------
+
+class DripperSetupMixIn(object):
 
     '''Sets the drip count back to 0'''
     def reset_drips(self):
@@ -226,7 +180,9 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Serial not Started")
 
-    # ----------------------------- Cure Test Setup ------------------------------------
+
+class CureTestSetupMixIn(object):
+
     '''Returns a layer generator that can be used with the print API to print a cure test.'''
     def get_cure_test(self, base_height, total_height, start_speed, stop_speed):
         self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed)
@@ -342,7 +298,7 @@ class ConfigurationAPI(object):
         return self._current_config.cure_rate.use_draw_speed
 
 
-    # ----------------------------- General Setup --------------------------------------
+class GeneralSetupMixIn(object):
 
     '''Returns the write wav files flag'''
     def get_write_wav_files(self):
@@ -519,36 +475,41 @@ class ConfigurationAPI(object):
         else:
             raise Exception("Use Overlap must be True or False")
 
-    #----------------------------Email Setup -----------------------------------------
+
+class EmailSetupMixin(object):
 
     def set_email_on(self, on):
         self._current_config.email.on = on
-        
+
     def set_email_port(self, port):
         self._current_config.email.port = port
-        
+
     def set_email_host(self, host):
         self._current_config.email.host = host
-        
+
     def set_email_sender(self, sender):
         self._current_config.email.sender = sender
-        
+
     def set_email_recipient(self, recipient):
         self._current_config.email.recipient = recipient
-        
 
     def get_email_on(self):
         return self._current_config.email.on
+
     def get_email_port(self):
         return self._current_config.email.port
+
     def get_email_host(self):
         return self._current_config.email.host
+
     def get_email_sender(self):
         return self._current_config.email.sender
+
     def get_email_recipient(self):
         return self._current_config.email.recipient
 
-    #----------------------------Advanced Setup---------------------------------------
+
+class AdvancedSetupMixin(object):
 
     def get_serial_enabled(self):
         return self._current_config.serial.on
@@ -600,4 +561,62 @@ class ConfigurationAPI(object):
         self.save()
 
 
+'''Api for adjusting setting for the peachy current_printer.
+This API is still in active development and as is subject dramatic change'''
 
+
+class ConfigurationAPI(
+    AudioSetupMixIn,
+    DripperSetupMixIn,
+    CureTestSetupMixIn,
+    GeneralSetupMixIn,
+    EmailSetupMixin,
+    AdvancedSetupMixin,
+    ):
+
+    def __init__(self, configuration_manager):
+        self._configuration_manager = configuration_manager
+        self._current_config = None
+        self._audio_setup = AudioSetup()
+        self._drip_detector = None
+        self._marked_drips = None
+        self._commander = None
+
+    '''Returns the currently loaded printer name'''
+    def current_printer(self):
+        if self._current_config:
+            return self._current_config.name
+        else:
+            logging.debug('Current config missing')
+            return None
+
+    '''Returns the current printer config in json'''
+    def get_current_config(self):
+        return self._current_config
+
+    '''Returns a list of available printers'''
+    def get_available_printers(self):
+        return self._configuration_manager.list()
+
+    '''Adds a printer by name with default settings'''
+    def add_printer(self, name):
+        self._current_config = self._configuration_manager.new(name)
+        self.save()
+
+    '''Loads a previous configured printer by name'''
+    def load_printer(self, name):
+        self._current_config = self._configuration_manager.load(name)
+        logging.debug("Loaded config:\n%s" % self._current_config)
+
+    '''Saves the currently selected config'''
+    def save(self):
+        self._configuration_manager.save(self._current_config)
+
+    def _positive_float(self, value):
+        return (isinstance(value, types.FloatType) and value > 0.0)
+
+    def _zero_or_positive_float(self, value):
+        return (isinstance(value, types.FloatType) and value >= 0.0)
+
+    def _zero_or_positive_int(self, value):
+        return (isinstance(value, types.IntType) and value >= 0.0)
