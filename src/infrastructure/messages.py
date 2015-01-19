@@ -16,6 +16,18 @@ class Move(ProtoBuffableMessage):
         self._y_pos = y_pos
         self._laser_power = laser_power
 
+    @property
+    def x_pos(self):
+        return self._x_pos
+
+    @property
+    def y_pos(self):
+        return self._y_pos
+
+    @property
+    def laser_power(self):
+        return self._laser_power
+
     def get_bytes(self):
         raise NotImplementedError()
 
