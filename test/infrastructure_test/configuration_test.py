@@ -45,7 +45,6 @@ class MicroComTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_footer = 'A'
         expected_escape = 'B'
 
-
         original_config = Configuration()
 
         original_config.micro_com.port      = expected_port
