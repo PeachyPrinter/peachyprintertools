@@ -36,11 +36,17 @@ class LaserControlTest(unittest.TestCase):
         l.set_laser_on()
         self.assertEquals(1.0, l.laser_power())
 
-    def test_laser_power_shows_defauilt_when_provided(self):
+    def test_laser_power_shows_default_when_provided(self):
         expected_laser_power = 0.6
         l = LaserControl(expected_laser_power)
         l.set_laser_on()
         self.assertEquals(expected_laser_power, l.laser_power())
+
+    def test_laser_power_throws_if_outside_range(self):
+        with self.assertRaises(Exception):
+            LaserControl(1.001)
+        with self.assertRaises(Exception):
+            LaserControl(-0.001)
 
 if __name__ == '__main__':
     unittest.main()

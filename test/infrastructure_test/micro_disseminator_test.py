@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 from test_helpers import TestHelpers
 from infrastructure.micro_disseminator import MicroDisseminator
 from domain.laser_control import LaserControl
-from infrastructure.messages import Move
+from infrastructure.messages import MoveMessage
 
 
 class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
@@ -33,7 +33,22 @@ class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
         sample_data_chunk = numpy.array([(0, 0)])
         micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
         micro_disseminator.process(sample_data_chunk)
-        self.mock_comm.send.assert_called_with(Move(0, 0, 0))
+        self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 0, 0))
+
+    def test_process_should_call_com_with_move_when_laser_on(self):
+        self.laser_control.set_laser_on()
+        sample_data_chunk = numpy.array([(0, 0)])
+        micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
+        micro_disseminator.process(sample_data_chunk)
+        self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 0, 255))
+
+    def test_process_should_adjust_laser_power(self):
+        self.laser_control = LaserControl(0.5)
+        self.laser_control.set_laser_on()
+        sample_data_chunk = numpy.array([(0, 0)])
+        micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
+        micro_disseminator.process(sample_data_chunk)
+        self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 0, 127))
 
 
 if __name__ == '__main__':
