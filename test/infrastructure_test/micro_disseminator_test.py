@@ -3,7 +3,7 @@ import numpy
 import math
 import sys
 import os
-from mock import MagicMock
+from mock import MagicMock, call
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
@@ -49,6 +49,31 @@ class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
         micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
         micro_disseminator.process(sample_data_chunk)
         self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 0, 127))
+
+    def test_process_should_call_com_with_correct_posisitions(self):
+        self.laser_control.set_laser_on()
+        sample_data_chunk = numpy.array([(1, 1)])
+        micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
+        micro_disseminator.process(sample_data_chunk)
+        self.mock_comm.send.assert_called_with(MoveMessage(0, 65535, 65535, 255))
+
+    def test_process_should_handle_empty_lists(self):
+        self.laser_control.set_laser_on()
+        sample_data_chunk = numpy.array([])
+        micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
+        micro_disseminator.process(sample_data_chunk)
+        self.assertEqual(0, self.mock_comm.send.call_count)
+
+    def test_process_should_call_com_each_element_in_list(self):
+        self.laser_control.set_laser_on()
+        sample_data_chunk = numpy.array([(0.0, 1.0), (0.5, 0.0), (1.0, 0.5)])
+        micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
+        micro_disseminator.process(sample_data_chunk)
+        self.mock_comm.send.assert_has_calls([
+            call(MoveMessage(0, 0,     65535, 255)),
+            call(MoveMessage(1, 32767, 0,     255)),
+            call(MoveMessage(2, 65535, 32767, 255)),
+            ])
 
 
 if __name__ == '__main__':

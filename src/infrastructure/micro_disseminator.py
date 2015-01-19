@@ -11,11 +11,14 @@ class MicroDisseminator(Disseminator):
         self._communication = comunication
         self._message_id = 0
         self.LASER_MAX = pow(2, 8) - 1
-        
+        self.DEFLECTION_MAX = pow(2, 16) - 1
+
     def process(self, data):
         laser_power = int(self._laser_control.laser_power() * self.LASER_MAX)
         for (x, y) in data:
-            data = MoveMessage(self._message_id, int(x), int(y), laser_power)
+            x_scaled = int(x * self.DEFLECTION_MAX)
+            y_scaled = int(y * self.DEFLECTION_MAX)
+            data = MoveMessage(self._message_id, x_scaled, y_scaled, laser_power)
             self._communication.send(data)
             self._message_id_plus()
 
