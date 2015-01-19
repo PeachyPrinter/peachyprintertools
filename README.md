@@ -57,6 +57,8 @@ Development
 + pyaudio
 + mock
 + pyserial
++ python protobuf
++ protobuf
 
 
 #### Runing the tests
