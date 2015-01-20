@@ -15,6 +15,9 @@ class SerialCommunicator(object):
     def send(self, message):
         pass
 
+    def close(self):
+        pass
+
 class NullCommunicator(object):
     def send(self, message):
         pass
