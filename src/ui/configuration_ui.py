@@ -803,7 +803,7 @@ class TestPrintUI(PeachyFrame):
 
         Label(self, text='Printer: ').grid(column=0, row=10)
         Label(self, text=self._configuration_api.current_printer()).grid(column=1, row=10)
-        Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
+        Button(self, text='?', command=self._help).grid(column=2, row=10, stick=N+E)
 
         Label(self).grid(column=1, row=15)
 

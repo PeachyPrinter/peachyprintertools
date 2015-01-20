@@ -100,17 +100,7 @@ class PrintAPI(object):
         gcode_reader = GCodeReader(self._current_file, scale=self._configuration.options.scaling_factor, start_height=self._start_height)
         gcode_layer_generator = gcode_reader.get_layers()
         layer_generator = gcode_layer_generator
-        logging.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
-        logging.info("Sublayered: %s" % self._configuration.options.use_sublayers)
-        logging.info("Overlapped: %s" % self._configuration.options.use_overlap)
-
-        if self._configuration.options.use_sublayers and print_sub_layers:
-            layer_generator = SubLayerGenerator(layer_generator, self._configuration.options.sublayer_height_mm)
-        if self._configuration.options.use_shufflelayers:
-            layer_generator = ShuffleGenerator(layer_generator, self._configuration.options.shuffle_layers_amount)
-        if self._configuration.options.use_overlap:
-            layer_generator = OverLapGenerator(layer_generator, self._configuration.options.overlap_amount)
-        self.print_layers(layer_generator, dry_run)
+        self.print_layers(layer_generator, print_sub_layers, dry_run)
 
     def _get_zaxis(self, dry_run):
         if dry_run:
@@ -185,7 +175,18 @@ class PrintAPI(object):
             self._configuration.options.laser_offset
             )
 
-    def print_layers(self, layer_generator, dry_run=False):
+    def print_layers(self, layer_generator, print_sub_layers=True, dry_run=False):
+        logging.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
+        logging.info("Sublayered: %s" % self._configuration.options.use_sublayers)
+        logging.info("Overlapped: %s" % self._configuration.options.use_overlap)
+
+        if self._configuration.options.use_sublayers and print_sub_layers:
+            layer_generator = SubLayerGenerator(layer_generator, self._configuration.options.sublayer_height_mm)
+        if self._configuration.options.use_shufflelayers:
+            layer_generator = ShuffleGenerator(layer_generator, self._configuration.options.shuffle_layers_amount)
+        if self._configuration.options.use_overlap:
+            layer_generator = OverLapGenerator(layer_generator, self._configuration.options.overlap_amount)
+
         if self._configuration.serial.on:
             self._commander = SerialCommander(self._configuration.serial.port)
         else:
