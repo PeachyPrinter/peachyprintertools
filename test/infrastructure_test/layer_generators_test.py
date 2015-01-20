@@ -542,6 +542,7 @@ class AdvancedTestGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
         with self.assertRaises(StopIteration):
             genererator.next()
 
+
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='INFO')
     unittest.main()

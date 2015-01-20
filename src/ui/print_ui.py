@@ -339,7 +339,6 @@ class PrintStatusUI(PeachyFrame):
             start_height = 0.0
         if 'filename' in self.kwargs:
             self._print_api = PrintAPI(self.kwargs['config'], start_height=start_height, status_call_back=self.status_call_back)
-            self._load_config_data()
             file_name = self.kwargs['filename']
             self._print_api.print_gcode(file_name)
             if self._print_api.can_set_drips_per_second():
@@ -352,6 +351,7 @@ class PrintStatusUI(PeachyFrame):
         else:
             self._print_api = PrintAPI(self.kwargs['config'], start_height=start_height, status_call_back=self.status_call_back)
             self._print_api.print_layers(self.kwargs['layer_generator'])
+        self._load_config_data()
 
     def _stop_button_click(self):
         self._print_api.close()

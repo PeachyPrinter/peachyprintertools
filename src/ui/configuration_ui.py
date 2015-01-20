@@ -5,6 +5,7 @@ from ui.main_ui import MainUI
 from ui.calibration_ui import *
 from api.configuration_api import ConfigurationAPI
 from print_ui import PrintStatusUI
+from infrastructure.layer_generators import HalfVaseTestGenerator
 import help_text
 
 from config import devmode
@@ -40,6 +41,7 @@ class SetupUI(PeachyFrame):
         Button(self,text=u"Setup Drip Calibration", command=self._drip_calibration).grid(column=1, row=40, sticky=NSEW)
         Button(self,text=u"Setup Calibration", command=self._calibration).grid(column=1, row=50, sticky=NSEW)
         Button(self,text=u"Run Cure Test", command=self._cure_test).grid(column=1, row=60, sticky=NSEW)
+        Button(self,text=u"Print Test Print", command=self._test_print).grid(column=1, row=65, sticky=NSEW)
         Label(self).grid(column=0, row=70)
         Button(self,text=u"Back", command=self._back).grid(column=0, row=100)
 
@@ -71,8 +73,12 @@ class SetupUI(PeachyFrame):
     def _cure_test(self):
         self.navigate(CureTestUI, printer = self._current_printer)
 
+    def _test_print(self):
+        self.navigate(TestPrintUI, printer = self._current_printer)
+
     def close(self):
         pass
+
 
 class AddPrinterUI(PeachyFrame):
     def initialize(self):
@@ -97,6 +103,7 @@ class AddPrinterUI(PeachyFrame):
 
     def close(self):
         pass
+
 
 class SetupOptionsUI(PeachyFrame):
     def initialize(self):
@@ -347,6 +354,7 @@ class SetupOptionsUI(PeachyFrame):
     def close(self):
         pass
 
+
 class DripCalibrationUI(PeachyFrame, FieldValidations):
     
     def initialize(self):
@@ -517,6 +525,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
     def close(self):
         self._configuration_api.stop_counting_drips()
 
+
 class SetupCircutUI(PeachyFrame):
 
     def initialize(self):
@@ -652,6 +661,7 @@ class SetupCircutUI(PeachyFrame):
     def close(self):
         pass
 
+
 class CureTestUI(PeachyFrame):
 
     def initialize(self):
@@ -766,7 +776,75 @@ class CureTestUI(PeachyFrame):
                 self._stop_speed.get()
                )
 
-            self.navigate(PrintStatusUI,layer_generator = cure_test, config = self._configuration_api.get_current_config(), calling_class = CureTestUI, printer = self._current_printer)
+            self.navigate(PrintStatusUI, layer_generator=cure_test, config=self._configuration_api.get_current_config(), calling_class = CureTestUI, printer = self._current_printer)
+        except Exception as ex:
+            tkMessageBox.showwarning("Error", ex.message)
+
+    def close(self):
+        pass
+
+
+class TestPrintUI(PeachyFrame):
+
+    def initialize(self):
+        self.grid()
+        self._current_printer = self.kwargs['printer']
+        self._configuration_api = ConfigurationAPI(self._configuration_manager)
+        self._configuration_api.load_printer(self._current_printer)
+
+        self._height = DoubleVar()
+        self._height.set(20)
+        self._radius = DoubleVar()
+        self._radius.set(20)
+        self._speed = DoubleVar()
+        self._speed.set(self._configuration_api.get_cure_rate_draw_speed())
+        self._layer_height = DoubleVar()
+        self._layer_height.set(0.01)
+
+        Label(self, text='Printer: ').grid(column=0, row=10)
+        Label(self, text=self._configuration_api.current_printer()).grid(column=1, row=10)
+        Button(self, text='?', command=self._help).grid(column=2, row=10,stick=N+E)
+
+        Label(self).grid(column=1, row=15)
+
+        self._cure_test_frame = LabelFrame(self, text="Test Print", padx=5, pady=5)
+        self._cure_test_frame.grid(column=0, row=20, columnspan=3)
+        Label(self._cure_test_frame, text="Height (mm)").grid(column=0, row=20)
+        Entry(self._cure_test_frame, textvariable=self._height).grid(column=1, row=20)
+
+        Label(self._cure_test_frame, text="Radius (mm)").grid(column=0, row=30)
+        Entry(self._cure_test_frame, textvariable=self._radius).grid(column=1, row=30)
+
+        Label(self._cure_test_frame, text="Speed (mm)").grid(column=0, row=40)
+        Entry(self._cure_test_frame, textvariable=self._speed).grid(column=1, row=40)
+
+        Label(self._cure_test_frame, text="Layer Height (mm)").grid(column=0, row=50)
+        Entry(self._cure_test_frame, textvariable=self._layer_height).grid(column=1, row=50)
+        Label(self._cure_test_frame).grid(column=1, row=60)
+
+        Button(self._cure_test_frame, text="Run", command=self._start).grid(column=1, row=70, sticky=N+E+S)
+        Label(self._cure_test_frame).grid(column=1, row=80)
+
+        Label(self).grid(column=1, row=100)
+
+        Button(self, text="Back", command=self._back).grid(column=0, row=110, sticky=N+S+W)
+
+        self.update()
+
+    def _back(self):
+        self.navigate(SetupUI, printer=self._current_printer)
+
+    def _help(self):
+        PopUp(self, 'Help', "Help is unavailable on this topic at this time.")
+
+    def _start(self):
+        try:
+            height = self._height.get()
+            radius = self._radius.get()
+            speed = self._speed.get()
+            layer_height = self._layer_height.get()
+            layers = HalfVaseTestGenerator(height, radius, layer_height, speed)
+            self.navigate(PrintStatusUI, layer_generator=layers, config=self._configuration_api.get_current_config(), calling_class=TestPrintUI, printer=self._current_printer)
         except Exception as ex:
             tkMessageBox.showwarning("Error", ex.message)
 
