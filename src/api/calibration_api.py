@@ -52,6 +52,7 @@ class CalibrationAPI(object):
 
         self._state = MachineState()
         self._status = MachineStatus()
+        logging.debug("Calibration: setting up circuit type: %s" % (self._configuration.circut.circut_type,))
 
         if self._configuration.circut.circut_type == 'Digital':
             self._communicator = SerialCommunicator(

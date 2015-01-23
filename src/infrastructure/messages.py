@@ -19,7 +19,7 @@ class ProtoBuffableMessage(object):
 
 
 class MoveMessage(ProtoBuffableMessage):
-    TYPE_ID = 1
+    TYPE_ID = 2
 
     def __init__(self, identifier, x_pos, y_pos, laser_power):
         self._id = identifier
