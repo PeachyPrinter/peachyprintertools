@@ -12,6 +12,9 @@ class SerialCommunicator(object):
     def __init__(self, port, header, footer, escape):
         pass
 
+    def register_handler(self, type_id, callback):
+        pass
+
     def send(self, message):
         pass
 
