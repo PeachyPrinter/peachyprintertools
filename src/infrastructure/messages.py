@@ -1,6 +1,7 @@
 import logging
 try:
     import move_pb2
+    import drip_pb2
 except Exception as ex:
     logging.error(
         "\033[91m Cannot import protobuf classes, Have you compiled your protobuf files?\033[0m")
@@ -29,7 +30,7 @@ class MoveMessage(ProtoBuffableMessage):
 
     @property
     def identifier(self):
-        return self._x_pos
+        return self._id
 
     @property
     def x_pos(self):
@@ -72,4 +73,47 @@ class MoveMessage(ProtoBuffableMessage):
             return False
 
     def __repr__(self):
-       return "id={}, x:y={}:{}, laser_power={}".format(self._x_pos, self._x_pos, self._y_pos, self._laser_power)
+        return "id={}, x:y={}:{}, laser_power={}".format(self._x_pos, self._x_pos, self._y_pos, self._laser_power)
+
+
+class DripRecordedMessage(ProtoBuffableMessage):
+    TYPE_ID = 2
+
+    def __init__(self, identifier, drips):
+        self._id = identifier
+        self._drips = drips
+
+    @property
+    def identifier(self):
+        return self._id
+
+    @property
+    def drips(self):
+        return self._drips
+
+    def get_bytes(self):
+        encoded = drip_pb2.DripRecorded()
+        encoded.id = self._id
+        encoded.drips = self._drips
+        if encoded.IsInitialized():
+            return encoded.SerializeToString()
+        else:
+            logging.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+            raise Exception("Protobuf Message encoding incomplete")
+
+    @classmethod
+    def from_bytes(cls, proto_bytes):
+        decoded = drip_pb2.DripRecorded()
+        decoded.ParseFromString(proto_bytes)
+        return cls(decoded.id, decoded.drips)
+
+    def __eq__(self, other):
+        if (self.__class__ == other.__class__ and
+                self._id == other._id and
+                self._drips == other._drips):
+            return True
+        else:
+            return False
+
+    def __repr__(self):
+        return "id={}, drips={}".format(self._id, self._drips)

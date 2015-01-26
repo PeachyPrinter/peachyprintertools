@@ -1,0 +1,4 @@
+message DripRecored {
+  required int32 id = 1;
+  required int32 drips = 2;
+}
