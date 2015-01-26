@@ -7,9 +7,9 @@ from math import pi, sin, cos
 class HalfVaseTestGenerator(LayerGenerator):
     name = "Half Vase With A Twist"
 
-    def __init__(self, height, radius, layer_height, speed=100):
+    def __init__(self, height, width, layer_height, speed=100):
         self._height = float(height)
-        self._radius = float(radius)
+        self._max_radius = float(width) / 2.0
         self._layer_height = float(layer_height)
         self._speed = speed
         self._current_height = 0.0
@@ -45,7 +45,7 @@ class HalfVaseTestGenerator(LayerGenerator):
     def _radius(self):
         percent_complete = self._current_height / self._height
         factor = (sin(percent_complete * 2.0 * pi * 2.0) + 1) / 2.0
-        out = (self._radius * 0.75) + (factor * (self._radius * 0.25))
+        out = (self._max_radius * 0.75) + (factor * (self._max_radius * 0.25))
         return out
 
     def next(self):

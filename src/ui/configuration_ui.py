@@ -6,6 +6,7 @@ from ui.calibration_ui import *
 from api.configuration_api import ConfigurationAPI
 from print_ui import PrintStatusUI
 from infrastructure.print_test_layer_generators import HalfVaseTestGenerator
+from api.test_print_api import TestPrintAPI
 import help_text
 
 from config import devmode
@@ -791,11 +792,14 @@ class TestPrintUI(PeachyFrame):
         self._current_printer = self.kwargs['printer']
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._configuration_api.load_printer(self._current_printer)
+        self._test_print_api = TestPrintAPI()
+        self._selected_print = StringVar()
+        self._selected_print.set(self._test_print_api.test_print_names()[0])
 
         self._height = DoubleVar()
         self._height.set(20)
-        self._radius = DoubleVar()
-        self._radius.set(20)
+        self._width = DoubleVar()
+        self._width.set(40)
         self._speed = DoubleVar()
         self._speed.set(self._configuration_api.get_cure_rate_draw_speed())
         self._layer_height = DoubleVar()
@@ -809,11 +813,15 @@ class TestPrintUI(PeachyFrame):
 
         self._cure_test_frame = LabelFrame(self, text="Test Print", padx=5, pady=5)
         self._cure_test_frame.grid(column=0, row=20, columnspan=3)
+
+        Label(self._cure_test_frame, text="Print").grid(column=0, row=10)
+        OptionMenu(self._cure_test_frame, self._selected_print, *self._test_print_api.test_print_names()).grid(column=1, row=10)
+
         Label(self._cure_test_frame, text="Height (mm)").grid(column=0, row=20)
         Entry(self._cure_test_frame, textvariable=self._height).grid(column=1, row=20)
 
-        Label(self._cure_test_frame, text="Radius (mm)").grid(column=0, row=30)
-        Entry(self._cure_test_frame, textvariable=self._radius).grid(column=1, row=30)
+        Label(self._cure_test_frame, text="Width (mm)").grid(column=0, row=30)
+        Entry(self._cure_test_frame, textvariable=self._width).grid(column=1, row=30)
 
         Label(self._cure_test_frame, text="Speed (mm)").grid(column=0, row=40)
         Entry(self._cure_test_frame, textvariable=self._speed).grid(column=1, row=40)
@@ -839,11 +847,14 @@ class TestPrintUI(PeachyFrame):
 
     def _start(self):
         try:
-            height = self._height.get()
-            radius = self._radius.get()
-            speed = self._speed.get()
-            layer_height = self._layer_height.get()
-            layers = HalfVaseTestGenerator(height, radius, layer_height, speed)
+            layers = self._test_print_api.get_test_print(
+                self._selected_print.get(),
+                self._height.get(),
+                self._width.get(),
+                self._layer_height.get(),
+                self._speed.get()
+            )
+            print(dir(layers))
             self.navigate(PrintStatusUI, layer_generator=layers, config=self._configuration_api.get_current_config(), calling_class=TestPrintUI, printer=self._current_printer)
         except Exception as ex:
             tkMessageBox.showwarning("Error", ex.message)

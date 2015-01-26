@@ -2,7 +2,6 @@ import logging
 
 
 class LayerGenerator(object):
-    name = "I have no name"
 
     def __next__(self):
         return self.next()

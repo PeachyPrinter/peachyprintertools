@@ -1,6 +1,7 @@
 import threading
 import logging
 import time
+import traceback
 from domain.commands import *
 from infrastructure.machine import MachineError
 
@@ -85,6 +86,7 @@ class Controller(threading.Thread,):
             except Exception as ex:
                 self._status.add_error(MachineError(str(ex), self._status.status()['current_layer']))
                 logging.error('Unexpected Error: %s' % str(ex))
+                traceback.print_exc()
                 if self._abort_on_error:
                     self._shutting_down = True
         logging.info("Processing Layers Complete")
