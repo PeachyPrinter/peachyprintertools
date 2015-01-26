@@ -5,7 +5,7 @@ from ui.main_ui import MainUI
 from ui.calibration_ui import *
 from api.configuration_api import ConfigurationAPI
 from print_ui import PrintStatusUI
-from infrastructure.layer_generators import HalfVaseTestGenerator
+from infrastructure.print_test_layer_generators import HalfVaseTestGenerator
 import help_text
 
 from config import devmode
