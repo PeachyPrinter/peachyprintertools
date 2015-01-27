@@ -43,7 +43,7 @@ class TestPrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertEqual(type(result), HalfVaseTestGenerator)
         self.assertEqual(height, result._height)
-        self.assertEqual(width / 2.0 , result._radius)
+        self.assertEqual(width / 2.0, result._max_radius)
         self.assertEqual(layer_height, result._layer_height)
         self.assertEqual(speed, result._speed)
 
