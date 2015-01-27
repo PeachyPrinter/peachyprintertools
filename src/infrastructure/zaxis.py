@@ -3,6 +3,7 @@ import logging
 from domain.zaxis import ZAxis
 from infrastructure.messages import DripRecordedMessage
 
+
 class SerialDripZAxis(ZAxis):
     def __init__(self, communicator, drips_per_mm, starting_height, drip_call_back=None,):
         super(SerialDripZAxis, self).__init__(starting_height)
@@ -37,10 +38,10 @@ class SerialDripZAxis(ZAxis):
         return list(self._drip_history)
 
     def set_call_back(self, call_back):
-        pass
+        self._drip_call_back = call_back
 
     def reset(self):
-        pass
+        self._drips = 0
 
     def current_z_location_mm(self):
         return self._starting_height + (self._drips * 1.0 / self._drips_per_mm)
