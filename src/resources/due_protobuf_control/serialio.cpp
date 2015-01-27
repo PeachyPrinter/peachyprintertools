@@ -1,7 +1,7 @@
 #include "serialio.h"
-#include "iolib.h"
 #include "pb_decode.h"
 #include "move.pb.h"
+
 /**
  * Serial protocol
  *
@@ -20,8 +20,8 @@
  * DONE - read 0x13
 */
 
-extern volatile int g_xout;
-extern volatile int g_yout;
+int g_xout;
+int g_yout;
 
 #define HEADER 0x40
 #define FOOTER 0x41
@@ -85,7 +85,7 @@ void serialio_feed() {
 
   int input = 0;
 
-  while((input = GetCharnw()) != -1) {
+  while((input = SerialUSB.read()) != -1) {
     switch(state) {
     case SEARCHING: state = serial_searching(&idx, buffer, (char)input); break;
     case READING: state = serial_reading(&idx, buffer, (char)input); break;
@@ -103,7 +103,7 @@ void serialio_feed() {
 /* Callbacks for handling messages */
 
 void handle_move(char* buffer, int len) {
-  pb_istream_t stream = pb_istream_from_buffer(buffer, len);
+  pb_istream_t stream = pb_istream_from_buffer((uint8_t *)buffer, len);
   bool status;
   Move message;
 
@@ -111,6 +111,7 @@ void handle_move(char* buffer, int len) {
   if(status) {
     g_xout = (message.x >> 8) & 0xFF;
     g_yout = (message.y >> 8) & 0xFF;
+    Serial.println("GOT ONE");
   }
 }
 void handle_nack(char* buffer, int len) {

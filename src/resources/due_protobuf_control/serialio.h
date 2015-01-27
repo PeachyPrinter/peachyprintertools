@@ -1,6 +1,8 @@
 #ifndef __SERIALIO__H__
 #define __SERIALIO__H__
 
+#include <Arduino.h>
+
 typedef enum {
   SEARCHING = 1,
   READING = 2,
