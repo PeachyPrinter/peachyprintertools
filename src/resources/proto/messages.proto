@@ -1,0 +1,9 @@
+message Move {
+  required int32 x = 1;
+  required int32 y = 2;
+  required uint32 laserPower = 3;
+}
+
+message DripRecorded {
+  required uint32 drips = 2;
+}

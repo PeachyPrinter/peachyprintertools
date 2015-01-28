@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import serial
-import move_pb2
+import messages_pb2
 import sys
 import time
 import math
@@ -33,8 +33,7 @@ for i in xrange(10000):
     print sent, (sent / (time.time() - start))
     for x,y in points:
 
-        move = move_pb2.Move()
-        move.id = 1234
+        move = messages_pb2.Move()
         move.x = int(x)
         move.y = int(y)
         move.laserPower = 24

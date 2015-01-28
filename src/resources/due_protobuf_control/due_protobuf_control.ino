@@ -1,7 +1,5 @@
 #include <pb_encode.h>
 #include <pb_decode.h>
-#include "move.pb.h"
-#include "drip.pb.h"
 #include "serialio.h"
 
 

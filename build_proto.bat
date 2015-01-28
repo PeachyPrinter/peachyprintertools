@@ -1,0 +1,1 @@
+protoc --plugin=protoc-gen-nanopb="c:\nanopb-0.3.2-windows-x86\generator\protoc-gen-nanopb.bat" -I=src\resources\proto --nanopb_out=src\resources\due_protobuf_control --python_out=src/infrastructure src\resources\proto\messages.proto

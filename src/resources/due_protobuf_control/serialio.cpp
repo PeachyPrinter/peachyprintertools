@@ -1,6 +1,7 @@
 #include "serialio.h"
+#include "pb.h"
 #include "pb_decode.h"
-#include "move.pb.h"
+#include "messages.pb.h"
 
 /**
  * Serial protocol
@@ -8,7 +9,6 @@
  * Header - 0x12
  * Type 
  * Payload
- * Checksum
  * Footer - 0x13
  *
  * Everything between header and footer is escaped to ensure that the
@@ -112,8 +112,10 @@ void handle_move(char* buffer, int len) {
   if(status) {
     g_xout = (message.x >> 8) & 0xFF;
     g_yout = (message.y >> 8) & 0xFF;
+    Serial.print("x:y ");
     Serial.print(g_xout);
-    Serial.print(g_yout);
+    Serial.print(", ");
+    Serial.println(g_yout);
   }
 }
 void handle_nack(char* buffer, int len) {

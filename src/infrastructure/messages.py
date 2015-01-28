@@ -1,7 +1,6 @@
 import logging
 try:
-    import move_pb2
-    import drip_pb2
+    from messages_pb2 import Move, DripRecorded
 except Exception as ex:
     logging.error(
         "\033[91m Cannot import protobuf classes, Have you compiled your protobuf files?\033[0m")
@@ -45,7 +44,7 @@ class MoveMessage(ProtoBuffableMessage):
         return self._laser_power
 
     def get_bytes(self):
-        encoded = move_pb2.Move()
+        encoded = Move()
         encoded.id = self._id
         encoded.x = self._x_pos
         encoded.y = self._y_pos
@@ -58,7 +57,7 @@ class MoveMessage(ProtoBuffableMessage):
 
     @classmethod
     def from_bytes(cls, proto_bytes):
-        decoded = move_pb2.Move()
+        decoded = Move()
         decoded.ParseFromString(proto_bytes)
         return cls(decoded.id, decoded.x, decoded.y, decoded.laserPower)
 
@@ -92,7 +91,7 @@ class DripRecordedMessage(ProtoBuffableMessage):
         return self._drips
 
     def get_bytes(self):
-        encoded = drip_pb2.DripRecorded()
+        encoded = DripRecorded()
         encoded.id = self._id
         encoded.drips = self._drips
         if encoded.IsInitialized():
@@ -103,7 +102,7 @@ class DripRecordedMessage(ProtoBuffableMessage):
 
     @classmethod
     def from_bytes(cls, proto_bytes):
-        decoded = drip_pb2.DripRecorded()
+        decoded = DripRecorded()
         decoded.ParseFromString(proto_bytes)
         return cls(decoded.id, decoded.drips)
 
