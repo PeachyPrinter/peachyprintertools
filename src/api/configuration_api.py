@@ -3,6 +3,7 @@ import logging
 
 from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import AudioDripZAxis
+from infrastructure.timed_drip_zaxis import TimedDripZAxis
 from infrastructure.layer_generators import CureTestGenerator
 from infrastructure.commander import NullCommander, SerialCommander
 
@@ -118,36 +119,53 @@ class DripperSetupMixIn(object):
             self._drip_detector.set_drips_per_mm(drips)
 
     '''Turns on the counting of drips. Stop must be called to end this.'''
-    def start_counting_drips(self, drip_call_back = None):
+    def start_counting_drips(self, drip_call_back=None):
+        self.drip_call_back = drip_call_back
         if self._current_config.serial.on:
             self._commander = SerialCommander(self._current_config.serial.port)
-        self._drip_detector = AudioDripZAxis(
-            1,
-            0.0,
-            self._current_config.audio.input.sample_rate, 
-            self._current_config.audio.input.bit_depth, 
-            NullCommander(),
-            '',
-            '',
-            drip_call_back = drip_call_back
-            )
-        self._drip_detector.start()
+        self._change_dripper()
+
+    def _change_dripper(self):
+        self._stop_current_dripper()
+
+        if self._current_config.dripper.dripper_type == 'audio':
+            self._drip_detector = AudioDripZAxis(
+                1,
+                0.0,
+                self._current_config.audio.input.sample_rate,
+                self._current_config.audio.input.bit_depth,
+                NullCommander(),
+                '',
+                '',
+                drip_call_back=self.drip_call_back
+                )
+            self._drip_detector.start()
+        elif self._current_config.dripper.dripper_type == 'emulated':
+            pass
+        elif self._current_config.dripper.dripper_type == 'photo':
+            pass
+        elif self._current_config.dripper.dripper_type == 'microcontroller':
+            pass
+
+    def _stop_current_dripper(self):
+        if self._drip_detector:
+            self._drip_detector.close()
+            self._drip_detector = None
 
     '''Turns off the counting of drips if counting'''
     def stop_counting_drips(self):
         if self._commander:
             self._commander.close()
-        if self._drip_detector:
-            self._drip_detector.close()
-            self._drip_detector = None
+        self._stop_current_dripper()
 
     '''Returns the configured Dripper Type'''
     def get_dripper_type(self):
         return self._current_config.dripper.dripper_type
 
     '''Sets the configured Dripper Type'''
-    def set_dripper_type(self,value):
+    def set_dripper_type(self, value):
         self._current_config.dripper.dripper_type = value
+        self._change_dripper()
 
     '''Gets the drips per second to be emulated'''
     def get_emulated_drips_per_second(self):

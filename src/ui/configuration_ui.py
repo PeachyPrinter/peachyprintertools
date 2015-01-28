@@ -373,10 +373,11 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         
         Label(self).grid(column=1, row=15)
 
-        Radiobutton(self, text="Microphone Dripper", variable=self._dripper_type, value="audio", command=self._dripper_type_changed).grid(column=0, row=20, sticky=N+S+E+W)
-        Radiobutton(self, text="Emulated Dripper ", variable=self._dripper_type, value="emulated", command=self._dripper_type_changed).grid(column=1, row=20, sticky=N+S+E+W)
+        Radiobutton(self, text="Microphone", variable=self._dripper_type, value="audio", command=self._dripper_type_changed).grid(column=0, row=20, sticky=N+S+E+W)
+        # Radiobutton(self, text="Microcontroller", variable=self._dripper_type, value="microcontroller", command=self._dripper_type_changed).grid(column=1, row=20, sticky=N+S+E+W)
+        Radiobutton(self, text="Emulated", variable=self._dripper_type, value="emulated", command=self._dripper_type_changed).grid(column=2, row=20, sticky=N+S+E+W)
         if devmode:
-            Radiobutton(self, text="Photo Z Axis ", variable=self._dripper_type, value="photo", command=self._dripper_type_changed).grid(column=2, row=20, sticky=N+S+E+W)
+            Radiobutton(self, text="Photo Z Axis ", variable=self._dripper_type, value="photo", command=self._dripper_type_changed).grid(column=3, row=20, sticky=N+S+E+W)
 
         
         # ---------------- Microphone Dripper Frame Start -------------------------
@@ -463,29 +464,21 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Button(self,text=u"Save", command=self._save, width=10).grid(column=2, row=50, sticky=N+S+E)
         
         self.update()
+        self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
+        self._dripper_frames = [self.fake_dripper_frame, self.photo_zaxis_frame, self.real_dripper_frame]
         self._dripper_type_changed()
 
     def _dripper_type_changed(self):
+        [frame.grid_remove() for frame in self._dripper_frames]
+        self._configuration_api.set_dripper_type(self._dripper_type.get())
         if self._dripper_type.get() == 'audio':
-            self._configuration_api.set_dripper_type('audio')
-            self.fake_dripper_frame.grid_remove()
-            self.photo_zaxis_frame.grid_remove()
             self.real_dripper_frame.grid()
-            self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
         elif self._dripper_type.get() == 'emulated':
-            self._configuration_api.set_dripper_type('emulated')
-            self._configuration_api.stop_counting_drips()
-            self.real_dripper_frame.grid_remove()
-            self.photo_zaxis_frame.grid_remove()
             self.fake_dripper_frame.grid()
         elif self._dripper_type.get() == 'photo':
-            self._configuration_api.set_dripper_type('photo')
-            self._configuration_api.stop_counting_drips()
-            self.real_dripper_frame.grid_remove()
-            self.fake_dripper_frame.grid_remove()
             self.photo_zaxis_frame.grid()
-        else:
-            raise Exception('Unsupported Dripper: %s ' % self._dripper_type.get())
+        elif self._dripper_type.get() == 'microcontroller':
+            self.real_dripper_frame.grid()
 
     def _drips_updated(self, drips, height, drips_per_second, drip_history = []):
         self._drip_count.set(drips)
