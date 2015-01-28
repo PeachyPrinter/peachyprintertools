@@ -7,11 +7,10 @@ from infrastructure.messages import DripRecordedMessage
 class SerialDripZAxis(ZAxis):
     def __init__(self, communicator, drips_per_mm, starting_height, drip_call_back=None,):
         super(SerialDripZAxis, self).__init__(starting_height)
-        self._communicator = communicator
         self._drips_per_mm = drips_per_mm
         self._drips = 0
         self._drip_call_back = drip_call_back
-        self._communicator.register_handler(DripRecordedMessage, self.drip_reported_handler)
+        communicator.register_handler(DripRecordedMessage, self.drip_reported_handler)
         self._drip_history = []
         self._drips_in_average = 10
 

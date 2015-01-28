@@ -374,7 +374,7 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Label(self).grid(column=1, row=15)
 
         Radiobutton(self, text="Microphone", variable=self._dripper_type, value="audio", command=self._dripper_type_changed).grid(column=0, row=20, sticky=N+S+E+W)
-        # Radiobutton(self, text="Microcontroller", variable=self._dripper_type, value="microcontroller", command=self._dripper_type_changed).grid(column=1, row=20, sticky=N+S+E+W)
+        Radiobutton(self, text="Microcontroller", variable=self._dripper_type, value="microcontroller", command=self._dripper_type_changed).grid(column=1, row=20, sticky=N+S+E+W)
         Radiobutton(self, text="Emulated", variable=self._dripper_type, value="emulated", command=self._dripper_type_changed).grid(column=2, row=20, sticky=N+S+E+W)
         if devmode:
             Radiobutton(self, text="Photo Z Axis ", variable=self._dripper_type, value="photo", command=self._dripper_type_changed).grid(column=3, row=20, sticky=N+S+E+W)
@@ -538,7 +538,7 @@ class SetupCircutUI(PeachyFrame):
             tkMessageBox.showwarning('Error','Audio card appears to not be setup correctly, Have you plugged in your dripper and printer?')
             self._back()
             return
-            
+
         self._input_audio_selection_current = StringVar()
         self._input_audio_selection_current.set(self._currently_selected(self._input_options))
         self._output_options = dict([ (str(option), option) for option in audio_options['outputs']])

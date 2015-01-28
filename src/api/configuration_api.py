@@ -4,6 +4,8 @@ import logging
 from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.timed_drip_zaxis import TimedDripZAxis
+from infrastructure.zaxis import SerialDripZAxis
+from infrastructure.communicator import SerialCommunicator
 from infrastructure.layer_generators import CureTestGenerator
 from infrastructure.commander import NullCommander, SerialCommander
 
@@ -145,9 +147,18 @@ class DripperSetupMixIn(object):
         elif self._current_config.dripper.dripper_type == 'photo':
             pass
         elif self._current_config.dripper.dripper_type == 'microcontroller':
-            pass
+            self._communicator = SerialCommunicator(
+                self._current_config.micro_com.port,
+                self._current_config.micro_com.header,
+                self._current_config.micro_com.footer,
+                self._current_config.micro_com.escape
+                )
+            self._communicator.start()
+            self._drip_detector = SerialDripZAxis(self._communicator, 1, 0.0, self.drip_call_back)
 
     def _stop_current_dripper(self):
+        if self._communicator:
+            self._communicator.close()
         if self._drip_detector:
             self._drip_detector.close()
             self._drip_detector = None
@@ -644,6 +655,7 @@ class ConfigurationAPI(
         self._current_config = None
         self._audio_setup = AudioSetup()
         self._drip_detector = None
+        self._communicator = None
         self._marked_drips = None
         self._commander = None
 

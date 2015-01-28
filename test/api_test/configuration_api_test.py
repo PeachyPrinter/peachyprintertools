@@ -2,7 +2,7 @@ import unittest
 import os
 import sys
 
-from mock import patch
+from mock import patch, MagicMock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
@@ -11,6 +11,8 @@ from api.configuration_api import ConfigurationAPI, AudioSetting
 from domain.configuration_manager import ConfigurationManager
 from infrastructure.audio import AudioSetup
 from infrastructure.drip_based_zaxis import AudioDripZAxis
+from infrastructure.zaxis import SerialDripZAxis
+from infrastructure.communicator import SerialCommunicator
 import test_helpers
 
 
@@ -222,6 +224,23 @@ class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
+    @patch('api.configuration_api.SerialDripZAxis')
+    @patch('api.configuration_api.SerialCommunicator')
+    def test_start_counting_drips_should_start_getting_drips_for_microcontroller(self, mock_SerialCommunicator, mock_SerialDripZaxis, mock_load, mock_save):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        config = self.default_config
+        config.dripper.dripper_type ='microcontroller'
+        mock_load.return_value = config
+        configuration_API.load_printer('printer')
+        callback = MagicMock()
+        configuration_API.start_counting_drips(callback)
+
+        mock_SerialCommunicator.assert_called_with(config.micro_com.port,config.micro_com.header,config.micro_com.footer,config.micro_com.escape)
+        mock_SerialCommunicator.return_value.start.assert_called_with()
+        mock_SerialDripZaxis.assert_called_with(mock_SerialCommunicator.return_value, 1, 0, callback)
+
+    @patch.object(ConfigurationManager, 'save')
+    @patch.object(ConfigurationManager, 'load')
     @patch.object(AudioDripZAxis, 'start')
     @patch('api.configuration_api.AudioDripZAxis')
     @patch('api.configuration_api.NullCommander')
@@ -244,6 +263,23 @@ class DripperSetupMixInTest(object):
             '', '',
             drip_call_back=callback
             )
+
+    @patch.object(ConfigurationManager, 'save')
+    @patch.object(ConfigurationManager, 'load')
+    @patch('api.configuration_api.SerialDripZAxis')
+    @patch('api.configuration_api.SerialCommunicator')
+    def test_stop_counting_drips_should_stop_getting_drips_for_micro(self, mock_SerialCommunicator, mock_SerialDripZaxis, mock_load, mock_save):
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        config = self.default_config
+        config.dripper.dripper_type ='microcontroller'
+        mock_load.return_value = config
+        configuration_API.load_printer('printer')
+        callback = MagicMock()
+        configuration_API.start_counting_drips(callback)
+
+        configuration_API.stop_counting_drips()
+
+        mock_SerialCommunicator.return_value.close.assert_called_with()
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
