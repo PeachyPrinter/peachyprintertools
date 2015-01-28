@@ -3,11 +3,11 @@ import sys
 import os
 import time
 from mock import MagicMock, call, patch
+import serial
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
-from test_helpers import TestHelpers
 from infrastructure.communicator import SerialCommunicator
 from infrastructure.messages import DripRecordedMessage
 
@@ -87,6 +87,81 @@ class SerialCommunicatorTests(unittest.TestCase):
         self.comm.close()
         mock_serial.Serial.return_value.write.assert_called_with(expected_data)
 
+    def test_register_handler_should_raise_exception_for_none_message_type(self, mock_serial):
+        port, header, footer, escape = "na", '@', 'A', 'B'
+        self.comm = SerialCommunicator(port, header, footer, escape)
+        def handler(message):
+            pass
+        with self.assertRaises(Exception):
+            self.comm.register_handler("ASD", handler)
+
+
+    def test_register_handler_should_for_message_type(self, mock_serial):
+        port, header, footer, escape = "na", '@', 'A', 'B'
+        self.comm = SerialCommunicator(port, header, footer, escape)
+        def handler(message):
+            pass
+        self.comm.register_handler(DripRecordedMessage, handler)
+
+    def test_recieving_message_for_which_thier_is_a_handler(self, mock_serial):
+        port, header, footer, escape = "na", '@', 'A', 'B'
+        original_message = DripRecordedMessage(45)
+        message_bytes = original_message.get_bytes()
+        message_id = chr(original_message.TYPE_ID)
+        expected_data = list(header + message_id + message_bytes + footer)
+
+        self.comm = SerialCommunicator(port, header, footer, escape)
+        self.recieved = False
+
+        def side_effect():
+            if expected_data:
+                return expected_data.pop(0)
+            else:
+                raise serial.SerialTimeoutException()
+
+        def handler(message):
+            self.recieved = message
+
+        self.comm.register_handler(DripRecordedMessage, handler)
+        mock_serial.Serial.return_value.read.side_effect = side_effect
+        mock_serial.SerialTimeoutException = serial.SerialTimeoutException
+        self.comm.start()
+        time.sleep(0.5)
+        self.comm.close()
+
+        self.assertEquals(original_message, self.recieved)
+
+    def test_recieving_message_for_which_thier_are_2_handlers(self, mock_serial):
+        port, header, footer, escape = "na", '@', 'A', 'B'
+        original_message = DripRecordedMessage(45)
+        message_bytes = original_message.get_bytes()
+        message_id = chr(original_message.TYPE_ID)
+        expected_data = list(header + message_id + message_bytes + footer)
+
+        self.comm = SerialCommunicator(port, header, footer, escape)
+        recieved = []
+
+        def side_effect():
+            if expected_data:
+                return expected_data.pop(0)
+            else:
+                raise serial.SerialTimeoutException()
+
+        def handler1(message):
+            recieved.append(message)
+        def handler2(message):
+            recieved.append(message)
+
+        self.comm.register_handler(DripRecordedMessage, handler1)
+        self.comm.register_handler(DripRecordedMessage, handler2)
+        mock_serial.Serial.return_value.read.side_effect = side_effect
+        mock_serial.SerialTimeoutException = serial.SerialTimeoutException
+        self.comm.start()
+        time.sleep(0.5)
+        self.comm.close()
+
+        self.assertEquals(original_message, recieved[0])
+        self.assertEquals(original_message, recieved[1])
 
 if __name__ == '__main__':
     unittest.main()

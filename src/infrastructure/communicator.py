@@ -2,12 +2,13 @@ import serial
 import logging
 import threading
 import time
+from messages import ProtoBuffableMessage
 
 class Communicator(object):
     def send(self, message):
         raise NotImplementedError()
 
-    def register_handler(self, type_id, handler):
+    def register_handler(self, message_type, handler):
         raise NotImplementedError()
 
 
@@ -20,6 +21,9 @@ class SerialCommunicator(Communicator, threading.Thread):
         self._footer = footer
         self._escape = escape
         self._to_be_escaped = [self._header, self._footer, self._escape]
+        self._read_bytes = ''
+        self._escape_next = False
+        self._handlers = {}
 
     def send(self, message):
         if not self._running:
@@ -45,8 +49,47 @@ class SerialCommunicator(Communicator, threading.Thread):
         self._connection = serial.Serial(self._port)
         self._running = True
         while self._running:
-            time.sleep(0.1)
+            self._recieve()
         self._connection.close()
+
+    def _recieve(self):
+        try:
+            byte = self._connection.read()
+            if byte == self._header:
+                self._read_bytes = byte
+            elif byte == self._footer and self._read_bytes:
+                self._process(self._read_bytes[1:])
+                self._read_bytes = ''
+            elif byte == self._escape and self._read_bytes:
+                self._escape_next = True
+            elif self._escape_next and self._read_bytes:
+                self._read_bytes += chr(0xff & ~byte)
+                self._escape_next = False
+            elif self._read_bytes:
+                self._read_bytes += byte
+            else:
+                pass
+        except serial.SerialTimeoutException:
+            pass
+
+    def _process(self, data):
+        message_type_id = ord(data[0])
+        for (message, handlers) in self._handlers.items():
+            if message.TYPE_ID == message_type_id:
+                for handler in handlers:
+                    handler(message.from_bytes(data[1:]))
+
+
+    def register_handler(self, message_type, handler):
+        if not issubclass(message_type, ProtoBuffableMessage):
+            logging.error("ProtoBuffableMessage required for message type")
+            raise Exception("ProtoBuffableMessage required for message type")
+        if message_type in self._handlers:
+            self._handlers[message_type].append(handler)
+        else:
+            self._handlers[message_type] = [handler]
+
+
 
     def close(self):
         self._running = False
