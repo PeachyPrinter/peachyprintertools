@@ -19,7 +19,7 @@ class ProtoBuffableMessage(object):
 
 
 class MoveMessage(ProtoBuffableMessage):
-    TYPE_ID = 1
+    TYPE_ID = 2
 
     def __init__(self, x_pos, y_pos, laser_power):
         self._x_pos = x_pos
@@ -69,7 +69,7 @@ class MoveMessage(ProtoBuffableMessage):
 
 
 class DripRecordedMessage(ProtoBuffableMessage):
-    TYPE_ID = 2
+    TYPE_ID = 3
 
     def __init__(self, drips):
         self._drips = drips
