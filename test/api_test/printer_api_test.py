@@ -370,6 +370,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.micro_com.footer,
             config.micro_com.escape,
             )
+        self.mock_serial_communicator.start.assert_called_with()
+
         self.mock_MicroDisseminator.assert_called_with(
             self.mock_laser_control,
             self.mock_serial_communicator,

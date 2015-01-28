@@ -142,6 +142,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.default_config.micro_com.escape,
             )
 
+        self.mock_serial_communicator.start.assert_called_with()
+
         self.mock_TuningTransformer.assert_called_with(
             scale=self.default_config.calibration.max_deflection
             )

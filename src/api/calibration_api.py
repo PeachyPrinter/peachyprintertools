@@ -60,6 +60,7 @@ class CalibrationAPI(object):
                 self._configuration.micro_com.footer,
                 self._configuration.micro_com.escape,
                 )
+            self._communicator.start()
             self._disseminator = MicroDisseminator(
                 self._laser_control,
                 self._communicator,

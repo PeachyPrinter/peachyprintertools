@@ -145,6 +145,7 @@ class PrintAPI(object):
                     self._configuration.micro_com.footer,
                     self._configuration.micro_com.escape,
                     )
+                communicator.start()
             return MicroDisseminator(
                 self.laser_control,
                 communicator,
@@ -210,7 +211,7 @@ class PrintAPI(object):
             abort_on_error = True
 
         self._zaxis = self._get_zaxis(dry_run)
-        
+
         if self._configuration.circut.circut_type == 'Analog':
             disseminator = self._get_analog_disseminator(dry_run)
 
