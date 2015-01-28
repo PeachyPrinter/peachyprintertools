@@ -33,14 +33,14 @@ class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
         sample_data_chunk = numpy.array([(0, 0)])
         micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
         micro_disseminator.process(sample_data_chunk)
-        self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 0, 0))
+        self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 0))
 
     def test_process_should_call_com_with_move_when_laser_on(self):
         self.laser_control.set_laser_on()
         sample_data_chunk = numpy.array([(0, 0)])
         micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
         micro_disseminator.process(sample_data_chunk)
-        self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 0, 255))
+        self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 255))
 
     def test_process_should_adjust_laser_power(self):
         self.laser_control = LaserControl(0.5)
@@ -48,14 +48,14 @@ class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
         sample_data_chunk = numpy.array([(0, 0)])
         micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
         micro_disseminator.process(sample_data_chunk)
-        self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 0, 127))
+        self.mock_comm.send.assert_called_with(MoveMessage(0, 0, 127))
 
     def test_process_should_call_com_with_correct_posisitions(self):
         self.laser_control.set_laser_on()
         sample_data_chunk = numpy.array([(1, 1)])
         micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
         micro_disseminator.process(sample_data_chunk)
-        self.mock_comm.send.assert_called_with(MoveMessage(0, 65535, 65535, 255))
+        self.mock_comm.send.assert_called_with(MoveMessage(65535, 65535, 255))
 
     def test_process_should_handle_empty_lists(self):
         self.laser_control.set_laser_on()
@@ -70,9 +70,9 @@ class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
         micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
         micro_disseminator.process(sample_data_chunk)
         self.mock_comm.send.assert_has_calls([
-            call(MoveMessage(0, 0,     65535, 255)),
-            call(MoveMessage(1, 32767, 0,     255)),
-            call(MoveMessage(2, 65535, 32767, 255)),
+            call(MoveMessage(0,     65535, 255)),
+            call(MoveMessage(32767, 0,     255)),
+            call(MoveMessage(65535, 32767, 255)),
             ])
 
     def test_close_calls_close_on_communicator(self):

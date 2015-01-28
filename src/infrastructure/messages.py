@@ -21,15 +21,10 @@ class ProtoBuffableMessage(object):
 class MoveMessage(ProtoBuffableMessage):
     TYPE_ID = 1
 
-    def __init__(self, identifier, x_pos, y_pos, laser_power):
-        self._id = identifier
+    def __init__(self, x_pos, y_pos, laser_power):
         self._x_pos = x_pos
         self._y_pos = y_pos
         self._laser_power = laser_power
-
-    @property
-    def identifier(self):
-        return self._id
 
     @property
     def x_pos(self):
@@ -45,7 +40,6 @@ class MoveMessage(ProtoBuffableMessage):
 
     def get_bytes(self):
         encoded = Move()
-        encoded.id = self._id
         encoded.x = self._x_pos
         encoded.y = self._y_pos
         encoded.laserPower = self._laser_power
@@ -59,11 +53,10 @@ class MoveMessage(ProtoBuffableMessage):
     def from_bytes(cls, proto_bytes):
         decoded = Move()
         decoded.ParseFromString(proto_bytes)
-        return cls(decoded.id, decoded.x, decoded.y, decoded.laserPower)
+        return cls(decoded.x, decoded.y, decoded.laserPower)
 
     def __eq__(self, other):
         if (self.__class__ == other.__class__ and
-                self._id == other._id and
                 self._x_pos == other._x_pos and
                 self._y_pos == other._y_pos and
                 self._laser_power == other._laser_power):
@@ -72,19 +65,14 @@ class MoveMessage(ProtoBuffableMessage):
             return False
 
     def __repr__(self):
-        return "id={}, x:y={}:{}, laser_power={}".format(self._x_pos, self._x_pos, self._y_pos, self._laser_power)
+        return "x:y={}:{}, laser_power={}".format(self._x_pos, self._y_pos, self._laser_power)
 
 
 class DripRecordedMessage(ProtoBuffableMessage):
     TYPE_ID = 2
 
-    def __init__(self, identifier, drips):
-        self._id = identifier
+    def __init__(self, drips):
         self._drips = drips
-
-    @property
-    def identifier(self):
-        return self._id
 
     @property
     def drips(self):
@@ -92,7 +80,6 @@ class DripRecordedMessage(ProtoBuffableMessage):
 
     def get_bytes(self):
         encoded = DripRecorded()
-        encoded.id = self._id
         encoded.drips = self._drips
         if encoded.IsInitialized():
             return encoded.SerializeToString()
@@ -104,15 +91,14 @@ class DripRecordedMessage(ProtoBuffableMessage):
     def from_bytes(cls, proto_bytes):
         decoded = DripRecorded()
         decoded.ParseFromString(proto_bytes)
-        return cls(decoded.id, decoded.drips)
+        return cls(decoded.drips)
 
     def __eq__(self, other):
         if (self.__class__ == other.__class__ and
-                self._id == other._id and
                 self._drips == other._drips):
             return True
         else:
             return False
 
     def __repr__(self):
-        return "id={}, drips={}".format(self._id, self._drips)
+        return "drips={}".format(self._drips)

@@ -13,7 +13,7 @@ class MoveMesssageTests(unittest.TestCase):
         pass
 
     def test_move_message_encodes_and_decodes(self):
-        inital_message = MoveMessage(1, 77, 88, 55)
+        inital_message = MoveMessage(77, 88, 55)
         proto_bytes = inital_message.get_bytes()
         self.assertTrue(len(proto_bytes) > 0)
         decoded_message = MoveMessage.from_bytes(proto_bytes)

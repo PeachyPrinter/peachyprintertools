@@ -9,7 +9,6 @@ class MicroDisseminator(Disseminator):
         self._data_rate = data_rate
         self._laser_control = laser_control
         self._communication = comunication
-        self._message_id = 0
         self.LASER_MAX = pow(2, 8) - 1
         self.DEFLECTION_MAX = pow(2, 16) - 1
 
@@ -18,15 +17,8 @@ class MicroDisseminator(Disseminator):
         for (x, y) in data:
             x_scaled = int(x * self.DEFLECTION_MAX)
             y_scaled = int(y * self.DEFLECTION_MAX)
-            data = MoveMessage(self._message_id, x_scaled, y_scaled, laser_power)
+            data = MoveMessage(x_scaled, y_scaled, laser_power)
             self._communication.send(data)
-            self._message_id_plus()
-
-    def _message_id_plus(self):
-        if self._message_id + 1 > sys.maxint:
-            self._message_id = 0
-        else:
-            self._message_id += 1
 
     def next_layer(self, height):
         pass
