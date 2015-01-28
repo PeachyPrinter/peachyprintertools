@@ -18,7 +18,7 @@ class SerialDripZAxisTests(unittest.TestCase):
     def test_init_calls_registers_handler(self):
         mock_communicatior = MagicMock()
         sdza = SerialDripZAxis(mock_communicatior, 1.0, 0.0)
-        mock_communicatior.register_handler.assert_called_with(DripRecordedMessage.TYPE_ID, sdza.drip_reported_handler)
+        mock_communicatior.register_handler.assert_called_with(DripRecordedMessage, sdza.drip_reported_handler)
 
     def test_init_sets_up_starting_height(self):
         mock_communicatior = MagicMock()
@@ -31,7 +31,7 @@ class SerialDripZAxisTests(unittest.TestCase):
         starting_height = 0.0
         drips_per_mm = 1.0
         sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height)
-        drip_message = DripRecordedMessage(0, 1)
+        drip_message = DripRecordedMessage(1)
 
         sdza.drip_reported_handler(drip_message)
 
@@ -42,7 +42,7 @@ class SerialDripZAxisTests(unittest.TestCase):
         starting_height = 0.0
         drips_per_mm = 2.5
         sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height)
-        drip_message = DripRecordedMessage(0, 1)
+        drip_message = DripRecordedMessage(1)
 
         sdza.drip_reported_handler(drip_message)
 
@@ -58,7 +58,7 @@ class SerialDripZAxisTests(unittest.TestCase):
         expected_average = 0.0
 
         sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height, mock_call_back)
-        drip_message = DripRecordedMessage(0, 1)
+        drip_message = DripRecordedMessage(1)
         start = time.time()
         sdza.drip_reported_handler(drip_message)
         end = time.time()
@@ -84,7 +84,7 @@ class SerialDripZAxisTests(unittest.TestCase):
         starting_height = 0.0
         drips_per_mm = 2.5
         sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height)
-        drip_message = DripRecordedMessage(0, 1)
+        drip_message = DripRecordedMessage(1)
         sdza.drip_reported_handler(drip_message)
         sdza.reset()
         actual_height = sdza.current_z_location_mm()
@@ -102,7 +102,7 @@ class SerialDripZAxisTests(unittest.TestCase):
 
         sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height, None)
         sdza.set_call_back(mock_call_back)
-        drip_message = DripRecordedMessage(0, 1)
+        drip_message = DripRecordedMessage(1)
         start = time.time()
         sdza.drip_reported_handler(drip_message)
         end = time.time()
