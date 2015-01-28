@@ -103,6 +103,7 @@ void serialio_feed() {
 /* Callbacks for handling messages */
 
 void handle_move(char* buffer, int len) {
+  Serial.println("Got Move");
   pb_istream_t stream = pb_istream_from_buffer((uint8_t *)buffer, len);
   bool status;
   Move message;
@@ -111,7 +112,8 @@ void handle_move(char* buffer, int len) {
   if(status) {
     g_xout = (message.x >> 8) & 0xFF;
     g_yout = (message.y >> 8) & 0xFF;
-    Serial.println("GOT ONE");
+    Serial.print(g_xout);
+    Serial.print(g_yout);
   }
 }
 void handle_nack(char* buffer, int len) {
