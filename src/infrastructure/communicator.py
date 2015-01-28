@@ -1,6 +1,5 @@
 import serial
 import logging
-
 import time
 
 class Communicator(object):
@@ -10,7 +9,6 @@ class Communicator(object):
     def recieve(self, type_id, handler):
         raise NotImplementedError()
 
-
 class SerialCommunicator(object):
     def __init__(self, port, header, footer, escape):
         logging.info("Opening serial port: %s" % (port,))
@@ -19,6 +17,8 @@ class SerialCommunicator(object):
         self._footer = footer
         self._escape = escape
         self._to_be_escaped = [self._header, self._footer, self._escape]
+        self._start = time.time()
+        self._sent = 0
 
     def send(self, message):
         out = [ self._header ]
@@ -30,12 +30,16 @@ class SerialCommunicator(object):
             else:
                 out.append(c)
         out.append(self._footer)
-        logging.info("Sending %d bytes" % (len(out),))
+        self._sent += len(out)
         self._serial.write(''.join(out))
-        time.sleep(0.0001)
+        now = time.time()
+        if self._sent > 50000 or (now - self._start) > 1:
+            logging.info("Sent %d bytes (%d bytes/sec)" % (self._sent, self._sent/(now - self._start)))
+            self._sent = 0
+            self._start = now
 
     def close(self):
-        pass
+        self._serial.close()
 
 class NullCommunicator(object):
     def send(self, message):
