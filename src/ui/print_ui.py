@@ -301,8 +301,12 @@ class PrintStatusUI(PeachyFrame):
 
         Button(self, text='Restart', command=self._restart_printing).grid(column=1, row=80)
         Button(self, textvariable=self._stop_button_text, command=self._stop_button_click).grid(column=2, row=80)
-
-        self._start_printing()
+        try:
+            self._start_printing()
+        except Exception as ex:
+            tkMessageBox.showwarning("Warning", ex)
+            logging.error(ex)
+            self.navigate(self.kwargs['calling_class'], printer=self.kwargs['printer'])
         self.after(125, self.update_display)
         self.update()
 
