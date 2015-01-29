@@ -464,13 +464,17 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
         Button(self,text=u"Save", command=self._save, width=10).grid(column=2, row=50, sticky=N+S+E)
         
         self.update()
-        self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
         self._dripper_frames = [self.fake_dripper_frame, self.photo_zaxis_frame, self.real_dripper_frame]
+        self._configuration_api.start_counting_drips(drip_call_back = self._drips_updated)
         self._dripper_type_changed()
 
     def _dripper_type_changed(self):
         [frame.grid_remove() for frame in self._dripper_frames]
-        self._configuration_api.set_dripper_type(self._dripper_type.get())
+        try:
+            self._configuration_api.set_dripper_type(self._dripper_type.get())
+        except Exception as ex:
+            tkMessageBox.showwarning("Warning", ex)
+
         if self._dripper_type.get() == 'audio':
             self.real_dripper_frame.grid()
         elif self._dripper_type.get() == 'emulated':

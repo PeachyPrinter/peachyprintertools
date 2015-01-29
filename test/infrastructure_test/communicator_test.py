@@ -43,6 +43,15 @@ class SerialCommunicatorTests(unittest.TestCase):
         mock_serial.Serial.assert_called_with(port)
         mock_serial.Serial.return_value.close.assert_called_with()
 
+    def test_start_should_raise_exception_if_connection_fails(self, mock_serial):
+        port, header, footer, escape = "na", '@', 'A', 'B'
+        self.comm = SerialCommunicator(port, header, footer, escape)
+        mock_serial.Serial.side_effect = Exception("Serial Unavailable")
+        
+        with self.assertRaises(Exception):
+            self.comm.start()
+        
+
     def test_send_rasies_exception_if_serial_connection_is_not_established(self, mock_serial):
         self.comm = SerialCommunicator("na", '@', 'A', 'B')
         with self.assertRaises(Exception):

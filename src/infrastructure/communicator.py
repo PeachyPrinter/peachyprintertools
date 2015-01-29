@@ -42,6 +42,7 @@ class SerialCommunicator(Communicator, threading.Thread):
         self._connection.write(''.join(out))
 
     def start(self):
+        self._connection = serial.Serial(self._port)
         super(SerialCommunicator, self).start()
         while not self._running:
             time.sleep(0.01)
@@ -49,7 +50,6 @@ class SerialCommunicator(Communicator, threading.Thread):
     def run(self):
         logging.info("Opening serial port: %s" % (self._port,))
         try:
-            self._connection = serial.Serial(self._port)
             self._running = True
             while self._running:
                 self._recieve()
