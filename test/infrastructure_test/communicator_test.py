@@ -47,10 +47,9 @@ class SerialCommunicatorTests(unittest.TestCase):
         port, header, footer, escape = "na", '@', 'A', 'B'
         self.comm = SerialCommunicator(port, header, footer, escape)
         mock_serial.Serial.side_effect = Exception("Serial Unavailable")
-        
+
         with self.assertRaises(Exception):
             self.comm.start()
-        
 
     def test_send_rasies_exception_if_serial_connection_is_not_established(self, mock_serial):
         self.comm = SerialCommunicator("na", '@', 'A', 'B')
@@ -100,6 +99,7 @@ class SerialCommunicatorTests(unittest.TestCase):
     def test_register_handler_should_raise_exception_for_none_message_type(self, mock_serial):
         port, header, footer, escape = "na", '@', 'A', 'B'
         self.comm = SerialCommunicator(port, header, footer, escape)
+
         def handler(message):
             pass
         with self.assertRaises(Exception):
@@ -108,6 +108,7 @@ class SerialCommunicatorTests(unittest.TestCase):
     def test_register_handler_should_for_message_type(self, mock_serial):
         port, header, footer, escape = "na", '@', 'A', 'B'
         self.comm = SerialCommunicator(port, header, footer, escape)
+
         def handler(message):
             pass
         self.comm.register_handler(DripRecordedMessage, handler)
@@ -167,6 +168,7 @@ class SerialCommunicatorTests(unittest.TestCase):
 
         def handler1(message):
             recieved.append(message)
+
         def handler2(message):
             recieved.append(message)
 

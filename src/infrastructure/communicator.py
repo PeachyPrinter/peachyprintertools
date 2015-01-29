@@ -93,7 +93,6 @@ class SerialCommunicator(Communicator, threading.Thread):
                 for handler in handlers:
                     handler(message.from_bytes(data[1:]))
 
-
     def register_handler(self, message_type, handler):
         if not issubclass(message_type, ProtoBuffableMessage):
             logging.error("ProtoBuffableMessage required for message type")
@@ -103,8 +102,6 @@ class SerialCommunicator(Communicator, threading.Thread):
         else:
             self._handlers[message_type] = [handler]
 
-
-
     def close(self):
         self._running = False
         while self.is_alive():
@@ -113,4 +110,7 @@ class SerialCommunicator(Communicator, threading.Thread):
 
 class NullCommunicator(Communicator):
     def send(self, message):
+        pass
+
+    def register_handler(self, message_type, handler):
         pass
