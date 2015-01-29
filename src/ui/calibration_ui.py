@@ -37,7 +37,14 @@ class CalibrationUI(PeachyFrame, FieldValidations, UIHelpers):
     def initialize(self):
         self._current_printer = self.kwargs['printer']
         self._zero = [0.5,0.5,0.0]
-        self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._current_printer )
+        try:
+            self._calibrationAPI = CalibrationAPI(self._configuration_manager,self._current_printer )
+        except Exception as ex:
+            logging.error(ex)
+            tkMessageBox.showwarning("Warning", ex)
+            from ui.configuration_ui import SetupUI
+            self.navigate(SetupUI, printer=self._current_printer)
+
         self._current_selection = StringVar()
         self._current_selection.set('Center Point')
         
