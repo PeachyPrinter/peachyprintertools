@@ -2,9 +2,8 @@ import unittest
 import os
 import sys
 import time
-import datetime
 import logging
-from mock import patch, PropertyMock, call, MagicMock
+from mock import MagicMock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
@@ -36,6 +35,32 @@ class SerialDripZAxisTests(unittest.TestCase):
         sdza.drip_reported_handler(drip_message)
 
         self.assertEqual(1.0, sdza.current_z_location_mm())
+
+    def test_drip_recorded_handler_adds_drips_if_missing_message(self):
+        mock_communicatior = MagicMock()
+        starting_height = 0.0
+        drips_per_mm = 1.0
+        sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height)
+        drip_message_1 = DripRecordedMessage(1)
+        drip_message_2 = DripRecordedMessage(3)
+
+        sdza.drip_reported_handler(drip_message_1)
+        sdza.drip_reported_handler(drip_message_2)
+
+        self.assertEqual(3.0, sdza.current_z_location_mm())
+
+    def test_drip_recorded_handler_treats_first_drip_as_offset(self):
+        mock_communicatior = MagicMock()
+        starting_height = 0.0
+        drips_per_mm = 1.0
+        sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height)
+        drip_message_1 = DripRecordedMessage(11)
+        drip_message_2 = DripRecordedMessage(13)
+
+        sdza.drip_reported_handler(drip_message_1)
+        sdza.drip_reported_handler(drip_message_2)
+
+        self.assertEqual(3.0, sdza.current_z_location_mm())
 
     def test_drip_recorded_handler_adds_correct_height_per_drip(self):
         mock_communicatior = MagicMock()
@@ -70,6 +95,20 @@ class SerialDripZAxisTests(unittest.TestCase):
         self.assertTrue(mock_call_back.call_args_list[0][0][3][0] >= start)
         self.assertTrue(mock_call_back.call_args_list[0][0][3][0] <= end)
 
+    def test_drip_recorded_handler_should_adjust_history_for_missing_drips(self):
+        mock_communicatior = MagicMock()
+        starting_height = 0.0
+        drips_per_mm = 1.0
+        mock_call_back = MagicMock()
+
+        sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height, mock_call_back)
+        drip_message_1 = DripRecordedMessage(1)
+        drip_message_2 = DripRecordedMessage(10)
+
+        sdza.drip_reported_handler(drip_message_1)
+        sdza.drip_reported_handler(drip_message_2)
+        self.assertEquals(10, len(mock_call_back.call_args_list[1][0][3]))
+
     def test_move_to_does_nothing(self):
         mock_communicatior = MagicMock()
         starting_height = 0.0
@@ -90,6 +129,24 @@ class SerialDripZAxisTests(unittest.TestCase):
         actual_height = sdza.current_z_location_mm()
 
         self.assertEqual(0.0, actual_height)
+
+    def test_reset_removes_drips_count_accounting_for_hardware(self):
+        mock_communicatior = MagicMock()
+        starting_height = 0.0
+        drips_per_mm = 1.0
+        sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height)
+        drip_message_1 = DripRecordedMessage(20)
+        drip_message_2 = DripRecordedMessage(21)
+        drip_message_3 = DripRecordedMessage(22)
+        sdza.drip_reported_handler(drip_message_1)
+        self.assertEqual(1.0, sdza.current_z_location_mm())
+        sdza.drip_reported_handler(drip_message_2)
+        self.assertEqual(2.0, sdza.current_z_location_mm())
+
+        sdza.reset()
+        self.assertEqual(0.0, sdza.current_z_location_mm())
+        sdza.drip_reported_handler(drip_message_3)
+        self.assertEqual(1.0, sdza.current_z_location_mm())
 
     def test_set_call_back_should(self):
         mock_communicatior = MagicMock()

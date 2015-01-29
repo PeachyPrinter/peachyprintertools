@@ -4,6 +4,7 @@ import threading
 import time
 from messages import ProtoBuffableMessage
 
+
 class Communicator(object):
     def send(self, message):
         raise NotImplementedError()
