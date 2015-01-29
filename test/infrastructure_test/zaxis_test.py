@@ -31,7 +31,6 @@ class SerialDripZAxisTests(unittest.TestCase):
         sdza = SerialDripZAxis(mock_communicatior, 1.0, starting_height)
         mock_communicatior.send.assert_called_with(SetDripCountMessage(0))
 
-
     def test_drip_recorded_handler_adds_drip(self):
         mock_communicatior = MagicMock()
         starting_height = 0.0

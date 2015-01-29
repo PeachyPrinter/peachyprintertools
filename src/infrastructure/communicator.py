@@ -16,6 +16,7 @@ class Communicator(object):
 class SerialCommunicator(Communicator, threading.Thread):
     def __init__(self, port, header, footer, escape):
         threading.Thread.__init__(self)
+        self._send_lock = threading.Lock()
         self._port = port
         self._running = False
         self._header = header
@@ -39,7 +40,11 @@ class SerialCommunicator(Communicator, threading.Thread):
             else:
                 out.append(c)
         out.append(self._footer)
-        self._connection.write(''.join(out))
+        self._send_lock.acquire()
+        try:
+            self._connection.write(''.join(out))
+        finally:
+            self._send_lock.release()
 
     def start(self):
         self._connection = serial.Serial(self._port)
