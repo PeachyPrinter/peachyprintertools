@@ -24,6 +24,7 @@ class SerialCommunicator(Communicator, threading.Thread):
         self._read_bytes = ''
         self._escape_next = False
         self._handlers = {}
+        self._connection = None
 
     def send(self, message):
         if not self._running:
@@ -46,16 +47,22 @@ class SerialCommunicator(Communicator, threading.Thread):
 
     def run(self):
         logging.info("Opening serial port: %s" % (self._port,))
-        self._connection = serial.Serial(self._port)
-        self._running = True
-        while self._running:
-            self._recieve()
-        self._connection.close()
+        try:
+            self._connection = serial.Serial(self._port)
+            self._running = True
+            while self._running:
+                self._recieve()
+        except Exception as ex:
+            logging.error(ex)
+            raise ex
+        finally:
+            if self._connection:
+                self._connection.close()
         logging.info("Closed serial port: %s" % (self._port,))
 
     def _recieve(self):
         try:
-            byte = self._connection.read()
+            byte = self._connection.read()[0]
             if byte == self._header:
                 self._read_bytes = byte
             elif byte == self._footer and self._read_bytes:
@@ -64,7 +71,7 @@ class SerialCommunicator(Communicator, threading.Thread):
             elif byte == self._escape and self._read_bytes:
                 self._escape_next = True
             elif self._escape_next and self._read_bytes:
-                self._read_bytes += chr(0xff & ~byte)
+                self._read_bytes += chr(0xff & ~ord(byte))
                 self._escape_next = False
             elif self._read_bytes:
                 self._read_bytes += byte

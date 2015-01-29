@@ -105,17 +105,26 @@ class SerialCommunicatorTests(unittest.TestCase):
 
     def test_recieving_message_for_which_thier_is_a_handler(self, mock_serial):
         port, header, footer, escape = "na", '@', 'A', 'B'
-        original_message = DripRecordedMessage(45)
+        original_message = DripRecordedMessage(66)
         message_bytes = original_message.get_bytes()
         message_id = chr(original_message.TYPE_ID)
-        expected_data = list(header + message_id + message_bytes + footer)
+        payload = message_id + message_bytes
+        escaped = ''
+        for ch in payload:
+            if ch in [header, footer, escape]:
+                escaped += escape
+                escaped += '%c' % ((~ord(ch) & 0xFF),)
+            else:
+                escaped += ch
+
+        expected_data = list(header + escaped + footer)
 
         self.comm = SerialCommunicator(port, header, footer, escape)
         self.recieved = False
 
         def side_effect():
             if expected_data:
-                return expected_data.pop(0)
+                return [expected_data.pop(0)]
             else:
                 raise serial.SerialTimeoutException()
 

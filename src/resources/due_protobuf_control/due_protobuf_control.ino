@@ -11,6 +11,27 @@
 #define ESCAPE_CHAR 0x42
 
 static const short DATA_PIN = 6;
+static const short SEND_PIN = 5;
+
+static const short BYTE_PIN_0 = 22;
+static const short BYTE_PIN_1 = 23;
+static const short BYTE_PIN_2 = 24;
+static const short BYTE_PIN_3 = 25;
+static const short BYTE_PIN_4 = 26;
+static const short BYTE_PIN_5 = 27;
+static const short BYTE_PIN_6 = 28;
+static const short BYTE_PIN_7 = 29;
+static const short BYTE_PIN_8 = 30;
+static const short BYTE_PIN_9 = 31;
+static const short BYTE_PIN_A = 32;
+static const short BYTE_PIN_B = 33;
+static const short BYTE_PIN_C = 34;
+static const short BYTE_PIN_D = 35;
+static const short BYTE_PIN_E = 36;
+static const short BYTE_PIN_F = 37;
+
+short bits[] = {BYTE_PIN_0, BYTE_PIN_1, BYTE_PIN_2, BYTE_PIN_3, BYTE_PIN_4, BYTE_PIN_5, BYTE_PIN_6, BYTE_PIN_7, BYTE_PIN_9, BYTE_PIN_9, BYTE_PIN_A, BYTE_PIN_B, BYTE_PIN_C, BYTE_PIN_D, BYTE_PIN_E, BYTE_PIN_F};
+
 uint8_t buffer[128];
 size_t message_length;
 bool status;
@@ -21,7 +42,22 @@ void setup() {
   SerialUSB.begin(2);
   pinMode(DATA_PIN, OUTPUT);
   digitalWrite(DATA_PIN, LOW);
+  pinMode(SEND_PIN, OUTPUT);
+  digitalWrite(SEND_PIN, LOW);
+  for(int idx = 0 ; idx < 16; idx++){
+    pinMode(bits[idx], OUTPUT);
+    digitalWrite(bits[idx], LOW);
+  }
+
+
   Serial.println("SETUP");
+}
+
+void show_index(){
+  for(int idx = 0 ; idx < 16; idx++){
+    bool bit = (drip_index >> idx) & 1;
+    digitalWrite(bits[idx], !bit);
+  }
 }
 
 void loop() {
@@ -47,6 +83,10 @@ void loop() {
         }
         SerialUSB.write(FOOTER);
     }
-    delay(100);
+    digitalWrite(SEND_PIN, 1);
+    delay(5);
+    digitalWrite(SEND_PIN, 0);
+    delay(50);
     drip_index++;
+    show_index();
 }
