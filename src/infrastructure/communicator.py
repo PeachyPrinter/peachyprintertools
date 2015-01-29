@@ -51,6 +51,7 @@ class SerialCommunicator(Communicator, threading.Thread):
         while self._running:
             self._recieve()
         self._connection.close()
+        logging.info("Closed serial port: %s" % (self._port,))
 
     def _recieve(self):
         try:
