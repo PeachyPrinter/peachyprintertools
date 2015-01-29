@@ -33,7 +33,7 @@ class SerialDripZAxis(ZAxis):
     @property
     def average_drips(self):
         if len(self._drip_history) >= self._drips_in_average:
-            return (self._drip_history[-1] - self._drip_history[-10]) / 10.0
+            return 10.0 / (self._drip_history[-1] - self._drip_history[-10])
         else:
             return 0.0
 

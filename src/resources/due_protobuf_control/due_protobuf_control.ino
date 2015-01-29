@@ -13,22 +13,22 @@
 static const short DATA_PIN = 6;
 static const short SEND_PIN = 5;
 
-static const short BYTE_PIN_0 = 22;
-static const short BYTE_PIN_1 = 23;
-static const short BYTE_PIN_2 = 24;
-static const short BYTE_PIN_3 = 25;
-static const short BYTE_PIN_4 = 26;
-static const short BYTE_PIN_5 = 27;
-static const short BYTE_PIN_6 = 28;
-static const short BYTE_PIN_7 = 29;
-static const short BYTE_PIN_8 = 30;
-static const short BYTE_PIN_9 = 31;
-static const short BYTE_PIN_A = 32;
-static const short BYTE_PIN_B = 33;
-static const short BYTE_PIN_C = 34;
-static const short BYTE_PIN_D = 35;
-static const short BYTE_PIN_E = 36;
-static const short BYTE_PIN_F = 37;
+short BYTE_PIN_0 = 22;
+short BYTE_PIN_1 = 23;
+short BYTE_PIN_2 = 24;
+short BYTE_PIN_3 = 25;
+short BYTE_PIN_4 = 26;
+short BYTE_PIN_5 = 27;
+short BYTE_PIN_6 = 28;
+short BYTE_PIN_7 = 29;
+short BYTE_PIN_8 = 30;
+short BYTE_PIN_9 = 31;
+short BYTE_PIN_A = 32;
+short BYTE_PIN_B = 33;
+short BYTE_PIN_C = 34;
+short BYTE_PIN_D = 35;
+short BYTE_PIN_E = 36;
+short BYTE_PIN_F = 37;
 
 short bits[] = {BYTE_PIN_0, BYTE_PIN_1, BYTE_PIN_2, BYTE_PIN_3, BYTE_PIN_4, BYTE_PIN_5, BYTE_PIN_6, BYTE_PIN_7, BYTE_PIN_9, BYTE_PIN_9, BYTE_PIN_A, BYTE_PIN_B, BYTE_PIN_C, BYTE_PIN_D, BYTE_PIN_E, BYTE_PIN_F};
 
@@ -46,7 +46,7 @@ void setup() {
   digitalWrite(SEND_PIN, LOW);
   for(int idx = 0 ; idx < 16; idx++){
     pinMode(bits[idx], OUTPUT);
-    digitalWrite(bits[idx], LOW);
+    digitalWrite(bits[idx], HIGH);
   }
 
 
@@ -58,10 +58,11 @@ void show_index(){
     bool bit = (drip_index >> idx) & 1;
     digitalWrite(bits[idx], !bit);
   }
+  Serial.println();
 }
 
 void loop() {
-    serialio_feed();
+    // serialio_feed();
     DripRecorded dr;
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
     dr.drips = drip_index;
@@ -83,10 +84,6 @@ void loop() {
         }
         SerialUSB.write(FOOTER);
     }
-    digitalWrite(SEND_PIN, 1);
-    delay(5);
-    digitalWrite(SEND_PIN, 0);
-    delay(50);
     drip_index++;
     show_index();
 }
