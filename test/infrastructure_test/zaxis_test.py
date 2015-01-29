@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from infrastructure.zaxis import SerialDripZAxis
-from infrastructure.messages import DripRecordedMessage
+from infrastructure.messages import DripRecordedMessage, SetDripCountMessage, MoveToDripCountMessage
 
 
 class SerialDripZAxisTests(unittest.TestCase):
@@ -24,6 +24,13 @@ class SerialDripZAxisTests(unittest.TestCase):
         starting_height = 10.0
         sdza = SerialDripZAxis(mock_communicatior, 1.0, starting_height)
         self.assertEqual(starting_height, sdza.current_z_location_mm())
+
+    def test_init_resets_micro_drip_counter(self):
+        mock_communicatior = MagicMock()
+        starting_height = 10.0
+        sdza = SerialDripZAxis(mock_communicatior, 1.0, starting_height)
+        mock_communicatior.send.assert_called_with(SetDripCountMessage(0))
+
 
     def test_drip_recorded_handler_adds_drip(self):
         mock_communicatior = MagicMock()
@@ -43,19 +50,6 @@ class SerialDripZAxisTests(unittest.TestCase):
         sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height)
         drip_message_1 = DripRecordedMessage(1)
         drip_message_2 = DripRecordedMessage(3)
-
-        sdza.drip_reported_handler(drip_message_1)
-        sdza.drip_reported_handler(drip_message_2)
-
-        self.assertEqual(3.0, sdza.current_z_location_mm())
-
-    def test_drip_recorded_handler_treats_first_drip_as_offset(self):
-        mock_communicatior = MagicMock()
-        starting_height = 0.0
-        drips_per_mm = 1.0
-        sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height)
-        drip_message_1 = DripRecordedMessage(11)
-        drip_message_2 = DripRecordedMessage(13)
 
         sdza.drip_reported_handler(drip_message_1)
         sdza.drip_reported_handler(drip_message_2)
@@ -109,14 +103,14 @@ class SerialDripZAxisTests(unittest.TestCase):
         sdza.drip_reported_handler(drip_message_2)
         self.assertEquals(10, len(mock_call_back.call_args_list[1][0][3]))
 
-    def test_move_to_does_nothing(self):
+    def test_move_to_sends_drips(self):
         mock_communicatior = MagicMock()
         starting_height = 0.0
         drips_per_mm = 1.0
         mock_call_back = MagicMock()
         sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height, mock_call_back)
-
-        sdza.move_to(12.4)
+        sdza.move_to(3.0)
+        mock_communicatior.send.assert_called_with(MoveToDripCountMessage(3))
 
     def test_reset_removes_drips_count(self):
         mock_communicatior = MagicMock()
@@ -135,9 +129,9 @@ class SerialDripZAxisTests(unittest.TestCase):
         starting_height = 0.0
         drips_per_mm = 1.0
         sdza = SerialDripZAxis(mock_communicatior, drips_per_mm, starting_height)
-        drip_message_1 = DripRecordedMessage(20)
-        drip_message_2 = DripRecordedMessage(21)
-        drip_message_3 = DripRecordedMessage(22)
+        drip_message_1 = DripRecordedMessage(1)
+        drip_message_2 = DripRecordedMessage(2)
+        drip_message_3 = DripRecordedMessage(1)
         sdza.drip_reported_handler(drip_message_1)
         self.assertEqual(1.0, sdza.current_z_location_mm())
         sdza.drip_reported_handler(drip_message_2)
@@ -145,6 +139,9 @@ class SerialDripZAxisTests(unittest.TestCase):
 
         sdza.reset()
         self.assertEqual(0.0, sdza.current_z_location_mm())
+        self.assertEqual(2, mock_communicatior.send.call_count)
+        mock_communicatior.send.assert_called_with(SetDripCountMessage(0))
+
         sdza.drip_reported_handler(drip_message_3)
         self.assertEqual(1.0, sdza.current_z_location_mm())
 
@@ -170,8 +167,6 @@ class SerialDripZAxisTests(unittest.TestCase):
         self.assertEqual(expected_average, mock_call_back.call_args_list[0][0][2])
         self.assertTrue(mock_call_back.call_args_list[0][0][3][0] >= start)
         self.assertTrue(mock_call_back.call_args_list[0][0][3][0] <= end)
-
-    
 
 
 if __name__ == '__main__':
