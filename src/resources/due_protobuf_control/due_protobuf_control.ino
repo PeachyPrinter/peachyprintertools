@@ -54,18 +54,18 @@ void setup() {
 }
 
 void show_index(){
+  int data = millis() / 100;
   for(int idx = 0 ; idx < 16; idx++){
-    bool bit = (drip_index >> idx) & 1;
+    bool bit = (data >> idx) & 1;
     digitalWrite(bits[idx], !bit);
   }
-  Serial.println();
 }
 
 void loop() {
-    // serialio_feed();
+    serialio_feed();
     DripRecorded dr;
     pb_ostream_t stream = pb_ostream_from_buffer(buffer, sizeof(buffer));
-    dr.drips = drip_index;
+    dr.drips = (unsigned int)millis() / 100;
     status = pb_encode(&stream, DripRecorded_fields, &dr);
     message_length = stream.bytes_written;
     if (!status) {
@@ -84,6 +84,5 @@ void loop() {
         }
         SerialUSB.write(FOOTER);
     }
-    drip_index++;
     show_index();
 }

@@ -14,3 +14,6 @@ class ZAxis(object):
 
     def move_to(self, height_mm):
         raise NotImplementedError('move_to unimplmented')
+ 
+    def start(self):
+        pass

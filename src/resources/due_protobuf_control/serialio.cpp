@@ -85,7 +85,7 @@ void serialio_feed() {
 
   int input = 0;
 
-  while((input = SerialUSB.read()) != -1) {
+  if((input = SerialUSB.read()) != -1) {
     switch(state) {
     case SEARCHING: state = serial_searching(&idx, buffer, (char)input); break;
     case READING: state = serial_reading(&idx, buffer, (char)input); break;

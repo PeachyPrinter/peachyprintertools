@@ -8,6 +8,7 @@ from infrastructure.audiofiler import PathToAudio
 from infrastructure.controller import Controller
 from infrastructure.drip_based_zaxis import AudioDripZAxis
 from infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
+from infrastructure.zaxis import SerialDripZAxis
 from domain.laser_control import LaserControl
 from infrastructure.audio_disseminator import AudioDisseminator
 from infrastructure.micro_disseminator import MicroDisseminator
@@ -134,21 +135,34 @@ class PrintAPI(object):
                 self._start_height,
                 drips_per_second=self._configuration.dripper.emulated_drips_per_second
                 )
+        elif self._configuration.dripper.dripper_type == 'microcontroller':
+            logging.info("Micro Controller Zaxis")
+            return SerialDripZAxis(
+                self._get_communicator(dry_run),
+                self._configuration.dripper.drips_per_mm,
+                self._start_height,
+                )
+
+    def _get_communicator(self, dry_run):
+        if hasattr(self, '_communicator'):
+            return self._communicator
+        if dry_run:
+            self._communicator = NullCommunicator()
+        else:
+            self._communicator = SerialCommunicator(
+                self._configuration.micro_com.port,
+                self._configuration.micro_com.header,
+                self._configuration.micro_com.footer,
+                self._configuration.micro_com.escape,
+                )
+            self._communicator.start()
+        return self._communicator
 
     def _get_digital_disseminator(self, dry_run):
-            if dry_run:
-                communicator = NullCommunicator()
-            else:
-                communicator = SerialCommunicator(
-                    self._configuration.micro_com.port,
-                    self._configuration.micro_com.header,
-                    self._configuration.micro_com.footer,
-                    self._configuration.micro_com.escape,
-                    )
-                communicator.start()
+            
             return MicroDisseminator(
                 self.laser_control,
-                communicator,
+                self._get_communicator(dry_run),
                 self._configuration.micro_com.rate
                 )
 

@@ -166,6 +166,7 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
             end = time.time()
             self.assertTrue(expected_delay <= end-start)
 
+@patch('api.print_api.SerialDripZAxis')
 @patch('api.print_api.MicroDisseminator')
 @patch('api.print_api.SerialCommunicator')
 @patch('api.print_api.LaserControl')
@@ -193,6 +194,7 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
+        self.mock_SerialDripZAxis =               args[24]
         self.mock_MicroDisseminator =             args[23]
         self.mock_SerialCommunicator =            args[22]
         self.mock_LaserControl =                  args[21]
@@ -218,6 +220,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_LayerWriter =                   args[1]
         self.mock_LayerProcessing =               args[0]
 
+        self.mock_serial_drip_zaxis =               self.mock_SerialDripZAxis.return_value
         self.mock_micro_disseminator =              self.mock_MicroDisseminator.return_value
         self.mock_serial_communicator =             self.mock_SerialCommunicator.return_value
         self.mock_laser_control =                   self.mock_LaserControl.return_value
@@ -354,6 +357,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_overlap = False
         config.options.post_fire_delay = 5
         config.circut.circut_type = 'Digital'
+        config.dripper.dripper_type = 'microcontroller'
         api = PrintAPI(config)
 
         with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as mocked_open:
@@ -402,6 +406,25 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             override_speed=config.cure_rate.draw_speed,
             wait_speed=100.0,
             post_fire_delay_speed=100.0,
+            )
+
+        self.mock_SerialDripZAxis.assert_called_with(
+            self.mock_serial_communicator,
+            config.dripper.drips_per_mm,
+            0.0
+            )
+
+        self.mock_LayerProcessing.assert_called_with(
+            self.mock_layer_writer,
+            self.mock_machine_state,
+            self.mock_machine_status,
+            self.mock_serial_drip_zaxis,
+            config.dripper.max_lead_distance_mm,
+            self.mock_null_commander,
+            config.options.pre_layer_delay,
+            config.serial.layer_started,
+            config.serial.layer_ended,
+            config.serial.print_ended,
             )
 
     def test_print_gcode_should_use_start_height(self, *args):
