@@ -47,7 +47,6 @@ class CalibrationAPI(object):
         self._controller = None
         logging.debug("Setting up audiowriter")
 
-
         self._current_generator = self._point_generator
 
         self._state = MachineState()

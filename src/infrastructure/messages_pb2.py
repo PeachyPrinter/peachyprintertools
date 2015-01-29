@@ -18,7 +18,7 @@ _sym_db = _symbol_database.Default()
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='messages.proto',
   package='',
-  serialized_pb=_b('\n\x0emessages.proto\"0\n\x04Move\x12\t\n\x01x\x18\x01 \x02(\x05\x12\t\n\x01y\x18\x02 \x02(\x05\x12\x12\n\nlaserPower\x18\x03 \x02(\r\"\x1d\n\x0c\x44ripRecorded\x12\r\n\x05\x64rips\x18\x02 \x02(\r')
+  serialized_pb=_b('\n\x0emessages.proto\"0\n\x04Move\x12\t\n\x01x\x18\x01 \x02(\x05\x12\t\n\x01y\x18\x02 \x02(\x05\x12\x12\n\nlaserPower\x18\x03 \x02(\r\"\x1d\n\x0c\x44ripRecorded\x12\r\n\x05\x64rips\x18\x01 \x02(\r\"\x1d\n\x0cSetDripCount\x12\r\n\x05\x64rips\x18\x01 \x02(\r\" \n\x0fMoveToDripCount\x12\r\n\x05\x64rips\x18\x01 \x02(\r')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -78,7 +78,7 @@ _DRIPRECORDED = _descriptor.Descriptor(
   fields=[
     _descriptor.FieldDescriptor(
       name='drips', full_name='DripRecorded.drips', index=0,
-      number=2, type=13, cpp_type=3, label=2,
+      number=1, type=13, cpp_type=3, label=2,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -98,8 +98,70 @@ _DRIPRECORDED = _descriptor.Descriptor(
   serialized_end=97,
 )
 
+
+_SETDRIPCOUNT = _descriptor.Descriptor(
+  name='SetDripCount',
+  full_name='SetDripCount',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='drips', full_name='SetDripCount.drips', index=0,
+      number=1, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=99,
+  serialized_end=128,
+)
+
+
+_MOVETODRIPCOUNT = _descriptor.Descriptor(
+  name='MoveToDripCount',
+  full_name='MoveToDripCount',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='drips', full_name='MoveToDripCount.drips', index=0,
+      number=1, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  options=None,
+  is_extendable=False,
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=130,
+  serialized_end=162,
+)
+
 DESCRIPTOR.message_types_by_name['Move'] = _MOVE
 DESCRIPTOR.message_types_by_name['DripRecorded'] = _DRIPRECORDED
+DESCRIPTOR.message_types_by_name['SetDripCount'] = _SETDRIPCOUNT
+DESCRIPTOR.message_types_by_name['MoveToDripCount'] = _MOVETODRIPCOUNT
 
 Move = _reflection.GeneratedProtocolMessageType('Move', (_message.Message,), dict(
   DESCRIPTOR = _MOVE,
@@ -114,6 +176,20 @@ DripRecorded = _reflection.GeneratedProtocolMessageType('DripRecorded', (_messag
   # @@protoc_insertion_point(class_scope:DripRecorded)
   ))
 _sym_db.RegisterMessage(DripRecorded)
+
+SetDripCount = _reflection.GeneratedProtocolMessageType('SetDripCount', (_message.Message,), dict(
+  DESCRIPTOR = _SETDRIPCOUNT,
+  __module__ = 'messages_pb2'
+  # @@protoc_insertion_point(class_scope:SetDripCount)
+  ))
+_sym_db.RegisterMessage(SetDripCount)
+
+MoveToDripCount = _reflection.GeneratedProtocolMessageType('MoveToDripCount', (_message.Message,), dict(
+  DESCRIPTOR = _MOVETODRIPCOUNT,
+  __module__ = 'messages_pb2'
+  # @@protoc_insertion_point(class_scope:MoveToDripCount)
+  ))
+_sym_db.RegisterMessage(MoveToDripCount)
 
 
 # @@protoc_insertion_point(module_scope)

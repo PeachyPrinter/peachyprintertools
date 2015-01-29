@@ -5,5 +5,13 @@ message Move {
 }
 
 message DripRecorded {
-  required uint32 drips = 2;
+  required uint32 drips = 1;
+}
+
+message SetDripCount {
+  required uint32 drips = 1;
+}
+
+message MoveToDripCount {
+  required uint32 drips = 1;
 }

@@ -1,6 +1,6 @@
 import logging
 try:
-    from messages_pb2 import Move, DripRecorded
+    from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount
 except Exception as ex:
     logging.error(
         "\033[91m Cannot import protobuf classes, Have you compiled your protobuf files?\033[0m")
@@ -90,6 +90,78 @@ class DripRecordedMessage(ProtoBuffableMessage):
     @classmethod
     def from_bytes(cls, proto_bytes):
         decoded = DripRecorded()
+        decoded.ParseFromString(proto_bytes)
+        return cls(decoded.drips)
+
+    def __eq__(self, other):
+        if (self.__class__ == other.__class__ and
+                self._drips == other._drips):
+            return True
+        else:
+            return False
+
+    def __repr__(self):
+        return "drips={}".format(self._drips)
+
+
+class SetDripCountMessage(ProtoBuffableMessage):
+    TYPE_ID = 4
+
+    def __init__(self, drips):
+        self._drips = drips
+
+    @property
+    def drips(self):
+        return self._drips
+
+    def get_bytes(self):
+        encoded = SetDripCount()
+        encoded.drips = self._drips
+        if encoded.IsInitialized():
+            return encoded.SerializeToString()
+        else:
+            logging.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+            raise Exception("Protobuf Message encoding incomplete")
+
+    @classmethod
+    def from_bytes(cls, proto_bytes):
+        decoded = SetDripCount()
+        decoded.ParseFromString(proto_bytes)
+        return cls(decoded.drips)
+
+    def __eq__(self, other):
+        if (self.__class__ == other.__class__ and
+                self._drips == other._drips):
+            return True
+        else:
+            return False
+
+    def __repr__(self):
+        return "drips={}".format(self._drips)
+
+
+class MoveToDripCountMessage(ProtoBuffableMessage):
+    TYPE_ID = 5
+
+    def __init__(self, drips):
+        self._drips = drips
+
+    @property
+    def drips(self):
+        return self._drips
+
+    def get_bytes(self):
+        encoded = MoveToDripCount()
+        encoded.drips = self._drips
+        if encoded.IsInitialized():
+            return encoded.SerializeToString()
+        else:
+            logging.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+            raise Exception("Protobuf Message encoding incomplete")
+
+    @classmethod
+    def from_bytes(cls, proto_bytes):
+        decoded = MoveToDripCount()
         decoded.ParseFromString(proto_bytes)
         return cls(decoded.drips)
 
