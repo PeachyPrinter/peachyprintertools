@@ -8,6 +8,8 @@ from print_ui import PrintStatusUI
 from infrastructure.print_test_layer_generators import HalfVaseTestGenerator
 from api.test_print_api import TestPrintAPI
 import help_text
+import traceback
+
 
 from config import devmode
 
@@ -527,29 +529,41 @@ class DripCalibrationUI(PeachyFrame, FieldValidations):
 class SetupCircutUI(PeachyFrame):
 
     def initialize(self):
-        self.grid()
-        self._current_printer = self.kwargs['printer']
-        self._configuration_api = ConfigurationAPI(self._configuration_manager)
-        self._configuration_api.load_printer(self._current_printer)
+        try:
+            self.grid()
+            self._current_printer = self.kwargs['printer']
+            self._configuration_api = ConfigurationAPI(self._configuration_manager)
+            self._configuration_api.load_printer(self._current_printer)
 
-        audio_options = self._configuration_api.get_available_audio_options()
+            Label(self, text='Printer: ').grid(column=0, row=10)
+            Label(self, text=self._configuration_api.current_printer()).grid(column=1, row=10)
+            Button(self, text='?', command=self._help).grid(column=2, row=10, stick=N+E)
 
-        self._input_options = dict([ (str(option), option) for option in audio_options['inputs']])
-        self._output_options = dict([ (str(option), option) for option in audio_options['outputs']])
+            audio_options = self._configuration_api.get_available_audio_options()
+            self._digital_frame = LabelFrame(self, text="Digital Circut", padx=5, pady=5)
+            self._analog_frame = LabelFrame(self, text="Analog Circut", padx=5, pady=5)
+            self._circut_type = StringVar()
 
-        if (len(self._input_options) < 1 or len(self._output_options) < 1):
-            logging.error("No inputs available")
-            tkMessageBox.showwarning('Error','Audio card appears to not be setup correctly, Have you plugged in your dripper and printer?')
-            self._back()
-            return
+            if (len(audio_options['inputs']) > 0 and len(audio_options['outputs']) > 0):
+                self._audio_available = True
+                self.initialize_audio(audio_options)
+                Radiobutton(self, text="Analog Circut", variable=self._circut_type, value="Analog", command=self._circut_type_changed).grid(column=0, row=20, sticky=N+S+E+W)
+            else:
+                self._audio_available = False
 
-        self._input_audio_selection_current = StringVar()
-        self._input_audio_selection_current.set(self._currently_selected(self._input_options))
-        self._output_options = dict([ (str(option), option) for option in audio_options['outputs']])
-        self._output_audio_selection_current = StringVar()
-        self._output_audio_selection_current.set(self._currently_selected(self._output_options))
+            self.initialize_micro()
+            Radiobutton(self, text="Microcontroller ", variable=self._circut_type, value="Digital", command=self._circut_type_changed).grid(column=1, row=20, sticky=N+S+E+W)
 
-        self._circut_type = StringVar()
+            Label(self).grid(column=0, row=50)
+            Button(self, text="Back", command=self._back).grid(column=0, row=60, sticky=N+S+W)
+            Button(self, text="Save", command=self._save).grid(column=1, row=60, sticky=N+S+E)
+            self._circut_type_changed()
+            self.update()
+        except Exception as ex:
+            traceback.print_exc()
+            raise(ex)
+
+    def initialize_micro(self):
         self._port = StringVar()
         self._rate = IntVar()
         self._header = StringVar()
@@ -565,25 +579,6 @@ class SetupCircutUI(PeachyFrame):
         self._escape.set(self._configuration_api.get_micro_com_escape())
         self._version.set(self._configuration_api.get_circut_version())
 
-        Label(self, text='Printer: ').grid(column=0, row=10)
-        Label(self, text=self._configuration_api.current_printer()).grid(column=1, row=10)
-        Button(self, text='?', command=self._help).grid(column=2, row=10, stick=N+E)
-
-        Radiobutton(self, text="Analog Circut", variable=self._circut_type, value="Analog", command=self._circut_type_changed).grid(column=0, row=20, sticky=N+S+E+W)
-        Radiobutton(self, text="Microcontroller ", variable=self._circut_type, value="Digital", command=self._circut_type_changed).grid(column=1, row=20, sticky=N+S+E+W)
-
-        self._analog_frame = LabelFrame(self, text="Analog Circut", padx=5, pady=5)
-        self._analog_frame.grid(column=0, row=30, columnspan=3, sticky=NSEW)
-
-        Label(self._analog_frame).grid(column=0, row=20)
-        Label(self._analog_frame, text='Selecting a format not supported by your system may result in odd behaviour').grid(column=0, row=25, columnspan=3)
-        Label(self._analog_frame).grid(column=0, row=26)
-        Label(self._analog_frame, text="Audio Input Settings").grid(column=0, row=30)
-        OptionMenu(self._analog_frame, self._input_audio_selection_current, *self._input_options.keys()).grid(column=1, row=30, sticky=NSEW)
-        Label(self._analog_frame, text="Audio Output Settings").grid(column=0, row=40)
-        OptionMenu(self._analog_frame, self._output_audio_selection_current, *self._output_options.keys()).grid(column=1, row=40, sticky=NSEW)
-
-        self._digital_frame = LabelFrame(self, text="Digital Circut", padx=5, pady=5)
         self._digital_frame.grid(column=0, row=31, columnspan=3, sticky=NSEW)
         Label(self._digital_frame, text="Circut Port").grid(column=1, row=10, sticky=N+E+S)
         Entry(self._digital_frame, textvariable=self._port, width=40).grid(column=2, row=10, sticky=N+W+S)
@@ -598,11 +593,29 @@ class SetupCircutUI(PeachyFrame):
         Label(self._digital_frame, text="Circut Version").grid(column=1, row=90, sticky=N+E+S)
         Entry(self._digital_frame, textvariable=self._version, width=40).grid(column=2, row=90, sticky=N+W+S)
 
-        Label(self).grid(column=0, row=50)
-        Button(self, text="Back", command=self._back).grid(column=0, row=60, sticky=N+S+W)
-        Button(self, text="Save", command=self._save).grid(column=1, row=60, sticky=N+S+E)
-        self._circut_type_changed()
-        self.update()
+    def initialize_audio(self, audio_options):
+        self._input_options = dict([ (str(option), option) for option in audio_options['inputs']])
+        self._output_options = dict([ (str(option), option) for option in audio_options['outputs']])
+
+        self._input_audio_selection_current = StringVar()
+        self._input_audio_selection_current.set(self._currently_selected(self._input_options))
+        self._output_options = dict([ (str(option), option) for option in audio_options['outputs']])
+        self._output_audio_selection_current = StringVar()
+        self._output_audio_selection_current.set(self._currently_selected(self._output_options))
+
+        self._analog_frame = LabelFrame(self, text="Analog Circut", padx=5, pady=5)
+        self._analog_frame.grid(column=0, row=30, columnspan=3, sticky=NSEW)
+
+        Label(self._analog_frame).grid(column=0, row=20)
+        Label(self._analog_frame, text='Selecting a format not supported by your system may result in odd behaviour').grid(column=0, row=25, columnspan=3)
+        Label(self._analog_frame).grid(column=0, row=26)
+        Label(self._analog_frame, text="Audio Input Settings").grid(column=0, row=30)
+        OptionMenu(self._analog_frame, self._input_audio_selection_current, *self._input_options.keys()).grid(column=1, row=30, sticky=NSEW)
+        Label(self._analog_frame, text="Audio Output Settings").grid(column=0, row=40)
+        OptionMenu(self._analog_frame, self._output_audio_selection_current, *self._output_options.keys()).grid(column=1, row=40, sticky=NSEW)
+
+
+
 
     def _currently_selected(self, audio_options):
         current_option = [ k for k, v in audio_options.iteritems() if v.current ]
