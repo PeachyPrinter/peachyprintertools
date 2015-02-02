@@ -123,11 +123,12 @@ class AudioDripZAxis(ZAxis, threading.Thread):
 
         self._buffer_size = self._sample_rate / 2
         self._chunk_size = self._buffer_size / 4
+        self._chunk_time = self._chunk_size / self._sample_rate
         self._drips = 0
         self._destination_height = 0.0
         self._command_delay = 0.5
 
-        self.running = True
+        self._running = False
         self.shutdown = False
 
         self.pa = pyaudio.PyAudio()
@@ -166,21 +167,33 @@ class AudioDripZAxis(ZAxis, threading.Thread):
                 self._last_command = (self._dripper_off_command, now_time)
                 self._commander.send_command(self._dripper_off_command)
 
+    def start(self):
+        logging.info("Opening Audio Input Stream")
+        self._stream = self._get_stream()
+        logging.info("Opened Audio Input Stream")
+        threading.Thread.start(self)
+        while not self._running:
+            logging.info("Waiting for Audio Dripper Zaxis startup")
+            time.sleep(0.1)
+
     def run(self):
-        stream = self._get_stream()
-        while self.running:
-            self.drip_detector.process_frames(self._get_frames(stream))
+        self._running = True
+        while self._running:
+            self.drip_detector.process_frames(self._get_frames(self._stream))
             self._update_state()
         self._commander.send_command(self._dripper_off_command)
-        stream.stop_stream()
-        stream.close()
+        self._stream.stop_stream()
+        self._stream.close()
+        self.pa.terminate()
         self.shutdown = True
 
     def _get_frames(self, stream):
-        if stream.get_read_available() > self._chunk_size:
-            return stream.read(stream.get_read_available())
+        available = stream.get_read_available()
+        if available >= self._chunk_size:
+            return stream.read(available)
         else:
-            return stream.read(self._chunk_size)
+            time.sleep(self._chunk_time)
+            return stream.read(available)
 
     def _get_stream(self):
         stream = self.pa.open(
@@ -194,14 +207,14 @@ class AudioDripZAxis(ZAxis, threading.Thread):
         return stream
 
     def close(self):
-        self._commander.send_command(self._dripper_off_command)
-        self.running = False
+        logging.info("AudioDripZAxis shutdown requested")
+        self._running = False
         attempts = 10
         while not self.shutdown and attempts > 0:
+            logging.info("Waiting for AudioDripZAxis shutdown requested")
             attempts -= 1
             time.sleep(0.2)
         if attempts > 0:
             logging.info("AudioDripZAxis shutdown successfully")
         else:
-            logging.info("AudioDripZAxis did not shutdown successfully")
-        self.pa.terminate()
+            logging.error("AudioDripZAxis did not shutdown successfully")
