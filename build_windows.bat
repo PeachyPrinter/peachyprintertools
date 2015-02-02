@@ -41,12 +41,13 @@ copy version.properties src\VERSION.py
 echo ------------------------------------
 echo Running Tests
 echo ------------------------------------
-
-python test/test-all.py
+cd test
+python test-all.py
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED TESTS ABORTING"
     EXIT /B 2
 )
+cd ..
 
 
 echo ------------------------------------
