@@ -79,6 +79,7 @@ class TimedDripZAxis(ZAxis, threading.Thread):
             self.running = False
             while not self.shutdown:
                 time.sleep(0.1)
+        self.join()
 
 
 class PhotoZAxis(ZAxis):
