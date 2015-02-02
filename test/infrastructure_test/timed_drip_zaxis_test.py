@@ -32,6 +32,7 @@ class TimedDripZaxisTests(unittest.TestCase):
         self.tdza = TimedDripZAxis(1, 0.0)
         self.tdza.start()
         self.tdza.close()
+        time.sleep(0.1)
         self.assertFalse(self.tdza.is_alive())
 
     def test_current_z_location_mm_returns_the_correct_number(self):
