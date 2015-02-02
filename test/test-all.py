@@ -1,8 +1,9 @@
 import unittest
 import os
 import sys
+import pyaudio
 
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', 'src', ))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src', ))
 
 
 loader = unittest.TestLoader()
