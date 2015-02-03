@@ -164,7 +164,7 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
             call_back(mock_status)
             call_back(mock_status)
             end = time.time()
-            self.assertTrue(expected_delay <= end-start, "%s was not <= %s" % (expected_delay, (end-start)))
+            self.assertTrue(expected_delay <= end-start + 0.01, "%s was not <= %s" % (expected_delay, (end - start + 0.01)))
 
 @patch('api.print_api.SerialDripZAxis')
 @patch('api.print_api.MicroDisseminator')
