@@ -41,10 +41,8 @@ class Controller(threading.Thread,):
 
     def change_generator(self, layer_generator):
         self._writer.abort_current_command()
-        logging.debug("Lock aquiring change")
         with self._lock:
             self._layer_generator = layer_generator
-        logging.debug("Lock releaseing change")
 
     def get_status(self):
         return self._status.status()
@@ -68,7 +66,6 @@ class Controller(threading.Thread,):
     def _process_layers(self):
         logging.info('Start Processing Layers')
         while not self._shutting_down:
-            logging.debug("Lock aquiring process")
             with self._lock:
                 try:
                     layer = self._layer_generator.next()
@@ -82,7 +79,6 @@ class Controller(threading.Thread,):
                     traceback.print_exc()
                     if self._abort_on_error:
                         self._shutting_down = True
-            logging.debug("Lock released process")
         logging.info("Processing Layers Complete")
 
     def _terminate(self):
