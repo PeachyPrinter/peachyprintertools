@@ -60,10 +60,12 @@ class TimedDripZAxis(ZAxis, threading.Thread):
 
     def start(self):
         threading.Thread.start(self)
+        while self.start_time == 0:
+            time.sleep(0.1)
 
     def run(self):
-        self.start_time = time.time()
         self.running = True
+        self.start_time = time.time()
         while self.running:
             start = time.time()
             self.update_data()

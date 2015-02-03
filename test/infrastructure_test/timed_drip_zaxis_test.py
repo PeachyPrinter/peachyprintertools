@@ -31,6 +31,7 @@ class TimedDripZaxisTests(unittest.TestCase):
     def test_shutsdown_cleanly(self):
         self.tdza = TimedDripZAxis(1, 0.0)
         self.tdza.start()
+        time.sleep(0.1)
         self.tdza.close()
         time.sleep(0.1)
         self.assertFalse(self.tdza.is_alive())
