@@ -88,7 +88,7 @@ class LayerWriter():
     def abort_current_command(self):
         self._abort_current_command = True
         with self._lock:
-            pass
+            self._state.set_state((0.0, 0.0, self._state.z), self._state.speed)
 
     def wait_till_time(self, wait_time):
         while time.time() <= wait_time:

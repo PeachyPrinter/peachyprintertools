@@ -21,7 +21,6 @@ class Controller(threading.Thread,):
         self.running = False
         self.starting = True
         self._shutdown = False
-        self._lock = threading.Lock()
         self._pausing = False
 
         self._abort_on_error = abort_on_error
@@ -29,6 +28,7 @@ class Controller(threading.Thread,):
         self._layer_processing = layer_processer
         self._writer = layer_writer
         self._status = status
+        self._next_layer_generator = None
 
     def run(self):
         logging.info('Running Controller')
@@ -40,9 +40,9 @@ class Controller(threading.Thread,):
         self._status.set_complete()
 
     def change_generator(self, layer_generator):
+        logging.debug("Generator change requested")
+        self._next_layer_generator = layer_generator
         self._writer.abort_current_command()
-        with self._lock:
-            self._layer_generator = layer_generator
 
     def get_status(self):
         return self._status.status()
@@ -66,19 +66,23 @@ class Controller(threading.Thread,):
     def _process_layers(self):
         logging.info('Start Processing Layers')
         while not self._shutting_down:
-            with self._lock:
-                try:
-                    layer = self._layer_generator.next()
-                    self._layer_processing.process(layer)
-                except StopIteration:
-                    logging.info('Layers Complete')
+            if self._next_layer_generator:
+                self._layer_generator = self._next_layer_generator
+                logging.debug("Generator change complete")
+                self._next_layer_generator = None
+            try:
+                # logging.debug("Current Generator: %s " % self._layer_generator.__class__)
+                layer = self._layer_generator.next()
+                self._layer_processing.process(layer)
+            except StopIteration:
+                logging.info('Layers Complete')
+                self._shutting_down = True
+            except Exception as ex:
+                self._status.add_error(MachineError(str(ex), self._status.status()['current_layer']))
+                logging.error('Unexpected Error: %s' % str(ex))
+                traceback.print_exc()
+                if self._abort_on_error:
                     self._shutting_down = True
-                except Exception as ex:
-                    self._status.add_error(MachineError(str(ex), self._status.status()['current_layer']))
-                    logging.error('Unexpected Error: %s' % str(ex))
-                    traceback.print_exc()
-                    if self._abort_on_error:
-                        self._shutting_down = True
         logging.info("Processing Layers Complete")
 
     def _terminate(self):
