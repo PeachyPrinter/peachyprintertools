@@ -48,10 +48,10 @@ class LayerWriter():
             for command in layer.commands:
                 # logging.info("Processing command: %s" % command)
                 if self._shutting_down:
-                    return
+                    break
                 if self._abort_current_command:
                     self._abort_current_command = False
-                    return
+                    break
                 if type(command) == LateralDraw:
                     if not self._same_posisition(self._state.xy, command.start):
                         self._move_lateral(
@@ -87,6 +87,8 @@ class LayerWriter():
 
     def abort_current_command(self):
         self._abort_current_command = True
+        with self._lock:
+            pass
 
     def wait_till_time(self, wait_time):
         while time.time() <= wait_time:

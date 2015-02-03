@@ -94,7 +94,7 @@ class AudioWriter(DataWriter):
     def _configuration_supported(self, sample_rate, format):
         device_info = self._pa.get_default_host_api_info()
         default_device_id = device_info['defaultOutputDevice']
-        logging.debug('Checking audio... id: %s, output_channels: %s, output_format: %s, sample rate: %s ' % (
+        logging.info('Checking audio... id: %s, output_channels: %s, output_format: %s, sample rate: %s ' % (
             default_device_id, 2, format, sample_rate))
         supported = self._pa.is_format_supported(
             sample_rate, output_device=default_device_id, output_channels=2, output_format=format)
@@ -122,8 +122,10 @@ class AudioWriter(DataWriter):
         # start = time.time()
         data = np.array(list(chunk))
         frames = self._to_frame(data)
-        self._outstream.write(frames)
-        # logging.info('Wrote chunk: %s' % (time.time() - start))
+        try:
+            self._outstream.write(frames)
+        except Exception as ex:
+            logging.error("Error Writing Frames: %s" % ex)
 
     def _to_frame(self, values):
         if (self._format == pyaudio.paFloat32):
