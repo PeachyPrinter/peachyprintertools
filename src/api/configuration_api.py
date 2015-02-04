@@ -664,7 +664,7 @@ class ConfigurationAPI(
         if self._current_config:
             return self._current_config.name
         else:
-            logging.debug('Current config missing')
+            # logging.debug('Current config missing')
             return None
 
     '''Returns the current printer config in json'''
@@ -683,7 +683,7 @@ class ConfigurationAPI(
     '''Loads a previous configured printer by name'''
     def load_printer(self, name):
         self._current_config = self._configuration_manager.load(name)
-        logging.debug("Loaded config:\n%s" % self._current_config)
+        # logging.debug("Loaded config:\n%s" % self._current_config)
 
     '''Saves the currently selected config'''
     def save(self):

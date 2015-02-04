@@ -21,7 +21,7 @@ class ControllerTests(unittest.TestCase):
     controller = None
 
     def wait_for_controller(self):
-        while self.controller.starting or self.controller.running:
+        while self.controller.is_alive():
             time.sleep(0.01)
 
     def tearDown(self):
@@ -88,7 +88,7 @@ class ControllerTests(unittest.TestCase):
 
         self.wait_for_controller()
 
-        self.assertEquals(2, len(self.controller.get_status()['errors']))
+        self.assertEquals(2, len(self.controller.get_status()['errors']), self.controller.get_status()['errors'])
         mock_layer_processing.process.assert_called_with(test_layer2)
         mock_layer_writer.terminate.assert_not_called()
         mock_layer_processing.terminate.assert_not_called()
@@ -104,10 +104,10 @@ class ControllerTests(unittest.TestCase):
 
         self.controller = Controller(mock_layer_writer, mock_layer_processing, stub_layer_generator1, MachineStatus(), False)
         self.controller.start()
-        time.sleep(1.1)
+        time.sleep(0.5)
         pre_switch = mock_layer_processing.process.call_args
         self.controller.change_generator(stub_layer_generator2)
-        time.sleep(1.1)
+        time.sleep(0.5)
         post_switch = mock_layer_processing.process.call_args
         self.controller.close()
         self.wait_for_controller()

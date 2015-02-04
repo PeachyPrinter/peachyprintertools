@@ -15,11 +15,8 @@ class Controller(threading.Thread,):
                  abort_on_error=True,
                  ):
         threading.Thread.__init__(self)
-        self.deamon = True
 
         self._shutting_down = False
-        self.running = False
-        self.starting = True
         self._shutdown = False
         self._pausing = False
 
@@ -29,66 +26,45 @@ class Controller(threading.Thread,):
         self._writer = layer_writer
         self._status = status
         self._next_layer_generator = None
+        self._run_lock = threading.Lock()
+        self._generator_lock = threading.Lock()
 
     def run(self):
-        logging.info('Running Controller')
-        self.running = True
-        self.starting = False
-        self._process_layers()
-        self.running = False
-        self._terminate()
-        self._status.set_complete()
+        with self._run_lock:
+            logging.info('Running Controller')
+            self._process_layers()
+            self._status.set_complete()
+            self._writer.terminate()
+            self._layer_processing.terminate()
 
     def change_generator(self, layer_generator):
-        logging.debug("Generator change requested")
-        self._next_layer_generator = layer_generator
-        self._writer.abort_current_command()
+        logging.info("Generator change requested")
+        with self._generator_lock:
+            self._writer.abort_current_command()
+            self._layer_generator = layer_generator
 
     def get_status(self):
         return self._status.status()
 
     def close(self):
-        logging.warning("Shutdown requested")
-        if not self._shutting_down:
-            self._shutting_down = True
-            self._writer.terminate()
-            self._layer_processing.terminate()
-        attempts = 20
-        while not self._shutdown and attempts > 0:
-            attempts -= 1
-            time.sleep(1)
-            logging.info("Waiting for Controller Shutdown Correctly")
-        if attempts > 0:
-            logging.info("Controller Shutdown Correctly")
-        else:
-            logging.info("Controller Failed Shutting Down.")
+        logging.info('Controller shutdown requested')
+        self._shutting_down = True
+        self._writer.abort_current_command()
+        self._run_lock.acquire()
+        self._run_lock.release()
 
     def _process_layers(self):
-        logging.info('Start Processing Layers')
         while not self._shutting_down:
-            if self._next_layer_generator:
-                self._layer_generator = self._next_layer_generator
-                logging.debug("Generator change complete")
-                self._next_layer_generator = None
             try:
-                # logging.debug("Current Generator: %s " % self._layer_generator.__class__)
-                layer = self._layer_generator.next()
+                with self._generator_lock:
+                    layer = self._layer_generator.next()
                 self._layer_processing.process(layer)
             except StopIteration:
                 logging.info('Layers Complete')
-                self._shutting_down = True
+                return
             except Exception as ex:
                 self._status.add_error(MachineError(str(ex), self._status.status()['current_layer']))
                 logging.error('Unexpected Error: %s' % str(ex))
                 traceback.print_exc()
                 if self._abort_on_error:
-                    self._shutting_down = True
-        logging.info("Processing Layers Complete")
-
-    def _terminate(self):
-        logging.info('Controller shutdown requested')
-        self._shutting_down = True
-        self._writer.abort_current_command()
-        self._writer.terminate()
-        self._layer_processing.terminate()
-        self._shutdown = True
+                    return
