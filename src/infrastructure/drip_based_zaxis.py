@@ -54,7 +54,6 @@ class DripDetector(object):
     def _process_value_chunk(self, values):
         self._threshold.add_value(values)
         current_threshold = -1 * self._threshold.threshold()
-        logging.info("Processing Input Audio Chunk")
 
         for value in values:
             self._samples += 1
