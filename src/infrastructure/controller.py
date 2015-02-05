@@ -36,11 +36,12 @@ class Controller(threading.Thread,):
             self._status.set_complete()
             self._writer.terminate()
             self._layer_processing.terminate()
+            logging.info('Controller Shutdown')
 
     def change_generator(self, layer_generator):
         logging.info("Generator change requested")
         with self._generator_lock:
-            self._writer.abort_current_command()
+            self._layer_processing.abort_current_command()
             self._layer_generator = layer_generator
 
     def get_status(self):
@@ -49,7 +50,7 @@ class Controller(threading.Thread,):
     def close(self):
         logging.info('Controller shutdown requested')
         self._shutting_down = True
-        self._writer.abort_current_command()
+        self._layer_processing.abort_current_command()
         self._run_lock.acquire()
         self._run_lock.release()
 

@@ -50,6 +50,7 @@ class LayerWriter():
                 if self._shutting_down:
                     break
                 if self._abort_current_command:
+                    logging.info("Aborting Current Command")
                     self._abort_current_command = False
                     break
                 if type(command) == LateralDraw:
@@ -134,6 +135,7 @@ class LayerProcessing():
         self._layer_start_command = layer_start_command
         self._layer_ended_command = layer_ended_command
         self._print_ended_command = print_ended_command
+        self._abort_current_command = False
 
         self._shutting_down = False
         self._shutdown = False
@@ -162,6 +164,13 @@ class LayerProcessing():
                 logging.warning('Dripping too fast, Skipping layer')
                 self._status.skipped_layer()
 
+    def abort_current_command(self):
+        self._abort_current_command = True
+        self._writer.abort_current_command()
+        with self._lock:
+            self._state.set_state((0.0, 0.0, self._state.z), self._state.speed)
+        self._abort_current_command = False
+
     def _should_process(self, ahead_by_distance):
         if not ahead_by_distance:
             return True
@@ -173,7 +182,7 @@ class LayerProcessing():
 
     def _wait_till(self, height):
         while self._zaxis.current_z_location_mm() < height:
-            if self._shutting_down:
+            if self._shutting_down or self._abort_current_command:
                 return
             self._status.set_waiting_for_drips()
             self._writer.wait_till_time(time.time() + (0.1))
