@@ -195,7 +195,7 @@ class ConcentricCircleTestGenerator(LayerGenerator):
 
     def _points(self, start_angle, radius):
         points = []
-        for step in range(0, self._steps + 2):
+        for step in range(0, self._steps + 10):
             angle = start_angle + (step * self._rad_per_step)
             x = sin(angle) * radius
             y = cos(angle) * radius
