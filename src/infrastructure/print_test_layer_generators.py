@@ -87,9 +87,9 @@ class SimpleVaseTestGenerator(LayerGenerator):
     def __next__(self):
         return self.next()
 
-    def _points(self, start_angle, start_point):
-        points = [start_point]
-        for step in range(0, self._steps):
+    def _points(self, start_angle):
+        points = []
+        for step in range(0, self._steps + 1):
             angle = start_angle + (step * self._rad_per_step)
             x = sin(angle) * self._max_radius
             y = cos(angle) * self._max_radius
@@ -99,7 +99,7 @@ class SimpleVaseTestGenerator(LayerGenerator):
     def next(self):
         if self._current_height >= self._height:
             raise StopIteration
-        points = self._points(self._last_angle, self._last_point)
+        points = self._points(self._last_angle)
         commands = [LateralDraw(points[index - 1], points[index], self._speed) for index in range(1, len(points))]
         layer = Layer(self._current_height, commands=commands)
         self._current_height = self._current_height + self._layer_height
