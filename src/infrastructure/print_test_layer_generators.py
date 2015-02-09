@@ -116,12 +116,18 @@ class LollipopTestGenerator(LayerGenerator):
         self._layer_height = layer_height
         self._speed = speed
         self._base_height = float(height) / 3.0
-        self._stick_radius = 2.0
+        self._stick_radius = float(width) / 10.0
         remaining_height = height - self._base_height
         self._pop_radius = min(remaining_height / 2.0, float(width) / 2.0)
         self._pop_center_height = ((height - self._base_height) / 2.0) + self._base_height
         self._stick_complexity = 20
         self._pop_complexity = 100
+
+        logging.info("Pop height: %s" % self._height)
+        logging.info("Stick radius: %s" % width / 10.0)
+        logging.info("Pop radius: %s" % width / 2.0)
+        logging.info("Pop layer height: %s" % self._layer_height)
+        logging.info("Pop speed: %s" % self._speed)
 
     def __iter__(self):
         return self
