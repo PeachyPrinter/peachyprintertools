@@ -422,6 +422,21 @@ class LayerProcessingTest(unittest.TestCase):
             [call('a'), call('b')], mock_commander.send_command.call_args_list)
 
     @patch('infrastructure.commander.Commander')
+    def test_abort_current_command_should(self, mock_Commander, mock_ZAxis, mock_Writer):
+        max_lead_distance = 1.0
+        mock_commander = mock_Commander.return_value
+        mock_writer = mock_Writer.return_value
+        mock_zaxis = mock_ZAxis.return_value
+        state = MachineState()
+        status = MachineStatus()
+        layer_processing = LayerProcessing(
+            mock_writer, state, status, mock_zaxis, max_lead_distance, mock_commander, 0, 'a', 'b', 'z')
+
+        layer_processing.abort_current_command()
+        mock_writer.abort_current_command.assert_called_with()
+
+
+    @patch('infrastructure.commander.Commander')
     def test_termiate_should_write_print_end_command_when_terminated(self, mock_Commander, mock_ZAxis, mock_Writer):
         max_lead_distance = 1.0
         mock_commander = mock_Commander.return_value

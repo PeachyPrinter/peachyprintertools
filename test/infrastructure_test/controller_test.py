@@ -131,7 +131,7 @@ class ControllerTests(unittest.TestCase):
         self.controller.close()
         self.wait_for_controller()
 
-        mock_layer_writer.abort_current_command.assert_called_with()
+        mock_layer_processing.abort_current_command.assert_called_with()
 
 
 if __name__ == '__main__':
