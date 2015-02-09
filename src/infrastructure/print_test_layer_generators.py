@@ -174,7 +174,7 @@ class ConcentricCircleTestGenerator(LayerGenerator):
         self._layer_height = float(layer_height)
         self._speed = speed
         self._current_height = 0.0
-        self._steps = 5
+        self._steps = 360
         self._rad_per_step = 2 * pi / float(self._steps)
         self._layers = self._height / self._layer_height
         self._angle_varience = pi / self._layers
@@ -206,7 +206,7 @@ class ConcentricCircleTestGenerator(LayerGenerator):
         if self._current_height >= self._height:
             raise StopIteration
         commands = []
-        for i in range(0, self._rings):
+        for i in range(1, self._rings + 1):
             radius = self._max_radius / self._rings * i
             points = self._points(0, radius)
             commands += [LateralMove(points[0], points[0], self._speed)]
