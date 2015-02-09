@@ -1,6 +1,6 @@
 import logging
 from domain.layer_generator import LayerGenerator
-from domain.commands import LateralDraw, Layer
+from domain.commands import LateralDraw, Layer, LateralMove
 from math import pi, sin, cos, sqrt
 
 
@@ -159,6 +159,59 @@ class SimpleVaseTestGenerator(LayerGenerator):
             raise StopIteration
         points = self._points(self._last_angle)
         commands = [LateralDraw(points[index - 1], points[index], self._speed) for index in range(1, len(points))]
+        layer = Layer(self._current_height, commands=commands)
+        self._current_height = self._current_height + self._layer_height
+        self._last_angle = self._last_angle + self._angle_varience
+        return layer
+
+
+class ConcentricCircleTestGenerator(LayerGenerator):
+    name = "Concentric Circles (BETA)"
+
+    def __init__(self, height, width, layer_height, speed=100):
+        self._height = float(height)
+        self._max_radius = float(width) / 2.0
+        self._layer_height = float(layer_height)
+        self._speed = speed
+        self._current_height = 0.0
+        self._steps = 5
+        self._rad_per_step = 2 * pi / float(self._steps)
+        self._layers = self._height / self._layer_height
+        self._angle_varience = pi / self._layers
+        self._last_point = [0, self._max_radius]
+        self._last_angle = 0
+        self._rings = 3
+
+        logging.info("Circles height: %s" % self._height)
+        logging.info("Circles radius: %s" % self._max_radius)
+        logging.info("Circles layer height: %s" % self._layer_height)
+        logging.info("Circles speed: %s" % self._speed)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def _points(self, start_angle, radius):
+        points = []
+        for step in range(0, self._steps + 1):
+            angle = start_angle + (step * self._rad_per_step)
+            x = sin(angle) * radius
+            y = cos(angle) * radius
+            points.append([x, y])
+        return points
+
+    def next(self):
+        if self._current_height >= self._height:
+            raise StopIteration
+        commands = []
+        for i in range(0, self._rings):
+            radius = self._max_radius / self._rings * i
+            points = self._points(0, radius)
+            commands += [LateralMove(points[0], points[0], self._speed)]
+            commands += [LateralDraw(points[index - 1], points[index], self._speed) for index in range(1, len(points))]
+
         layer = Layer(self._current_height, commands=commands)
         self._current_height = self._current_height + self._layer_height
         self._last_angle = self._last_angle + self._angle_varience
