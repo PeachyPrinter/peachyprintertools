@@ -124,8 +124,8 @@ class LollipopTestGenerator(LayerGenerator):
         self._pop_complexity = 100
 
         logging.info("Pop height: %s" % self._height)
-        logging.info("Stick radius: %s" % width / 10.0)
-        logging.info("Pop radius: %s" % width / 2.0)
+        logging.info("Stick radius: %s" % str(width / 10.0))
+        logging.info("Pop radius: %s" % str(width / 2.0))
         logging.info("Pop layer height: %s" % self._layer_height)
         logging.info("Pop speed: %s" % self._speed)
 
