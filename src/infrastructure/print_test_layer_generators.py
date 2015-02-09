@@ -138,17 +138,18 @@ class LollipopTestGenerator(LayerGenerator):
     def _get_stick(self):
         points = []
         rad_per_step = (2 * pi) / self._stick_complexity
-        for step in range(0, self._stick_complexity):
+        for step in range(0, self._stick_complexity + 1):
             angle = step * rad_per_step
             x = sin(angle) * self._stick_radius
             y = cos(angle) * self._stick_radius
             points.append([x, y])
         #fill
+
+        points.append([0, -self._stick_radius])
+        points.append([self._stick_radius, 0])
         points.append([self._stick_radius, 0])
         points.append([-self._stick_radius, 0])
         points.append([0, self._stick_radius])
-        points.append([0, -self._stick_radius])
-        points.append([self._stick_radius, 0])
         return points
 
     def _layer_from_points(self, points):
@@ -160,7 +161,7 @@ class LollipopTestGenerator(LayerGenerator):
         distance_to_centre = abs(self._pop_center_height - current_height)
         radius = sqrt((self._pop_radius * self._pop_radius) - (distance_to_centre * distance_to_centre))
         points = []
-        for step in range(0, self._pop_complexity):
+        for step in range(0, self._pop_complexity + 1):
             angle = step * rad_per_step
             x = sin(angle) * radius
             y = cos(angle) * radius
