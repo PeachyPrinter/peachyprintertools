@@ -59,6 +59,60 @@ class HalfVaseTestGenerator(LayerGenerator):
         self._current_height = self._current_height + self._layer_height
         return layer
 
+class SolidObjectTestGenerator(LayerGenerator):
+    name = "Solidified Object of Opressive Beauty (BETA)"
+
+    def __init__(self, height, width, layer_height, speed=100):
+        self._height = float(height)
+        self._max_radius = float(width) / 2.0
+        self._layer_height = float(layer_height)
+        self._speed = speed
+        self._current_height = 0.0
+        self._steps_in_circle = 180
+        self._steps_circle_section = 135
+        self._rad_per_step = pi / float(self._steps_in_circle)
+        self._layers = self._height / self._layer_height
+        logging.info("Solidified Object height: %s" % self._height)
+        logging.info("Solidified Object radius: %s" % self._max_radius)
+        logging.info("Solidified Object layer height: %s" % self._layer_height)
+        logging.info("Solidified Object speed: %s" % self._speed)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.next()
+
+    def _points(self, radius, start_angle):
+        points = [[0, 0]]
+        for step in range(0, self._steps_circle_section):
+            angle = start_angle + (step * self._rad_per_step)
+            x = sin(angle) * radius
+            y = cos(angle) * radius
+            points.append([x, y])
+        points.append([0, 0])
+        return points
+
+    def _start_angle(self):
+        percent_complete = self._current_height / self._height
+        angle = pi * percent_complete
+        return angle
+
+    def _radius(self):
+        percent_complete = self._current_height / self._height
+        factor = (cos(sqrt(percent_complete) * 3.0 * pi) + 1.25) * ((self._max_radius / 2.0) - 0.25)
+        return factor
+
+    def next(self):
+        logging.info("Solidified Object current height: %s" % self._current_height)
+        if self._current_height >= self._height:
+            raise StopIteration
+        points = self._points(self._radius(), self._start_angle())
+        commands = [LateralDraw(points[index - 1], points[index], self._speed) for index in range(1, len(points))]
+        layer = Layer(self._current_height, commands=commands)
+        self._current_height = self._current_height + self._layer_height
+        return layer
+
 
 class TwistVaseTestGenerator(LayerGenerator):
     name = "Half Vase With A Bunch of Twists"
