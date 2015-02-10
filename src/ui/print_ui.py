@@ -345,9 +345,6 @@ class PrintStatusUI(PeachyFrame):
             self._print_api = PrintAPI(self.kwargs['config'], start_height=start_height, status_call_back=self.status_call_back)
             file_name = self.kwargs['filename']
             self._print_api.print_gcode(file_name)
-            if self._print_api.can_set_drips_per_second():
-                self.options_frame.grid()
-                self._drips_per_second_setting.set(self._print_api.get_drips_per_second())
         elif 'foldername' in self.kwargs:
             self._print_api = PrintQueueAPI(self.kwargs['config'], status_call_back=self.status_call_back)
             foldername = self.kwargs['foldername']
@@ -355,6 +352,11 @@ class PrintStatusUI(PeachyFrame):
         else:
             self._print_api = PrintAPI(self.kwargs['config'], start_height=start_height, status_call_back=self.status_call_back)
             self._print_api.print_layers(self.kwargs['layer_generator'])
+
+        if self._print_api.can_set_drips_per_second():
+                self.options_frame.grid()
+                self._drips_per_second_setting.set(self._print_api.get_drips_per_second())
+                
         self._load_config_data()
 
     def _stop_button_click(self):
