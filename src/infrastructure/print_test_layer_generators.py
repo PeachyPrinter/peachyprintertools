@@ -69,7 +69,7 @@ class SolidObjectTestGenerator(LayerGenerator):
         self._speed = speed
         self._current_height = 0.0
         self._steps_in_circle = 180
-        self._steps_circle_section = 135
+        self._steps_circle_section = 155
         self._rad_per_step = 2*pi / float(self._steps_in_circle)
         self._layers = self._height / self._layer_height
         logging.info("Solidified Object height: %s" % self._height)
