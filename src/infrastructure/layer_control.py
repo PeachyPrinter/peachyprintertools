@@ -60,6 +60,10 @@ class LayerWriter():
                     self._draw_lateral(command.end, layer.z, command.speed)
 
     def _move_lateral(self, (to_x, to_y), to_z, speed):
+        laser_was_on = self._laser_control.laser_is_on()
+        if laser_was_on and self._post_fire_delay_speed:
+            self._write_lateral(
+                self._state.x, self._state.y, self._state.z, self._post_fire_delay_speed, ignore_override=True)
         self._laser_control.set_laser_off()
         self._write_lateral(to_x, to_y, to_z, speed)
         if self._after_move_wait_speed:
