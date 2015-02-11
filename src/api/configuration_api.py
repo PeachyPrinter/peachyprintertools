@@ -411,7 +411,7 @@ class GeneralSetupMixIn(object):
 
     '''Sets the Sublayer height sublayers are added between layers for grater definition'''
     def set_sublayer_height_mm(self, thickness_mm):
-        if  self._positive_float(thickness_mm):
+        if self._positive_float(thickness_mm):
             self._current_config.options.sublayer_height_mm = thickness_mm
             self.save()
         else:
@@ -423,7 +423,7 @@ class GeneralSetupMixIn(object):
 
     '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
     def set_max_lead_distance_mm(self, lead_distance_mm):
-        if  self._zero_or_positive_float(lead_distance_mm):
+        if self._zero_or_positive_float(lead_distance_mm):
             self._current_config.dripper.max_lead_distance_mm = lead_distance_mm
             self.save()
         else:
@@ -449,6 +449,18 @@ class GeneralSetupMixIn(object):
     def set_post_fire_delay(self, post_fire_delay):
         if self._zero_or_positive_int(post_fire_delay):
             self._current_config.options.post_fire_delay = post_fire_delay
+            self.save()
+        else:
+            raise Exception("Post Fire Delay must be a positive integer number")
+
+    '''Gets the Slew Delay for each layer'''
+    def get_slew_delay(self):
+        return self._current_config.options.slew_delay
+
+    '''Sets the Slew Delay for each layer'''
+    def set_slew_delay(self, slew_delay):
+        if self._zero_or_positive_int(slew_delay):
+            self._current_config.options.slew_delay = slew_delay
             self.save()
         else:
             raise Exception("Post Fire Delay must be a positive integer number")
