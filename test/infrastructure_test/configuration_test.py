@@ -2,7 +2,6 @@ import unittest
 import os
 import sys
 import json
-import hashlib
 
 from StringIO import StringIO
 
@@ -45,8 +44,7 @@ class CircutConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_version,      config.circut.version)
 
 
-
-class MicroComTests(unittest.TestCase,test_helpers.TestHelpers):
+class MicroComTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
         expected_port = True
         expected_rate = True
@@ -100,8 +98,7 @@ class MicroComTests(unittest.TestCase,test_helpers.TestHelpers):
         self.assertEquals(expected_escape,    config.micro_com.escape)
 
 
-
-class CureRateConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
+class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
         expected_base_height = True
         expected_total_height = True
@@ -109,7 +106,7 @@ class CureRateConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_finish_speed = True
         expected_draw_speed = True
         expected_use_draw_speed = 123
-        
+
         cure_rate_config = CureRateConfiguration()
 
         with self.assertRaises(Exception):
@@ -144,32 +141,30 @@ class CureRateConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.cure_rate.use_draw_speed   = expected_use_draw_speed
 
         actual_json = json.loads(original_config.toJson())
-        config = Configuration(source = actual_json)
+        config = Configuration(source=actual_json)
 
-        self.assertEquals(type(expected_base_height),    type(config.cure_rate.base_height) )
-        self.assertEquals(type(expected_total_height),   type(config.cure_rate.total_height) )
-        self.assertEquals(type(expected_start_speed),    type(config.cure_rate.start_speed) )
-        self.assertEquals(type(expected_finish_speed),   type(config.cure_rate.finish_speed) )
-        self.assertEquals(type(expected_draw_speed),     type(config.cure_rate.draw_speed) )
-        self.assertEquals(type(expected_use_draw_speed), type(config.cure_rate.use_draw_speed) )
+        self.assertEquals(type(expected_base_height),    type(config.cure_rate.base_height))
+        self.assertEquals(type(expected_total_height),   type(config.cure_rate.total_height))
+        self.assertEquals(type(expected_start_speed),    type(config.cure_rate.start_speed))
+        self.assertEquals(type(expected_finish_speed),   type(config.cure_rate.finish_speed))
+        self.assertEquals(type(expected_draw_speed),     type(config.cure_rate.draw_speed))
+        self.assertEquals(type(expected_use_draw_speed), type(config.cure_rate.use_draw_speed))
 
-        self.assertEquals(expected_base_height,    config.cure_rate.base_height )
-        self.assertEquals(expected_total_height,   config.cure_rate.total_height )
-        self.assertEquals(expected_start_speed,    config.cure_rate.start_speed )
-        self.assertEquals(expected_finish_speed,   config.cure_rate.finish_speed )
-        self.assertEquals(expected_draw_speed,     config.cure_rate.draw_speed )
-        self.assertEquals(expected_use_draw_speed, config.cure_rate.use_draw_speed )
+        self.assertEquals(expected_base_height,    config.cure_rate.base_height)
+        self.assertEquals(expected_total_height,   config.cure_rate.total_height)
+        self.assertEquals(expected_start_speed,    config.cure_rate.start_speed)
+        self.assertEquals(expected_finish_speed,   config.cure_rate.finish_speed)
+        self.assertEquals(expected_draw_speed,     config.cure_rate.draw_speed)
+        self.assertEquals(expected_use_draw_speed, config.cure_rate.use_draw_speed)
 
-class EmailConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
+
+class EmailConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
-        expected_name = True
-
         expected_on = "ASDF"
         expected_port = True
         expected_host = 1354
         expected_sender = "ASDF"
         expected_recipient = "ASDF"
-
 
         email_config = EmailConfiguration()
 
@@ -201,21 +196,22 @@ class EmailConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.email.recipient            = expected_recipient
 
         actual_json = json.loads(original_config.toJson())
-        config = Configuration(source = actual_json)
+        config = Configuration(source=actual_json)
 
-        self.assertEquals(type(expected_on), type(config.email.on) )
-        self.assertEquals(type(expected_port), type(config.email.port) )
-        self.assertEquals(type(expected_host), type(config.email.host) )
-        self.assertEquals(type(expected_sender), type(config.email.sender) )
-        self.assertEquals(type(expected_recipient), type(config.email.recipient) )
+        self.assertEquals(type(expected_on), type(config.email.on))
+        self.assertEquals(type(expected_port), type(config.email.port))
+        self.assertEquals(type(expected_host), type(config.email.host))
+        self.assertEquals(type(expected_sender), type(config.email.sender))
+        self.assertEquals(type(expected_recipient), type(config.email.recipient))
 
-        self.assertEquals(expected_on, config.email.on )
-        self.assertEquals(expected_port, config.email.port )
-        self.assertEquals(expected_host, config.email.host )
-        self.assertEquals(expected_sender, config.email.sender )
-        self.assertEquals(expected_recipient, config.email.recipient )
+        self.assertEquals(expected_on, config.email.on)
+        self.assertEquals(expected_port, config.email.port)
+        self.assertEquals(expected_host, config.email.host)
+        self.assertEquals(expected_sender, config.email.sender)
+        self.assertEquals(expected_recipient, config.email.recipient)
 
-class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
+
+class OptionsConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
         expected_sublayer_height_mm = True
         expected_laser_thickness_mm = True
@@ -229,10 +225,10 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_print_queue_delay = True
         expected_pre_layer_delay = True
         expected_post_fire_delay = True
+        expected_slew_delay = True
         expected_wait_after_move_milliseconds = True
         expected_write_wav_files = "WRONG"
         expected_write_wav_files_folder = True
-
 
         options_config = OptionsConfiguration()
 
@@ -240,6 +236,8 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
             options_config.options.shuffle_layers_amount = expected_shuffle_layers_amount
         with self.assertRaises(Exception):
             options_config.options.post_fire_delay = expected_post_fire_delay
+        with self.assertRaises(Exception):
+            options_config.options.slew_delay = expected_slew_delay
         with self.assertRaises(Exception):
             options_config.options.sublayer_height_mm = expected_sublayer_height_mm
         with self.assertRaises(Exception):
@@ -270,24 +268,25 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_can_create_json_and_load_from_json(self):
         expected_shuffle_layers_amount = 1.0
         expected_post_fire_delay = 5
+        expected_slew_delay = 5
         expected_sublayer_height_mm = 0.
         expected_laser_thickness_mm = 0.1
         expected_scaling_factor = 1.0
-        expected_overlap_amount = 1.0 
+        expected_overlap_amount = 1.0
         expected_use_shufflelayers = True
         expected_use_sublayers = True
         expected_use_overlap = True
         expected_print_queue_delay = 0.0
         expected_pre_layer_delay = 1.0
         expected_wait_after_move_milliseconds = 5
-        expected_laser_offset = [ 0.1, 0.1]
+        expected_laser_offset = [0.1, 0.1]
         expected_write_wav_files = False
         expected_write_wav_files_folder = 'tmp'
-
 
         original_config = Configuration()
         original_config.options.shuffle_layers_amount        = expected_shuffle_layers_amount
         original_config.options.post_fire_delay              = expected_post_fire_delay
+        original_config.options.slew_delay                   = expected_slew_delay
         original_config.options.sublayer_height_mm           = expected_sublayer_height_mm
         original_config.options.laser_thickness_mm           = expected_laser_thickness_mm
         original_config.options.laser_offset                 = expected_laser_offset
@@ -303,39 +302,42 @@ class OptionsConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.options.write_wave_files_folder      = expected_write_wav_files_folder
 
         actual_json = json.loads(original_config.toJson())
-        config = Configuration(source = actual_json)
+        config = Configuration(source=actual_json)
 
-        self.assertEquals(type(expected_shuffle_layers_amount), type(config.options.shuffle_layers_amount) )
-        self.assertEquals(type(expected_post_fire_delay), type(config.options.post_fire_delay) )
-        self.assertEquals(type(expected_sublayer_height_mm), type(config.options.sublayer_height_mm) )
-        self.assertEquals(type(expected_laser_thickness_mm), type(config.options.laser_thickness_mm) )
-        self.assertEquals(type(expected_laser_offset), type(config.options.laser_offset) )
-        self.assertEquals(type(expected_scaling_factor), type(config.options.scaling_factor) )
-        self.assertEquals(type(expected_overlap_amount), type(config.options.overlap_amount) )
-        self.assertEquals(type(expected_use_shufflelayers), type(config.options.use_shufflelayers) )
-        self.assertEquals(type(expected_use_sublayers), type(config.options.use_sublayers) )
-        self.assertEquals(type(expected_use_overlap), type(config.options.use_overlap) )
-        self.assertEquals(type(expected_pre_layer_delay), type(config.options.pre_layer_delay) )
-        self.assertEquals(type(expected_wait_after_move_milliseconds), type(config.options.wait_after_move_milliseconds) )
-        self.assertEquals(type(expected_write_wav_files), type(config.options.write_wav_files) )
-        self.assertEquals(type(expected_write_wav_files_folder), type(config.options.write_wav_files_folder) )
+        self.assertEquals(type(expected_shuffle_layers_amount), type(config.options.shuffle_layers_amount))
+        self.assertEquals(type(expected_post_fire_delay), type(config.options.post_fire_delay))
+        self.assertEquals(type(expected_slew_delay), type(config.options.slew_delay))
+        self.assertEquals(type(expected_sublayer_height_mm), type(config.options.sublayer_height_mm))
+        self.assertEquals(type(expected_laser_thickness_mm), type(config.options.laser_thickness_mm))
+        self.assertEquals(type(expected_laser_offset), type(config.options.laser_offset))
+        self.assertEquals(type(expected_scaling_factor), type(config.options.scaling_factor))
+        self.assertEquals(type(expected_overlap_amount), type(config.options.overlap_amount))
+        self.assertEquals(type(expected_use_shufflelayers), type(config.options.use_shufflelayers))
+        self.assertEquals(type(expected_use_sublayers), type(config.options.use_sublayers))
+        self.assertEquals(type(expected_use_overlap), type(config.options.use_overlap))
+        self.assertEquals(type(expected_pre_layer_delay), type(config.options.pre_layer_delay))
+        self.assertEquals(type(expected_wait_after_move_milliseconds), type(config.options.wait_after_move_milliseconds))
+        self.assertEquals(type(expected_write_wav_files), type(config.options.write_wav_files))
+        self.assertEquals(type(expected_write_wav_files_folder), type(config.options.write_wav_files_folder))
 
-        self.assertEquals(expected_shuffle_layers_amount, config.options.shuffle_layers_amount )
-        self.assertEquals(expected_post_fire_delay, config.options.post_fire_delay )
-        self.assertEquals(expected_sublayer_height_mm, config.options.sublayer_height_mm )
-        self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm )
-        self.assertEquals(expected_laser_offset, config.options.laser_offset )
-        self.assertEquals(expected_scaling_factor, config.options.scaling_factor )
-        self.assertEquals(expected_overlap_amount, config.options.overlap_amount )
-        self.assertEquals(expected_use_shufflelayers, config.options.use_shufflelayers )
-        self.assertEquals(expected_use_sublayers, config.options.use_sublayers )
-        self.assertEquals(expected_use_overlap, config.options.use_overlap )
-        self.assertEquals(expected_pre_layer_delay, config.options.pre_layer_delay )
-        self.assertEquals(expected_wait_after_move_milliseconds, config.options.wait_after_move_milliseconds )
-        self.assertEquals(expected_write_wav_files, config.options.write_wav_files )
-        self.assertEquals(expected_write_wav_files_folder, config.options.write_wav_files_folder )
+        self.assertEquals(expected_shuffle_layers_amount, config.options.shuffle_layers_amount)
+        self.assertEquals(expected_post_fire_delay, config.options.post_fire_delay)
+        self.assertEquals(expected_slew_delay, config.options.slew_delay)
+        self.assertEquals(expected_sublayer_height_mm, config.options.sublayer_height_mm)
+        self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm)
+        self.assertEquals(expected_laser_offset, config.options.laser_offset)
+        self.assertEquals(expected_scaling_factor, config.options.scaling_factor)
+        self.assertEquals(expected_overlap_amount, config.options.overlap_amount)
+        self.assertEquals(expected_use_shufflelayers, config.options.use_shufflelayers)
+        self.assertEquals(expected_use_sublayers, config.options.use_sublayers)
+        self.assertEquals(expected_use_overlap, config.options.use_overlap)
+        self.assertEquals(expected_pre_layer_delay, config.options.pre_layer_delay)
+        self.assertEquals(expected_wait_after_move_milliseconds, config.options.wait_after_move_milliseconds)
+        self.assertEquals(expected_write_wav_files, config.options.write_wav_files)
+        self.assertEquals(expected_write_wav_files_folder, config.options.write_wav_files_folder)
 
-class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
+
+class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
 
     def test_set_should_fail_for_incorrect_values(self):
         expected_name = True
@@ -419,12 +421,11 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             config.serial.print_ended = expected_print_ended
 
-
     def test_can_create_json_and_load_from_json(self):
         expected_name = "PP"
 
         expected_output_bit_depth = "16"
-        expected_output_sample_frequency =  48000
+        expected_output_sample_frequency = 48000
         expected_on_modulation_frequency = 8000
         expected_off_modulation_frequency = 2000
         expected_input_bit_depth = "8"
@@ -438,9 +439,9 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
 
         expected_max_deflection = 75.2
         expected_calibration_height = 1.0
-        expected_calibration_lower_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
-        expected_calibration_upper_points = { (1.0, 1.0):( 1.0,  1.0), (0.0, 1.0):(-1.0,  1.0), (1.0, 0.0):( 1.0, -1.0), (0.0, 0.0):(-1.0, -1.0) }
-        
+        expected_calibration_lower_points = { (1.0, 1.0): ( 1.0,  1.0), (0.0, 1.0): (-1.0,  1.0), (1.0, 0.0): ( 1.0, -1.0), (0.0, 0.0): (-1.0, -1.0) }
+        expected_calibration_upper_points = { (1.0, 1.0): ( 1.0,  1.0), (0.0, 1.0): (-1.0,  1.0), (1.0, 0.0): ( 1.0, -1.0), (0.0, 0.0): (-1.0, -1.0) }
+
         expected_use_serial_zaxis = True
         expected_serial_port = "COM2"
         expected_serial_on = "12"
@@ -448,7 +449,6 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_layer_started = "14"
         expected_layer_ended = "15"
         expected_print_ended = "Z"
-        
 
         original_config = Configuration()
         original_config.name                                 = expected_name
@@ -459,7 +459,7 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.audio.output.modulation_off_frequency= expected_off_modulation_frequency
         original_config.audio.input.bit_depth                = expected_input_bit_depth
         original_config.audio.input.sample_rate              = expected_input_sample_frequency
-        
+
         original_config.dripper.drips_per_mm                 = expected_drips_per_mm
         original_config.dripper.dripper_type                 = expected_dripper_type
         original_config.dripper.emulated_drips_per_second    = expected_dripper_emulated_drips_per_second
@@ -479,52 +479,51 @@ class ConfigurationTests(unittest.TestCase,test_helpers.TestHelpers):
         original_config.serial.layer_ended                   = expected_layer_ended
         original_config.serial.print_ended                   = expected_print_ended
 
-
         actual_json = json.loads(original_config.toJson())
 
-        config = Configuration(source = actual_json)
+        config = Configuration(source=actual_json)
 
         self.maxDiff = None
-        self.assertEquals(type(expected_name), type(config.name) )
-        self.assertEquals(expected_name, config.name )
+        self.assertEquals(type(expected_name), type(config.name))
+        self.assertEquals(expected_name, config.name)
 
-        self.assertEquals(type(expected_output_bit_depth), type(config.audio.output.bit_depth) )
-        self.assertEquals(expected_output_bit_depth, config.audio.output.bit_depth )
-        self.assertEquals(expected_output_sample_frequency, config.audio.output.sample_rate )
-        self.assertEquals(expected_on_modulation_frequency, config.audio.output.modulation_on_frequency )
-        self.assertEquals(expected_off_modulation_frequency, config.audio.output.modulation_off_frequency )
-        self.assertEquals(type(expected_input_bit_depth), type(config.audio.input.bit_depth) )
-        self.assertEquals(expected_input_bit_depth, config.audio.input.bit_depth )
-        self.assertEquals(expected_input_sample_frequency, config.audio.input.sample_rate )
-        
-        self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm )
-        self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm )
-        self.assertEquals(type(expected_dripper_type), type(config.dripper.dripper_type) )
+        self.assertEquals(type(expected_output_bit_depth), type(config.audio.output.bit_depth))
+        self.assertEquals(expected_output_bit_depth, config.audio.output.bit_depth)
+        self.assertEquals(expected_output_sample_frequency, config.audio.output.sample_rate)
+        self.assertEquals(expected_on_modulation_frequency, config.audio.output.modulation_on_frequency)
+        self.assertEquals(expected_off_modulation_frequency, config.audio.output.modulation_off_frequency)
+        self.assertEquals(type(expected_input_bit_depth), type(config.audio.input.bit_depth))
+        self.assertEquals(expected_input_bit_depth, config.audio.input.bit_depth)
+        self.assertEquals(expected_input_sample_frequency, config.audio.input.sample_rate)
+
+        self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm)
+        self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm)
+        self.assertEquals(type(expected_dripper_type), type(config.dripper.dripper_type))
         self.assertEquals(expected_dripper_type, config.dripper.dripper_type)
         self.assertEquals(expected_dripper_emulated_drips_per_second, config.dripper.emulated_drips_per_second)
         self.assertEquals(expected_photo_zaxis_delay, config.dripper.photo_zaxis_delay)
 
-        self.assertEquals(expected_max_deflection, config.calibration.max_deflection )
-        self.assertEquals(expected_calibration_height, config.calibration.height )
-        self.assertEquals(expected_calibration_lower_points, config.calibration.lower_points )
-        self.assertEquals(expected_calibration_upper_points, config.calibration.upper_points )
+        self.assertEquals(expected_max_deflection, config.calibration.max_deflection)
+        self.assertEquals(expected_calibration_height, config.calibration.height)
+        self.assertEquals(expected_calibration_lower_points, config.calibration.lower_points)
+        self.assertEquals(expected_calibration_upper_points, config.calibration.upper_points)
 
-        self.assertEquals(expected_use_serial_zaxis, config.serial.on )
-        self.assertEquals(type(expected_serial_port), type(config.serial.port) )
-        self.assertEquals(expected_serial_port, config.serial.port )
-        self.assertEquals(type(expected_serial_on), type(config.serial.on_command) )
-        self.assertEquals(expected_serial_on, config.serial.on_command )
-        self.assertEquals(type(expected_serial_off), type(config.serial.off_command) )
-        self.assertEquals(expected_serial_off, config.serial.off_command )
-        self.assertEquals(type(expected_layer_started), type(config.serial.layer_started) )
+        self.assertEquals(expected_use_serial_zaxis, config.serial.on)
+        self.assertEquals(type(expected_serial_port), type(config.serial.port))
+        self.assertEquals(expected_serial_port, config.serial.port)
+        self.assertEquals(type(expected_serial_on), type(config.serial.on_command))
+        self.assertEquals(expected_serial_on, config.serial.on_command)
+        self.assertEquals(type(expected_serial_off), type(config.serial.off_command))
+        self.assertEquals(expected_serial_off, config.serial.off_command)
+        self.assertEquals(type(expected_layer_started), type(config.serial.layer_started))
         self.assertEquals(expected_layer_started, config.serial.layer_started)
-        self.assertEquals(type(expected_layer_ended), type(config.serial.layer_ended) )
-        self.assertEquals(expected_layer_ended, config.serial.layer_ended )
-        self.assertEquals(type(expected_print_ended), type(config.serial.print_ended) )
-        self.assertEquals(expected_print_ended, config.serial.print_ended )
+        self.assertEquals(type(expected_layer_ended), type(config.serial.layer_ended))
+        self.assertEquals(expected_layer_ended, config.serial.layer_ended)
+        self.assertEquals(type(expected_print_ended), type(config.serial.print_ended))
+        self.assertEquals(expected_print_ended, config.serial.print_ended)
+
 
 class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
-    
     maxDiff = None
     def test_new_creates_a_new_configution_dict_with_sane_values(self):
         cm = ConfigurationManager()
@@ -538,7 +537,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_save_printers_configuration_dictionary_to_peachyprintertools_folder_in_home(self, mock_makedirs,mock_exists):
         mock_exists.return_value = True
         printer_name = 'Test1'
-        expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools', printer_name + '.cfg' )
+        expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools', printer_name + '.cfg')
         mocked_open = mock_open(read_data=self.default_config.toJson())
         with patch('infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
@@ -712,6 +711,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         actual = cm.new(name)
 
         self.assertConfigurationEqual(expected,actual)
+
 
 if __name__ == '__main__':
     unittest.main()

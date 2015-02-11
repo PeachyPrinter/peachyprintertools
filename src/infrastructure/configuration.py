@@ -1,16 +1,14 @@
 import os
-import hashlib
 import config
 import json
 import types
 import logging
 import re
-
-
 from domain.configuration_manager import ConfigurationManager
 
+
 class ConfigurationBase(object):
-    def get(self, source, key, default = None):
+    def get(self, source, key, default=None):
         if (key in source):
             value = source[key]
             if type(value) == types.UnicodeType:
@@ -22,11 +20,12 @@ class ConfigurationBase(object):
     def toDict(self):
         d = {}
         for key, value in self.__dict__.items():
-            if issubclass(value.__class__,ConfigurationBase):
+            if issubclass(value.__class__, ConfigurationBase):
                 d[unicode(key)[1:]] = value.toDict()
             else:
                 d[unicode(key)[1:]] = value
         return d
+
 
 class CircutConfiguration(ConfigurationBase):
     def __init__(self, source={}):
@@ -56,6 +55,7 @@ class CircutConfiguration(ConfigurationBase):
             self._version = value
         else:
             raise ValueError("Version must be of %s was %s" % (_type, type(value)))
+
 
 class MicroComConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -207,6 +207,7 @@ class CureRateConfiguration(ConfigurationBase):
         else:
             raise ValueError("Use draw Speed must be of %s was %s" % (_type, type(value)))
 
+
 class EmailConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._on = self.get(source, u'on', False)
@@ -282,24 +283,26 @@ class EmailConfiguration(ConfigurationBase):
         else:
             raise ValueError("Reciepient must be of %s" % (str(_type)))
 
+
 class OptionsConfiguration(ConfigurationBase):
-    def __init__(self, source = {}):
+    def __init__(self, source={}):
         self._shuffle_layers_amount = self.get(source, u'shuffle_layers_amount', 1.0)
         self._post_fire_delay = self.get(source, u'post_fire_delay', 5)
+        self._slew_delay = self.get(source, u'slew_delay', 5)
         self._laser_offset = self.get(source, u'laser_offset', [0.0,0.0])
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm', 0.01)
-        self._laser_thickness_mm = self.get(source, u'laser_thickness_mm',0.5)
-        self._scaling_factor = self.get(source, u'scaling_factor',1.0)
-        self._overlap_amount = self.get(source, u'overlap_amount',1.0)
+        self._laser_thickness_mm = self.get(source, u'laser_thickness_mm', 0.5)
+        self._scaling_factor = self.get(source, u'scaling_factor', 1.0)
+        self._overlap_amount = self.get(source, u'overlap_amount', 1.0)
         self._use_shufflelayers = self.get(source, u'use_shufflelayers', True)
 
         self._use_sublayers = self.get(source, u'use_sublayers', False)
-        self._use_overlap = self.get(source, u'use_overlap',True)
+        self._use_overlap = self.get(source, u'use_overlap', True)
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
         self._pre_layer_delay = self.get(source, u'pre_layer_delay',0.0)
-        self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds',5)
+        self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds', 5)
         self._write_wav_files = self.get(source, u'write_wav_files',False)
-        self._write_wav_files_folder= self.get(source, u'write_wav_files_folder','tmp')
+        self._write_wav_files_folder= self.get(source, u'write_wav_files_folder', 'tmp')
 
 
     @property
@@ -337,6 +340,18 @@ class OptionsConfiguration(ConfigurationBase):
             self._post_fire_delay = value
         else:
             raise ValueError("Post Fire Delay must be of %s" % (str(_type)))
+
+    @property
+    def slew_delay(self):
+        return self._slew_delay
+
+    @slew_delay.setter
+    def slew_delay(self, value):
+        _type = types.IntType
+        if type(value) == _type:
+            self._slew_delay = value
+        else:
+            raise ValueError("Slew Delay must be of %s" % (str(_type)))
 
     @property
     def shuffle_layers_amount(self):
@@ -515,6 +530,7 @@ class OptionsConfiguration(ConfigurationBase):
         else:
             raise ValueError("print_queue_delay must be of %s" % (str(_type)))
 
+
 class DripperConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._max_lead_distance_mm = self.get(source, u'max_lead_distance_mm',1.0)
@@ -582,6 +598,7 @@ class DripperConfiguration(ConfigurationBase):
             self._drips_per_mm = value
         else:
             raise ValueError("Drips per mm must be of %s" % (str(_type)))
+
 
 class CalibrationConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
