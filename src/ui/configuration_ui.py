@@ -126,6 +126,8 @@ class SetupOptionsUI(PeachyFrame):
         self.wait_after_move_entry_text.set(self._configuration_api.get_wait_after_move_milliseconds())
         self.post_fire_delay_entry_text =IntVar()
         self.post_fire_delay_entry_text.set(self._configuration_api.get_post_fire_delay())
+        self.slew_delay_entry_text =IntVar()
+        self.slew_delay_entry_text.set(self._configuration_api.get_slew_delay())
 
         self._use_sublayers = IntVar()
         self._use_sublayers.set(self._configuration_api.get_use_sublayers())
@@ -161,6 +163,9 @@ class SetupOptionsUI(PeachyFrame):
 
         Label(self, text="Laser Post Fire Delay (milliseconds) [5]").grid(column=2, row=45, sticky=N+S+E)
         Entry(self, textvariable=self.post_fire_delay_entry_text, width=6).grid(column=3, row=45, sticky=N+S+W)
+
+        Label(self, text="Slew Delay (milliseconds) [5]").grid(column=2, row=46, sticky=N+S+E)
+        Entry(self, textvariable=self.slew_delay_entry_text, width=6).grid(column=3, row=46, sticky=N+S+W)
 
         Label(self).grid(column=1, row=50)
 
@@ -248,7 +253,7 @@ class SetupOptionsUI(PeachyFrame):
 
         Checkbutton(devmode_options_frame, text="Print To Wave Files", variable = self._write_wav_files).grid(column=0, row=71, sticky=N+S+W)
         Label(devmode_options_frame,text="Wav Folder").grid(column=2, row=71)
-        Entry(devmode_options_frame,textvariable=self._write_wav_files_folder, width=60).grid(column=2, row=71)
+        Entry(devmode_options_frame,textvariable=self._write_wav_files_folder, width=50).grid(column=2, row=71)
 
 
         if not devmode:
@@ -324,6 +329,7 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_scaling_factor(float(self.scaling_factor_entry_text.get()))
         self._configuration_api.set_wait_after_move_milliseconds(self.wait_after_move_entry_text.get())
         self._configuration_api.set_post_fire_delay(self.post_fire_delay_entry_text.get())
+        self._configuration_api.set_slew_delay(self.slew_delay_entry_text.get())
 
         self._configuration_api.set_sublayer_height_mm(float(self.sublayer_height_entry_text.get()))
         self._configuration_api.set_shuffle_layers_amount(float(self._shuffle_layers_amount.get()))
