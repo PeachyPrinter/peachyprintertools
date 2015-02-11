@@ -3,14 +3,18 @@ import logging
 from domain.transformer import Transformer
 import threading
 
+
 class OneToOneTransformer(Transformer):
     def transform(self, xyz):
-        x,y,z = xyz
-        return [x,y,z]
+        x, y, z = xyz
+        return [x, y, z]
+
 
 'Takes Values from -1.0 to 1.0 on both axis and returns a scaled version between 0 and 1'
+
+
 class TuningTransformer(Transformer):
-    def __init__(self,scale = 1.0):
+    def __init__(self, scale=1.0):
         if scale > 0.0 and scale <= 1.0:
             self._scale = scale
         else:
@@ -18,10 +22,10 @@ class TuningTransformer(Transformer):
             raise Exception('Scale must be between 0.0 and 1.0 was %s' % scale)
 
     def transform(self, xyz):
-        x,y,z = [ self._check_and_adjust(value) for value in xyz ]
+        x, y, z = [self._check_and_adjust(value) for value in xyz]
         x = self._transform(x)
         y = self._transform(y)
-        return [x,y]
+        return [x, y]
 
     def set_scale(self, new_scale):
         self._scale = new_scale
@@ -34,23 +38,24 @@ class TuningTransformer(Transformer):
             value = 0.0
             logging.info("Adjusting Values")
         return value
- 
+
     def _transform(self, axis):
         return ((axis - 0.5) * self._scale) + 0.5
 
+
 class HomogenousTransformer(Transformer):
-    def __init__(self, scale , upper_height , lower_points, upper_points ):
+    def __init__(self, scale, upper_height, lower_points, upper_points):
         self._lock = threading.Lock()
         self._scale = scale
         self._upper_height = upper_height
         inter_scale_x = upper_points.items()[0][1][0] / lower_points.items()[0][1][0]
         inter_scale_y = upper_points.items()[0][1][1] / lower_points.items()[0][1][1]
         self._lower_points = lower_points
-        self._upper_points = dict([(pre , (x * inter_scale_x,y * inter_scale_y)) for (pre,(x,y)) in lower_points.items() ])
-        
+        self._upper_points = dict([(pre, (x * inter_scale_x, y * inter_scale_y)) for (pre, (x, y)) in lower_points.items()])
+
         self._get_transforms()
         self._cache = {}
-        
+
     def _get_transforms(self):
         self._lock.acquire()
         try:
@@ -70,8 +75,8 @@ class HomogenousTransformer(Transformer):
     def _build_matrix(self, points):
         builder = []
         index = 0
-        for ((xp,yp),(xi,yi)) in points.items():
-            augment = self._augment(index,xi / self._scale, yi / self._scale)
+        for ((xp, yp), (xi, yi)) in points.items():
+            augment = self._augment(index, xi / self._scale, yi / self._scale)
             builder.append([ xp, yp,  1,  0,  0,  0,  0,  0,  0] + augment[0])
             builder.append([  0,  0,  0, xp, yp,  1,  0,  0,  0] + augment[1])
             builder.append([  0,  0,  0,  0,  0,  0, xp, yp,  1] + augment[2])
@@ -79,9 +84,9 @@ class HomogenousTransformer(Transformer):
         builder.append([  1,  1,  1,  1,  1,  1,  1,  1,  1,     0,   0,   0,   0])
         return np.array(builder)
 
-    def _augment(self,index,xi,yi):
-        augment = [[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-        for i in range(0,4):
+    def _augment(self, index, xi, yi):
+        augment = [[0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+        for i in range(0, 4):
             if i == index:
                 augment[0][i] = -xi
                 augment[1][i] = -yi
@@ -97,27 +102,29 @@ class HomogenousTransformer(Transformer):
             return self._cache[height]
         else:
             current = self._positional_transform(height)
-            self._cache = { height : current}
+            self._cache = {height: current}
             return current
 
-    def _positional_transform(self,height):
+    def _positional_transform(self, height):
         adjusted_height = height / self._upper_height
         return (adjusted_height * (self._upper_transform - self._lower_transform)) + self._lower_transform
 
-    def transform(self,(x,y,z)):
+    def transform(self, (x, y, z)):
         self._lock.acquire()
         try:
             realworld = np.array([[x], [y], [1]])
-            computerland =  self._transforms_for_height(z) * realworld
+            computerland = self._transforms_for_height(z) * realworld
             [kx, ky, k] = [computerland.item(i, 0) for i in range(3)]
         finally:
             self._lock.release()
-        x1,y1 = (kx/k, ky/k) 
-        if x1 >= 0.0 and x1 <=1.0 and y1>= 0.0 and y1 <=1.0:
+        x1, y1 = (kx/k, ky/k)
+        if x1 >= 0.0 and x1 <= 1.0 and y1 >= 0.0 and y1 <= 1.0:
             return (x1, y1)
         else:
-            logging.error("Bounds of printer exceeded: %s,%s" % (x,y))
-            raise Exception("Bounds of printer exceeded")
+            logging.warning("Bounds of printer exceeded: %s,%s" % (x, y))
+            adjusted_x = min(1.0, max(0.0, x1))
+            adjusted_y = min(1.0, max(0.0, y1))
+            return(adjusted_x, adjusted_y)
 
     def set_scale(self, new_scale):
         self._scale = new_scale

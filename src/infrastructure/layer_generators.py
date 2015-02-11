@@ -147,7 +147,7 @@ class DampingTestGenerator(TestLayerGenerator):
 
 
 class CircleGenerator(TestLayerGenerator):
-    def __init__(self, speed=100.0, radius=20.0, steps=20):
+    def __init__(self, speed=100.0, radius=20.0, steps=180):
         self.set_speed(speed)
         self.set_radius(radius)
         self._steps = steps

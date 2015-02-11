@@ -59,6 +59,7 @@ class HalfVaseTestGenerator(LayerGenerator):
         self._current_height = self._current_height + self._layer_height
         return layer
 
+
 class SolidObjectTestGenerator(LayerGenerator):
     name = "Solidified Object of Opressive Beauty (BETA)"
 
@@ -101,6 +102,7 @@ class SolidObjectTestGenerator(LayerGenerator):
     def _radius(self):
         percent_complete = self._current_height / self._height
         factor = (cos(sqrt(percent_complete) * 3.0 * pi) + 1.25) * ((self._max_radius / 2.0) - 0.25)
+        print "Radius: %s" % factor
         return factor
 
     def next(self):
@@ -234,7 +236,7 @@ class ConcentricCircleTestGenerator(LayerGenerator):
         self._angle_varience = pi / self._layers
         self._last_point = [0, self._max_radius]
         self._last_angle = 0
-        self._rings = 3
+        self._rings = 20
 
         logging.info("Circles height: %s" % self._height)
         logging.info("Circles radius: %s" % self._max_radius)
@@ -262,8 +264,9 @@ class ConcentricCircleTestGenerator(LayerGenerator):
         commands = []
         for i in range(1, self._rings + 1):
             radius = self._max_radius / self._rings * i
+            print "Radius: %s" % radius
             points = self._points(0, radius)
-            commands += [LateralMove(points[0], points[0], self._speed)]
+            commands += [LateralDraw(points[0], points[0], self._speed)]
             commands += [LateralDraw(points[index - 1], points[index], self._speed) for index in range(1, len(points))]
 
         layer = Layer(self._current_height, commands=commands)
