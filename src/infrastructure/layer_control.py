@@ -16,8 +16,10 @@ class LayerWriter():
                  override_speed=None,
                  wait_speed=None,
                  post_fire_delay_speed=None,
+                 slew_delay_speed=None,
                  ):
         self._post_fire_delay_speed = post_fire_delay_speed
+        self._slew_delay_speed = slew_delay_speed
         self._override_speed = override_speed
         self._move_distance_to_ignore = move_distance_to_ignore
         self._state = state
@@ -61,7 +63,7 @@ class LayerWriter():
 
     def _move_lateral(self, (to_x, to_y), to_z, speed):
         laser_was_on = self._laser_control.laser_is_on()
-        if laser_was_on and self._post_fire_delay_speed:
+        if laser_was_on and self._slew_delay_speed:
             self._write_lateral(
                 self._state.x, self._state.y, self._state.z, self._post_fire_delay_speed, ignore_override=True)
         self._laser_control.set_laser_off()

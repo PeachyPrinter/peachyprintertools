@@ -241,8 +241,11 @@ class PrintAPI(object):
         override_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
         pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else 0.0
         post_fire_delay_speed = None
+        slew_delay_speed = None
         if self._configuration.options.post_fire_delay:
             post_fire_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.post_fire_delay) / 1000.0)
+        if self._configuration.options.slew_delay:
+            slew_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.slew_delay) / 1000.0)
 
         self._writer = LayerWriter(
             disseminator,
@@ -253,6 +256,7 @@ class PrintAPI(object):
             override_speed=override_speed,
             wait_speed=self._configuration.options.laser_thickness_mm / (float(self._configuration.options.wait_after_move_milliseconds) / 1000.0),
             post_fire_delay_speed=post_fire_delay_speed,
+            slew_delay_speed=slew_delay_speed
             )
 
         self._layer_processing = LayerProcessing(

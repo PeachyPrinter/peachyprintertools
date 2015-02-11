@@ -85,11 +85,20 @@ class CalibrationAPI(object):
             self._configuration.options.laser_thickness_mm
             )
 
+        post_fire_delay_speed = None
+        slew_delay_speed = None
+        if self._configuration.options.post_fire_delay:
+            post_fire_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.post_fire_delay) / 1000.0)
+        if self._configuration.options.slew_delay:
+            slew_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.slew_delay) / 1000.0)
+
         self._writer = LayerWriter(
             self._disseminator,
             self._path_to_audio,
             self._laser_control,
             self._state,
+            post_fire_delay_speed=post_fire_delay_speed,
+            slew_delay_speed=slew_delay_speed
             )
 
         self._layer_processing = LayerProcessing(

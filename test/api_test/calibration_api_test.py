@@ -158,7 +158,9 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_micro_disseminator,
             self.mock_path_to_audio,
             self.mock_laser_control,
-            self.mock_machine_state
+            self.mock_machine_state,
+            post_fire_delay_speed=100.0,
+            slew_delay_speed=100.0
             )
 
         self.assertEqual(0, self.mock_AudioWriter.call_count)

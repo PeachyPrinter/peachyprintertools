@@ -318,6 +318,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             override_speed=config.cure_rate.draw_speed,
             wait_speed=100.0,
             post_fire_delay_speed=100.0,
+            slew_delay_speed=100.0,
             )
 
         self.mock_LayerProcessing.assert_called_with(
@@ -406,6 +407,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             override_speed=config.cure_rate.draw_speed,
             wait_speed=100.0,
             post_fire_delay_speed=100.0,
+            slew_delay_speed=100.0,
             )
 
         self.mock_SerialDripZAxis.assert_called_with(
@@ -500,7 +502,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             move_distance_to_ignore=config.options.laser_thickness_mm,
             override_speed=config.cure_rate.draw_speed,
             wait_speed=100.0,
-            post_fire_delay_speed=100.0
+            post_fire_delay_speed=100.0,
+            slew_delay_speed=100.0
             )
 
         self.mock_LayerProcessing.assert_called_with(
@@ -549,7 +552,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             move_distance_to_ignore=config.options.laser_thickness_mm,
             override_speed=config.cure_rate.draw_speed,
             wait_speed=100.0,
-            post_fire_delay_speed=100.0
+            post_fire_delay_speed=100.0,
+            slew_delay_speed=100.0
             )
 
     def test_print_gcode_should_print_sublayers_if_requested(self, *args):
