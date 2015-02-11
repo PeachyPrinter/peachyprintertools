@@ -236,7 +236,7 @@ class ConcentricCircleTestGenerator(LayerGenerator):
         self._angle_varience = pi / self._layers
         self._last_point = [0, self._max_radius]
         self._last_angle = 0
-        self._rings = 20
+        self._rings = 3
 
         logging.info("Circles height: %s" % self._height)
         logging.info("Circles radius: %s" % self._max_radius)
