@@ -273,29 +273,35 @@ class SetupOptionsUI(PeachyFrame):
         self._email_host = StringVar()
         self._email_sender = StringVar()
         self._email_recipient = StringVar()
+        self._email_username = StringVar()
+        self._email_password = StringVar()
 
         self._email_on.set(self._configuration_api.get_email_on())
         self._email_port.set(self._configuration_api.get_email_port())
         self._email_host.set(self._configuration_api.get_email_host())
         self._email_sender.set(self._configuration_api.get_email_sender())
         self._email_recipient.set(self._configuration_api.get_email_recipient())
+        self._email_username.set(self._configuration_api.get_email_username())
+        self._email_password.set(self._configuration_api.get_email_password())
 
-        Checkbutton(email_options_frame, text="Use Email Notifications", variable = self._email_on).grid(column=0, row=10)
-        Label(email_options_frame,text="SMPTP Host Name").grid(column=0, row=20)
-        Entry(email_options_frame,textvariable=self._email_host).grid(column=1, row=20)
-        Label(email_options_frame,text="SMTP Port").grid(column=0, row=30)
-        Entry(email_options_frame,textvariable=self._email_port).grid(column=1, row=30)
-        Label(email_options_frame,text="Sender Email Address").grid(column=0, row=40)
-        Entry(email_options_frame,textvariable=self._email_sender).grid(column=1, row=40)
-        Label(email_options_frame,text="Recipient Email Address").grid(column=0, row=50)
-        Entry(email_options_frame,textvariable=self._email_recipient).grid(column=1, row=50)
-
+        Checkbutton(email_options_frame, text="Use Email Notifications", variable=self._email_on).grid(column=0, row=10)
+        Label(email_options_frame, text="SMTP Host Name").grid(column=0, row=20)
+        Entry(email_options_frame, textvariable=self._email_host).grid(column=1, row=20)
+        Label(email_options_frame, text="SMTP Port").grid(column=0, row=30)
+        Entry(email_options_frame, textvariable=self._email_port).grid(column=1, row=30)
+        Label(email_options_frame, text="Sender Email Address").grid(column=0, row=40)
+        Entry(email_options_frame, textvariable=self._email_sender).grid(column=1, row=40)
+        Label(email_options_frame, text="Recipient Email Address").grid(column=0, row=50)
+        Entry(email_options_frame, textvariable=self._email_recipient).grid(column=1, row=50)
+        Label(email_options_frame, text="SMTP username (optional)").grid(column=0, row=60)
+        Entry(email_options_frame, textvariable=self._email_username).grid(column=1, row=60)
+        Label(email_options_frame, text="SMTP password (optional/insecure)").grid(column=0, row=70)
+        Entry(email_options_frame, textvariable=self._email_password).grid(column=1, row=70)
 
         # ----------------------Frame End---------------------------
 
-
-        Button(self, text ="Back", command=self._back).grid(column=0, row=120, sticky=N+S+W)
-        Button(self, text ="Save", command=self._save).grid(column=2, row=120, sticky=N+S+E)
+        Button(self, text="Back", command=self._back).grid(column=0, row=120, sticky=N+S+W)
+        Button(self, text="Save", command=self._save).grid(column=2, row=120, sticky=N+S+E)
         self.update()
 
     def _update_field_visibility(self):
@@ -344,6 +350,8 @@ class SetupOptionsUI(PeachyFrame):
         self._configuration_api.set_email_host(self._email_host.get())
         self._configuration_api.set_email_sender(self._email_sender.get())
         self._configuration_api.set_email_recipient(self._email_recipient.get())
+        self._configuration_api.set_email_username(self._email_username.get())
+        self._configuration_api.set_email_password(self._email_password.get())
 
         self._configuration_api.set_serial_enabled(bool(self._use_serial.get()))
         self._configuration_api.set_serial_port(self._serial_port.get())
