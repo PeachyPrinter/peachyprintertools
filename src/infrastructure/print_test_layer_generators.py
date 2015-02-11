@@ -102,7 +102,6 @@ class SolidObjectTestGenerator(LayerGenerator):
     def _radius(self):
         percent_complete = self._current_height / self._height
         factor = (cos(sqrt(percent_complete) * 3.0 * pi) + 1.25) * ((self._max_radius / 2.0) - 0.25)
-        print "Radius: %s" % factor
         return factor
 
     def next(self):
@@ -264,7 +263,6 @@ class ConcentricCircleTestGenerator(LayerGenerator):
         commands = []
         for i in range(1, self._rings + 1):
             radius = self._max_radius / self._rings * i
-            print "Radius: %s" % radius
             points = self._points(0, radius)
             commands += [LateralDraw(points[0], points[0], self._speed)]
             commands += [LateralDraw(points[index - 1], points[index], self._speed) for index in range(1, len(points))]
