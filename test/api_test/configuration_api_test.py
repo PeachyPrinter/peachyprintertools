@@ -1186,6 +1186,8 @@ class EmailSetupMixInTest(object):
         expected_host = "some.host"
         expected_sender = "sender@email.com"
         expected_recipient = "recipient@email.com"
+        expected_username = "sender"
+        expected_password = "pa55word"
 
         expected_config = self.default_config
 
@@ -1194,6 +1196,8 @@ class EmailSetupMixInTest(object):
         expected_config.email.host = expected_host
         expected_config.email.sender = expected_sender
         expected_config.email.recipient = expected_recipient
+        expected_config.email.username = expected_username
+        expected_config.email.password = expected_password
 
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
@@ -1204,6 +1208,8 @@ class EmailSetupMixInTest(object):
         configuration_API.set_email_host(expected_host)
         configuration_API.set_email_sender(expected_sender)
         configuration_API.set_email_recipient(expected_recipient)
+        configuration_API.set_email_username(expected_username)
+        configuration_API.set_email_password(expected_password)
 
         configuration_API.save()
 
@@ -1214,7 +1220,8 @@ class EmailSetupMixInTest(object):
         self.assertEquals(expected_host, configuration_API.get_email_host())
         self.assertEquals(expected_sender, configuration_API.get_email_sender())
         self.assertEquals(expected_recipient, configuration_API.get_email_recipient())
-
+        self.assertEquals(expected_username, configuration_API.get_email_username())
+        self.assertEquals(expected_password, configuration_API.get_email_password())
 
 class AdvancedSetupMixInTest(object):
 

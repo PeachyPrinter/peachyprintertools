@@ -211,10 +211,12 @@ class CureRateConfiguration(ConfigurationBase):
 class EmailConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._on = self.get(source, u'on', False)
-        self._port = self.get(source, u'port',25)
+        self._port = self.get(source, u'port', 25)
         self._host = self.get(source, u'host', 'some.smtp.server')
-        self._sender = self.get(source, u'sender','senderemail@email.com')
-        self._recipient = self.get(source, u'recipient','recipientemail@email.com')
+        self._sender = self.get(source, u'sender', 'senderemail@email.com')
+        self._recipient = self.get(source, u'recipient', 'recipientemail@email.com')
+        self._username = self.get(source, u'username', '')
+        self._password = self.get(source, u'password', '')
         self._email_regex = r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b'
 
     def valid_email(self,potential_email):
@@ -246,6 +248,30 @@ class EmailConfiguration(ConfigurationBase):
             self._port = value
         else:
             raise ValueError("Port must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def username(self):
+        return self._username
+
+    @username.setter
+    def username(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._username = value
+        else:
+            raise ValueError("Username must be %s" % (str(_type)))
+
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._password = value
+        else:
+            raise ValueError("Password must be %s" % (str(_type)))
 
     @property
     def host(self):

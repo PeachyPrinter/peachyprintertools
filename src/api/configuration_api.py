@@ -531,6 +531,12 @@ class EmailSetupMixin(object):
     def set_email_recipient(self, recipient):
         self._current_config.email.recipient = recipient
 
+    def set_email_username(self, username):
+        self._current_config.email.username = username
+
+    def set_email_password(self, password):
+        self._current_config.email.password = password
+
     def get_email_on(self):
         return self._current_config.email.on
 
@@ -545,6 +551,12 @@ class EmailSetupMixin(object):
 
     def get_email_recipient(self):
         return self._current_config.email.recipient
+
+    def get_email_username(self):
+        return self._current_config.email.username
+
+    def get_email_password(self):
+        return self._current_config.email.password
 
 
 class AdvancedSetupMixin(object):
