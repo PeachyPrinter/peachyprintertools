@@ -297,7 +297,17 @@ class PrintStatusUI(PeachyFrame):
         self.setting_dripmm = StringVar()
         Label(self.settings_frame, text="Drips per mm: ").grid(column=3, row=50, sticky=E)
         Label(self.settings_frame, textvariable=self.setting_dripmm).grid(column=4, row=50, sticky=W, padx=10)
-        Label(self).grid(column=0, row=70)
+        self.setting_post_fire_delay = StringVar()
+        Label(self.settings_frame, text="Post Fire Delay: ").grid(column=3, row=60, sticky=E)
+        Label(self.settings_frame, textvariable=self.setting_post_fire_delay).grid(column=4, row=60, sticky=W, padx=10)
+        self.setting_slew_delay = StringVar()
+        Label(self.settings_frame, text="Slew Delay: ").grid(column=3, row=70, sticky=E)
+        Label(self.settings_frame, textvariable=self.setting_slew_delay).grid(column=4, row=70, sticky=W, padx=10)
+        self.setting_dripmm = StringVar()
+        # Label(self.settings_frame, text="Drips per mm: ").grid(column=3, row=50, sticky=E)
+        # Label(self.settings_frame, textvariable=self.).grid(column=4, row=50, sticky=W, padx=10)
+        # Label(self).grid(column=0, row=70)
+        Label(self).grid(column=0, row=100)
 
         Button(self, text='Restart', command=self._restart_printing).grid(column=1, row=80)
         Button(self, textvariable=self._stop_button_text, command=self._stop_button_click).grid(column=2, row=80)
@@ -334,6 +344,8 @@ class PrintStatusUI(PeachyFrame):
         self.setting_mod_on.set(self._print_api.configuration.audio.output.modulation_on_frequency)
         self.setting_mod_off.set(self._print_api.configuration.audio.output.modulation_off_frequency)
         self.setting_dripmm.set(self._print_api.configuration.dripper.drips_per_mm)
+        self.setting_post_fire_delay.set(self._print_api.configuration.options.post_fire_delay)
+        self.setting_slew_delay.set(self._print_api.configuration.options.slew_delay)
 
     def _start_printing(self):
         self._stop_button_text.set("Abort Print")
