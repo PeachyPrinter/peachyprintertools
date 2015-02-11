@@ -86,7 +86,7 @@ class PrintAPI(object):
         self._current_file_name = None
         self._current_file = None
         if self._configuration.email.on:
-            self._email_gateway = EmailGateway(self._configuration.email.host, self._configuration.email.port)
+            self._email_gateway = EmailGateway(self._configuration.email.host, self._configuration.email.port, self._configuration.email.username, self._configuration.email.password)
             self._notification_service = EmailNotificationService(self._email_gateway, self._configuration.email.sender, self._configuration.email.recipient)
         else:
             self._notification_service = None
