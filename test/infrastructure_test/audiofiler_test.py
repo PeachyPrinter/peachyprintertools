@@ -69,6 +69,32 @@ class PathToAudioTests(unittest.TestCase, TestHelpers):
         actual = path2audio.process([1.0, 1.0, 1.0], [1.0, 1.0, 1.0], 1.0)
         self.assertNumpyArrayClose(expected, actual)
 
+    def test_in_the_event_of_a_distance_smaller_then_a_sample_the_vertex_time_should_not_be_skiped(self):
+        samples_per_second = 10
+        laser_size = 0.5
+        path2audio = PathToAudio(samples_per_second, self.transformer, laser_size)
+        expected1 = numpy.array([[]])
+        expected2 = numpy.array([[0.0, 0.0], [1.0, 1.0]])
+
+        actual1 = path2audio.process([ 0.0, 0.0, 1.0], [0.0, 1.0, 1.0], 10.0)
+        actual2 = path2audio.process([ 0.0, 1.0, 1.0], [1.0, 1.0, 1.0], 10.0)
+
+        self.assertNumpyArrayEquals(expected1, actual1)
+        self.assertNumpyArrayEquals(expected2, actual2)
+
+    def test_when_handling_subone_sample_data_vertical_changes_cause_reset(self):
+        samples_per_second = 10
+        laser_size = 0.5
+        path2audio = PathToAudio(samples_per_second, self.transformer, laser_size)
+        expected1 = numpy.array([[]])
+        expected2 = numpy.array([[0.0, 1.0], [1.0, 1.0]])
+
+        actual1 = path2audio.process([ 0.0, 0.0, 1.0], [0.0, 1.0, 1.0], 10.0)
+        actual2 = path2audio.process([ 0.0, 1.0, 1.1], [1.0, 1.0, 1.1], 5.0)
+
+        self.assertNumpyArrayEquals(expected1, actual1)
+        self.assertNumpyArrayEquals(expected2, actual2)
+
 
 if __name__ == '__main__':
     unittest.main()
