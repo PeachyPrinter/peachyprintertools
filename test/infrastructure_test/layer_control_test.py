@@ -245,6 +245,28 @@ class LayerWriterTests(unittest.TestCase):
                          0], ([1.0, 1.0, 0.0], [2.0, 2.0, 0.0], 100.0))
         self.assertEquals(1, mock_laser_control.set_laser_off.call_count)
 
+    def test_slew_will_wait_before_laser_on(self, mock_AudioDisseminator, mock_PathToAudio, mock_LaserControl):
+        mock_path_to_audio = mock_PathToAudio.return_value
+        mock_disseminator = mock_AudioDisseminator.return_value
+        mock_laser_control = mock_LaserControl.return_value
+        state = MachineState()
+        self.writer = LayerWriter(mock_disseminator, mock_path_to_audio,
+                                  mock_laser_control, state, override_speed=40.0, slew_delay_speed=100.0)
+
+        mock_laser_control.laser_is_on.return_value = True
+        self.writer.process_layer(Layer(0.0, commands=[
+            LateralDraw([0.0, 0.0], [1.0, 1.0], 100.0),
+            LateralDraw([1.5, 1.5], [2.0, 2.0], 100.0),
+
+        ]))
+
+        (state.xyz, state.xyz, state.speed)
+        self.assertEqual(mock_path_to_audio.process.call_args_list[0][0], ([0.0, 0.0, 0.0], [1.0, 1.0, 0.0], 40.0))
+        self.assertEqual(mock_path_to_audio.process.call_args_list[1][0], ([1.0, 1.0, 0.0], [1.0, 1.0, 0.0], 100.0))
+        self.assertEqual(mock_path_to_audio.process.call_args_list[2][0], ([1.0, 1.0, 0.0], [1.5, 1.5, 0.0], 40.0))
+        self.assertEquals(2, mock_laser_control.set_laser_on.call_count)
+
+
     def test_wait_till_time_returns_instantly_if_shutting_down(self, mock_AudioDisseminator, mock_PathToAudio, mock_LaserControl):
         mock_path_to_audio = mock_PathToAudio.return_value
         mock_disseminator = mock_AudioDisseminator.return_value
