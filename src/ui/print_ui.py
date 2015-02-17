@@ -303,7 +303,7 @@ class PrintStatusUI(PeachyFrame):
         self.setting_slew_delay = StringVar()
         Label(self.settings_frame, text="Slew Delay: ").grid(column=3, row=70, sticky=E)
         Label(self.settings_frame, textvariable=self.setting_slew_delay).grid(column=4, row=70, sticky=W, padx=10)
-        self.setting_dripmm = StringVar()
+        # self.setting_dripmm = StringVar()
         # Label(self.settings_frame, text="Drips per mm: ").grid(column=3, row=50, sticky=E)
         # Label(self.settings_frame, textvariable=self.).grid(column=4, row=50, sticky=W, padx=10)
         # Label(self).grid(column=0, row=70)

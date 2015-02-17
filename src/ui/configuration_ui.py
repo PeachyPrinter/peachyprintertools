@@ -772,8 +772,6 @@ class CureTestUI(PeachyFrame):
                 self._best_height.get()
                )
             self._cure_speed.set(speed)
-
-            self._save()
         except Exception as ex:
             tkMessageBox.showwarning("Error", ex.message)
 
