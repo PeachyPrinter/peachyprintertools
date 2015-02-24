@@ -1,7 +1,7 @@
 import numpy
 import unittest
-from domain.commands import *
-from infrastructure.configuration import ConfigurationGenerator
+from peachyprinter.domain.commands import *
+from peachyprinter.infrastructure.configuration import ConfigurationGenerator
 
 class NumpyTestHelpers(object):
 
