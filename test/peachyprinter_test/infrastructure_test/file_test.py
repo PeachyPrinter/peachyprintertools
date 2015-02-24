@@ -5,14 +5,14 @@ import logging
 from mock import patch, call
 import numpy
 
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 import test_helpers
 from peachyprinter.infrastructure.file import FileWriter
 
 @patch.object(os.path, 'isdir')
-@patch('infrastructure.file.wave')
+@patch('peachyprinter.infrastructure.file.wave')
 class FileWriterTests(unittest.TestCase):
     def setUp(self):
         pass

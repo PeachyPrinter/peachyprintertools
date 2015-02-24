@@ -6,8 +6,8 @@ import pyaudio
 from mock import patch
 import numpy
 
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 import test_helpers
 from peachyprinter.infrastructure.audio import AudioSetup, AudioWriter

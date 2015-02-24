@@ -552,7 +552,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         printer_name = 'Test1'
         expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools', printer_name + '.cfg')
         mocked_open = mock_open(read_data=self.default_config.toJson())
-        with patch('infrastructure.configuration.open', mocked_open, create=True):
+        with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
             data = cm.new(printer_name)
             expected_data = data.toJson()
@@ -567,7 +567,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_save_should_create_data_folder_if_it_does_not_exist(self,mock_makedirs,mock_exists):
         mock_exists.return_value = False
         expected_path =  expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools')
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
+        with patch('peachyprinter.infrastructure.configuration.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=file)
             cm = ConfigurationManager()
             data = cm.new('Test1')
@@ -579,7 +579,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     @patch.object(os.path, 'exists')
     def test_list_should_return_empty_list_when_folder_doesnt_exist(self, mock_exists):
         mock_exists.return_value = False
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
+        with patch('peachyprinter.infrastructure.configuration.open', create=True) as mock_open:
             cm = ConfigurationManager()
             self.assertEquals([] , cm.list())
 
@@ -588,7 +588,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_list_should_return_empty_list_when_folder_contains_no_configurations(self, mock_listdir, mock_exists):
         mock_exists.return_value = True
         mock_listdir.return_value = []
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
+        with patch('peachyprinter.infrastructure.configuration.open', create=True) as mock_open:
             cm = ConfigurationManager()
             self.assertEquals([] , cm.list())
 
@@ -599,7 +599,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         mock_listdir.return_value = [ 'blabla.cfg' ]
         expected = [ self.default_config.name ]
         mocked_open = mock_open(read_data=self.default_config.toJson())
-        with patch('infrastructure.configuration.open', mocked_open, create=True):
+        with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
 
             actual = cm.list()
@@ -613,7 +613,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         mock_listdir.return_value = [ 'blabla.cow' ]
         expected = [ ]
         mocked_open = mock_open(read_data=self.default_config.toJson())
-        with patch('infrastructure.configuration.open', mocked_open, create=True):
+        with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
             actual = cm.list()
             self.assertEquals(expected, actual)
@@ -624,7 +624,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_load_should_throw_exception_not_there(self, mock_makedirs, mock_listdir, mock_exists):
         mock_exists.return_value = False
         mocked_open = mock_open()
-        with patch('infrastructure.configuration.open', mocked_open, create=True):
+        with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
             with self.assertRaises(Exception):
                 cm.load(u"Not There")
@@ -632,7 +632,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     @patch.object(os.path, 'exists')
     def test_load_should_throw_exception_if_bad_data(self,  mock_exists):
         mock_exists.return_value = True
-        with patch('infrastructure.configuration.open', create=True) as mock_open:
+        with patch('peachyprinter.infrastructure.configuration.open', create=True) as mock_open:
             manager = mock_open.return_value.__enter__.return_value
             manager.read.return_value = StringIO("ASDFASDFASD")
             cm = ConfigurationManager()
@@ -647,7 +647,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         expected = self.default_config
         mocked_open = mock_open(read_data=self.default_config.toJson())
         
-        with patch('infrastructure.configuration.open', mocked_open, create=True):
+        with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
             actual = cm.load('Some Printer')
             self.assertConfigurationEqual(expected, actual)
@@ -710,7 +710,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
 
         mocked_open = mock_open(read_data=missing)
         
-        with patch('infrastructure.configuration.open', mocked_open, create=True):
+        with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
             cm = ConfigurationManager()
             actual = cm.load('Some Printer')
             self.assertConfigurationEqual(expected, actual)

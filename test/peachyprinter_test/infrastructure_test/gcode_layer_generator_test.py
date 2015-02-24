@@ -15,7 +15,7 @@ from peachyprinter.domain.commands import *
 
 
 class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
-    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_check_should_report_error_on_non_gcode(self, mock_GCodeCommandReader):
         line = "Fake Gcode"
         mock_gcode_command_reader = mock_GCodeCommandReader.return_value
@@ -28,7 +28,7 @@ class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
         errors = gcode_reader.check()
         self.assertEquals(["Error 1: Unreconized Command: %s" % line], errors)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
     def test_get_layers_should_use_scale(self, mock_GCodeToLayerGenerator):
         line = "Fake Gcode"
         test_gcode = StringIO.StringIO("%s\n" % line)
@@ -37,7 +37,7 @@ class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
         gcode_reader.get_layers()
         mock_GCodeToLayerGenerator.assert_called_with(test_gcode, scale=0.1, start_height=None)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
     def test_check_should_use_scale(self, mock_GCodeToLayerGenerator):
         line = "Fake Gcode"
         test_gcode = StringIO.StringIO("%s\n" % line)
@@ -46,7 +46,7 @@ class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
         gcode_reader.check()
         mock_GCodeToLayerGenerator.assert_called_with(test_gcode, scale=0.1, start_height=None)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeToLayerGenerator')
     def test_check_should_use_start_height(self, mock_GCodeToLayerGenerator):
         line = "Fake Gcode"
         test_gcode = StringIO.StringIO("%s\n" % line)
@@ -59,7 +59,7 @@ class GCodeReaderTests(unittest.TestCase, test_helpers.TestHelpers):
 
 class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
-    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_get_layers_returns_a_single_layer(self, mock_GCodeCommandReader):
         mock_gcode_command_reader = mock_GCodeCommandReader.return_value
         mock_gcode_command_reader.to_command.return_value = [LateralDraw([0.0, 0.0], [0.0, 0.0], 100.0)]
@@ -72,7 +72,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_when_scale_provided_gcode_command_called_with_scale(self, mock_GCodeCommandReader):
         mock_gcode_command_reader = mock_GCodeCommandReader.return_value
         mock_gcode_command_reader.to_command.return_value = [LateralDraw([0.0, 0.0], [0.0, 0.0], 100.0)]
@@ -81,7 +81,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
         GCodeToLayerGenerator(test_gcode, scale=0.1)
         mock_GCodeCommandReader.assert_called_with(scale=0.1)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_get_layers_returns_a_single_layer_with_multipule_commands(self, mock_GCodeCommandReader):
         command1 = LateralDraw([0.0, 0.0], [0.0, 0.0], 100.0)
         command2 = LateralDraw([0.0, 0.0], [1.0, 1.0], 100.0)
@@ -101,7 +101,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_returns_a_single_commands(self, mock_GCodeCommandReader):
         command1 = LateralDraw([0.0, 0.0], [0.0, 0.0], 100.0)
         command2 = VerticalMove(0.0, 0.1, 100.0)
@@ -122,7 +122,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_when_single_command_yields_multipule_lines(self, mock_GCodeCommandReader):
         command1 = LateralDraw([0.0, 0.0], [0.0, 0.0], 100.0)
         command2 = VerticalMove(0.0, 0.1, 100.0)
@@ -143,7 +143,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_when_single_command_yields_multipule_vertical_moves(self, mock_GCodeCommandReader):
         command1 = VerticalMove(0.0, 0.1, 100.0)
         command2 = LateralDraw([0.0, 0.0], [1.0, 1.0], 100.0)
@@ -165,7 +165,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_returns_multiple_layers_start_at_start_height(self, mock_GCodeCommandReader):
         return_values = [[]]
         for i in range(0, 51):
@@ -188,7 +188,7 @@ class GCodeToLayerGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertLayersEquals(expected, actual)
 
-    @patch('infrastructure.gcode_layer_generator.GCodeCommandReader')
+    @patch('peachyprinter.infrastructure.gcode_layer_generator.GCodeCommandReader')
     def test_if_last_command_is_move_omited(self, mock_GCodeCommandReader):
         command1 = VerticalMove(0.0, 0.1, 100.0)
         command2 = LateralDraw([0.0, 0.0], [1.0, 1.0], 100.0)

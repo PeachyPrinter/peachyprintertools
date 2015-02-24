@@ -12,7 +12,7 @@ from peachyprinter.infrastructure.communicator import SerialCommunicator
 from peachyprinter.infrastructure.messages import DripRecordedMessage
 
 
-@patch('infrastructure.communicator.serial')
+@patch('peachyprinter.infrastructure.communicator.serial')
 class SerialCommunicatorTests(unittest.TestCase):
     def setUp(self):
         self.comm = None

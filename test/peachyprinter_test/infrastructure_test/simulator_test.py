@@ -6,8 +6,8 @@ import os
 import sys
 from mock import MagicMock, patch
 
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 from peachyprinter.infrastructure.simulator import *
 
@@ -161,7 +161,7 @@ class LaserTest(unittest.TestCase,TestHelp):
             laser.fire(0.0)
 
 class PeachyPrinterTest(unittest.TestCase,TestHelp):
-    @patch('infrastructure.simulator.Laser')
+    @patch('peachyprinter.infrastructure.simulator.Laser')
     def test_write(self, mock_Laser):
         #Setup
         deflection1 = 1.0

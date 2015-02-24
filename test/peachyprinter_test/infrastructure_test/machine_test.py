@@ -4,10 +4,10 @@ import sys
 import logging
 from mock import patch, PropertyMock, call, MagicMock
 
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..', '..','src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
-import infrastructure
+import peachyprinter.infrastructure
 from peachyprinter.infrastructure.machine import *
 from peachyprinter.domain.commands import *
 
