@@ -45,6 +45,7 @@ cd test
 python test-all.py
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED TESTS ABORTING"
+    cd ..
     EXIT /B 2
 )
 cd ..
@@ -58,6 +59,7 @@ cd src
 python setup.py sdist
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED PACKAGING ABORTING"
+    cd ..
     EXIT /B 3
 )
 
@@ -67,4 +69,4 @@ echo ------------------------------------
 echo Moving file
 echo ------------------------------------
 
-move src\dist\*.msi .
+move src\dist\*.zip .
