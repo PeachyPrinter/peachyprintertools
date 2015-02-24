@@ -8,7 +8,7 @@ class NumpyTestHelpers(object):
     def assertNumpyArrayEquals(self,array1, array2):
         equal = numpy.array_equal(array1,array2)
         if not equal:
-            self.fail("\n%s\ndid not equal\n%s" % (str(array1),str(array2)))
+            self.fail("\n%s\ndid not equal\n%s" % (array1.shape,array2.shape))
 
     def assertNumpyArrayClose(self,array1, array2):
         equal = numpy.allclose(array1,array2)

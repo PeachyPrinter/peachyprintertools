@@ -73,7 +73,7 @@ class PathToAudioTests(unittest.TestCase, TestHelpers):
         samples_per_second = 10
         laser_size = 0.5
         path2audio = PathToAudio(samples_per_second, self.transformer, laser_size)
-        expected1 = numpy.array([[]])
+        expected1 = numpy.empty((0, 2))
         expected2 = numpy.array([[0.0, 0.0], [1.0, 1.0]])
 
         actual1 = path2audio.process([ 0.0, 0.0, 1.0], [0.0, 1.0, 1.0], 10.0)
@@ -86,7 +86,7 @@ class PathToAudioTests(unittest.TestCase, TestHelpers):
         samples_per_second = 10
         laser_size = 0.5
         path2audio = PathToAudio(samples_per_second, self.transformer, laser_size)
-        expected1 = numpy.array([[]])
+        expected1 = numpy.empty((0, 2))
         expected2 = numpy.array([[0.0, 1.0], [1.0, 1.0]])
 
         actual1 = path2audio.process([ 0.0, 0.0, 1.0], [0.0, 1.0, 1.0], 10.0)

@@ -47,7 +47,7 @@ class PathToAudio(object):
                 if not self._left_over_start:
                     self._left_over_start = start
                 self._left_over_samples = samples
-                return numpy.column_stack(([], []))
+                return numpy.empty((0, 2))
             else:
                 self._left_over_samples = 0.0
                 if self._left_over_start:
