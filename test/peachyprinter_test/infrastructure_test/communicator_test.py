@@ -5,8 +5,8 @@ import time
 from mock import patch
 import serial
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 from peachyprinter.infrastructure.communicator import SerialCommunicator
 from peachyprinter.infrastructure.messages import DripRecordedMessage

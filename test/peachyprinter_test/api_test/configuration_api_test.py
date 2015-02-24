@@ -4,8 +4,8 @@ import sys
 
 from mock import patch, MagicMock
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 from peachyprinter.api.configuration_api import ConfigurationAPI, AudioSetting
 from peachyprinter.domain.configuration_manager import ConfigurationManager
@@ -224,8 +224,8 @@ class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch('api.configuration_api.SerialDripZAxis')
-    @patch('api.configuration_api.SerialCommunicator')
+    @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
     def test_start_counting_drips_should_start_getting_drips_for_microcontroller(self, mock_SerialCommunicator, mock_SerialDripZaxis, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
@@ -242,8 +242,8 @@ class DripperSetupMixInTest(object):
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
     @patch.object(AudioDripZAxis, 'start')
-    @patch('api.configuration_api.AudioDripZAxis')
-    @patch('api.configuration_api.NullCommander')
+    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
+    @patch('peachyprinter.api.configuration_api.NullCommander')
     def test_start_counting_drips_should_pass_call_back_function(self, mock_NullCommander, mock_AudioDripZAxis, mock_start, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
@@ -266,8 +266,8 @@ class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch('api.configuration_api.SerialDripZAxis')
-    @patch('api.configuration_api.SerialCommunicator')
+    @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
     def test_stop_counting_drips_should_stop_getting_drips_for_micro(self, mock_SerialCommunicator, mock_SerialDripZaxis, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
@@ -309,10 +309,10 @@ class DripperSetupMixInTest(object):
 
         mock_reset.assert_called_with()
 
-    @patch('api.configuration_api.AudioDripZAxis')
+    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch('api.configuration_api.NullCommander')
+    @patch('peachyprinter.api.configuration_api.NullCommander')
     def test_start_counting_drips_should_use_audio_input_settings(self, mock_NullCommander, mock_load, mock_save, mock_AudioDripZAxis):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
@@ -343,7 +343,7 @@ class DripperSetupMixInTest(object):
         self.assertEquals(self.default_config.dripper.drips_per_mm, actual)
 
     @patch.object(ConfigurationManager, 'load')
-    @patch('api.configuration_api.AudioDripZAxis')
+    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
     def test_set_drips_per_mm_should_overwrite_current_setting_and_update_zaxis(self, mock_AudioDripZAxis, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
@@ -421,8 +421,8 @@ class DripperSetupMixInTest(object):
         self.assertEquals(expected, actual)
 
     @patch.object(ConfigurationManager, 'load')
-    @patch('infrastructure.commander.SerialCommander')
-    @patch('api.configuration_api.AudioDripZAxis')
+    @patch('peachyprinter.infrastructure.commander.SerialCommander')
+    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
     def test_send_dripper_on_command_should_raise_exceptions_if_serial_not_configured(self, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
@@ -437,8 +437,8 @@ class DripperSetupMixInTest(object):
         self.assertEquals(0, mock_SerialCommander.call_count)
 
     @patch.object(ConfigurationManager, 'load')
-    @patch('api.configuration_api.SerialCommander')
-    @patch('api.configuration_api.AudioDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommander')
+    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
     def test_send_dripper_on_command_should(self, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
@@ -456,8 +456,8 @@ class DripperSetupMixInTest(object):
         mock_serial_commander.send_command.assert_called_with("1")
 
     @patch.object(ConfigurationManager, 'load')
-    @patch('infrastructure.commander.SerialCommander')
-    @patch('api.configuration_api.AudioDripZAxis')
+    @patch('peachyprinter.infrastructure.commander.SerialCommander')
+    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
     def test_send_dripper_off_command_should_raise_exceptions_if_serial_not_configured(self, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
@@ -472,8 +472,8 @@ class DripperSetupMixInTest(object):
         self.assertEquals(0, mock_SerialCommander.call_count)
 
     @patch.object(ConfigurationManager, 'load')
-    @patch('api.configuration_api.SerialCommander')
-    @patch('api.configuration_api.AudioDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommander')
+    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
     def test_send_dripper_off_command_should(self, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
@@ -491,8 +491,8 @@ class DripperSetupMixInTest(object):
         mock_serial_commander.send_command.assert_called_with("0")
 
     @patch.object(ConfigurationManager, 'load')
-    @patch('api.configuration_api.SerialCommander')
-    @patch('api.configuration_api.AudioDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommander')
+    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
     def test_stop_counting_drips_should_stop_serial(self, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config

@@ -4,8 +4,8 @@ import sys
 
 from mock import patch
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 from peachyprinter.api.test_print_api import TestPrintAPI
 from peachyprinter.infrastructure.print_test_layer_generators import *

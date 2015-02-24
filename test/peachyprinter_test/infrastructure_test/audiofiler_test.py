@@ -3,8 +3,8 @@ import sys
 import os
 import numpy
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 from test_helpers import TestHelpers
 from peachyprinter.infrastructure.audiofiler import PathToAudio

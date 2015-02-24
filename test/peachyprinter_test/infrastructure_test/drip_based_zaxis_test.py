@@ -8,8 +8,8 @@ import random
 import struct
 import logging
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 from peachyprinter.infrastructure.drip_based_zaxis import DripDetector, Threshold, AudioDripZAxis
 from peachyprinter.infrastructure.audio import audio_formats

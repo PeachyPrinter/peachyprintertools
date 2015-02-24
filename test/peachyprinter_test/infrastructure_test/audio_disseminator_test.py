@@ -5,8 +5,8 @@ import sys
 import os
 from mock import MagicMock
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 from test_helpers import TestHelpers
 from peachyprinter.infrastructure.audio_disseminator import AudioDisseminator
