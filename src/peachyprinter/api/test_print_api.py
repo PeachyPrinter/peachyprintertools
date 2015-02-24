@@ -1,7 +1,7 @@
 import inspect
 
 from peachyprinter.domain.layer_generator import LayerGenerator
-from infrastructure import print_test_layer_generators
+from peachyprinter.infrastructure import print_test_layer_generators
 
 
 class TestPrintAPI(object):
