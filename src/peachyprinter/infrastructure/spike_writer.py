@@ -14,8 +14,8 @@ from audiofiler import PathToAudio
 from audio import AudioWriter
 from controller import Controller
 from transformer import TuningTransformer
-from domain.commands import *
-from domain.layer_generator import LayerGenerator
+from peachyprinter.domain.commands import *
+from peachyprinter.domain.layer_generator import LayerGenerator
 from configuration import FileBasedConfigurationManager
 from layer_generators import SinglePointGenerator, CalibrationLineGenerator
 

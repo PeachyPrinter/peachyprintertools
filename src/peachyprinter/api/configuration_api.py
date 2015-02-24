@@ -1,13 +1,13 @@
 import types
 import logging
 
-from infrastructure.audio import AudioSetup
-from infrastructure.drip_based_zaxis import AudioDripZAxis
-from infrastructure.timed_drip_zaxis import TimedDripZAxis
-from infrastructure.zaxis import SerialDripZAxis
-from infrastructure.communicator import SerialCommunicator
-from infrastructure.layer_generators import CureTestGenerator
-from infrastructure.commander import NullCommander, SerialCommander
+from peachyprinter.infrastructure.audio import AudioSetup
+from peachyprinter.infrastructure.drip_based_zaxis import AudioDripZAxis
+from peachyprinter.infrastructure.timed_drip_zaxis import TimedDripZAxis
+from peachyprinter.infrastructure.zaxis import SerialDripZAxis
+from peachyprinter.infrastructure.communicator import SerialCommunicator
+from peachyprinter.infrastructure.layer_generators import CureTestGenerator
+from peachyprinter.infrastructure.commander import NullCommander, SerialCommander
 
 '''Details the audio settings'''
 class AudioSetting(object):

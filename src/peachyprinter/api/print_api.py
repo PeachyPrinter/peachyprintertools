@@ -2,24 +2,24 @@ import logging
 import time
 from os import path, listdir
 
-from infrastructure.audio import AudioWriter
-from infrastructure.file import FileWriter
-from infrastructure.audiofiler import PathToAudio
-from infrastructure.controller import Controller
-from infrastructure.drip_based_zaxis import AudioDripZAxis
-from infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
-from infrastructure.zaxis import SerialDripZAxis
-from domain.laser_control import LaserControl
-from infrastructure.audio_disseminator import AudioDisseminator
-from infrastructure.micro_disseminator import MicroDisseminator
-from infrastructure.communicator import SerialCommunicator, NullCommunicator
-from infrastructure.gcode_layer_generator import GCodeReader
-from infrastructure.transformer import HomogenousTransformer
-from infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
-from infrastructure.commander import SerialCommander, NullCommander
-from infrastructure.notification import EmailNotificationService, EmailGateway
-from infrastructure.layer_control import LayerWriter, LayerProcessing
-from infrastructure.machine import *
+from peachyprinter.infrastructure.audio import AudioWriter
+from peachyprinter.infrastructure.file import FileWriter
+from peachyprinter.infrastructure.audiofiler import PathToAudio
+from peachyprinter.infrastructure.controller import Controller
+from peachyprinter.infrastructure.drip_based_zaxis import AudioDripZAxis
+from peachyprinter.infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
+from peachyprinter.infrastructure.zaxis import SerialDripZAxis
+from peachyprinter.domain.laser_control import LaserControl
+from peachyprinter.infrastructure.audio_disseminator import AudioDisseminator
+from peachyprinter.infrastructure.micro_disseminator import MicroDisseminator
+from peachyprinter.infrastructure.communicator import SerialCommunicator, NullCommunicator
+from peachyprinter.infrastructure.gcode_layer_generator import GCodeReader
+from peachyprinter.infrastructure.transformer import HomogenousTransformer
+from peachyprinter.infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator
+from peachyprinter.infrastructure.commander import SerialCommander, NullCommander
+from peachyprinter.infrastructure.notification import EmailNotificationService, EmailGateway
+from peachyprinter.infrastructure.layer_control import LayerWriter, LayerProcessing
+from peachyprinter.infrastructure.machine import *
 
 
 class PrintQueueAPI(object):

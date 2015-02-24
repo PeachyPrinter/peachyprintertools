@@ -2,8 +2,8 @@ import threading
 import logging
 import time
 import traceback
-from domain.commands import *
-from infrastructure.machine import MachineError
+from peachyprinter.domain.commands import *
+from peachyprinter.infrastructure.machine import MachineError
 
 
 class Controller(threading.Thread,):

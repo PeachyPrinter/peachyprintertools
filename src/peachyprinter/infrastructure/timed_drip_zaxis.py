@@ -1,7 +1,7 @@
 import threading
 import time
 import math
-from domain.zaxis import ZAxis
+from peachyprinter.domain.zaxis import ZAxis
 import logging
 
 

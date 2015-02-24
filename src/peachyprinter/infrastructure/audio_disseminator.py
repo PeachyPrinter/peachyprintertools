@@ -2,7 +2,7 @@ import math
 import numpy
 import logging
 from fractions import gcd
-from domain.disseminator import Disseminator
+from peachyprinter.domain.disseminator import Disseminator
 
 
 class AudioDisseminator(Disseminator):

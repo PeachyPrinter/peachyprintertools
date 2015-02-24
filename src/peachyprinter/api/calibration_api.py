@@ -1,15 +1,15 @@
 import logging
-from infrastructure.audio import AudioWriter
-from infrastructure.audiofiler import PathToAudio
-from infrastructure.controller import Controller
-from infrastructure.communicator import SerialCommunicator
-from domain.laser_control import LaserControl
-from infrastructure.audio_disseminator import AudioDisseminator
-from infrastructure.micro_disseminator import MicroDisseminator
-from infrastructure.transformer import TuningTransformer, HomogenousTransformer
-from infrastructure.layer_generators import *
-from infrastructure.machine import *
-from infrastructure.layer_control import LayerWriter, LayerProcessing
+from peachyprinter.infrastructure.audio import AudioWriter
+from peachyprinter.infrastructure.audiofiler import PathToAudio
+from peachyprinter.infrastructure.controller import Controller
+from peachyprinter.infrastructure.communicator import SerialCommunicator
+from peachyprinter.domain.laser_control import LaserControl
+from peachyprinter.infrastructure.audio_disseminator import AudioDisseminator
+from peachyprinter.infrastructure.micro_disseminator import MicroDisseminator
+from peachyprinter.infrastructure.transformer import TuningTransformer, HomogenousTransformer
+from peachyprinter.infrastructure.layer_generators import *
+from peachyprinter.infrastructure.machine import *
+from peachyprinter.infrastructure.layer_control import LayerWriter, LayerProcessing
 
 
 '''The calibration API proivides the tools required to setup a Peacy Printer'''

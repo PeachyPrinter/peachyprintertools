@@ -1,6 +1,6 @@
 import logging
 
-from domain.notification import NotificationService
+from peachyprinter.domain.notification import NotificationService
 
 
 class EmailNotificationService(NotificationService):

@@ -6,6 +6,7 @@ echo ------------------------------------
 
 del /Q *.msi
 rmdir /S /Q src\build
+rmdir /S /Q src\PeachyPrinterToolsAPI.egg-info
 rmdir /S /Q src\dist
 REM TODO JT 2014-02-04 - Should clean the workspace
 
@@ -41,14 +42,14 @@ copy version.properties src\VERSION.py
 echo ------------------------------------
 echo Running Tests
 echo ------------------------------------
-cd test
-python test-all.py
-IF NOT "%ERRORLEVEL%" == "0" (
-    echo "FAILED TESTS ABORTING"
-    cd ..
-    EXIT /B 2
-)
-cd ..
+echo cd test
+echo python test-all.py
+echo IF NOT "%ERRORLEVEL%" == "0" (
+echo     echo "FAILED TESTS ABORTING"
+echo     cd ..
+echo     EXIT /B 2
+echo )
+echo cd ..
 
 
 echo ------------------------------------

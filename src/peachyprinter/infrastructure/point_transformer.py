@@ -7,7 +7,7 @@ import logging
 np.seterr(all='raise')
 
 sys.path.insert(0,os.path.join(os.path.dirname(__file__), '..'))
-from domain.transformer import Transformer
+from peachyprinter.domain.transformer import Transformer
 
 class SquareTransform(object):
     def __init__(self,points):

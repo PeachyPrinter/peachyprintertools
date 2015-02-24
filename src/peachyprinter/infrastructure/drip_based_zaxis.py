@@ -5,7 +5,7 @@ import time
 import logging
 import numpy as np
 from audio import audio_formats
-from domain.zaxis import ZAxis
+from peachyprinter.domain.zaxis import ZAxis
 
 
 class Threshold(object):

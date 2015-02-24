@@ -1,7 +1,7 @@
 import time
 import logging
-from domain.zaxis import ZAxis
-from infrastructure.messages import DripRecordedMessage, SetDripCountMessage, MoveToDripCountMessage
+from peachyprinter.domain.zaxis import ZAxis
+from peachyprinter.infrastructure.messages import DripRecordedMessage, SetDripCountMessage, MoveToDripCountMessage
 
 
 class SerialDripZAxis(ZAxis):

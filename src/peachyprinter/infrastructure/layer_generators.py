@@ -1,7 +1,7 @@
 import logging
 
-from domain.commands import *
-from domain.layer_generator import LayerGenerator, TestLayerGenerator
+from peachyprinter.domain.commands import *
+from peachyprinter.domain.layer_generator import LayerGenerator, TestLayerGenerator
 import math
 from math import pi, sin, cos, asin
 

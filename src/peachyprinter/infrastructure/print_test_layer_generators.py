@@ -1,6 +1,6 @@
 import logging
-from domain.layer_generator import LayerGenerator
-from domain.commands import LateralDraw, Layer, LateralMove
+from peachyprinter.domain.layer_generator import LayerGenerator
+from peachyprinter.domain.commands import LateralDraw, Layer, LateralMove
 from math import pi, sin, cos, sqrt
 
 

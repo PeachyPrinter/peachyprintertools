@@ -2,7 +2,7 @@ import wave
 import os
 import math
 import numpy as np
-from domain.data_writer import DataWriter
+from peachyprinter.domain.data_writer import DataWriter
 
 audio_formats = { 
             '32 bit': 4,

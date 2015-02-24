@@ -1,6 +1,6 @@
 import collections
-from domain.commands import *
-from domain.layer_generator import LayerGenerator
+from peachyprinter.domain.commands import *
+from peachyprinter.domain.layer_generator import LayerGenerator
 import logging
 
 

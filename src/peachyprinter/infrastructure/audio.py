@@ -3,7 +3,7 @@ import pyaudio
 import numpy as np
 import math
 import time
-from domain.data_writer import DataWriter
+from peachyprinter.domain.data_writer import DataWriter
 
 audio_formats = {
     '32 bit Floating Point': pyaudio.paFloat32,

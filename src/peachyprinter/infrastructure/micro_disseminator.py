@@ -1,7 +1,7 @@
 import logging
 import sys
-from domain.disseminator import Disseminator
-from infrastructure.messages import MoveMessage
+from peachyprinter.domain.disseminator import Disseminator
+from peachyprinter.infrastructure.messages import MoveMessage
 
 
 class MicroDisseminator(Disseminator):

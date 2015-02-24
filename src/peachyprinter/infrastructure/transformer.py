@@ -1,6 +1,6 @@
 import numpy as np
 import logging
-from domain.transformer import Transformer
+from peachyprinter.domain.transformer import Transformer
 import threading
 
 

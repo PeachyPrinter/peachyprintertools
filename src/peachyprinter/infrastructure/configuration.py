@@ -4,7 +4,7 @@ import json
 import types
 import logging
 import re
-from domain.configuration_manager import ConfigurationManager
+from peachyprinter.domain.configuration_manager import ConfigurationManager
 
 
 class ConfigurationBase(object):
