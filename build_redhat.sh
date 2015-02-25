@@ -8,7 +8,10 @@ echo "------------------------------------"
 rm -rf src/build
 rm -rf *.dmg
 rm -f src/VERSION.py
-rm -f version.properties 
+rm -f version.properties
+rm -rf dist
+rm -rf PeachPrinterToolsAPI.egg-info
+rm -rf PeachyPrinterToolsAPI*.tar.gz
 
 echo "------------------------------------"
 echo "Extracting Git Revision Number"
@@ -55,15 +58,19 @@ if [ $? != 0 ]; then
     exit 55
 fi
 
-echo "------------------------------------"
-echo "Create Peachy Tool Chain app"
-echo "------------------------------------"
+python src/setup.py sdist
 
-cd src
-python setup.py bdist_rpm
 if [ $? != 0 ]; then
-    echo "Packaging Failed Aborting"
-    exit 55
+    echo "FAILED PACKAGING ABORTING"
+    exit 56
 fi
-cd ..
-mv src/dist/*.rpm .
+
+mv dist/PeachyPrinterToolsAPI*.tar.gz .
+
+if [ $? != 0 ]; then
+    echo "FAILED MOVE PACKAGE ABORTING"
+    exit 57
+fi
+echo "------------------------------------"
+echo "COMPLETE SUCCESS"
+echo "------------------------------------"

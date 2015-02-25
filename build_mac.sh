@@ -54,15 +54,19 @@ if [ $? != 0 ]; then
     exit 55
 fi
 
-echo "------------------------------------"
-echo "Create Peachy Tool Chain app"
-echo "------------------------------------"
+python src/setup.py sdist
 
-cd src
-python setup.py bdist_dmg
 if [ $? != 0 ]; then
-    echo "Packaging Failed Aborting"
-    exit 55
+    echo "FAILED PACKAGING ABORTING"
+    exit 56
 fi
-cd ..
-mv src/build/*.dmg .
+
+mv dist/PeachyPrinterToolsAPI*.tar.gz .
+
+if [ $? != 0 ]; then
+    echo "FAILED MOVE PACKAGE ABORTING"
+    exit 57
+fi
+echo "------------------------------------"
+echo "COMPLETE SUCCESS"
+echo "------------------------------------"

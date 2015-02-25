@@ -8,7 +8,10 @@ echo "------------------------------------"
 rm -rf src/build
 rm -rf *.dmg
 rm -f src/VERSION.py
-rm -f version.properties 
+rm -f version.properties
+rm -rf dist
+rm -rf PeachPrinterToolsAPI.egg-info
+rm -rf PeachyPrinterToolsAPI*.tar.gz
 
 echo "------------------------------------"
 echo "Extracting Git Revision Number"
@@ -54,3 +57,24 @@ if [ $? != 0 ]; then
     echo "FAILED TESTS ABORTING"
     exit 55
 fi
+
+echo "TESTS COMPLETE SUCCESS"
+
+python src/setup.py sdist
+
+if [ $? != 0 ]; then
+    echo "FAILED PACKAGING ABORTING"
+    exit 56
+fi
+
+echo "PACKAGING COMPLETE SUCCESS"
+
+mv dist/PeachyPrinterToolsAPI*.tar.gz .
+
+if [ $? != 0 ]; then
+    echo "FAILED MOVE PACKAGE ABORTING"
+    exit 57
+fi
+echo "------------------------------------"
+echo "COMPLETE SUCCESS"
+echo "------------------------------------"
