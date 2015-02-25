@@ -1,10 +1,10 @@
 import os
-import config
 import json
 import types
 import logging
 import re
 from peachyprinter.domain.configuration_manager import ConfigurationManager
+import peachyprinter.config as config
 
 
 class ConfigurationBase(object):
