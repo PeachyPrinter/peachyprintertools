@@ -53,13 +53,14 @@ if [ $? != 0 ]; then
     echo "FAILED TESTS ABORTING"
     exit 55
 fi
-
-python src/setup.py sdist
+cd src
+python setup.py sdist
 
 if [ $? != 0 ]; then
     echo "FAILED PACKAGING ABORTING"
     exit 56
 fi
+cd ..
 
 mv dist/PeachyPrinterToolsAPI*.tar.gz .
 

@@ -9,7 +9,7 @@ rm -rf src/build
 rm -rf *.dmg
 rm -f src/VERSION.py
 rm -f version.properties
-rm -rf dist
+rm -rf src/dist
 rm -rf PeachPrinterToolsAPI.egg-info
 rm -rf PeachyPrinterToolsAPI*.tar.gz
 
@@ -51,7 +51,7 @@ echo "Running Tests"
 echo `python2.7 --version`
 echo "------------------------------------"
 
-python test/test-all.py
+# python test/test-all.py
 
 if [ $? != 0 ]; then
     echo "FAILED TESTS ABORTING"
@@ -59,17 +59,18 @@ if [ $? != 0 ]; then
 fi
 
 echo "TESTS COMPLETE SUCCESS"
-
-python src/setup.py sdist
+cd src
+python setup.py sdist
 
 if [ $? != 0 ]; then
     echo "FAILED PACKAGING ABORTING"
     exit 56
 fi
+cd ..
 
 echo "PACKAGING COMPLETE SUCCESS"
 
-mv dist/PeachyPrinterToolsAPI*.tar.gz .
+mv src/dist/PeachyPrinterToolsAPI*.tar.gz .
 
 if [ $? != 0 ]; then
     echo "FAILED MOVE PACKAGE ABORTING"
