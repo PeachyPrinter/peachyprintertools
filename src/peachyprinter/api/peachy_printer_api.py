@@ -1,7 +1,7 @@
 from peachyprinter.infrastructure.configuration import FileBasedConfigurationManager
 from peachyprinter.api.configuration_api import ConfigurationAPI
 from peachyprinter.api.calibration_api import CalibrationAPI
-from peachyprinter.api.print_api import PrintAPI
+from peachyprinter.api.print_api import PrintAPI, PrintQueueAPI
 from peachyprinter.api.test_print_api import TestPrintAPI
 
 class PrinterAPI(object):
@@ -25,6 +25,9 @@ class PrinterAPI(object):
 
     def get_print_api(self, start_height=0.0, status_call_back=None):
         return PrintAPI(self._configuration_api.get_current_config(), start_height=start_height, status_call_back=status_call_back)
+
+    def get_print_queue_api(self, status_call_back=None):
+        return PrintQueueAPI(self._configuration_api.get_current_config(), status_call_back=status_call_back)
 
     def get_calibration_api(self, ):
         return CalibrationAPI(self._configuration_api.get_current_config())
