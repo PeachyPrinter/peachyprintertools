@@ -62,7 +62,7 @@ if [ $? != 0 ]; then
 fi
 cd ..
 
-mv dist/PeachyPrinterToolsAPI*.tar.gz .
+mv src/dist/PeachyPrinterToolsAPI*.tar.gz .
 
 if [ $? != 0 ]; then
     echo "FAILED MOVE PACKAGE ABORTING"

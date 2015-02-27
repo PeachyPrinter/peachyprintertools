@@ -51,7 +51,7 @@ echo "Running Tests"
 echo `python2.7 --version`
 echo "------------------------------------"
 
-# python test/test-all.py
+python test/test-all.py
 
 if [ $? != 0 ]; then
     echo "FAILED TESTS ABORTING"
