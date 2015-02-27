@@ -23,8 +23,8 @@ class PrinterAPI(object):
     def load_printer(self, name):
         self._configuration_api.load_printer(name)
 
-    def get_print_api(self, callback=None):
-        return PrintAPI(self._configuration_api.get_current_config(), status_call_back=callback)
+    def get_print_api(self, start_height=0.0, status_call_back=None):
+        return PrintAPI(self._configuration_api.get_current_config(), start_height=start_height, status_call_back=status_call_back)
 
     def get_calibration_api(self, ):
         return CalibrationAPI(self._configuration_api.get_current_config())
