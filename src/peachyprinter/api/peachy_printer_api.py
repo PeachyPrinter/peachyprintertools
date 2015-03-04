@@ -4,6 +4,7 @@ from peachyprinter.api.calibration_api import CalibrationAPI
 from peachyprinter.api.print_api import PrintAPI, PrintQueueAPI
 from peachyprinter.api.test_print_api import TestPrintAPI
 
+
 class PrinterAPI(object):
     def __init__(self, ):
 
@@ -30,10 +31,10 @@ class PrinterAPI(object):
         return PrintQueueAPI(self._configuration_api.get_current_config(), status_call_back=status_call_back)
 
     def get_calibration_api(self, ):
-        return CalibrationAPI(self._configuration_api.get_current_config())
+        return CalibrationAPI(self._configuration_api.get_current_config(), self._configuration_api.current_printer())
 
-    def get_configuration_api(self, ):
-       return self._configuration_api
+    def get_configuration_api(self):
+        return self._configuration_api
 
     def get_test_print_api(self, ):
         if not self._test_print_api:
