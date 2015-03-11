@@ -127,13 +127,39 @@ class MicroComConfiguration(ConfigurationBase):
 
 
 class CureRateConfiguration(ConfigurationBase):
-    def __init__(self, source = {}):
-        self._base_height    = self.get(source, u'base_height',  3.0)
-        self._total_height   = self.get(source, u'total_height', 23.0)
-        self._start_speed    = self.get(source, u'start_speed',  50.0)
-        self._finish_speed   = self.get(source, u'finish_speed', 200.0)
-        self._draw_speed     = self.get(source, u'draw_speed',   100.0)
-        self._use_draw_speed = self.get(source, u'use_draw_speed', True)
+    def __init__(self, source={}):
+        self._base_height                   = self.get(source, u'base_height',                  3.0      )
+        self._total_height                  = self.get(source, u'total_height',                 23.0     )
+        self._start_speed                   = self.get(source, u'start_speed',                  50.0     )
+        self._finish_speed                  = self.get(source, u'finish_speed',                 200.0    )
+        self._draw_speed                    = self.get(source, u'draw_speed',                   100.0    )
+        self._use_draw_speed                = self.get(source, u'use_draw_speed',               True     )
+        self._override_laser_power          = self.get(source, u'override_laser_power',         True     )
+        self._override_laser_power_amount   = self.get(source, u'override_laser_power_amount',  0.05     )
+
+    @property
+    def override_laser_power(self):
+        return self._override_laser_power
+
+    @override_laser_power.setter
+    def override_laser_power(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._override_laser_power = value
+        else:
+            raise ValueError("Use Override laser Power must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def override_laser_power_amount(self):
+        return self._override_laser_power_amount
+
+    @override_laser_power_amount.setter
+    def override_laser_power_amount(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._override_laser_power_amount = value
+        else:
+            raise ValueError("Laser Power must be of %s was %s" % (_type, type(value)))
 
     @property
     def base_height(self):
@@ -681,6 +707,7 @@ class CalibrationConfiguration(ConfigurationBase):
         else:
             raise ValueError("Max Deflection must be of %s" % (str(_type)))
 
+
 class SerialConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._on = self.get(source, u'on', False)
@@ -776,6 +803,7 @@ class SerialConfiguration(ConfigurationBase):
         else:
             raise ValueError("Print ended command must be of %s" % (str(_type)))
 
+
 class AudioInputConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._bit_depth = self.get(source, u'bit_depth', "16 bit")
@@ -804,6 +832,7 @@ class AudioInputConfiguration(ConfigurationBase):
             self._sample_rate = value
         else:
             raise ValueError("Sample Rate must be of %s" % (str(_type)))
+
 
 class AudioOutputConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -861,6 +890,7 @@ class AudioOutputConfiguration(ConfigurationBase):
         else:
             raise ValueError("Sample Rate must be of %s" % (str(_type)))
 
+
 class AudioConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._input = AudioInputConfiguration(source.get(u'input', {}))
@@ -873,6 +903,7 @@ class AudioConfiguration(ConfigurationBase):
     @property
     def output(self):
         return self._output
+
 
 class Configuration(ConfigurationBase):
     def __init__(self, source = {}):
@@ -937,6 +968,7 @@ class Configuration(ConfigurationBase):
             self._name = value
         else:
             raise ValueError("Name must be of %s" % (str(_type)))
+
 
 #TODO: JT 2014-05-28 Find out where this really lives
 class ConfigurationGenerator(object):

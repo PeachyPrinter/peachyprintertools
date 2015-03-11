@@ -106,6 +106,8 @@ class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         expected_finish_speed = True
         expected_draw_speed = True
         expected_use_draw_speed = 123
+        expected_override_laser_power = 123
+        expected_override_laser_power_amount = True
 
         cure_rate_config = CureRateConfiguration()
 
@@ -121,41 +123,52 @@ class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
             cure_rate_config.draw_speed = expected_draw_speed
         with self.assertRaises(Exception):
             cure_rate_config.use_draw_speed = expected_use_draw_speed
+        with self.assertRaises(Exception):
+            cure_rate_config.override_laser_power = expected_override_laser_power
+        with self.assertRaises(Exception):
+            cure_rate_config.override_laser_power_amount = expected_override_laser_power_amount
 
     def test_can_create_json_and_load_from_json(self):
-
         expected_base_height = 3.0
         expected_total_height = 13.0
         expected_start_speed = 50.0
         expected_finish_speed = 200.0
         expected_draw_speed = 100.0
         expected_use_draw_speed = True
+        expected_override_laser_power = True
+        expected_override_laser_power_amount = 0.05
 
         original_config = Configuration()
 
-        original_config.cure_rate.base_height      = expected_base_height
-        original_config.cure_rate.total_height     = expected_total_height
-        original_config.cure_rate.start_speed      = expected_start_speed
-        original_config.cure_rate.finish_speed     = expected_finish_speed
-        original_config.cure_rate.draw_speed       = expected_draw_speed
-        original_config.cure_rate.use_draw_speed   = expected_use_draw_speed
+        original_config.cure_rate.base_height                   = expected_base_height
+        original_config.cure_rate.total_height                  = expected_total_height
+        original_config.cure_rate.start_speed                   = expected_start_speed
+        original_config.cure_rate.finish_speed                  = expected_finish_speed
+        original_config.cure_rate.draw_speed                    = expected_draw_speed
+        original_config.cure_rate.use_draw_speed                = expected_use_draw_speed
+        original_config.cure_rate.override_laser_power          = expected_override_laser_power
+        original_config.cure_rate.override_laser_power_amount   = expected_override_laser_power_amount
 
         actual_json = json.loads(original_config.toJson())
         config = Configuration(source=actual_json)
 
-        self.assertEquals(type(expected_base_height),    type(config.cure_rate.base_height))
-        self.assertEquals(type(expected_total_height),   type(config.cure_rate.total_height))
-        self.assertEquals(type(expected_start_speed),    type(config.cure_rate.start_speed))
-        self.assertEquals(type(expected_finish_speed),   type(config.cure_rate.finish_speed))
-        self.assertEquals(type(expected_draw_speed),     type(config.cure_rate.draw_speed))
-        self.assertEquals(type(expected_use_draw_speed), type(config.cure_rate.use_draw_speed))
+        self.assertEquals(type(expected_base_height),                   type(config.cure_rate.base_height))
+        self.assertEquals(type(expected_total_height),                  type(config.cure_rate.total_height))
+        self.assertEquals(type(expected_start_speed),                   type(config.cure_rate.start_speed))
+        self.assertEquals(type(expected_finish_speed),                  type(config.cure_rate.finish_speed))
+        self.assertEquals(type(expected_draw_speed),                    type(config.cure_rate.draw_speed))
+        self.assertEquals(type(expected_use_draw_speed),                type(config.cure_rate.use_draw_speed))
+        self.assertEquals(type(expected_override_laser_power),          type(config.cure_rate.override_laser_power))
+        self.assertEquals(type(expected_override_laser_power_amount),   type(config.cure_rate.override_laser_power_amount))
 
-        self.assertEquals(expected_base_height,    config.cure_rate.base_height)
-        self.assertEquals(expected_total_height,   config.cure_rate.total_height)
-        self.assertEquals(expected_start_speed,    config.cure_rate.start_speed)
-        self.assertEquals(expected_finish_speed,   config.cure_rate.finish_speed)
-        self.assertEquals(expected_draw_speed,     config.cure_rate.draw_speed)
-        self.assertEquals(expected_use_draw_speed, config.cure_rate.use_draw_speed)
+        self.assertEquals(expected_base_height,                     config.cure_rate.base_height)
+        self.assertEquals(expected_total_height,                    config.cure_rate.total_height)
+        self.assertEquals(expected_start_speed,                     config.cure_rate.start_speed)
+        self.assertEquals(expected_finish_speed,                    config.cure_rate.finish_speed)
+        self.assertEquals(expected_draw_speed,                      config.cure_rate.draw_speed)
+        self.assertEquals(expected_use_draw_speed,                  config.cure_rate.use_draw_speed)
+        self.assertEquals(expected_override_laser_power,            config.cure_rate.override_laser_power)
+        self.assertEquals(expected_override_laser_power_amount,     config.cure_rate.override_laser_power_amount)
 
 
 class EmailConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
