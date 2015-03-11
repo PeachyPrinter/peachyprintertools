@@ -40,7 +40,7 @@ class CalibrationAPI(object):
 
         self._current_generator = self._point_generator
 
-        self._laser_control = LaserControl()
+        self._laser_control = LaserControl(self._configuration.cure_rate.override_laser_power_amount)
         transformer = TuningTransformer(scale=self._configuration.calibration.max_deflection)
 
         self._audio_writer = None

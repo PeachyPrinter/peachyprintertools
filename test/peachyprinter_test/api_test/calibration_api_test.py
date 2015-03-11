@@ -129,6 +129,9 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertEquals(0, self.mock_AudioDisseminator.call_count)
 
+        self.mock_LaserControl.assert_called_with(
+            self.default_config.cure_rate.override_laser_power_amount
+            )
         self.mock_MicroDisseminator.assert_called_with(
             self.mock_laser_control,
             self.mock_serial_communicator,
