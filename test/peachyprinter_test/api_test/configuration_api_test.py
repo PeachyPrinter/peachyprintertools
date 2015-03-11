@@ -713,6 +713,8 @@ class CureTestSetupMixInTest(object):
         expected_finish_speed = 100.0
         expected_draw_speed = 75.0
         expected_use_draw_speed = False
+        expected_override_laser_power = True
+        expected_override_laser_power_amount = 0.05
 
         expected_config = self.default_config
 
@@ -722,6 +724,8 @@ class CureTestSetupMixInTest(object):
         expected_config.cure_rate.finish_speed = expected_finish_speed
         expected_config.cure_rate.draw_speed = expected_draw_speed
         expected_config.cure_rate.use_draw_speed = expected_use_draw_speed
+        expected_config.cure_rate.override_laser_power = expected_override_laser_power
+        expected_config.cure_rate.override_laser_power_amount = expected_override_laser_power_amount
 
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
@@ -733,18 +737,38 @@ class CureTestSetupMixInTest(object):
         configuration_API.set_cure_rate_finish_speed(expected_finish_speed)
         configuration_API.set_cure_rate_draw_speed(expected_draw_speed)
         configuration_API.set_cure_rate_use_draw_speed(expected_use_draw_speed)
+        configuration_API.set_override_laser_power(expected_override_laser_power)
+        configuration_API.set_override_laser_power_amount(expected_override_laser_power_amount)
 
         configuration_API.save()
 
         self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
 
-        self.assertEquals(expected_base_height,    configuration_API.get_cure_rate_base_height())
-        self.assertEquals(expected_total_height,   configuration_API.get_cure_rate_total_height())
-        self.assertEquals(expected_start_speed,    configuration_API.get_cure_rate_start_speed())
-        self.assertEquals(expected_finish_speed,   configuration_API.get_cure_rate_finish_speed())
-        self.assertEquals(expected_draw_speed,     configuration_API.get_cure_rate_draw_speed())
-        self.assertEquals(expected_use_draw_speed, configuration_API.get_cure_rate_use_draw_speed())
+        self.assertEquals(expected_base_height,                     configuration_API.get_cure_rate_base_height())
+        self.assertEquals(expected_total_height,                    configuration_API.get_cure_rate_total_height())
+        self.assertEquals(expected_start_speed,                     configuration_API.get_cure_rate_start_speed())
+        self.assertEquals(expected_finish_speed,                    configuration_API.get_cure_rate_finish_speed())
+        self.assertEquals(expected_draw_speed,                      configuration_API.get_cure_rate_draw_speed())
+        self.assertEquals(expected_use_draw_speed,                  configuration_API.get_cure_rate_use_draw_speed())
+        self.assertEquals(expected_override_laser_power,            configuration_API.get_override_laser_power())
+        self.assertEquals(expected_override_laser_power_amount,     configuration_API.get_override_laser_power_amount())
 
+    @patch.object(ConfigurationManager, 'load')
+    def test_get_and_set_laser_amount_fails_if_out_of_range(self, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer("test")
+
+        with self.assertRaises(Exception):
+            configuration_API.set_override_laser_power_amount(-0.1)
+        with self.assertRaises(Exception):
+            configuration_API.set_override_laser_power_amount(-1.0)
+        with self.assertRaises(Exception):
+            configuration_API.set_override_laser_power_amount(1.1)
+
+        configuration_API.set_override_laser_power_amount(0.0)
+        configuration_API.set_override_laser_power_amount(0.5)
+        configuration_API.set_override_laser_power_amount(1.0)
 
 class GeneralSetupMixInTest(object):
 
@@ -1222,6 +1246,7 @@ class EmailSetupMixInTest(object):
         self.assertEquals(expected_recipient, configuration_API.get_email_recipient())
         self.assertEquals(expected_username, configuration_API.get_email_username())
         self.assertEquals(expected_password, configuration_API.get_email_password())
+
 
 class AdvancedSetupMixInTest(object):
 

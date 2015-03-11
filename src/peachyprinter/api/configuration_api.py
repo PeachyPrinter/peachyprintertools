@@ -225,7 +225,7 @@ class CureTestSetupMixIn(object):
         speed_delta = stop_speed -start_speed
         return start_speed + (speed_delta / actual_height * desired_height)
 
-    def _verify_cure_test_settings(self,base_height, total_height, start_speed, stop_speed):
+    def _verify_cure_test_settings(self, base_height, total_height, start_speed, stop_speed):
         try:
             float(base_height)
             float(total_height)
@@ -287,6 +287,7 @@ class CureTestSetupMixIn(object):
             logging.warning('finish_speed must be positive')
             raise Exception('Specified finish speed must be positive')
 
+
     '''Sets the draw_speed for Cure Rate test.'''
     def set_cure_rate_draw_speed(self,draw_speed):
         if (self._positive_float(float(draw_speed))):
@@ -298,6 +299,18 @@ class CureTestSetupMixIn(object):
     '''Sets the use_draw_speed for Cure Rate test.'''
     def set_cure_rate_use_draw_speed(self,use_draw_speed):
         self._current_config.cure_rate.use_draw_speed = use_draw_speed
+
+    '''Sets the override_laser_power for Cure Rate'''
+    def set_override_laser_power(self, override_laser_power):
+        self._current_config.cure_rate.override_laser_power = override_laser_power
+
+    '''Sets the draw_speed for Cure Rate test.'''
+    def set_override_laser_power_amount(self, override_laser_power_amount):
+        if (self._positive_percentage(float(override_laser_power_amount))):
+            self._current_config.cure_rate.override_laser_power_amount = override_laser_power_amount
+        else:
+            logging.warning('override_laser_power_amount must be positive percentage between 0 and 1')
+            raise Exception('Specified override_laser_power_amount must be positive')
 
     '''Gets the base_height for Cure Rate test.'''
     def get_cure_rate_base_height(self):
@@ -322,6 +335,14 @@ class CureTestSetupMixIn(object):
     '''Gets the usedraw_speed for Cure Rate test.'''
     def get_cure_rate_use_draw_speed(self):
         return self._current_config.cure_rate.use_draw_speed
+
+    '''Gets the override_laser_power for Cure Rate'''
+    def get_override_laser_power(self):
+        return self._current_config.cure_rate.override_laser_power
+
+    '''Gets the override_laser_power_amount for Cure Rate'''
+    def get_override_laser_power_amount(self):
+        return self._current_config.cure_rate.override_laser_power_amount
 
 
 class GeneralSetupMixIn(object):
@@ -715,6 +736,9 @@ class ConfigurationAPI(
 
     def _positive_float(self, value):
         return (isinstance(value, types.FloatType) and value > 0.0)
+
+    def _positive_percentage(self, value):
+        return (isinstance(value, types.FloatType) and value >= 0.0 and value <= 1.0)
 
     def _zero_or_positive_float(self, value):
         return (isinstance(value, types.FloatType) and value >= 0.0)
