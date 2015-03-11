@@ -212,7 +212,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_HomogenousTransformer =         args[9]
         self.mock_AudioWriter =                   args[8]
         self.mock_GCodeReader =                   args[7]
-        self.mock_AudioDisseminator =   args[6]
+        self.mock_AudioDisseminator =             args[6]
         self.mock_AudioDripZAxis =                args[5]
         self.mock_SubLayerGenerator =             args[4]
         self.mock_NullCommander =                 args[3]
@@ -368,6 +368,10 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
                 scale=config.options.scaling_factor,
                 start_height=0.0
                 )
+
+        self.mock_LaserControl.assert_called_with(
+            config.cure_rate.override_laser_power_amount
+            )
 
         self.mock_SerialCommunicator.assert_called_with(
             config.micro_com.port,

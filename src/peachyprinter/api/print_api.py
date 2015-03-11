@@ -207,7 +207,7 @@ class PrintAPI(object):
         else:
             self._commander = NullCommander()
 
-        self.laser_control = LaserControl()
+        self.laser_control = LaserControl(self._configuration.cure_rate.override_laser_power_amount)
 
         transformer = HomogenousTransformer(
             self._configuration.calibration.max_deflection,
