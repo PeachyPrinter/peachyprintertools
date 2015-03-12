@@ -16,6 +16,16 @@ message MoveToDripCount {
   required uint32 drips = 1;
 }
 
+message Identify {
+}
+
+message IAm {
+  required string swrev = 1;
+  required string hwrev = 2;
+  required string sn = 3;
+  required uint32 dataRate = 4;
+}
+
 message Measure {
   required int32 id = 1;
   required int32 channel = 2;
