@@ -27,6 +27,8 @@ class SerialCommunicator(Communicator, threading.Thread):
         self._escape_next = False
         self._handlers = {}
         self._connection = None
+        self._send_count = 0
+        self._send_start = time.time()
 
     def send(self, message):
         if not self._running:
@@ -43,11 +45,19 @@ class SerialCommunicator(Communicator, threading.Thread):
         self._send_lock.acquire()
         try:
             self._connection.write(''.join(out))
+            self._send_count += len(out)
+            if self._send_count > 200000:
+                now =time.time()
+                total = now - self._send_start
+                self._send_start = now
+                logging.info("WROTE: %s bytes in %5.f s (%f / sec)" % (self._send_count, total, self._send_count / total))
+                self._send_count = 0
         finally:
             self._send_lock.release()
 
     def start(self):
-        self._connection = serial.Serial(self._port)
+        self._connection = serial.Serial(self._port, timeout=1)
+        self._connection.writeTimeout = None
         super(SerialCommunicator, self).start()
         while not self._running:
             time.sleep(0.01)
@@ -60,7 +70,7 @@ class SerialCommunicator(Communicator, threading.Thread):
                 self._recieve()
         except Exception as ex:
             logging.error(ex)
-            raise ex
+            raise
         finally:
             if self._connection:
                 self._connection.close()
@@ -68,7 +78,10 @@ class SerialCommunicator(Communicator, threading.Thread):
 
     def _recieve(self):
         try:
-            byte = self._connection.read()[0]
+            byte = self._connection.read()
+            if not byte:
+                return
+            byte = byte[0]
             if byte == self._header:
                 self._read_bytes = byte
             elif byte == self._footer and self._read_bytes:
