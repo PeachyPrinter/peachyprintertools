@@ -40,7 +40,8 @@ class SerialCommunicatorTests(unittest.TestCase):
         time.sleep(0.1)
         self.comm.close()
 
-        mock_serial.Serial.assert_called_with(port)
+        mock_serial.Serial.assert_called_with(port, timeout=1)
+        self.assertEquals(mock_serial.Serial.return_value.writeTimeout, None)
         mock_serial.Serial.return_value.close.assert_called_with()
 
     def test_start_should_raise_exception_if_connection_fails(self, mock_serial):
