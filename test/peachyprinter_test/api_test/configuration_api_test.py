@@ -7,220 +7,26 @@ from mock import patch, MagicMock
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
-from peachyprinter.api.configuration_api import ConfigurationAPI, AudioSetting
+from peachyprinter.api.configuration_api import ConfigurationAPI
 from peachyprinter.domain.configuration_manager import ConfigurationManager
-from peachyprinter.infrastructure.audio import AudioSetup
-from peachyprinter.infrastructure.drip_based_zaxis import AudioDripZAxis
 from peachyprinter.infrastructure.zaxis import SerialDripZAxis
 from peachyprinter.infrastructure.communicator import SerialCommunicator
 import test_helpers
-
-
-class AudioSetupMixInTest(object):
-    @patch.object(AudioSetup, 'get_valid_sampling_options')
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_available_audio_options_should_get_list_of_settings(self, mock_load, mock_get_valid_sampling_options):
-        audio_options = {
-            "input": [{'sample_rate': 22000, 'depth': '16 bit'}],
-            "output": [{'sample_rate': 22000, 'depth': '32 bit Floating Point'}]
-            }
-        expected = {
-            "inputs": [AudioSetting(22000, '16 bit')],
-            "outputs": [AudioSetting(22000, '32 bit Floating Point')]
-            }
-
-        mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = self.default_config
-        capi = ConfigurationAPI(ConfigurationManager())
-        capi.load_printer("Printer")
-
-        actual = capi.get_available_audio_options()
-
-        self.assertListContentsEqual(expected['inputs'], actual['inputs'])
-        self.assertListContentsEqual(expected['outputs'], actual['outputs'])
-
-    @patch.object(AudioSetup, 'get_valid_sampling_options')
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_available_audio_options_should_include_recomended_options(self, mock_load, mock_get_valid_sampling_options):
-        audio_options = {
-            "input": [{'sample_rate': 48000, 'depth': '16 bit'}],
-            "output": [{'sample_rate': 48000, 'depth': '16 bit'}]
-            }
-
-        expected_in = AudioSetting(48000, '16 bit', current=True)
-        expected_in.set_recommended()
-        expected_out = AudioSetting(48000, '16 bit', current=True)
-        expected_out.set_recommended()
-
-        expected = {
-            "inputs": [expected_in],
-            "outputs": [expected_out]
-            }
-
-        mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = self.default_config
-        capi = ConfigurationAPI(ConfigurationManager())
-        capi.load_printer("Printer")
-
-        actual = capi.get_available_audio_options()
-
-        self.assertListContentsEqual(expected['inputs'], actual['inputs'])
-        self.assertListContentsEqual(expected['outputs'], actual['outputs'])
-
-    @patch.object(AudioSetup, 'get_valid_sampling_options')
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_available_audio_options_should_add_recommend_flag_to_one_option(self, mock_load, mock_get_valid_sampling_options):
-        audio_options = {
-            "input": [{'sample_rate': 48000, 'depth': '32 bit Floating Point'}, {'sample_rate': 44100, 'depth': '16 bit'}],
-            "output": [{'sample_rate': 48000, 'depth': '16 bit'}, {'sample_rate': 44100, 'depth': '16 bit'}]
-            }
-
-        mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = self.default_config
-        capi = ConfigurationAPI(ConfigurationManager())
-        capi.load_printer("Printer")
-
-        actual = capi.get_available_audio_options()
-
-        expected_input = AudioSetting(44100, '16 bit', recommended=True)
-        unexpected_input = AudioSetting(48000, '32 bit Floating Point')
-        expected_output = AudioSetting(48000, '16 bit', recommended=True, current=True)
-        unexpected_output = AudioSetting(44100, '16 bit')
-
-        self.assertListContentsEqual([expected_input, unexpected_input], actual['inputs'])
-        self.assertListContentsEqual([unexpected_output, expected_output], actual['outputs'])
-
-    @patch.object(AudioSetup, 'get_valid_sampling_options')
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_available_audio_options_is_sorted(self, mock_load, mock_get_valid_sampling_options):
-        audio_options = {
-            "input": [],
-            "output": [{'sample_rate': 48000, 'depth': '32 bit Floating Point'}, {'sample_rate': 44100, 'depth': '16 bit'}, {'sample_rate': 48000, 'depth': '16 bit'}, {'sample_rate': 44100, 'depth': '24 bit'}]
-            }
-
-        mock_get_valid_sampling_options.return_value = audio_options
-        mock_load.return_value = self.default_config
-        capi = ConfigurationAPI(ConfigurationManager())
-        capi.load_printer("Printer")
-
-        actual = capi.get_available_audio_options()
-
-        expected_ordered = [
-            AudioSetting(44100, '16 bit'),
-            AudioSetting(44100, '24 bit'),
-            AudioSetting(48000, '16 bit', recommended=True, current=True),
-            AudioSetting(48000, '32 bit Floating Point'),
-            ]
-        self.assertListContentsEqual(expected_ordered, actual['outputs'])
-
-    @patch.object(AudioSetup, 'get_valid_sampling_options')
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_available_audio_options_sets_currently_selected(self, mock_load, mock_get_valid_sampling_options):
-        audio_options = {
-            "input": [{'sample_rate': 48000, 'depth': '16 bit'}, {'sample_rate': 44100, 'depth': '16 bit'}],
-            "output": [{'sample_rate': 48000, 'depth': '16 bit'}, {'sample_rate': 44100, 'depth': '16 bit'}]
-            }
-
-        mock_get_valid_sampling_options.return_value = audio_options
-        config = self.default_config
-        config.audio.input.bit_depth = '16 bit'
-        config.audio.input.sample_rate = 44100
-        config.audio.output.bit_depth = '16 bit'
-        config.audio.output.sample_rate = 44100
-
-        mock_load.return_value = config
-
-        capi = ConfigurationAPI(ConfigurationManager())
-        capi.load_printer("Printer")
-
-        actual = capi.get_available_audio_options()
-
-        in1 = AudioSetting(44100, '16 bit', current=True)
-        in2 = AudioSetting(48000, '16 bit', recommended=True)
-        out1 = AudioSetting(44100, '16 bit', current=True)
-        out2 = AudioSetting(48000, '16 bit', recommended=True)
-
-        self.assertListContentsEqual([in1, in2], actual['inputs'])
-        self.assertListContentsEqual([out1, out2], actual['outputs'])
-
-    @patch.object(ConfigurationManager, 'load')
-    @patch.object(ConfigurationManager, 'save')
-    def test_set_audio_output_options_should_update_output_when_44100(self, mock_save, mock_load):
-        mock_load.return_value = self.default_config
-        capi = ConfigurationAPI(ConfigurationManager())
-        expected = self.default_config
-        expected.audio.output.modulation_on_frequency = 11025
-        expected.audio.output.modulation_off_frequency = 2205
-        expected.audio.output.bit_depth = '16 bit'
-        expected.audio.output.sample_rate = 44100
-
-        capi.load_printer("Printer")
-        capi.set_audio_output_options(AudioSetting(44100, '16 bit'))
-
-        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
-
-    @patch.object(ConfigurationManager, 'load')
-    @patch.object(ConfigurationManager, 'save')
-    def test_set_audio_output_options_should_update_output_when_48000(self, mock_save, mock_load):
-        printer_name = 'MegaPrint'
-        config = self.default_config
-        mock_load.return_value = config
-        capi = ConfigurationAPI(ConfigurationManager())
-        expected = self.default_config
-        expected.audio.output.modulation_on_frequency = 12000
-        expected.audio.output.modulation_off_frequency = 2000
-        expected.audio.output.bit_depth = '32 bit Floating Point'
-        expected.audio.output.sample_rate = 48000
-
-        capi.load_printer(printer_name)
-        capi.set_audio_output_options(AudioSetting(48000, '32 bit Floating Point'))
-
-        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
-
-    @patch.object(ConfigurationManager, 'load')
-    @patch.object(ConfigurationManager, 'save')
-    def test_set_audio_input_options_should_update_when_44100(self, mock_save, mock_load):
-        config = self.default_config
-        mock_load.return_value = config
-        capi = ConfigurationAPI(ConfigurationManager())
-        expected = self.default_config
-        expected.audio.input.bit_depth = '16 bit'
-        expected.audio.input.sample_rate = 44100
-
-        capi.load_printer('Printer')
-        capi.set_audio_input_options(AudioSetting(44100, '16 bit'))
-
-        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
-
-    @patch.object(ConfigurationManager, 'load')
-    @patch.object(ConfigurationManager, 'save')
-    def test_set_audio_input_options_should_update_when_48000(self, mock_save, mock_load):
-        config = self.default_config
-        mock_load.return_value = config
-        capi = ConfigurationAPI(ConfigurationManager())
-        expected = self.default_config
-        expected.audio.input.bit_depth = '32 bit Floating Point'
-        expected.audio.input.sample_rate = 48000
-
-        capi.load_printer('Printer')
-        capi.set_audio_input_options(AudioSetting(48000, '32 bit Floating Point'))
-
-        self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
 
 class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(AudioDripZAxis, 'start')
-    def test_start_counting_drips_should_start_getting_drips(self, mock_start, mock_load, mock_save):
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    def test_start_counting_drips_should_start_getting_drips(self, mock_SerialCommunicator,  mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
 
         configuration_API.start_counting_drips()
 
-        mock_start.assert_called_with()
+        mock_SerialCommunicator.return_value.start.assert_called_with()
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
@@ -237,14 +43,15 @@ class DripperSetupMixInTest(object):
 
         mock_SerialCommunicator.assert_called_with(config.micro_com.port,config.micro_com.header,config.micro_com.footer,config.micro_com.escape)
         mock_SerialCommunicator.return_value.start.assert_called_with()
-        mock_SerialDripZaxis.assert_called_with(mock_SerialCommunicator.return_value, 1, 0, callback)
+        mock_SerialDripZaxis.assert_called_with(mock_SerialCommunicator.return_value, 1, 0, drip_call_back=callback)
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(AudioDripZAxis, 'start')
-    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
+    @patch.object(SerialDripZAxis, 'start')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
     @patch('peachyprinter.api.configuration_api.NullCommander')
-    def test_start_counting_drips_should_pass_call_back_function(self, mock_NullCommander, mock_AudioDripZAxis, mock_start, mock_load, mock_save):
+    def test_start_counting_drips_should_pass_call_back_function(self, mock_NullCommander, mock_SerialDripZAxis, mock_SerialCommunicator, mock_start, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
@@ -254,13 +61,10 @@ class DripperSetupMixInTest(object):
 
         configuration_API.start_counting_drips(drip_call_back=callback)
 
-        mock_AudioDripZAxis.assert_called_with(
+        mock_SerialDripZAxis.assert_called_with(
+            mock_SerialCommunicator.return_value,
             1,
             0.0,
-            self.default_config.audio.input.sample_rate,
-            self.default_config.audio.input.bit_depth,
-            mock_NullCommander.return_value,
-            '', '',
             drip_call_back=callback
             )
 
@@ -283,9 +87,10 @@ class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(AudioDripZAxis, 'start')
-    @patch.object(AudioDripZAxis, 'close')
-    def test_stop_counting_drips_should_stop_getting_drips(self, mock_close, mock_start, mock_load, mock_save):
+    @patch.object(SerialDripZAxis, 'start')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    @patch.object(SerialDripZAxis, 'close')
+    def test_stop_counting_drips_should_stop_getting_drips(self, mock_close, mock_SerialCommunicator, mock_start, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
@@ -297,9 +102,10 @@ class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'save')
     @patch.object(ConfigurationManager, 'load')
-    @patch.object(AudioDripZAxis, 'start')
-    @patch.object(AudioDripZAxis, 'reset')
-    def test_drip_calibration_should_call_reset_when_reset_requested(self, mock_reset, mock_start, mock_load, mock_save):
+    @patch.object(SerialDripZAxis, 'start')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    @patch.object(SerialDripZAxis, 'reset')
+    def test_drip_calibration_should_call_reset_when_reset_requested(self, mock_reset, mock_SerialCommunicator, mock_start, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
@@ -308,28 +114,6 @@ class DripperSetupMixInTest(object):
         configuration_API.reset_drips()
 
         mock_reset.assert_called_with()
-
-    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
-    @patch.object(ConfigurationManager, 'save')
-    @patch.object(ConfigurationManager, 'load')
-    @patch('peachyprinter.api.configuration_api.NullCommander')
-    def test_start_counting_drips_should_use_audio_input_settings(self, mock_NullCommander, mock_load, mock_save, mock_AudioDripZAxis):
-        mock_load.return_value = self.default_config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer('printer')
-        expected_sample_rate = self.default_config.audio.input.sample_rate
-
-        configuration_API.start_counting_drips()
-
-        mock_AudioDripZAxis.assert_called_with(
-            1,
-            0.0,
-            expected_sample_rate,
-            self.default_config.audio.input.bit_depth,
-            mock_NullCommander.return_value,
-            '', '',
-            drip_call_back=None
-        )
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_drips_per_mm_should_return_current_setting(self, mock_load):
@@ -343,11 +127,12 @@ class DripperSetupMixInTest(object):
         self.assertEquals(self.default_config.dripper.drips_per_mm, actual)
 
     @patch.object(ConfigurationManager, 'load')
-    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
-    def test_set_drips_per_mm_should_overwrite_current_setting_and_update_zaxis(self, mock_AudioDripZAxis, mock_load):
+    @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    def test_set_drips_per_mm_should_overwrite_current_setting_and_update_zaxis(self, mock_SerialCommunicator, mock_SerialDripZAxis, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        mock_audiodripzaxis = mock_AudioDripZAxis.return_value
+        mock_SerialDripZAxis = mock_SerialDripZAxis.return_value
         expected = 6534.0
 
         configuration_API.load_printer('Printer')
@@ -355,7 +140,7 @@ class DripperSetupMixInTest(object):
         configuration_API.set_drips_per_mm(expected)
         configuration_API.stop_counting_drips()
 
-        mock_audiodripzaxis.set_drips_per_mm.assert_called_with(expected)
+        mock_SerialDripZAxis.set_drips_per_mm.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_dripper_type_should_return_current_type(self, mock_load):
@@ -416,14 +201,15 @@ class DripperSetupMixInTest(object):
         configuration_API.load_printer('Printer')
         expected = 302.0
         configuration_API.set_emulated_drips_per_second(expected)
-        actual = configuration_API.get_emulated_drips_per_second()
+        actual = configuration_API.get_emulated_drips_per_second() 
 
         self.assertEquals(expected, actual)
 
     @patch.object(ConfigurationManager, 'load')
     @patch('peachyprinter.infrastructure.commander.SerialCommander')
-    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
-    def test_send_dripper_on_command_should_raise_exceptions_if_serial_not_configured(self, mock_Zaxis, mock_SerialCommander, mock_load):
+    @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    def test_send_dripper_on_command_should_raise_exceptions_if_serial_not_configured(self, mock_SerialCommunicator, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
         config.serial.on = False
@@ -438,8 +224,9 @@ class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
     @patch('peachyprinter.api.configuration_api.SerialCommander')
-    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
-    def test_send_dripper_on_command_should(self, mock_Zaxis, mock_SerialCommander, mock_load):
+    @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    def test_send_dripper_on_command_should(self, mock_SerialCommunicator, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
         config.serial.on = True
@@ -457,8 +244,9 @@ class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
     @patch('peachyprinter.infrastructure.commander.SerialCommander')
-    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
-    def test_send_dripper_off_command_should_raise_exceptions_if_serial_not_configured(self, mock_Zaxis, mock_SerialCommander, mock_load):
+    @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    def test_send_dripper_off_command_should_raise_exceptions_if_serial_not_configured(self, mock_SerialCommunicator, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
         config.serial.on = False
@@ -473,8 +261,9 @@ class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
     @patch('peachyprinter.api.configuration_api.SerialCommander')
-    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
-    def test_send_dripper_off_command_should(self, mock_Zaxis, mock_SerialCommander, mock_load):
+    @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    def test_send_dripper_off_command_should(self, mock_SerialCommunicator, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
         config.serial.on = True
@@ -492,8 +281,9 @@ class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
     @patch('peachyprinter.api.configuration_api.SerialCommander')
-    @patch('peachyprinter.api.configuration_api.AudioDripZAxis')
-    def test_stop_counting_drips_should_stop_serial(self, mock_Zaxis, mock_SerialCommander, mock_load):
+    @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
+    @patch('peachyprinter.api.configuration_api.SerialCommunicator')
+    def test_stop_counting_drips_should_stop_serial(self, mock_SerialCommunicator, mock_Zaxis, mock_SerialCommander, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         config = self.default_config
         config.serial.on = True
@@ -1371,7 +1161,6 @@ class CircutSetupMixInTest(object):
 class ConfigurationAPITest(
         unittest.TestCase,
         test_helpers.TestHelpers,
-        AudioSetupMixInTest,
         DripperSetupMixInTest,
         CureTestSetupMixInTest,
         GeneralSetupMixInTest,
@@ -1433,31 +1222,6 @@ class ConfigurationAPITest(
 
         mock_load.assert_called_with(printer_name)
 
-
-class AudioSettingsTest(unittest.TestCase, test_helpers.TestHelpers):
-    def test_str_returns_human_readable_option(self):
-        s = AudioSetting(48000, "16 bit")
-        self.assertEquals("48000 Hz, 16 bit", str(s))
-
-    def test_str_returns_human_readable_option_with_recommend_with_recommended(self):
-        s = AudioSetting(48000, "16 bit")
-        s.set_recommended()
-        self.assertEquals("48000 Hz, 16 bit (Recommended)", str(s))
-
-    def test_set_current_set_current_flag(self):
-        s = AudioSetting(48000, "16 bit")
-        s.set_current()
-        self.assertTrue(s.current)
-
-    def test_to_instances_with_same_settings_are_equal(self):
-        a = AudioSetting(48000, '16 bit')
-        b = AudioSetting(48000, '16 bit')
-        self.assertEquals(a, b)
-
-    def test_to_instances_with_diffrent_settings_are_equal(self):
-        a = AudioSetting(48000, '16 bit')
-        b = AudioSetting(44100, '16 bit')
-        self.assertNotEquals(a, b)
 
 
 if __name__ == '__main__':

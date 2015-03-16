@@ -29,8 +29,8 @@ class CircutConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
             circut.version = expected_version
 
     def test_can_create_json_and_load_from_json(self):
-        expected_circut_type = 'Analog'
-        expected_version = 'r1.99-r3'
+        expected_circut_type = 'Digital'
+        expected_version = 'unknown'
         original_config = Configuration()
         original_config.circut.circut_type = expected_circut_type
         original_config.circut.version = expected_version
@@ -450,13 +450,6 @@ class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_can_create_json_and_load_from_json(self):
         expected_name = "PP"
 
-        expected_output_bit_depth = "16"
-        expected_output_sample_frequency = 48000
-        expected_on_modulation_frequency = 8000
-        expected_off_modulation_frequency = 2000
-        expected_input_bit_depth = "8"
-        expected_input_sample_frequency = 4800
-
         expected_drips_per_mm = 10.1
         expected_dripper_type = "audio"
         expected_dripper_emulated_drips_per_second = 1.0
@@ -478,13 +471,6 @@ class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
 
         original_config = Configuration()
         original_config.name                                 = expected_name
-
-        original_config.audio.output.bit_depth               = expected_output_bit_depth
-        original_config.audio.output.sample_rate             = expected_output_sample_frequency
-        original_config.audio.output.modulation_on_frequency = expected_on_modulation_frequency
-        original_config.audio.output.modulation_off_frequency= expected_off_modulation_frequency
-        original_config.audio.input.bit_depth                = expected_input_bit_depth
-        original_config.audio.input.sample_rate              = expected_input_sample_frequency
 
         original_config.dripper.drips_per_mm                 = expected_drips_per_mm
         original_config.dripper.dripper_type                 = expected_dripper_type
@@ -512,15 +498,6 @@ class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         self.maxDiff = None
         self.assertEquals(type(expected_name), type(config.name))
         self.assertEquals(expected_name, config.name)
-
-        self.assertEquals(type(expected_output_bit_depth), type(config.audio.output.bit_depth))
-        self.assertEquals(expected_output_bit_depth, config.audio.output.bit_depth)
-        self.assertEquals(expected_output_sample_frequency, config.audio.output.sample_rate)
-        self.assertEquals(expected_on_modulation_frequency, config.audio.output.modulation_on_frequency)
-        self.assertEquals(expected_off_modulation_frequency, config.audio.output.modulation_off_frequency)
-        self.assertEquals(type(expected_input_bit_depth), type(config.audio.input.bit_depth))
-        self.assertEquals(expected_input_bit_depth, config.audio.input.bit_depth)
-        self.assertEquals(expected_input_sample_frequency, config.audio.input.sample_rate)
 
         self.assertEquals(expected_drips_per_mm, config.dripper.drips_per_mm)
         self.assertEquals(expected_max_lead_distance_mm, config.dripper.max_lead_distance_mm)
@@ -674,12 +651,6 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         tmp = json.loads(missing)
 
         del tmp['name']
-        del tmp['audio']['output']['bit_depth']
-        del tmp['audio']['output']['sample_rate']
-        del tmp['audio']['output']['modulation_on_frequency']
-        del tmp['audio']['output']['modulation_off_frequency']
-        del tmp['audio']['input']['bit_depth']
-        del tmp['audio']['input']['sample_rate']
         del tmp['options']['sublayer_height_mm']
         del tmp['options']['laser_thickness_mm']
         del tmp['options']['laser_offset']

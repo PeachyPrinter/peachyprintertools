@@ -17,10 +17,8 @@ from peachyprinter.api.calibration_api import CalibrationAPI
 @patch('peachyprinter.api.calibration_api.MachineState')
 @patch('peachyprinter.api.calibration_api.MachineStatus')
 @patch('peachyprinter.api.calibration_api.Controller')
-@patch('peachyprinter.api.calibration_api.PathToAudio')
+@patch('peachyprinter.api.calibration_api.PathToPoints')
 @patch('peachyprinter.api.calibration_api.TuningTransformer')
-@patch('peachyprinter.api.calibration_api.AudioWriter')
-@patch('peachyprinter.api.calibration_api.AudioDisseminator')
 @patch('peachyprinter.api.calibration_api.LayerWriter')
 @patch('peachyprinter.api.calibration_api.LayerProcessing')
 @patch('peachyprinter.api.calibration_api.SinglePointGenerator')
@@ -34,18 +32,16 @@ from peachyprinter.api.calibration_api import CalibrationAPI
 class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
-        self.mock_SerialCommunicator =                   args[21]
-        self.mock_MicroDisseminator =                    args[20]
-        self.mock_LaserControl =                         args[19]
-        self.mock_ConfigurationManager =                 args[18]
-        self.mock_HomogenousTransformer =                args[17]
-        self.mock_MachineState =                         args[16]
-        self.mock_MachineStatus =                        args[15]
-        self.mock_Controller =                           args[14]
-        self.mock_PathToAudio =                          args[13]
-        self.mock_TuningTransformer =                    args[12]
-        self.mock_AudioWriter =                          args[11]
-        self.mock_AudioDisseminator =                    args[10]
+        self.mock_SerialCommunicator =                   args[19]
+        self.mock_MicroDisseminator =                    args[18]
+        self.mock_LaserControl =                         args[17]
+        self.mock_ConfigurationManager =                 args[16]
+        self.mock_HomogenousTransformer =                args[15]
+        self.mock_MachineState =                         args[14]
+        self.mock_MachineStatus =                        args[13]
+        self.mock_Controller =                           args[12]
+        self.mock_PathToPoints =                         args[11]
+        self.mock_TuningTransformer =                    args[10]
         self.mock_LayerWriter =                          args[9]
         self.mock_LayerProcessing =                      args[8]
         self.mock_SinglePointGenerator =                 args[7]
@@ -65,10 +61,8 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_machine_state =                        self.mock_MachineState.return_value
         self.mock_machine_status =                       self.mock_MachineStatus.return_value
         self.mock_controller =                           self.mock_Controller.return_value
-        self.mock_path_to_audio =                        self.mock_PathToAudio.return_value
+        self.mock_path_to_audio =                        self.mock_PathToPoints.return_value
         self.mock_tuning_transformer =                   self.mock_TuningTransformer.return_value
-        self.mock_audio_writer =                         self.mock_AudioWriter.return_value
-        self.mock_audio_disseminator =                   self.mock_AudioDisseminator.return_value
         self.mock_layer_writer =                         self.mock_LayerWriter.return_value
         self.mock_layer_processing =                     self.mock_LayerProcessing.return_value
         self.mock_single_point_generator =               self.mock_SinglePointGenerator.return_value
@@ -80,42 +74,6 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_spiral_generator =                     self.mock_SpiralGenerator.return_value
         self.mock_memory_hourglass_generator =           self.mock_MemoryHourglassGenerator.return_value
 
-    def test_init_creates_a_controller_with_correct_config(self, *args):
-        self.setup_mocks(args)
-        actual_samples = 7
-        self.mock_audio_disseminator.samples_per_second = actual_samples
-        self.mock_configuration_manager.load.return_value = self.default_config
-        CalibrationAPI(self.mock_configuration_manager, 'Spam')
-
-        self.mock_SinglePointGenerator.assert_called_with()
-        self.mock_AudioDisseminator.assert_called_with(
-            self.mock_laser_control,
-            self.mock_audio_writer,
-            self.default_config.audio.output.sample_rate,
-            self.default_config.audio.output.modulation_on_frequency,
-            self.default_config.audio.output.modulation_off_frequency,
-            self.default_config.options.laser_offset
-            )
-        self.mock_TuningTransformer.assert_called_with(
-            scale=self.default_config.calibration.max_deflection
-            )
-        self.mock_PathToAudio.assert_called_with(
-            actual_samples,
-            self.mock_tuning_transformer,
-            self.default_config.options.laser_thickness_mm
-            )
-        self.mock_AudioWriter.assert_called_with(
-            self.default_config.audio.output.sample_rate,
-            self.default_config.audio.output.bit_depth
-            )
-        self.mock_Controller.assert_called_with(
-            self.mock_layer_writer,
-            self.mock_layer_processing,
-            self.mock_single_point_generator,
-            self.mock_machine_status,
-            abort_on_error=False
-            )
-
     def test_init_creates_a_controller_with_digital_config(self, *args):
         self.setup_mocks(args)
         actual_samples = 77
@@ -126,8 +84,6 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         CalibrationAPI(self.mock_configuration_manager, 'Spam')
 
         self.mock_SinglePointGenerator.assert_called_with()
-
-        self.assertEquals(0, self.mock_AudioDisseminator.call_count)
 
         self.mock_LaserControl.assert_called_with(
             self.default_config.cure_rate.override_laser_power_amount
@@ -151,7 +107,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             scale=self.default_config.calibration.max_deflection
             )
 
-        self.mock_PathToAudio.assert_called_with(
+        self.mock_PathToPoints.assert_called_with(
             actual_samples,
             self.mock_tuning_transformer,
             self.default_config.options.laser_thickness_mm
@@ -164,15 +120,6 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_machine_state,
             post_fire_delay_speed=100.0,
             slew_delay_speed=100.0
-            )
-
-        self.assertEqual(0, self.mock_AudioWriter.call_count)
-        self.mock_Controller.assert_called_with(
-            self.mock_layer_writer,
-            self.mock_layer_processing,
-            self.mock_single_point_generator,
-            self.mock_machine_status,
-            abort_on_error=False
             )
 
     def test_stop_should_call_stop_on_controller(self, *args):
@@ -411,7 +358,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         calibration_api.set_laser_offset(expected)
 
         self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
-        self.mock_audio_disseminator.set_offset.assert_called_with(expected)
+        self.mock_micro_disseminator.set_offset.assert_called_with(expected)
 
     @patch('peachyprinter.api.calibration_api.SquareGenerator')
     def test_show_scale_should_use_Square_Generator_and_Tuning_Transformer(self, mock_SquareGenerator, *args):

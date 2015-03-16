@@ -1,10 +1,8 @@
 import logging
-from peachyprinter.infrastructure.audio import AudioWriter
-from peachyprinter.infrastructure.audiofiler import PathToAudio
+from peachyprinter.infrastructure.path_to_points import PathToPoints
 from peachyprinter.infrastructure.controller import Controller
 from peachyprinter.infrastructure.communicator import SerialCommunicator
 from peachyprinter.domain.laser_control import LaserControl
-from peachyprinter.infrastructure.audio_disseminator import AudioDisseminator
 from peachyprinter.infrastructure.micro_disseminator import MicroDisseminator
 from peachyprinter.infrastructure.transformer import TuningTransformer, HomogenousTransformer
 from peachyprinter.infrastructure.layer_generators import *
@@ -42,8 +40,6 @@ class CalibrationAPI(object):
 
         self._laser_control = LaserControl(self._configuration.cure_rate.override_laser_power_amount)
         transformer = TuningTransformer(scale=self._configuration.calibration.max_deflection)
-
-        self._audio_writer = None
         self._controller = None
         logging.debug("Setting up audiowriter")
 
@@ -65,21 +61,8 @@ class CalibrationAPI(object):
                 self._communicator,
                 self._configuration.micro_com.rate
                 )
-        else:
-            self._audio_writer = AudioWriter(
-                self._configuration.audio.output.sample_rate,
-                self._configuration.audio.output.bit_depth,
-            )
-            self._disseminator = AudioDisseminator(
-                self._laser_control,
-                self._audio_writer,
-                self._configuration.audio.output.sample_rate,
-                self._configuration.audio.output.modulation_on_frequency,
-                self._configuration.audio.output.modulation_off_frequency,
-                self._configuration.options.laser_offset
-                )
 
-        self._path_to_audio = PathToAudio(
+        self._path_to_points = PathToPoints(
             self._disseminator.samples_per_second,
             transformer,
             self._configuration.options.laser_thickness_mm
@@ -94,7 +77,7 @@ class CalibrationAPI(object):
 
         self._writer = LayerWriter(
             self._disseminator,
-            self._path_to_audio,
+            self._path_to_points,
             self._laser_control,
             self._state,
             post_fire_delay_speed=post_fire_delay_speed,
@@ -217,7 +200,7 @@ class CalibrationAPI(object):
         self._controller.change_generator(self._current_generator)
 
     def _apply_calibration(self):
-        self._path_to_audio.set_transformer(
+        self._path_to_points.set_transformer(
             HomogenousTransformer(
                 self._configuration.calibration.max_deflection,
                 self._configuration.calibration.height,
@@ -227,7 +210,7 @@ class CalibrationAPI(object):
             )
 
     def _unapply_calibration(self):
-        self._path_to_audio.set_transformer(
+        self._path_to_points.set_transformer(
             TuningTransformer(scale=self._configuration.calibration.max_deflection))
 
     def _validate_points(self, points):

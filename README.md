@@ -10,7 +10,6 @@ Very Active Development (BETA - 2)
 Known Issues
 --------------------------
 
-+ Audio settings show despite a lack of support for sound card. http://stackoverflow.com/questions/23553470/pyaudio-supports-all-formats-despite-the-fact-the-audio-card-does-not
 + Drip detection may require audio boost on some systems.
 + Models pre PP29 may drive mirrors too far to calibrate properly
 
@@ -52,7 +51,6 @@ Development
 + python 2.7
 + numpy
 + cx_freeze
-+ pyaudio
 + mock
 + pyserial
 + python protobuf

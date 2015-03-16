@@ -180,12 +180,9 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 @patch('peachyprinter.api.print_api.MachineState')
 @patch('peachyprinter.api.print_api.MachineStatus')
 @patch('peachyprinter.api.print_api.Controller')
-@patch('peachyprinter.api.print_api.PathToAudio')
+@patch('peachyprinter.api.print_api.PathToPoints')
 @patch('peachyprinter.api.print_api.HomogenousTransformer')
-@patch('peachyprinter.api.print_api.AudioWriter')
 @patch('peachyprinter.api.print_api.GCodeReader')
-@patch('peachyprinter.api.print_api.AudioDisseminator')
-@patch('peachyprinter.api.print_api.AudioDripZAxis')
 @patch('peachyprinter.api.print_api.SubLayerGenerator')
 @patch('peachyprinter.api.print_api.NullCommander')
 @patch('peachyprinter.api.print_api.ShuffleGenerator')
@@ -194,26 +191,23 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
-        self.mock_SerialDripZAxis =               args[24]
-        self.mock_MicroDisseminator =             args[23]
-        self.mock_SerialCommunicator =            args[22]
-        self.mock_LaserControl =                  args[21]
-        self.mock_FileWriter =                    args[20]
-        self.mock_EmailNotificationService =      args[19]
-        self.mock_EmailGateway =                  args[18]
-        self.mock_PhotoZAxis =                    args[17]
-        self.mock_TimedDripZAxis =                args[16]
-        self.mock_SerialCommander =               args[15]
-        self.mock_OverLapGenerator =              args[14]
-        self.mock_MachineState =                  args[13]
-        self.mock_MachineStatus =                 args[12]
-        self.mock_Controller =                    args[11]
-        self.mock_PathToAudio =                   args[10]
-        self.mock_HomogenousTransformer =         args[9]
-        self.mock_AudioWriter =                   args[8]
-        self.mock_GCodeReader =                   args[7]
-        self.mock_AudioDisseminator =             args[6]
-        self.mock_AudioDripZAxis =                args[5]
+        self.mock_SerialDripZAxis =               args[21]
+        self.mock_MicroDisseminator =             args[20]
+        self.mock_SerialCommunicator =            args[19]
+        self.mock_LaserControl =                  args[18]
+        self.mock_FileWriter =                    args[17]
+        self.mock_EmailNotificationService =      args[16]
+        self.mock_EmailGateway =                  args[15]
+        self.mock_PhotoZAxis =                    args[14]
+        self.mock_TimedDripZAxis =                args[13]
+        self.mock_SerialCommander =               args[12]
+        self.mock_OverLapGenerator =              args[11]
+        self.mock_MachineState =                  args[10]
+        self.mock_MachineStatus =                 args[9]
+        self.mock_Controller =                    args[8]
+        self.mock_PathToPoints =                  args[7]
+        self.mock_HomogenousTransformer =         args[6]
+        self.mock_GCodeReader =                   args[5]
         self.mock_SubLayerGenerator =             args[4]
         self.mock_NullCommander =                 args[3]
         self.mock_ShuffleGenerator =              args[2]
@@ -234,113 +228,15 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_machine_state =                   self.mock_MachineState.return_value
         self.mock_machine_status =                  self.mock_MachineStatus.return_value
         self.mock_controller =                      self.mock_Controller.return_value
-        self.mock_path_to_audio =                   self.mock_PathToAudio.return_value
+        self.mock_path_to_audio =                   self.mock_PathToPoints.return_value
         self.mock_homogenous_transformer =          self.mock_HomogenousTransformer.return_value
-        self.mock_audio_writer =                    self.mock_AudioWriter.return_value
         self.mock_g_code_reader =                   self.mock_GCodeReader.return_value
-        self.mock_audio_disseminator =              self.mock_AudioDisseminator.return_value
-        self.mock_audio_drip_zaxis =                self.mock_AudioDripZAxis.return_value
         self.mock_sub_layer_generator =             self.mock_SubLayerGenerator.return_value
         self.mock_null_commander =                  self.mock_NullCommander.return_value
         self.mock_shuffle_generator =               self.mock_ShuffleGenerator.return_value
         self.mock_layer_writer =                    self.mock_LayerWriter.return_value
         self.mock_layer_processing =                self.mock_LayerProcessing.return_value
 
-    def test_print_gcode_should_create_required_classes_and_start_it(self, *args):
-        self.setup_mocks(args)
-
-        gcode_path = "FakeFile"
-        actual_samples_per_second = 7
-        fake_layers = "Fake Layers"
-        abort_on_error = True
-
-        self.mock_audio_disseminator.samples_per_second = actual_samples_per_second
-        self.mock_g_code_reader.get_layers.return_value = fake_layers
-
-        config = self.default_config
-        config.options.use_shufflelayers = False
-        config.options.use_sublayers = False
-        config.options.use_overlap = False
-        config.options.post_fire_delay = 5
-        api = PrintAPI(config)
-
-        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True) as mocked_open:
-            api.print_gcode(gcode_path)
-            self.mock_GCodeReader.assert_called_with(
-                mocked_open.return_value,
-                scale=config.options.scaling_factor,
-                start_height=0.0
-                )
-
-        self.mock_AudioDripZAxis.assert_called_with(
-            config.dripper.drips_per_mm,
-            0.0,
-            config.audio.input.sample_rate,
-            config.audio.input.bit_depth,
-            self.mock_null_commander,
-            config.serial.on_command,
-            config.serial.off_command
-            )
-
-        self.mock_AudioDisseminator.assert_called_with(
-            self.mock_laser_control,
-            self.mock_audio_writer,
-            config.audio.output.sample_rate,
-            config.audio.output.modulation_on_frequency,
-            config.audio.output.modulation_off_frequency,
-            config.options.laser_offset
-            )
-
-        self.mock_AudioWriter.assert_called_with(
-            config.audio.output.sample_rate,
-            config.audio.output.bit_depth,
-            )
-
-        self.mock_HomogenousTransformer.assert_called_with(
-            config.calibration.max_deflection,
-            config.calibration.height,
-            config.calibration.lower_points,
-            config.calibration.upper_points,
-            )
-
-        self.mock_PathToAudio.assert_called_with(
-            actual_samples_per_second,
-            self.mock_homogenous_transformer,
-            config.options.laser_thickness_mm
-            )
-
-        self.mock_LayerWriter.assert_called_with(
-            self.mock_audio_disseminator,
-            self.mock_path_to_audio,
-            self.mock_laser_control,
-            self.mock_machine_state,
-            move_distance_to_ignore=config.options.laser_thickness_mm,
-            override_speed=config.cure_rate.draw_speed,
-            wait_speed=100.0,
-            post_fire_delay_speed=100.0,
-            slew_delay_speed=100.0,
-            )
-
-        self.mock_LayerProcessing.assert_called_with(
-            self.mock_layer_writer,
-            self.mock_machine_state,
-            self.mock_machine_status,
-            self.mock_audio_drip_zaxis,
-            config.dripper.max_lead_distance_mm,
-            self.mock_null_commander,
-            config.options.pre_layer_delay,
-            config.serial.layer_started,
-            config.serial.layer_ended,
-            config.serial.print_ended,
-            )
-
-        self.mock_Controller.assert_called_with(
-            self.mock_layer_writer,
-            self.mock_layer_processing,
-            fake_layers,
-            self.mock_machine_status,
-            abort_on_error=abort_on_error,
-            )
 
     def test_print_gcode_should_create_required_classes_and_start_it_for_digital(self, *args):
         self.setup_mocks(args)
@@ -387,7 +283,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.micro_com.rate
             )
 
-        self.assertEquals(0, self.mock_AudioWriter.call_count)
+        self.assertEquals(0, self.mock_serial_communicator.call_count)
 
         self.mock_HomogenousTransformer.assert_called_with(
             config.calibration.max_deflection,
@@ -396,7 +292,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.calibration.upper_points,
             )
 
-        self.mock_PathToAudio.assert_called_with(
+        self.mock_PathToPoints.assert_called_with(
             actual_samples_per_second,
             self.mock_homogenous_transformer,
             config.options.laser_thickness_mm
@@ -440,7 +336,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         actual_samples_per_second = 7
         fake_layers = "Fake Layers"
 
-        self.mock_audio_disseminator.actual_samples_per_second = actual_samples_per_second
+        self.mock_micro_disseminator.actual_samples_per_second = actual_samples_per_second
         self.mock_g_code_reader.get_layers.return_value = fake_layers
 
         config = self.default_config
@@ -454,14 +350,10 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
                 start_height=expected_start_height
                 )
 
-        self.mock_AudioDripZAxis.assert_called_with(
+        self.mock_SerialDripZAxis.assert_called_with(
+            self.mock_serial_communicator,
             config.dripper.drips_per_mm,
             expected_start_height,
-            config.audio.input.sample_rate,
-            config.audio.input.bit_depth,
-            self.mock_null_commander,
-            config.serial.on_command,
-            config.serial.off_command
             )
 
     def test_print_gcode_should_create_required_classes_and_start_it_with_pre_layer_delay(self, *args):
@@ -478,7 +370,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_layer_writer,
             self.mock_machine_state,
             self.mock_machine_status,
-            self.mock_audio_drip_zaxis,
+            self.mock_serial_drip_zaxis,
             config.dripper.max_lead_distance_mm,
             self.mock_null_commander,
             config.options.pre_layer_delay,
@@ -499,7 +391,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             api.print_gcode(gcode_path)
 
         self.mock_LayerWriter.assert_called_with(
-            self.mock_audio_disseminator,
+            self.mock_micro_disseminator,
             self.mock_path_to_audio,
             self.mock_laser_control,
             self.mock_machine_state,
@@ -549,7 +441,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             api.print_gcode(gcode_path)
 
         self.mock_LayerWriter.assert_called_with(
-            self.mock_audio_disseminator,
+            self.mock_micro_disseminator,
             self.mock_path_to_audio,
             self.mock_laser_control,
             self.mock_machine_state,
@@ -664,7 +556,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_layer_writer,
             self.mock_machine_state,
             self.mock_machine_status,
-            self.mock_audio_drip_zaxis,
+            self.mock_serial_drip_zaxis,
             config.dripper.max_lead_distance_mm,
             self.mock_serial_commander,
             config.options.pre_layer_delay,
@@ -760,7 +652,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         gcode_path = "FakeFile"
 
-        self.mock_audio_drip_zaxis.set_drips_per_second.side_effect = Exception()
+        self.mock_serial_drip_zaxis.set_drips_per_second.side_effect = Exception()
 
         config = self.default_config
 
@@ -786,13 +678,13 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_EmailNotificationService.assert_called_with(self.mock_email_gateway, config.email.sender, config.email.recipient)
         self.mock_email_notification_service.send_message.assert_called_with("Print Complete", "%s is complete" % gcode_path)
 
-    def test_init_should_set_call_back_on_zaxis(self, *args):
+    def test_print_should_set_call_back_on_zaxis(self, *args):
         self.setup_mocks(args)
         gcode_path = "FakeFile"
         actual_samples_per_second = 7
         fake_layers = "Fake Layers"
 
-        self.mock_audio_disseminator.actual_samples_per_second = actual_samples_per_second
+        self.mock_micro_disseminator.actual_samples_per_second = actual_samples_per_second
         self.mock_g_code_reader.get_layers.return_value = fake_layers
 
         config = self.default_config
@@ -801,7 +693,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
             api.print_gcode(gcode_path)
 
-        self.mock_audio_drip_zaxis.set_call_back.assert_called_with(self.mock_machine_status.drip_call_back)
+        self.mock_serial_drip_zaxis.set_call_back.assert_called_with(self.mock_machine_status.drip_call_back)
 
     def test_configuration_returns_configuration(self, *args):
         self.setup_mocks(args)

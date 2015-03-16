@@ -1,107 +1,11 @@
 import types
 import logging
 
-from peachyprinter.infrastructure.audio import AudioSetup
-from peachyprinter.infrastructure.drip_based_zaxis import AudioDripZAxis
 from peachyprinter.infrastructure.timed_drip_zaxis import TimedDripZAxis
 from peachyprinter.infrastructure.zaxis import SerialDripZAxis
 from peachyprinter.infrastructure.communicator import SerialCommunicator
 from peachyprinter.infrastructure.layer_generators import CureTestGenerator
 from peachyprinter.infrastructure.commander import NullCommander, SerialCommander
-
-'''Details the audio settings'''
-class AudioSetting(object):
-    def __init__(self, sample_frequency, bit_depth, recommended=False, current= False):
-        self.sample_frequency = sample_frequency
-        self.bit_depth = bit_depth
-        self.recommended = recommended
-        self.current = current
-
-    def set_recommended(self):
-        self.recommended = True
-
-    def set_current(self):
-        self.current = True
-
-    def __eq__(self, other):
-        return self.sample_frequency == other.sample_frequency and self.bit_depth == other.bit_depth and self.recommended == other.recommended and self.current == other.current
-
-    def __str__(self):
-        if self.recommended:
-            return "%s Hz, %s (Recommended)" % (self.sample_frequency, self.bit_depth)
-        else:
-            return "%s Hz, %s" % (self.sample_frequency, self.bit_depth)
-
-
-class AudioSetupMixIn(object):
-    _BEST_AUDIO_OUT_OPTIONS = [
-        AudioSetting(48000, '16 bit'),
-        AudioSetting(48000, '24 bit'),
-        AudioSetting(48000, '32 bit Floating Point'),
-        AudioSetting(44100, '16 bit'),
-        AudioSetting(44100, '32 bit'),
-        AudioSetting(44100, '32 bit Floating Point'),
-        ]
-
-    _BEST_AUDIO_IN_OPTIONS = [
-        AudioSetting(48000, '16 bit'),
-        AudioSetting(44100, '16 bit')
-        ]
-
-    '''Lists all available audio options returning a list of AudioSetting. 
-    Warning: due to a bug in a port audio this may list unusable audio types.'''
-    def get_available_audio_options(self):
-        options = self._audio_setup.get_valid_sampling_options()
-        inputs  = [ AudioSetting(option['sample_rate'],option['depth']) for option in options['input' ]]
-        outputs = [ AudioSetting(option['sample_rate'],option['depth']) for option in options['output']]
-        self._set_recommend(inputs, 'inputs')
-        self._set_recommend(outputs, 'outputs')
-        self._set_currently_selected(inputs, 'inputs')
-        self._set_currently_selected(outputs, 'outputs')
-        return { 'inputs': self._sort_options(inputs) ,'outputs' : self._sort_options(outputs)}
-
-    def _sort_options(self, options):
-        options.sort(key = lambda option: (option.sample_frequency, option.bit_depth))
-        return options
-
-    def _set_recommend(self, audio_settings, io_type):
-        options = self._BEST_AUDIO_IN_OPTIONS if io_type == 'inputs' else self._BEST_AUDIO_OUT_OPTIONS
-        for option in options:
-            for audio_setting in audio_settings:
-                if option == audio_setting:
-                    audio_setting.set_recommended()
-                    return
-
-    def _set_currently_selected(self, audio_settings, io_type):
-        if io_type == 'inputs':
-            sample_frequency = self._current_config.audio.input.sample_rate
-            bit_depth = self._current_config.audio.input.bit_depth
-        else:
-            sample_frequency = self._current_config.audio.output.sample_rate
-            bit_depth = self._current_config.audio.output.bit_depth
-        for audio_setting in audio_settings:
-            if sample_frequency == audio_setting.sample_frequency and bit_depth == audio_setting.bit_depth:
-                audio_setting.set_current()
-                return
-
-    '''Sets the output audio based on the AudioSetting passed in'''
-    def set_audio_output_options(self, audio_setting):
-        #TODO JT 2014-04-30 - The modulation stuff may not belong here.
-        if (audio_setting.sample_frequency == 44100):
-            self._current_config.audio.output.modulation_on_frequency = 11025
-            self._current_config.audio.output.modulation_off_frequency = 2205
-        else:
-            self._current_config.audio.output.modulation_on_frequency = 12000
-            self._current_config.audio.output.modulation_off_frequency = 2000
-        self._current_config.audio.output.bit_depth = audio_setting.bit_depth
-        self._current_config.audio.output.sample_rate = audio_setting.sample_frequency
-        self.save()
-
-    '''Sets the output audio based on the AudioSetting passed in'''
-    def set_audio_input_options(self,audio_setting):
-        self._current_config.audio.input.bit_depth = audio_setting.bit_depth
-        self._current_config.audio.input.sample_rate = audio_setting.sample_frequency
-        self.save()
 
 
 class DripperSetupMixIn(object):
@@ -129,20 +33,8 @@ class DripperSetupMixIn(object):
 
     def _change_dripper(self):
         self._stop_current_dripper()
-
-        if self._current_config.dripper.dripper_type == 'audio':
-            self._drip_detector = AudioDripZAxis(
-                1,
-                0.0,
-                self._current_config.audio.input.sample_rate,
-                self._current_config.audio.input.bit_depth,
-                NullCommander(),
-                '',
-                '',
-                drip_call_back=self.drip_call_back
-                )
-            self._drip_detector.start()
-        elif self._current_config.dripper.dripper_type == 'emulated':
+        
+        if self._current_config.dripper.dripper_type == 'emulated':
             pass
         elif self._current_config.dripper.dripper_type == 'photo':
             pass
@@ -154,7 +46,7 @@ class DripperSetupMixIn(object):
                 self._current_config.micro_com.escape
                 )
             self._communicator.start()
-            self._drip_detector = SerialDripZAxis(self._communicator, 1, 0.0, self.drip_call_back)
+            self._drip_detector = SerialDripZAxis(self._communicator, 1, 0.0, drip_call_back=self.drip_call_back)
 
     def _stop_current_dripper(self):
         if self._communicator:
@@ -689,7 +581,6 @@ This API is still in active development and as is subject dramatic change'''
 
 
 class ConfigurationAPI(
-    AudioSetupMixIn,
     DripperSetupMixIn,
     CureTestSetupMixIn,
     GeneralSetupMixIn,
@@ -701,7 +592,6 @@ class ConfigurationAPI(
     def __init__(self, configuration_manager):
         self._configuration_manager = configuration_manager
         self._current_config = None
-        self._audio_setup = AudioSetup()
         self._drip_detector = None
         self._communicator = None
         self._marked_drips = None

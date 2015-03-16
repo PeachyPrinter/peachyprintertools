@@ -29,8 +29,8 @@ class ConfigurationBase(object):
 
 class CircutConfiguration(ConfigurationBase):
     def __init__(self, source={}):
-        self._circut_type   = self.get(source, u'circut_type', 'Analog')
-        self._version = self.get(source, u'version', 'r1.99-6f')
+        self._circut_type   = self.get(source, u'circut_type', 'Digital')
+        self._version = self.get(source, u'version', 'unknown')
 
     @property
     def circut_type(self):
@@ -587,7 +587,7 @@ class DripperConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._max_lead_distance_mm = self.get(source, u'max_lead_distance_mm',1.0)
         self._drips_per_mm = self.get(source, u'drips_per_mm',100.0)
-        self._dripper_type = self.get(source, u'dripper_type','audio')
+        self._dripper_type = self.get(source, u'dripper_type','audio') #TODO
         self._emulated_drips_per_second = self.get(source,u'emulated_drips_per_second',100.0)
         self._photo_zaxis_delay = self.get(source,u'photo_zaxis_delay',3.0)
     
@@ -804,111 +804,9 @@ class SerialConfiguration(ConfigurationBase):
             raise ValueError("Print ended command must be of %s" % (str(_type)))
 
 
-class AudioInputConfiguration(ConfigurationBase):
-    def __init__(self, source = {}):
-        self._bit_depth = self.get(source, u'bit_depth', "16 bit")
-        self._sample_rate = self.get(source, u'sample_rate', 44100)
-
-    @property
-    def bit_depth(self):
-        return self._bit_depth
-
-    @bit_depth.setter
-    def bit_depth(self, value):
-        _type = types.StringType
-        if type(value) == _type:
-            self._bit_depth = value
-        else:
-            raise ValueError("Bit depth must be of %s" % (str(_type)))
-
-    @property
-    def sample_rate(self):
-        return self._sample_rate
-
-    @sample_rate.setter
-    def sample_rate(self, value):
-        _type = types.IntType
-        if type(value) == _type:
-            self._sample_rate = value
-        else:
-            raise ValueError("Sample Rate must be of %s" % (str(_type)))
-
-
-class AudioOutputConfiguration(ConfigurationBase):
-    def __init__(self, source = {}):
-        self._bit_depth = self.get(source, u'bit_depth',"16 bit")
-        self._sample_rate = self.get(source, u'sample_rate', 48000)
-        self._modulation_on_frequency = self.get(source, u'modulation_on_frequency', 8000)
-        self._modulation_off_frequency = self.get(source, u'modulation_off_frequency',2000)
-
-    @property
-    def bit_depth(self):
-        return self._bit_depth
-
-    @bit_depth.setter
-    def bit_depth(self, value):
-        _type = types.StringType
-        if type(value) == _type:
-            self._bit_depth = value
-        else:
-            raise ValueError("Bit depth must be of %s" % (str(_type)))
-
-    @property
-    def sample_rate(self):
-        return self._sample_rate
-
-    @sample_rate.setter
-    def sample_rate(self, value):
-        _type = types.IntType
-        if type(value) == _type:
-            self._sample_rate = value
-        else:
-            raise ValueError("Sample Rate must be of %s" % (str(_type)))
-
-    @property
-    def modulation_on_frequency(self):
-        return self._modulation_on_frequency
-
-    @modulation_on_frequency.setter
-    def modulation_on_frequency(self, value):
-        _type = types.IntType
-        if type(value) == _type:
-            self._modulation_on_frequency = value
-        else:
-            raise ValueError("Modulation On Frequency must be of %s" % (str(_type)))
-
-
-    @property
-    def modulation_off_frequency(self):
-        return self._modulation_off_frequency
-
-    @modulation_off_frequency.setter
-    def modulation_off_frequency(self, value):
-        _type = types.IntType
-        if type(value) == _type:
-            self._modulation_off_frequency = value
-        else:
-            raise ValueError("Sample Rate must be of %s" % (str(_type)))
-
-
-class AudioConfiguration(ConfigurationBase):
-    def __init__(self, source = {}):
-        self._input = AudioInputConfiguration(source.get(u'input', {}))
-        self._output = AudioOutputConfiguration(source.get(u'output', {}))
-
-    @property
-    def input(self):
-        return self._input
-
-    @property
-    def output(self):
-        return self._output
-
-
 class Configuration(ConfigurationBase):
     def __init__(self, source = {}):
         self._name = self.get(source, u'name', 'Peachy Printer')
-        self._audio = AudioConfiguration(source=source.get(u'audio', {}))
         self._serial = SerialConfiguration(source=source.get(u'serial', {}))
         self._calibration = CalibrationConfiguration(source=source.get(u'calibration', {}))
         self._dripper = DripperConfiguration(source=source.get(u'dripper', {}))
@@ -921,10 +819,6 @@ class Configuration(ConfigurationBase):
     def toJson(self):
         di = self.toDict()
         return json.dumps(di, sort_keys=True, indent=2)
-
-    @property
-    def audio(self):
-        return self._audio
 
     @property
     def serial(self):
@@ -977,13 +871,6 @@ class ConfigurationGenerator(object):
         
         configuration.name                                 = "Peachy Printer"
 
-        configuration.audio.output.bit_depth               = "16 bit"
-        configuration.audio.output.sample_rate             = 48000
-        configuration.audio.output.modulation_on_frequency = 8000
-        configuration.audio.output.modulation_off_frequency= 2000
-        configuration.audio.input.bit_depth                = "16 bit"
-        configuration.audio.input.sample_rate              = 44100
-
         configuration.options.sublayer_height_mm           = 0.01
         configuration.options.laser_thickness_mm           = 0.5
         configuration.options.laser_offset                 = [0.0,0.0]
@@ -997,7 +884,7 @@ class ConfigurationGenerator(object):
 
         configuration.dripper.drips_per_mm                 = 100.0
         configuration.dripper.max_lead_distance_mm         = 1.0
-        configuration.dripper.dripper_type                 = 'audio'
+        configuration.dripper.dripper_type                 = 'microcontroller'
         configuration.dripper.emulated_drips_per_second    = 1.0
         configuration.dripper.photo_zaxis_delay            = 3.0
 
@@ -1032,8 +919,8 @@ class ConfigurationGenerator(object):
         configuration.micro_com.header                     = '@'
         configuration.micro_com.footer                     = 'A'
         configuration.micro_com.escape                     = 'B'
-        configuration.circut.circut_type                   = 'Analog'
-        configuration.circut.version                       = 'r1.99-r3'
+        configuration.circut.circut_type                   = 'Digital'
+        configuration.circut.version                       = 'unknown'
 
         return configuration
 

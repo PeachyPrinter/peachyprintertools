@@ -2,15 +2,12 @@ import logging
 import time
 from os import path, listdir
 
-from peachyprinter.infrastructure.audio import AudioWriter
 from peachyprinter.infrastructure.file import FileWriter
-from peachyprinter.infrastructure.audiofiler import PathToAudio
+from peachyprinter.infrastructure.path_to_points import PathToPoints
 from peachyprinter.infrastructure.controller import Controller
-from peachyprinter.infrastructure.drip_based_zaxis import AudioDripZAxis
 from peachyprinter.infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZAxis
 from peachyprinter.infrastructure.zaxis import SerialDripZAxis
 from peachyprinter.domain.laser_control import LaserControl
-from peachyprinter.infrastructure.audio_disseminator import AudioDisseminator
 from peachyprinter.infrastructure.micro_disseminator import MicroDisseminator
 from peachyprinter.infrastructure.communicator import SerialCommunicator, NullCommunicator
 from peachyprinter.infrastructure.gcode_layer_generator import GCodeReader
@@ -117,17 +114,6 @@ class PrintAPI(object):
                 self._start_height,
                 self._configuration.dripper.photo_zaxis_delay
                 )
-        elif self._configuration.dripper.dripper_type == 'audio':
-            logging.info("Audio Zaxis")
-            return AudioDripZAxis(
-                self._configuration.dripper.drips_per_mm,
-                self._start_height,
-                self._configuration.audio.input.sample_rate,
-                self._configuration.audio.input.bit_depth,
-                self._commander,
-                self._configuration.serial.on_command,
-                self._configuration.serial.off_command
-                )
         elif self._configuration.dripper.dripper_type == 'emulated':
             logging.info("Emulated Zaxis")
             return TimedDripZAxis(
@@ -166,30 +152,6 @@ class PrintAPI(object):
                 self._configuration.micro_com.rate
                 )
 
-    def _get_analog_disseminator(self, dry_run):
-        if dry_run:
-            data_writer = None
-        elif self._configuration.options.write_wav_files:
-            data_writer = FileWriter(
-                self._configuration.audio.output.sample_rate,
-                self._configuration.audio.output.bit_depth,
-                self._configuration.options.write_wav_files_folder,
-                )
-        else:
-            data_writer = AudioWriter(
-                self._configuration.audio.output.sample_rate,
-                self._configuration.audio.output.bit_depth,
-                )
-
-        return AudioDisseminator(
-            self.laser_control,
-            data_writer,
-            self._configuration.audio.output.sample_rate,
-            self._configuration.audio.output.modulation_on_frequency,
-            self._configuration.audio.output.modulation_off_frequency,
-            self._configuration.options.laser_offset
-            )
-
     def print_layers(self, layer_generator, print_sub_layers=True, dry_run=False):
         logging.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
         logging.info("Sublayered: %s" % self._configuration.options.use_sublayers)
@@ -226,13 +188,10 @@ class PrintAPI(object):
 
         self._zaxis = self._get_zaxis(dry_run)
 
-        if self._configuration.circut.circut_type == 'Analog':
-            disseminator = self._get_analog_disseminator(dry_run)
-
-        elif self._configuration.circut.circut_type == 'Digital':
+        if self._configuration.circut.circut_type == 'Digital':
             disseminator = self._get_digital_disseminator(dry_run)
 
-        path_to_audio = PathToAudio(
+        path_to_points = PathToPoints(
             disseminator.samples_per_second,
             transformer,
             self._configuration.options.laser_thickness_mm
@@ -249,7 +208,7 @@ class PrintAPI(object):
 
         self._writer = LayerWriter(
             disseminator,
-            path_to_audio,
+            path_to_points,
             self.laser_control,
             state,
             move_distance_to_ignore=self._configuration.options.laser_thickness_mm,

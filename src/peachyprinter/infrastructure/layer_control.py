@@ -9,7 +9,7 @@ class LayerWriter():
 
     def __init__(self,
                  disseminator,
-                 path_to_audio,
+                 path_to_points,
                  laser_control,
                  state,
                  move_distance_to_ignore=0.00001,
@@ -24,7 +24,7 @@ class LayerWriter():
         self._move_distance_to_ignore = move_distance_to_ignore
         self._state = state
         self._disseminator = disseminator
-        self._path_to_audio = path_to_audio
+        self._path_to_points = path_to_points
         self._laser_control = laser_control
         self.laser_off_override = False
         self._after_move_wait_speed = wait_speed
@@ -87,7 +87,7 @@ class LayerWriter():
         if self._override_speed and not ignore_override:
             speed = self._override_speed
         to_xyz = [to_x, to_y, to_z]
-        path = self._path_to_audio.process(self._state.xyz, to_xyz, speed)
+        path = self._path_to_points.process(self._state.xyz, to_xyz, speed)
         if self._disseminator:
             self._disseminator.process(path)
         self._state.set_state(to_xyz, speed)
