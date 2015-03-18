@@ -1,4 +1,20 @@
 #!/bin/bash
+usage() { echo "Usage: $0 -c{clean}" 1>&2; exit 1; }
+
+while getopts "ch?:" opt; do
+    case "${opt}" in
+        c)
+            clean="TRUE"
+            ;;
+        h)
+            usage
+            ;;
+        ?)
+            usage
+            ;;
+    esac
+done
+
 
 echo "----Checking for already running Virtual Environment----"
 if [[ "$VIRTUAL_ENV" != "" ]]; then
@@ -36,15 +52,13 @@ fi
 echo "----Checking for and create a virtual environment----"
 CREATE_VENV="TRUE"
 if [ -d "venv" ]; then
-    while true; do
-    read -p "Do you wish remove and re-install this environment?" yn
-    case $yn in
-        [Yy]* ) rm -rf venv && CREATE_VENV="TRUE"; break;;
-        [Nn]* ) CREATE_VENV="FALSE"; break;;
-        * ) echo "Please answer yes or no.";;
-    esac
-    done
+    if [ "$clean" == "TRUE" ]; then
+        rm -rf venv && CREATE_VENV="TRUE"
+    else
+        CREATE_VENV="FALSE"
+    fi
 fi
+
 if [ $CREATE_VENV == "TRUE" ]; then
     virtualenv venv
     if [ $? != 0 ]; then
