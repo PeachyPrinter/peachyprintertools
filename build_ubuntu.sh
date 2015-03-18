@@ -12,6 +12,13 @@ rm -f version.properties
 rm -rf src/dist
 rm -rf PeachPrinterToolsAPI.egg-info
 rm -rf PeachyPrinterToolsAPI*.tar.gz
+rm -rf venv
+
+echo "------------------------------------"
+echo "Setting up environment"
+echo "------------------------------------"
+
+source setup_ubuntu.sh
 
 echo "------------------------------------"
 echo "Extracting Git Revision Number"
