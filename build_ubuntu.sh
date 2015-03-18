@@ -12,7 +12,7 @@ rm -f version.properties
 rm -rf src/dist
 rm -rf PeachPrinterToolsAPI.egg-info
 rm -rf PeachyPrinterToolsAPI*.tar.gz
-rm -rf venv
+# rm -rf venv
 
 echo "------------------------------------"
 echo "Setting up environment"
