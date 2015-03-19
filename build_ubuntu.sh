@@ -8,7 +8,17 @@ echo "------------------------------------"
 rm -rf src/build
 rm -rf *.dmg
 rm -f src/VERSION.py
-rm -f version.properties 
+rm -f version.properties
+rm -rf src/dist
+rm -rf PeachPrinterToolsAPI.egg-info
+rm -rf PeachyPrinterToolsAPI*.tar.gz
+# rm -rf venv
+
+echo "------------------------------------"
+echo "Setting up environment"
+echo "------------------------------------"
+
+source setup_ubuntu.sh
 
 echo "------------------------------------"
 echo "Extracting Git Revision Number"
@@ -54,3 +64,25 @@ if [ $? != 0 ]; then
     echo "FAILED TESTS ABORTING"
     exit 55
 fi
+
+echo "TESTS COMPLETE SUCCESS"
+cd src
+python setup.py sdist
+
+if [ $? != 0 ]; then
+    echo "FAILED PACKAGING ABORTING"
+    exit 56
+fi
+cd ..
+
+echo "PACKAGING COMPLETE SUCCESS"
+
+mv src/dist/PeachyPrinterToolsAPI*.tar.gz .
+
+if [ $? != 0 ]; then
+    echo "FAILED MOVE PACKAGE ABORTING"
+    exit 57
+fi
+echo "------------------------------------"
+echo "COMPLETE SUCCESS"
+echo "------------------------------------"

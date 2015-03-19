@@ -6,6 +6,7 @@ echo ------------------------------------
 
 del /Q *.msi
 rmdir /S /Q src\build
+rmdir /S /Q src\PeachyPrinterToolsAPI.egg-info
 rmdir /S /Q src\dist
 REM TODO JT 2014-02-04 - Should clean the workspace
 
@@ -45,19 +46,21 @@ cd test
 python test-all.py
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED TESTS ABORTING"
+    cd ..
     EXIT /B 2
 )
 cd ..
 
 
 echo ------------------------------------
-echo Create Peachy Tools Application
+echo Create Peachy Tools Api
 echo ------------------------------------
 
 cd src
-python setup.py bdist_msi
+python setup.py sdist
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED PACKAGING ABORTING"
+    cd ..
     EXIT /B 3
 )
 
@@ -67,4 +70,4 @@ echo ------------------------------------
 echo Moving file
 echo ------------------------------------
 
-move src\dist\*.msi .
+move src\dist\*.zip .

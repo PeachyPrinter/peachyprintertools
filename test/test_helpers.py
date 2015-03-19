@@ -1,14 +1,14 @@
 import numpy
 import unittest
-from domain.commands import *
-from infrastructure.configuration import ConfigurationGenerator
+from peachyprinter.domain.commands import *
+from peachyprinter.infrastructure.configuration import ConfigurationGenerator
 
 class NumpyTestHelpers(object):
 
     def assertNumpyArrayEquals(self,array1, array2):
         equal = numpy.array_equal(array1,array2)
         if not equal:
-            self.fail("\n%s\ndid not equal\n%s" % (str(array1),str(array2)))
+            self.fail("\n%s\ndid not equal\n%s" % (array1.shape,array2.shape))
 
     def assertNumpyArrayClose(self,array1, array2):
         equal = numpy.allclose(array1,array2)
@@ -97,12 +97,6 @@ class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):
     def assertConfigurationEqual(self, expected, actual):
         self.assertEquals(type(expected), type(actual), 'Not a config was %s and %s' % (type(expected), type(actual)))
         self.assertEquals(expected.name                                 , actual.name                                 , "name did not match expected %s was %s"                                  % (expected.name                                 , actual.name                                 ))
-        self.assertEquals(expected.audio.output.bit_depth               , actual.audio.output.bit_depth               , "audio.output.bit_depth did not match expected %s was %s"                % (expected.audio.output.bit_depth               , actual.audio.output.bit_depth               ))
-        self.assertEquals(expected.audio.output.sample_rate             , actual.audio.output.sample_rate             , "audio.output.sample_rate did not match expected %s was %s"              % (expected.audio.output.sample_rate             , actual.audio.output.sample_rate             ))
-        self.assertEquals(expected.audio.output.modulation_on_frequency , actual.audio.output.modulation_on_frequency , "audio.output.modulation_on_frequency did not match expected %s was %s"  % (expected.audio.output.modulation_on_frequency , actual.audio.output.modulation_on_frequency ))
-        self.assertEquals(expected.audio.output.modulation_off_frequency, actual.audio.output.modulation_off_frequency, "audio.output.modulation_off_frequency did not match expected %s was %s" % (expected.audio.output.modulation_off_frequency, actual.audio.output.modulation_off_frequency))
-        self.assertEquals(expected.audio.input.bit_depth                , actual.audio.input.bit_depth                , "audio.input.bit_depth did not match expected %s was %s"                 % (expected.audio.input.bit_depth                , actual.audio.input.bit_depth                ))
-        self.assertEquals(expected.audio.input.sample_rate              , actual.audio.input.sample_rate              , "audio.input.sample_rate did not match expected %s was %s"               % (expected.audio.input.sample_rate              , actual.audio.input.sample_rate              ))
 
         self.assertEquals(expected.calibration.max_deflection           , actual.calibration.max_deflection           , "calibration.max_deflection did not match expected %s was %s"            % (expected.calibration.max_deflection           , actual.calibration.max_deflection           ))
         self.assertEquals(expected.calibration.height                   , actual.calibration.height                   , "calibration.height did not match expected %s was %s"                    % (expected.calibration.height                   , actual.calibration.height                   ))
@@ -151,6 +145,8 @@ class TestHelpers(NumpyTestHelpers,CommandTestHelpers, DefaultsHelpers):
         self.assertEquals(expected.cure_rate.finish_speed               , actual.cure_rate.finish_speed               , "cure_rate.finish_speed did not match expected %s was %s"                % (expected.cure_rate.finish_speed               , actual.cure_rate.finish_speed               ))
         self.assertEquals(expected.cure_rate.draw_speed                 , actual.cure_rate.draw_speed                 , "cure_rate.draw_speed did not match expected %s was %s"                  % (expected.cure_rate.draw_speed                 , actual.cure_rate.draw_speed                 ))
         self.assertEquals(expected.cure_rate.use_draw_speed             , actual.cure_rate.use_draw_speed             , "cure_rate.use_draw_speed did not match expected %s was %s"              % (expected.cure_rate.use_draw_speed             , actual.cure_rate.use_draw_speed             ))
+        self.assertEquals(expected.cure_rate.override_laser_power       , actual.cure_rate.override_laser_power       , "cure_rate.override_laser_poweratch expected %s was %s"                  % (expected.cure_rate.override_laser_power       , actual.cure_rate.override_laser_power       ))
+        self.assertEquals(expected.cure_rate.override_laser_power_amount, actual.cure_rate.override_laser_power_amount, "cure_rate.override_laser_power_amounth expected %s was %s"              % (expected.cure_rate.override_laser_power_amount, actual.cure_rate.override_laser_power_amount))
 
         self.assertEqual(expected.micro_com.port                        , actual.micro_com.port                       , "micro_com.port did not march expected %s was %s"                        % (expected.micro_com.port                      ,  actual.micro_com.port                       ))
         self.assertEqual(expected.micro_com.rate                        , actual.micro_com.rate                       , "micro_com.rate did not march expected %s was %s"                        % (expected.micro_com.rate                      ,  actual.micro_com.rate                       ))
