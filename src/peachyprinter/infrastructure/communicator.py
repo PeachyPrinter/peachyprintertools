@@ -80,7 +80,7 @@ class SerialCommunicator(Communicator, threading.Thread):
         try:
             # TODO I'm 99% sure that read() can return more
             # than one byte, and this will discard the rest of them.
-            byte = self._connection.read()[0]
+            byte = self._connection.read()
             if byte == self._header:
                 self._read_bytes = byte
             elif byte == self._footer and self._read_bytes:
