@@ -1,6 +1,7 @@
 import time
 import logging
 logger = logging.getLogger('peachy')
+from math import ceil
 from peachyprinter.domain.zaxis import ZAxis
 from peachyprinter.infrastructure.messages import DripRecordedMessage, SetDripCountMessage, MoveToDripCountMessage
 
@@ -57,7 +58,7 @@ class SerialDripZAxis(ZAxis):
         self._drips_per_mm = drips_per_mm
 
     def move_to(self, height_mm):
-        wanted_drips = height_mm / self._drips_per_mm
+        wanted_drips = int(ceil(height_mm / self._drips_per_mm))
         self._communicator.send(MoveToDripCountMessage(wanted_drips))
 
     def close(self):
