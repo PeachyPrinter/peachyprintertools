@@ -2,6 +2,7 @@ import collections
 from peachyprinter.domain.commands import *
 from peachyprinter.domain.layer_generator import LayerGenerator
 import logging
+logger = logging.getLogger('peachy')
 
 
 class GCodeReader(object):
@@ -54,7 +55,7 @@ class GCodeToLayerGenerator(LayerGenerator):
                 for command in commands:
                     self._command_queue.append(command)
             except Exception as ex:
-                logging.error("Error %s: %s" % (self._line_number, ex.message))
+                logger.error("Error %s: %s" % (self._line_number, ex.message))
                 self.errors.append("Error %s: %s" % (self._line_number, ex.message))
         except StopIteration:
             self._file_complete = True
@@ -108,7 +109,7 @@ class GCodeCommandReader(object):
         commands = gcode.split(' ')
         if commands[0] in self._COMMAND_HANDLERS:
             return self._COMMAND_HANDLERS[commands[0]](self, gcode)
-        logging.error('Unsupported Command: %s' % (gcode))
+        logger.error('Unsupported Command: %s' % (gcode))
         raise Exception('Unsupported Command: %s' % (gcode))
 
     def _command_draw(self, line):
@@ -131,14 +132,14 @@ class GCodeCommandReader(object):
             elif detail_type == 'E':
                 write = float(detail[1:]) > 0.0
             else:
-                logging.error("Warning gcode subcode [%s] not supported in command: [%s]" % (detail_type, line))
+                logger.error("Warning gcode subcode [%s] not supported in command: [%s]" % (detail_type, line))
 
         if not self._mm_per_s:
-            logging.error("Feed Rate Never Specified")
+            logger.error("Feed Rate Never Specified")
             raise Exception("Feed Rate Never Specified")
         if z_mm is not None:
             if x_mm is not None or y_mm is not None:
-                logging.warning("Vertically angled writes are not supported...yet")
+                logger.warning("Vertically angled writes are not supported...yet")
                 up = self._get_vertical_movement(z_mm, write)
                 over = self._get_lateral_movement([x_mm, y_mm], write)
                 return up + over
@@ -176,7 +177,7 @@ class GCodeCommandReader(object):
 
     def _zaxis_change(self, z_mm):
         if self._current_z_pos and self._current_z_pos > z_mm:
-            logging.error("Negitive Vertical Movement Unsupported")
+            logger.error("Negitive Vertical Movement Unsupported")
             raise Exception("Negitive Vertical Movement Unsupported")
         else:
             self._update_layer_height(self._current_z_pos, z_mm)

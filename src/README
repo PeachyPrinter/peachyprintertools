@@ -75,7 +75,7 @@ Run the application
 
 **python src/peachyprintertools.py**
 
-Run in Debug Logging Mode
+Run in Debug logger.Mode
 
 **python src/peachyprintertools.py --log=DEBUG**
 

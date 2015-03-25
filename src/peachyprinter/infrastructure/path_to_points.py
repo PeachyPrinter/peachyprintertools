@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger('peachy')
 import numpy
 import math
 from threading import Lock
@@ -9,7 +10,7 @@ class PathToPoints(object):
         self.samples_per_second = samples_per_second
         self._transformer = transformer
         self.laser_size = laser_size
-        logging.info("Path to points Starting up with samples: %s, laser_size: %s" % (self.samples_per_second, self.laser_size))
+        logger.info("Path to points Starting up with samples: %s, laser_size: %s" % (self.samples_per_second, self.laser_size))
         self._lock = Lock()
         self._left_over_samples = 0.0
         self._left_over_start = None
@@ -42,7 +43,7 @@ class PathToPoints(object):
             samples = (self.samples_per_second * seconds) + self._left_over_samples
             if samples < 2.0:
                 if not self._reported_small_warning:
-                    logging.warning("The data in the model is too complex skipping vertex(s) at height %s mm" % start[2])
+                    logger.warning("The data in the model is too complex skipping vertex(s) at height %s mm" % start[2])
                     self._reported_small_warning = True
                 if not self._left_over_start:
                     self._left_over_start = start

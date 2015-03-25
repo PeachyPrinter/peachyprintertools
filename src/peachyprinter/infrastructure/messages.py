@@ -1,8 +1,9 @@
 import logging
+logger = logging.getLogger('peachy')
 try:
     from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount
 except Exception as ex:
-    logging.error(
+    logger.error(
         "\033[91m Cannot import protobuf classes, Have you compiled your protobuf files?\033[0m")
     raise ex
 
@@ -46,7 +47,7 @@ class MoveMessage(ProtoBuffableMessage):
         if encoded.IsInitialized():
             return encoded.SerializeToString()
         else:
-            logging.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+            logger.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
             raise Exception("Protobuf Message encoding incomplete")
 
     @classmethod
@@ -84,7 +85,7 @@ class DripRecordedMessage(ProtoBuffableMessage):
         if encoded.IsInitialized():
             return encoded.SerializeToString()
         else:
-            logging.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+            logger.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
             raise Exception("Protobuf Message encoding incomplete")
 
     @classmethod
@@ -120,7 +121,7 @@ class SetDripCountMessage(ProtoBuffableMessage):
         if encoded.IsInitialized():
             return encoded.SerializeToString()
         else:
-            logging.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+            logger.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
             raise Exception("Protobuf Message encoding incomplete")
 
     @classmethod
@@ -156,7 +157,7 @@ class MoveToDripCountMessage(ProtoBuffableMessage):
         if encoded.IsInitialized():
             return encoded.SerializeToString()
         else:
-            logging.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+            logger.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
             raise Exception("Protobuf Message encoding incomplete")
 
     @classmethod

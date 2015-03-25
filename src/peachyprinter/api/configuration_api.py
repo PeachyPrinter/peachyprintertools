@@ -1,5 +1,6 @@
 import types
 import logging
+logger = logging.getLogger('peachy')
 
 from peachyprinter.infrastructure.timed_drip_zaxis import TimedDripZAxis
 from peachyprinter.infrastructure.zaxis import SerialDripZAxis
@@ -110,7 +111,7 @@ class CureTestSetupMixIn(object):
     def get_speed_at_height(self, base_height, total_height, start_speed, stop_speed, height):
         self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed)
         if (height < base_height or height > total_height):
-            logging.warning('Height of ideal cure must be in range of cure test')
+            logger.warning('Height of ideal cure must be in range of cure test')
             raise Exception('Height of ideal cure must be in range of cure test')
         actual_height = total_height - base_height
         desired_height = height - base_height
@@ -124,27 +125,27 @@ class CureTestSetupMixIn(object):
             float(start_speed)
             float(stop_speed)
         except ValueError:
-            logging.warning('Entries for cure test settings must be numeric')
+            logger.warning('Entries for cure test settings must be numeric')
             raise Exception('Entries for cure test settings must be numeric')
         if(total_height <= base_height):
-            logging.warning('total_height must be greater then base_height')
+            logger.warning('total_height must be greater then base_height')
             raise Exception('total_height must be greater then base_height')
         if(start_speed > stop_speed):
-            logging.warning('start_speed must be less then stop speed')
+            logger.warning('start_speed must be less then stop speed')
         if(total_height <= 0):
-            logging.warning('total_height must be a positive number')
+            logger.warning('total_height must be a positive number')
             raise Exception('start_speed must be less then stop speed')
         if(start_speed <= 0):
-            logging.warning( 'start_speed must be positive')
+            logger.warning( 'start_speed must be positive')
             raise Exception( 'start_speed must be positive')
         if(stop_speed <= 0):
-            logging.warning('stop_speed must be positive')
+            logger.warning('stop_speed must be positive')
             raise Exception('stop_speed must be positive')
         if(stop_speed <= start_speed):
-            logging.warning('stop_speed must faster the start_speed')
+            logger.warning('stop_speed must faster the start_speed')
             raise Exception('stop_speed must faster the start_speed')
         if(base_height < 0):
-            logging.warning('base_height cannot be negitive')
+            logger.warning('base_height cannot be negitive')
             raise Exception('base_height cannot be negitive')
 
     '''Sets the base_height for Cure Rate test.'''
@@ -152,7 +153,7 @@ class CureTestSetupMixIn(object):
         if (self._zero_or_positive_float(float(base_height))):
             self._current_config.cure_rate.base_height = base_height
         else:
-            logging.warning('Base height must be 0 or positive')
+            logger.warning('Base height must be 0 or positive')
             raise Exception('Specified base height must be positive')
 
     '''Sets the total_height for Cure Rate test.'''
@@ -160,7 +161,7 @@ class CureTestSetupMixIn(object):
         if (self._positive_float(float(total_height))):
             self._current_config.cure_rate.total_height = total_height
         else:
-            logging.warning('Total height must be positive')
+            logger.warning('Total height must be positive')
             raise Exception('Specified total height must be positive')
 
     '''Sets the start_speed for Cure Rate test.'''
@@ -168,7 +169,7 @@ class CureTestSetupMixIn(object):
         if (self._positive_float(float(start_speed))):
             self._current_config.cure_rate.start_speed = start_speed
         else:
-            logging.warning('start_speed must be positive')
+            logger.warning('start_speed must be positive')
             raise Exception('Specified start speed must be positive')
 
     '''Sets the finish_speed for Cure Rate test.'''
@@ -176,7 +177,7 @@ class CureTestSetupMixIn(object):
         if (self._positive_float(float(finish_speed))):
             self._current_config.cure_rate.finish_speed = finish_speed
         else:
-            logging.warning('finish_speed must be positive')
+            logger.warning('finish_speed must be positive')
             raise Exception('Specified finish speed must be positive')
 
 
@@ -185,7 +186,7 @@ class CureTestSetupMixIn(object):
         if (self._positive_float(float(draw_speed))):
             self._current_config.cure_rate.draw_speed = draw_speed
         else:
-            logging.warning('draw_speed must be positive')
+            logger.warning('draw_speed must be positive')
             raise Exception('Specified draw speed must be positive')
 
     '''Sets the use_draw_speed for Cure Rate test.'''
@@ -204,7 +205,7 @@ class CureTestSetupMixIn(object):
         if (self._positive_percentage(float(override_laser_power_amount))):
             self._current_config.cure_rate.override_laser_power_amount = override_laser_power_amount
         else:
-            logging.warning('override_laser_power_amount must be positive percentage between 0 and 1')
+            logger.warning('override_laser_power_amount must be positive percentage between 0 and 1')
             raise Exception('Specified override_laser_power_amount must be positive')
 
     '''Gets the base_height for Cure Rate test.'''
@@ -532,7 +533,7 @@ class CircutSetupMixIn(object):
 
     def set_circut_type(self, circut_type):
         if not circut_type in self._CIRCUT_TYPES:
-            logging.warning("Specified circut type %s is invalid" % circut_type)
+            logger.warning("Specified circut type %s is invalid" % circut_type)
             raise Exception("Specified circut type %s is invalid" % circut_type)
         self._current_config.circut.circut_type = circut_type
 
@@ -602,7 +603,7 @@ class ConfigurationAPI(
         if self._current_config:
             return self._current_config.name
         else:
-            # logging.debug('Current config missing')
+            # logger.debug('Current config missing')
             return None
 
     '''Returns the current printer config in json'''
@@ -621,7 +622,7 @@ class ConfigurationAPI(
     '''Loads a previous configured printer by name'''
     def load_printer(self, name):
         self._current_config = self._configuration_manager.load(name)
-        # logging.debug("Loaded config:\n%s" % self._current_config)
+        # logger.debug("Loaded config:\n%s" % self._current_config)
 
     '''Saves the currently selected config'''
     def save(self):

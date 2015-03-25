@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger('peachy')
 import sys
 from peachyprinter.domain.disseminator import Disseminator
 from peachyprinter.infrastructure.messages import MoveMessage

@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger('peachy')
 from peachyprinter.infrastructure.path_to_points import PathToPoints
 from peachyprinter.infrastructure.controller import Controller
 from peachyprinter.infrastructure.communicator import SerialCommunicator
@@ -15,7 +16,7 @@ from peachyprinter.infrastructure.layer_control import LayerWriter, LayerProcess
 
 class CalibrationAPI(object):
     def __init__(self, configuration_manager, printer):
-        logging.info("Calibartion API Startup")
+        logger.info("Calibartion API Startup")
         self._configuration_manager = configuration_manager
         self._printer = printer
         self._configuration = self._configuration_manager.load(self._printer)
@@ -41,7 +42,7 @@ class CalibrationAPI(object):
         self._laser_control = LaserControl(self._configuration.cure_rate.override_laser_power_amount)
         transformer = TuningTransformer(scale=self._configuration.calibration.max_deflection)
         self._controller = None
-        logging.debug("Setting up audiowriter")
+        logger.debug("Setting up audiowriter")
 
         self._current_generator = self._point_generator
 
@@ -103,7 +104,7 @@ class CalibrationAPI(object):
 
     '''Used to show a single point with no calibration applied'''
     def show_point(self, xyz=[0.5, 0.5, 0.5]):
-        logging.info('Showing point')
+        logger.info('Showing point')
         x, y, z = xyz
         self._point_generator.xy = [x, y]
         if (self._current_generator != self._point_generator):
@@ -112,7 +113,7 @@ class CalibrationAPI(object):
 
     '''Used to show a blinking point with no calibration applied used for aligning on and off laser posisition'''
     def show_blink(self, xyz=[0.5, 0.5, 0.0]):
-        logging.info('Showing blink')
+        logger.info('Showing blink')
         x, y, z = xyz
         self._blink_generator.xy = [x, y]
         if (self._current_generator != self._blink_generator):
@@ -121,23 +122,23 @@ class CalibrationAPI(object):
 
     '''Used to show a single line on one axis used to line up calibration grid'''
     def show_line(self):
-        logging.info('Showing line')
+        logger.info('Showing line')
         self._unapply_calibration()
         self._update_generator(self._alignment_generator)
 
     '''Used to show a test pattern with calibration applied'''
     def show_test_pattern(self, pattern):
-        logging.info('Showing test pattern %s' % pattern)
+        logger.info('Showing test pattern %s' % pattern)
         if pattern in self._test_patterns.keys():
             self._apply_calibration()
             self._update_generator(self._test_patterns[pattern])
         else:
-            logging.error('Pattern: %s does not exist' % pattern)
+            logger.error('Pattern: %s does not exist' % pattern)
             raise Exception('Pattern: %s does not exist' % pattern)
 
     '''Shows the scale square'''
     def show_scale(self):
-        logging.info('Showing scale')
+        logger.info('Showing scale')
         self._unapply_calibration()
         self._update_generator(self._scale_generator)
 
@@ -226,7 +227,7 @@ class CalibrationAPI(object):
                 lowest = abs(x)
             if abs(y) < lowest:
                 lowest = abs(y)
-        logging.info("Calulated max radius of object as: %s mm" % lowest)
+        logger.info("Calulated max radius of object as: %s mm" % lowest)
         return lowest
 
     def stop(self):

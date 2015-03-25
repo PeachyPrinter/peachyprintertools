@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger('peachy')
 from peachyprinter.domain.layer_generator import LayerGenerator
 from peachyprinter.domain.commands import LateralDraw, Layer, LateralMove
 from math import pi, sin, cos, sqrt
@@ -16,10 +17,10 @@ class HalfVaseTestGenerator(LayerGenerator):
         self._steps_in_half = 100
         self._rad_per_step = pi / float(self._steps_in_half)
         self._layers = self._height / self._layer_height
-        logging.info("Half vase height: %s" % self._height)
-        logging.info("Half vase radius: %s" % self._max_radius)
-        logging.info("Half vase layer height: %s" % self._layer_height)
-        logging.info("Half vase speed: %s" % self._speed)
+        logger.info("Half vase height: %s" % self._height)
+        logger.info("Half vase radius: %s" % self._max_radius)
+        logger.info("Half vase layer height: %s" % self._layer_height)
+        logger.info("Half vase speed: %s" % self._speed)
 
     def __iter__(self):
         return self
@@ -49,8 +50,8 @@ class HalfVaseTestGenerator(LayerGenerator):
         return out
 
     def next(self):
-        logging.info("Half vase height: %s" % self._height)
-        logging.info("Half vase current height: %s" % self._current_height)
+        logger.info("Half vase height: %s" % self._height)
+        logger.info("Half vase current height: %s" % self._current_height)
         if self._current_height >= self._height:
             raise StopIteration
         points = self._points(self._radius(), self._start_angle())
@@ -73,10 +74,10 @@ class SolidObjectTestGenerator(LayerGenerator):
         self._steps_circle_section = 155
         self._rad_per_step = (2.0*pi) / float(self._steps_in_circle)
         self._layers = self._height / self._layer_height
-        logging.info("Solidified Object height: %s" % self._height)
-        logging.info("Solidified Object radius: %s" % self._max_radius)
-        logging.info("Solidified Object layer height: %s" % self._layer_height)
-        logging.info("Solidified Object speed: %s" % self._speed)
+        logger.info("Solidified Object height: %s" % self._height)
+        logger.info("Solidified Object radius: %s" % self._max_radius)
+        logger.info("Solidified Object layer height: %s" % self._layer_height)
+        logger.info("Solidified Object speed: %s" % self._speed)
 
     def __iter__(self):
         return self
@@ -105,7 +106,7 @@ class SolidObjectTestGenerator(LayerGenerator):
         return factor
 
     def next(self):
-        logging.info("Solidified Object current height: %s" % self._current_height)
+        logger.info("Solidified Object current height: %s" % self._current_height)
         if self._current_height >= self._height:
             raise StopIteration
         points = self._points(self._radius(), self._start_angle())
@@ -129,10 +130,10 @@ class TwistVaseTestGenerator(LayerGenerator):
         self._rad_per_step = pi / float(self._steps_in_half)
         self._layers = self._height / self._layer_height
 
-        logging.info("Half vase height: %s" % self._height)
-        logging.info("Half vase radius: %s" % self._max_radius)
-        logging.info("Half vase layer height: %s" % self._layer_height)
-        logging.info("Half vase speed: %s" % self._speed)
+        logger.info("Half vase height: %s" % self._height)
+        logger.info("Half vase radius: %s" % self._max_radius)
+        logger.info("Half vase layer height: %s" % self._layer_height)
+        logger.info("Half vase speed: %s" % self._speed)
 
     def __iter__(self):
         return self
@@ -162,8 +163,8 @@ class TwistVaseTestGenerator(LayerGenerator):
         return out
 
     def next(self):
-        logging.info("Half vase height: %s" % self._height)
-        logging.info("Half vase current height: %s" % self._current_height)
+        logger.info("Half vase height: %s" % self._height)
+        logger.info("Half vase current height: %s" % self._current_height)
         if self._current_height >= self._height:
             raise StopIteration
         points = self._points(self._radius(), self._start_angle())
@@ -189,10 +190,10 @@ class SimpleVaseTestGenerator(LayerGenerator):
         self._last_point = [0, self._max_radius]
         self._last_angle = 0
 
-        logging.info("Vase height: %s" % self._height)
-        logging.info("Vase radius: %s" % self._max_radius)
-        logging.info("Vase layer height: %s" % self._layer_height)
-        logging.info("Vase speed: %s" % self._speed)
+        logger.info("Vase height: %s" % self._height)
+        logger.info("Vase radius: %s" % self._max_radius)
+        logger.info("Vase layer height: %s" % self._layer_height)
+        logger.info("Vase speed: %s" % self._speed)
 
     def __iter__(self):
         return self
@@ -237,10 +238,10 @@ class ConcentricCircleTestGenerator(LayerGenerator):
         self._last_angle = 0
         self._rings = 3
 
-        logging.info("Circles height: %s" % self._height)
-        logging.info("Circles radius: %s" % self._max_radius)
-        logging.info("Circles layer height: %s" % self._layer_height)
-        logging.info("Circles speed: %s" % self._speed)
+        logger.info("Circles height: %s" % self._height)
+        logger.info("Circles radius: %s" % self._max_radius)
+        logger.info("Circles layer height: %s" % self._layer_height)
+        logger.info("Circles speed: %s" % self._speed)
 
     def __iter__(self):
         return self
@@ -289,11 +290,11 @@ class LollipopTestGenerator(LayerGenerator):
         self._stick_complexity = 20
         self._pop_complexity = 100
 
-        logging.info("Pop height: %s" % self._height)
-        logging.info("Stick radius: %s" % str(width / 10.0))
-        logging.info("Pop radius: %s" % str(width / 2.0))
-        logging.info("Pop layer height: %s" % self._layer_height)
-        logging.info("Pop speed: %s" % self._speed)
+        logger.info("Pop height: %s" % self._height)
+        logger.info("Stick radius: %s" % str(width / 10.0))
+        logger.info("Pop radius: %s" % str(width / 2.0))
+        logger.info("Pop layer height: %s" % self._layer_height)
+        logger.info("Pop speed: %s" % self._speed)
 
     def __iter__(self):
         return self

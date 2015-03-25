@@ -2,6 +2,7 @@ import os
 import json
 import types
 import logging
+logger = logging.getLogger('peachy')
 import re
 from peachyprinter.domain.configuration_manager import ConfigurationManager
 import peachyprinter.config as config
@@ -943,7 +944,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
         return printers
 
     def load(self, printer_name):
-        logging.info('Loading configutation for "%s"' % printer_name)
+        logger.info('Loading configutation for "%s"' % printer_name)
         filename = self._get_file_name(printer_name)
         if not os.path.exists(filename):
             raise Exception("Printer file not found")
@@ -960,7 +961,7 @@ class FileBasedConfigurationManager(ConfigurationManager):
                 conf = Configuration(json.loads(data))
                 return conf
             except Exception as ex:
-                logging.error("Error loading file: %s" % ex)
+                logger.error("Error loading file: %s" % ex)
                 return None
 
     def save(self, configuration):

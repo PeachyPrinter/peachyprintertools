@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger('peachy')
 
 from peachyprinter.domain.notification import NotificationService
 
@@ -18,11 +19,11 @@ Subject: %s
     def send_message(self, subject, message):
         formatted_message = self._template % (self._sender, self._sender, self._recipient, self._recipient, subject, message)
         try:
-            logging.info("Sending email message")
+            logger.info("Sending email message")
             self._email_gateway.send_email(self._sender, [self._recipient], formatted_message)
 
         except Exception as ex:
-            logging.warning("Cannot send email Error: %s" % ex)
+            logger.warning("Cannot send email Error: %s" % ex)
 
 import smtplib
 

@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import math
 import logging
+logger = logging.getLogger('peachy')
 
 np.seterr(all='raise')
 
@@ -52,7 +53,7 @@ class SquareTransform(object):
 class PointTransformer(Transformer):
     def __init__(self, calibration_points):
         if len(calibration_points) < 12:
-            logging.error("Not Enough Calibration Points")
+            logger.error("Not Enough Calibration Points")
             raise Exception("Not Enough Calibration Points")
 
         self.squarer = SquareTransform(calibration_points[:4])
@@ -81,7 +82,7 @@ class PointTransformer(Transformer):
             500,
             (0, 0, 0 ,0, 0, 10.0)
             )
-        logging.info("Best Bend: %s,%s: %s" % (best_bend[0],best_bend[1], best_bend[4]))
+        logger.info("Best Bend: %s,%s: %s" % (best_bend[0],best_bend[1], best_bend[4]))
         return best_bend[:5]
 
     factor = 1000.0
@@ -95,7 +96,7 @@ class PointTransformer(Transformer):
                     (coeffecient_vector_d1, error_d1), (coeffecient_vector_d2 , error_d2)= self._get_coeffecient_vectors(points, monomials,xbend,ybend,scale )
                     error = error_d1[0] + error_d2[0]
                     if best_bend[5] > error:
-                        logging.info('New Best: %s %s : %s -> %s' % (xbend, ybend, scale, error ))
+                        logger.info('New Best: %s %s : %s -> %s' % (xbend, ybend, scale, error ))
                         best_bend = (xbend, ybend, coeffecient_vector_d1,coeffecient_vector_d2, scale, error)
         new_step = int(step - math.ceil(step / 2.0))
         if new_step > 0:

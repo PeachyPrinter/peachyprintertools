@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+logger = logging.getLogger('peachy')
 from peachyprinter.domain.transformer import Transformer
 import threading
 
@@ -18,7 +19,7 @@ class TuningTransformer(Transformer):
         if scale > 0.0 and scale <= 1.0:
             self._scale = scale
         else:
-            logging.error('Scale must be between 0.0 and 1.0 was %s' % scale)
+            logger.error('Scale must be between 0.0 and 1.0 was %s' % scale)
             raise Exception('Scale must be between 0.0 and 1.0 was %s' % scale)
 
     def transform(self, xyz):
@@ -33,10 +34,10 @@ class TuningTransformer(Transformer):
     def _check_and_adjust(self, value):
         if value > 1.0:
             value = 1.0
-            logging.info("Adjusting Values")
+            logger.info("Adjusting Values")
         if value < 0.0:
             value = 0.0
-            logging.info("Adjusting Values")
+            logger.info("Adjusting Values")
         return value
 
     def _transform(self, axis):
@@ -121,7 +122,7 @@ class HomogenousTransformer(Transformer):
         if x1 >= 0.0 and x1 <= 1.0 and y1 >= 0.0 and y1 <= 1.0:
             return (x1, y1)
         else:
-            logging.warning("Bounds of printer exceeded: %s,%s" % (x, y))
+            logger.warning("Bounds of printer exceeded: %s,%s" % (x, y))
             adjusted_x = min(1.0, max(0.0, x1))
             adjusted_y = min(1.0, max(0.0, y1))
             return(adjusted_x, adjusted_y)

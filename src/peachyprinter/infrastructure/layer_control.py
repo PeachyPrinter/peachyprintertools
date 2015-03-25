@@ -1,5 +1,6 @@
 import time
 import logging
+logger = logging.getLogger('peachy')
 from peachyprinter.domain.commands import *
 from peachyprinter.infrastructure.commander import NullCommander
 from threading import Lock
@@ -28,7 +29,7 @@ class LayerWriter():
         self._laser_control = laser_control
         self.laser_off_override = False
         self._after_move_wait_speed = wait_speed
-        logging.info("Wait Speed: %s" % self._after_move_wait_speed)
+        logger.info("Wait Speed: %s" % self._after_move_wait_speed)
 
         self._abort_current_command = False
         self._shutting_down = False
@@ -48,11 +49,11 @@ class LayerWriter():
             if self._disseminator:
                 self._disseminator.next_layer(layer.z)
             for command in layer.commands:
-                # logging.info("Processing command: %s" % command)
+                # logger.info("Processing command: %s" % command)
                 if self._shutting_down:
                     break
                 if self._abort_current_command:
-                    logging.info("Aborting Current Command")
+                    logger.info("Aborting Current Command")
                     self._abort_current_command = False
                     break
                 if type(command) == LateralDraw:
@@ -111,9 +112,9 @@ class LayerWriter():
             try:
                 if self._disseminator:
                     self._disseminator.close()
-                logging.info("Audio shutdown correctly")
+                logger.info("Audio shutdown correctly")
             except Exception as ex:
-                logging.error(ex)
+                logger.error(ex)
 
 
 class LayerProcessing():
@@ -167,7 +168,7 @@ class LayerProcessing():
                 self._writer.process_layer(layer)
                 self._commander.send_command(self._layer_ended_command)
             else:
-                logging.warning('Dripping too fast, Skipping layer')
+                logger.warning('Dripping too fast, Skipping layer')
                 self._status.skipped_layer()
 
     def abort_current_command(self):
@@ -181,9 +182,9 @@ class LayerProcessing():
         if not ahead_by_distance:
             return True
         if (ahead_by_distance <= self._max_lead_distance):
-            logging.info("Ahead (Acceptable) by: %s" % ahead_by_distance)
+            logger.info("Ahead (Acceptable) by: %s" % ahead_by_distance)
             return True
-        logging.info("Ahead (Unacceptably) by: %s" % ahead_by_distance)
+        logger.info("Ahead (Unacceptably) by: %s" % ahead_by_distance)
         return False
 
     def _wait_till(self, height):
@@ -202,11 +203,11 @@ class LayerProcessing():
             if self._zaxis:
                 try:
                     self._zaxis.close()
-                    logging.info("Zaxis shutdown correctly")
+                    logger.info("Zaxis shutdown correctly")
                 except Exception as ex:
-                    logging.error(ex)
+                    logger.error(ex)
             try:
                 self._commander.close()
-                logging.info("Commander shutdown correctly")
+                logger.info("Commander shutdown correctly")
             except Exception as ex:
-                logging.error(ex)
+                logger.error(ex)

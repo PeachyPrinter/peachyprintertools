@@ -1,5 +1,6 @@
 import time
 import logging
+logger = logging.getLogger('peachy')
 from peachyprinter.domain.zaxis import ZAxis
 from peachyprinter.infrastructure.messages import DripRecordedMessage, SetDripCountMessage, MoveToDripCountMessage
 
@@ -60,4 +61,4 @@ class SerialDripZAxis(ZAxis):
         self._communicator.send(MoveToDripCountMessage(wanted_drips))
 
     def close(self):
-        logging.info("SerialDripZAxis shutdown successfully")
+        logger.info("SerialDripZAxis shutdown successfully")

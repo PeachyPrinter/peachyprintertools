@@ -1,5 +1,6 @@
 import threading
 import logging
+logger = logging.getLogger('peachy')
 import time
 import traceback
 from peachyprinter.domain.commands import *
@@ -31,15 +32,15 @@ class Controller(threading.Thread,):
 
     def run(self):
         with self._run_lock:
-            logging.info('Running Controller')
+            logger.info('Running Controller')
             self._process_layers()
             self._status.set_complete()
             self._writer.terminate()
             self._layer_processing.terminate()
-            logging.info('Controller Shutdown')
+            logger.info('Controller Shutdown')
 
     def change_generator(self, layer_generator):
-        logging.info("Generator change requested")
+        logger.info("Generator change requested")
         with self._generator_lock:
             self._layer_processing.abort_current_command()
             self._layer_generator = layer_generator
@@ -48,7 +49,7 @@ class Controller(threading.Thread,):
         return self._status.status()
 
     def close(self):
-        logging.info('Controller shutdown requested')
+        logger.info('Controller shutdown requested')
         self._shutting_down = True
         self._layer_processing.abort_current_command()
         self._run_lock.acquire()
@@ -61,11 +62,11 @@ class Controller(threading.Thread,):
                     layer = self._layer_generator.next()
                 self._layer_processing.process(layer)
             except StopIteration:
-                logging.info('Layers Complete')
+                logger.info('Layers Complete')
                 return
             except Exception as ex:
                 self._status.add_error(MachineError(str(ex), self._status.status()['current_layer']))
-                logging.error('Unexpected Error: %s' % str(ex))
+                logger.error('Unexpected Error: %s' % str(ex))
                 traceback.print_exc()
                 if self._abort_on_error:
                     return

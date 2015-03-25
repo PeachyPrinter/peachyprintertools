@@ -3,6 +3,7 @@ import time
 import math
 from peachyprinter.domain.zaxis import ZAxis
 import logging
+logger = logging.getLogger('peachy')
 
 
 class TimedDripZAxis(ZAxis, threading.Thread):
@@ -74,7 +75,7 @@ class TimedDripZAxis(ZAxis, threading.Thread):
         self.shutdown = True
 
     def move_to(self, height_mm):
-        logging.info('Ignoring move to %s' % height_mm)
+        logger.info('Ignoring move to %s' % height_mm)
 
     def close(self):
         if self.running:

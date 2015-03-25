@@ -1,5 +1,6 @@
 import serial
 import logging
+logger = logging.getLogger('peachy')
 import threading
 import time
 from messages import ProtoBuffableMessage
@@ -32,7 +33,7 @@ class SerialCommunicator(Communicator, threading.Thread):
 
     def send(self, message):
         if not self._running:
-            logging.error("attempt to send message before start")
+            logger.error("attempt to send message before start")
             raise Exception("attempt to send message before start")
         out = [self._header]
         for c in (chr(message.TYPE_ID) + message.get_bytes()):
@@ -50,7 +51,7 @@ class SerialCommunicator(Communicator, threading.Thread):
                 now =time.time()
                 total = now - self._send_start
                 self._send_start = now
-                logging.info("WROTE: %s bytes in %5.f s (%f / sec)" % (self._send_count, total, self._send_count / total))
+                logger.info("WROTE: %s bytes in %5.f s (%f / sec)" % (self._send_count, total, self._send_count / total))
                 self._send_count = 0
         finally:
             self._send_lock.release()
@@ -63,18 +64,18 @@ class SerialCommunicator(Communicator, threading.Thread):
             time.sleep(0.01)
 
     def run(self):
-        logging.info("Opening serial port: %s" % (self._port,))
+        logger.info("Opening serial port: %s" % (self._port,))
         try:
             self._running = True
             while self._running:
                 self._recieve()
         except Exception as ex:
-            logging.error(ex)
+            logger.error(ex)
             raise
         finally:
             if self._connection:
                 self._connection.close()
-        logging.info("Closed serial port: %s" % (self._port,))
+        logger.info("Closed serial port: %s" % (self._port,))
 
     def _recieve(self):
         try:
@@ -110,7 +111,7 @@ class SerialCommunicator(Communicator, threading.Thread):
 
     def register_handler(self, message_type, handler):
         if not issubclass(message_type, ProtoBuffableMessage):
-            logging.error("ProtoBuffableMessage required for message type")
+            logger.error("ProtoBuffableMessage required for message type")
             raise Exception("ProtoBuffableMessage required for message type")
         if message_type in self._handlers:
             self._handlers[message_type].append(handler)

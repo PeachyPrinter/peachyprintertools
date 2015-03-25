@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger('peachy')
 
 from peachyprinter.domain.commands import *
 from peachyprinter.domain.layer_generator import LayerGenerator, TestLayerGenerator
@@ -86,7 +87,7 @@ class HilbertGenerator(TestLayerGenerator):
 
     def next(self):
         self._pattern = self._get_hilbert(self._order, [-self._radius, -self._radius], [self._radius, self._radius])
-        # logging.debug('Pattern: %s' % self._pattern)
+        # logger.debug('Pattern: %s' % self._pattern)
         layer = Layer(0.0)
         layer.commands.append(LateralMove(self._last_xy, self._pattern[0], self._speed))
         self._last_xy = self._pattern[0]
@@ -273,15 +274,15 @@ class CureTestGenerator(LayerGenerator):
         self.start_speed = float(start_speed)
         stop_speed = float(stop_speed)
         self._sub_layer_height = float(sublayer_height)
-        logging.info("Base Height: %s" % base_height)
-        logging.info("Total Height: %s" % total_height)
-        logging.info("Start Speed: %s" % self.start_speed)
-        logging.info("Stop Speed: %s" % stop_speed)
-        logging.info("Sublayer Height: %s" % self._sub_layer_height)
+        logger.info("Base Height: %s" % base_height)
+        logger.info("Total Height: %s" % total_height)
+        logger.info("Start Speed: %s" % self.start_speed)
+        logger.info("Stop Speed: %s" % stop_speed)
+        logger.info("Sublayer Height: %s" % self._sub_layer_height)
 
         self._base_layers = base_height / self._sub_layer_height
         self._number_of_layers = total_height / self._sub_layer_height
-        logging.info("Total layer to print: %s" % self._number_of_layers)
+        logger.info("Total layer to print: %s" % self._number_of_layers)
         self._base_layer_speed = self.start_speed + ((stop_speed - self.start_speed) / 2.0)
         self._speed_per_layer = (stop_speed - self.start_speed) / (self._number_of_layers - self._base_layers)
         self._current_layer = 0
@@ -295,7 +296,7 @@ class CureTestGenerator(LayerGenerator):
                 ]
         else:
             current_speed = (self._speed_per_layer * (self._current_layer - self._base_layers)) + self.start_speed
-            logging.info("Speed : %s" % current_speed)
+            logger.info("Speed : %s" % current_speed)
             return [
                 LateralDraw([0, 0], [10, 0], current_speed),
                 LateralDraw([10, 0], [10, 10], current_speed),
@@ -331,16 +332,16 @@ class AdvancedCureTestGenerator(LayerGenerator):
             self.start_speed = float(start_speed)
             stop_speed = float(stop_speed)
             self._sub_layer_height = float(sublayer_height)
-            logging.info("Base Height: %s" % base_height)
-            logging.info("Total Height: %s" % total_height)
-            logging.info("Start Speed: %s" % self.start_speed)
-            logging.info("Stop Speed: %s" % stop_speed)
-            logging.info("Sublayer Height: %s" % self._sub_layer_height)
+            logger.info("Base Height: %s" % base_height)
+            logger.info("Total Height: %s" % total_height)
+            logger.info("Start Speed: %s" % self.start_speed)
+            logger.info("Stop Speed: %s" % stop_speed)
+            logger.info("Sublayer Height: %s" % self._sub_layer_height)
 
             self._base_layers = base_height / self._sub_layer_height
             self._number_of_layers = total_height / self._sub_layer_height
-            logging.info("Base layers to print: %s" % self._base_layers)
-            logging.info("Total layer to print: %s" % self._number_of_layers)
+            logger.info("Base layers to print: %s" % self._base_layers)
+            logger.info("Total layer to print: %s" % self._number_of_layers)
             self._base_layer_speed = self.start_speed + ((stop_speed - self.start_speed) / 2.0)
             self._speed_per_layer = (stop_speed - self.start_speed) / (self._number_of_layers - self._base_layers)
             self._current_layer = 0
@@ -425,7 +426,7 @@ class SubLayerGenerator(LayerGenerator):
         if self._running:
             if self._current_layer:
                 distance_to_next_layer = self._next.z - self._current_layer.z
-                # logging.debug('%f8' % distance_to_next_layer)
+                # logger.debug('%f8' % distance_to_next_layer)
                 if distance_to_next_layer / 2.0 >= self._sub_layer_height - self._tollerance:
                     current_z = self._current_layer.z
                     self._current_layer.z = current_z + self._sub_layer_height

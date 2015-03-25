@@ -1,4 +1,5 @@
 import logging
+logger = logging.getLogger('peachy')
 import time
 from os import path, listdir
 
@@ -33,18 +34,18 @@ class PrintQueueAPI(object):
         if status['status'] == "Complete":
             if self._api:
                 self._api.close()
-            logging.info('Print Complete proceeding to next file')
+            logger.info('Print Complete proceeding to next file')
             if len(self._files) > 0:
-                logging.info('Waiting %s seconds before proceeding to next file' % self._configuration.options.print_queue_delay)
+                logger.info('Waiting %s seconds before proceeding to next file' % self._configuration.options.print_queue_delay)
                 time.sleep(self._configuration.options.print_queue_delay)
-                logging.info('Proceeding to next file')
+                logger.info('Proceeding to next file')
                 self.print_next()
             else:
-                logging.info('Print Queue Complete')
+                logger.info('Print Queue Complete')
 
     def print_next(self):
         afile = self._files.pop(0)
-        logging.info("Printing Next File: %s" % afile)
+        logger.info("Printing Next File: %s" % afile)
         self._api = PrintAPI(self._configuration, self.call_back)
         self._api.print_gcode(afile)
 
@@ -54,11 +55,11 @@ class PrintQueueAPI(object):
 
     def _get_files(self, folder):
         if not path.isdir(folder):
-            logging.info('Folder Specified Does Not Exist')
+            logger.info('Folder Specified Does Not Exist')
             raise Exception('Folder Specified Does Not Exist')
         all_files = [path.join(folder, item) for item in listdir(folder) if item.endswith('.gcode')]
         if len(all_files) == 0:
-            logging.info('Folder Contains No Valid Files')
+            logger.info('Folder Contains No Valid Files')
             raise Exception('Folder Contains No Valid Files')
         return all_files
 
@@ -73,9 +74,9 @@ class PrintQueueAPI(object):
 
 class PrintAPI(object):
     def __init__(self, configuration, start_height=0.0, status_call_back=None):
-        logging.info('Print API Startup')
+        logger.info('Print API Startup')
         self._configuration = configuration
-        logging.info('Printer Name: %s' % self._configuration.name)
+        logger.info('Printer Name: %s' % self._configuration.name)
         self._controller = None
         self._status_call_back = status_call_back
         self._zaxis = None
@@ -109,20 +110,20 @@ class PrintAPI(object):
                 0.0
                 )
         elif self._configuration.dripper.dripper_type == 'photo':
-            logging.info("Photo Zaxis")
+            logger.info("Photo Zaxis")
             return PhotoZAxis(
                 self._start_height,
                 self._configuration.dripper.photo_zaxis_delay
                 )
         elif self._configuration.dripper.dripper_type == 'emulated':
-            logging.info("Emulated Zaxis")
+            logger.info("Emulated Zaxis")
             return TimedDripZAxis(
                 self._configuration.dripper.drips_per_mm,
                 self._start_height,
                 drips_per_second=self._configuration.dripper.emulated_drips_per_second
                 )
         elif self._configuration.dripper.dripper_type == 'microcontroller':
-            logging.info("Micro Controller Zaxis")
+            logger.info("Micro Controller Zaxis")
             return SerialDripZAxis(
                 self._get_communicator(dry_run),
                 self._configuration.dripper.drips_per_mm,
@@ -153,9 +154,9 @@ class PrintAPI(object):
                 )
 
     def print_layers(self, layer_generator, print_sub_layers=True, dry_run=False):
-        logging.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
-        logging.info("Sublayered: %s" % self._configuration.options.use_sublayers)
-        logging.info("Overlapped: %s" % self._configuration.options.use_overlap)
+        logger.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
+        logger.info("Sublayered: %s" % self._configuration.options.use_sublayers)
+        logger.info("Overlapped: %s" % self._configuration.options.use_overlap)
 
         if self._configuration.options.use_sublayers and print_sub_layers:
             layer_generator = SubLayerGenerator(layer_generator, self._configuration.options.sublayer_height_mm)
@@ -258,14 +259,14 @@ class PrintAPI(object):
         if getattr(self._zaxis, 'set_drips_per_second', False):
             self._zaxis.set_drips_per_second(drips_per_second)
         else:
-            logging.error('Cannot change drips per second on %s' % type(self._zaxis))
+            logger.error('Cannot change drips per second on %s' % type(self._zaxis))
             raise Exception('Cannot change drips per second on %s' % type(self._zaxis))
 
     def get_drips_per_second(self):
         if getattr(self._zaxis, 'get_drips_per_second'):
             return self._zaxis.get_drips_per_second()
         else:
-            logging.warning("Drips per second requested but does not exist")
+            logger.warning("Drips per second requested but does not exist")
             return 0.0
 
     def verify_gcode(self, file_name):
@@ -277,9 +278,9 @@ class PrintAPI(object):
         if self._controller:
             self._controller.close()
         else:
-            logging.warning('Stopped before printing')
+            logger.warning('Stopped before printing')
         if self._current_file:
             self._current_file.close()
-            logging.info("File Closed")
+            logger.info("File Closed")
         if self._notification_service:
             self._notification_service.send_message("Print Complete", "%s is complete" % self._current_file_name)
