@@ -9,6 +9,20 @@ from peachyprinter.infrastructure.layer_generators import CureTestGenerator
 from peachyprinter.infrastructure.commander import NullCommander, SerialCommander
 
 
+class InfoMixIn(object):
+    def get_info_version_number(self):
+        return "TBD"
+
+    def get_info_serial_number(self):
+        return "TBD"
+
+    def get_info_hardware_version_number(self):
+        return "TBD"
+
+    def get_info_firmware_version_number(self):
+        return "TBD"
+
+
 class DripperSetupMixIn(object):
 
     '''Sets the drip count back to 0'''
@@ -699,6 +713,7 @@ This API is still in active development and as is subject dramatic change'''
 
 
 class ConfigurationAPI(
+    InfoMixIn,
     DripperSetupMixIn,
     CureTestSetupMixIn,
     OptionsSetupMixIn,
