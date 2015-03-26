@@ -241,30 +241,119 @@ class CureTestSetupMixIn(object):
         return self._current_config.cure_rate.override_laser_power_amount
 
 
-class GeneralSetupMixIn(object):
-
-    '''Returns the write wav files flag'''
-    def get_write_wav_files(self):
-        return self._current_config.options.write_wav_files
-
-    '''Sets the write wav files flag'''
-    def set_write_wav_files(self, option):
-        self._current_config.options.write_wav_files = option
-        self.save()
-
-
-    '''Returns the wave file folder'''
-    def get_write_wav_files_folder(self):
-        return self._current_config.options.write_wav_files_folder
-
-    '''Sets the wave file folder'''
-    def set_write_wav_files_folder(self, folder):
-        self._current_config.options.write_wav_files_folder = folder
-        self.save()
+class OptionsSetupMixIn(object):
 
     '''Returns the wait after move milliseconds'''
-    def get_wait_after_move_milliseconds(self):
+    def get_options_wait_after_move_milliseconds(self):
         return self._current_config.options.wait_after_move_milliseconds
+
+    def get_wait_after_move_milliseconds(self):
+        logger.warning("get_wait_after_move_milliseconds is depricated use get_options_wait_after_move_milliseconds")
+        return self.get_options_wait_after_move_milliseconds()
+
+    '''Returns the pre layer delay'''
+    def get_options_pre_layer_delay(self):
+        return self._current_config.options.pre_layer_delay
+
+    def get_pre_layer_delay(self):
+        logger.warning("get_pre_layer_delay is depricated use get_options_pre_layer_delay")
+        return self.get_options_pre_layer_delay()
+
+    '''Returns the print queue delay'''
+    def get_options_print_queue_delay(self):
+        return self._current_config.options.print_queue_delay
+
+    def get_print_queue_delay(self):
+        logger.warning("get_print_queue_delay is depricated use get_options_print_queue_delay")
+        return self.get_options_print_queue_delay()
+
+    '''Returns the current setting for laser thickness'''
+    def get_options_laser_thickness_mm(self):
+        return self._current_config.options.laser_thickness_mm
+
+    def get_laser_thickness_mm(self):
+        logger.warning("get_laser_thickness_mm is depricated use get_options_laser_thickness_mm")
+        return self.get_options_laser_thickness_mm()
+
+    '''Returns the current setting for scaling factor'''
+    def get_options_scaling_factor(self):
+        return self._current_config.options.scaling_factor
+
+    def get_scaling_factor(self):
+        logger.warning("get_scaling_factor is depricated use get_options_scaling_factor")
+        return self.get_options_scaling_factor()
+
+    '''Gets the Sublayer height sublayers are added between layers for grater definition'''
+    def get_options_sublayer_height_mm(self):
+        return self._current_config.options.sublayer_height_mm
+
+    def get_sublayer_height_mm(self):
+        logger.warning("get_sublayer_height_mm is depricated use get_options_sublayer_height_mm")
+        return self.get_options_sublayer_height_mm()
+
+    '''Gets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
+    def get_options_max_lead_distance_mm(self):
+        return self._current_config.dripper.max_lead_distance_mm
+
+    def get_max_lead_distance_mm(self):
+        logger.warning("get_max_lead_distance_mm is depricated use get_options_max_lead_distance_mm")
+        return self.get_options_max_lead_distance_mm()
+
+    '''Gets the Post Fire Delay for each layer'''
+    def get_options_post_fire_delay(self):
+        return self._current_config.options.post_fire_delay1
+
+    def get_post_fire_delay(self):
+        logger.warning("get_post_fire_delay is depricated use get_options_post_fire_delay")
+        return self.get_options_post_fire_delay()
+
+    '''Gets the Slew Delay for each layer'''
+    def get_options_slew_delay(self):
+        return self._current_config.options.slew_delay
+
+    def get_slew_delay(self):
+        logger.warning("get_slew_delay is depricated use get_options_slew_delay")
+        return self.get_options_slew_delay()
+
+    '''Gets the Overlap Amount for each layer'''
+    def get_options_overlap_amount_mm(self):
+        return self._current_config.options.overlap_amount
+
+    def get_overlap_amount_mm(self):
+        logger.warning("get_overlap_amount_mm is depricated use get_options_overlap_amount_mm")
+        return self.get_options_overlap_amount_mm()
+
+    '''Gets the Shuffle Layers Amount for each layer'''
+    def get_options_shuffle_layers_amount(self):
+        return self._current_config.options.shuffle_layers_amount
+
+    def get_shuffle_layers_amount(self):
+        logger.warning("get_shuffle_layers_amount is depricated use get_options_shuffle_layers_amount")
+        return self.get_options_shuffle_layers_amount()
+
+    '''Gets the Shuffle layers setting'''
+    def get_options_use_shufflelayers(self):
+        return self._current_config.options.use_shufflelayers
+
+    def get_use_shufflelayers(self):
+        logger.warning("get_use_shufflelayers is depricated use get_options_use_shufflelayers")
+        return self.get_options_use_shufflelayers()
+
+    '''Gets the Sub layers setting'''
+    def get_options_use_sublayers(self):
+        return self._current_config.options.use_sublayers
+
+    def get_use_sublayers(self):
+        logger.warning("get_use_sublayers is depricated use get_options_use_sublayers")
+        return self.get_options_use_sublayers()
+
+    '''Gets the Overlap layers setting'''
+    def get_options_use_overlap(self):
+        return self._current_config.options.use_overlap
+
+    def get_use_overlap(self):
+        logger.warning("get_use_overlap is depricated use get_options_use_overlap")
+        return self.get_options_use_overlap()
 
     '''Sets the wait after move milliseconds'''
     def set_wait_after_move_milliseconds(self, delay_milliseconds):
@@ -274,10 +363,6 @@ class GeneralSetupMixIn(object):
         else:
             raise Exception("Wait after move milliseconds must be a positive int number")
 
-    '''Returns the pre layer delay'''
-    def get_pre_layer_delay(self):
-        return self._current_config.options.pre_layer_delay
-
     '''Sets the pre layer delay'''
     def set_pre_layer_delay(self, delay):
         if self._zero_or_positive_float(delay):
@@ -285,10 +370,6 @@ class GeneralSetupMixIn(object):
             self.save()
         else:
             raise Exception("Print queue delay must be a positive floating point number")
-
-    '''Returns the print queue delay'''
-    def get_print_queue_delay(self):
-        return self._current_config.options.print_queue_delay
 
     '''Sets the print queue delay'''
     def set_print_queue_delay(self, delay):
@@ -298,10 +379,6 @@ class GeneralSetupMixIn(object):
         else:
             raise Exception("Print queue delay must be a positive floating point number")
 
-    '''Returns the current setting for laser thickness'''
-    def get_laser_thickness_mm(self):
-        return self._current_config.options.laser_thickness_mm
-
     '''Sets the laser thickness in mm'''
     def set_laser_thickness_mm(self, thickness_mm):
         if self._positive_float(thickness_mm):
@@ -309,10 +386,6 @@ class GeneralSetupMixIn(object):
             self.save()
         else:
             raise Exception("Laser thickness must be a positive floating point number")
-
-    '''Returns the current setting for scaling factor'''
-    def get_scaling_factor(self):
-        return self._current_config.options.scaling_factor
 
     '''Sets the scaling factor in mm'''
     def set_scaling_factor(self, scaling_factor):
@@ -322,10 +395,6 @@ class GeneralSetupMixIn(object):
         else:
             raise Exception("Scaling Factor must be a positive floating point number")
 
-    '''Gets the Sublayer height sublayers are added between layers for grater definition'''
-    def get_sublayer_height_mm(self):
-        return self._current_config.options.sublayer_height_mm
-
     '''Sets the Sublayer height sublayers are added between layers for grater definition'''
     def set_sublayer_height_mm(self, thickness_mm):
         if self._positive_float(thickness_mm):
@@ -333,10 +402,6 @@ class GeneralSetupMixIn(object):
             self.save()
         else:
             raise Exception("Sublayer height must be a positive floating point number")
-
-    '''Gets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
-    def get_max_lead_distance_mm(self):
-        return self._current_config.dripper.max_lead_distance_mm
 
     '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
     def set_max_lead_distance_mm(self, lead_distance_mm):
@@ -346,10 +411,6 @@ class GeneralSetupMixIn(object):
         else:
             raise Exception("Max lead distance height must be a positive floating point number")
 
-    '''Gets the Overlap Amount for each layer'''
-    def get_overlap_amount_mm(self):
-        return self._current_config.options.overlap_amount
-
     '''Sets the Overlap Amount for each layer'''
     def set_overlap_amount_mm(self, overlap_amount):
         if self._positive_float(overlap_amount):
@@ -357,10 +418,6 @@ class GeneralSetupMixIn(object):
             self.save()
         else:
             raise Exception("Overlap Amount must be a positive floating point number")
-
-    '''Gets the Post Fire Delay for each layer'''
-    def get_post_fire_delay(self):
-        return self._current_config.options.post_fire_delay
 
     '''Sets the Post Fire Delay for each layer'''
     def set_post_fire_delay(self, post_fire_delay):
@@ -370,10 +427,6 @@ class GeneralSetupMixIn(object):
         else:
             raise Exception("Post Fire Delay must be a positive integer number")
 
-    '''Gets the Slew Delay for each layer'''
-    def get_slew_delay(self):
-        return self._current_config.options.slew_delay
-
     '''Sets the Slew Delay for each layer'''
     def set_slew_delay(self, slew_delay):
         if self._zero_or_positive_int(slew_delay):
@@ -381,10 +434,6 @@ class GeneralSetupMixIn(object):
             self.save()
         else:
             raise Exception("Post Fire Delay must be a positive integer number")
-
-    '''Gets the Shuffle Layers Amount for each layer'''
-    def get_shuffle_layers_amount(self):
-        return self._current_config.options.shuffle_layers_amount
 
     '''Sets the Shuffle Layers Amount for each layer'''
     def set_shuffle_layers_amount(self, shuffle_layers_amount):
@@ -394,10 +443,6 @@ class GeneralSetupMixIn(object):
         else:
             raise Exception("Shuffle Layers Amount must be a positive floating point number")
 
-    '''Gets the Shuffle layers setting'''
-    def get_use_shufflelayers(self):
-        return self._current_config.options.use_shufflelayers
-
     '''Sets the Shuffle layers setting'''
     def set_use_shufflelayers(self, use_shufflelayers):
         if (type(use_shufflelayers) == types.BooleanType):
@@ -406,10 +451,6 @@ class GeneralSetupMixIn(object):
         else:
             raise Exception("Use Shuffle Layers must be True or False")
 
-    '''Gets the Sub layers setting'''
-    def get_use_sublayers(self):
-        return self._current_config.options.use_sublayers
-
     '''Sets the Sub layers setting'''
     def set_use_sublayers(self, use_sublayers):
         if (type(use_sublayers) == types.BooleanType):
@@ -417,10 +458,6 @@ class GeneralSetupMixIn(object):
             self.save()
         else:
             raise Exception("Use SubLayers must be True or False")
-
-    '''Gets the Overlap layers setting'''
-    def get_use_overlap(self):
-        return self._current_config.options.use_overlap
 
     '''Sets the Overlap layers setting'''
     def set_use_overlap(self, use_overlap):
@@ -608,7 +645,7 @@ This API is still in active development and as is subject dramatic change'''
 class ConfigurationAPI(
     DripperSetupMixIn,
     CureTestSetupMixIn,
-    GeneralSetupMixIn,
+    OptionsSetupMixIn,
     EmailSetupMixin,
     SerialSetupMixin,
     CircutSetupMixIn

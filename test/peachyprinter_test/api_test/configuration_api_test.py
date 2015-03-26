@@ -562,7 +562,7 @@ class CureTestSetupMixInTest(object):
         #TODO FIX THIS AGAIN
 
 
-class GeneralSetupMixInTest(object):
+class OptionsSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_write_wav_files_folder_returns_write_wav_files_folder(self, mock_load):
@@ -1164,7 +1164,7 @@ class ConfigurationAPITest(
         test_helpers.TestHelpers,
         DripperSetupMixInTest,
         CureTestSetupMixInTest,
-        GeneralSetupMixInTest,
+        OptionsSetupMixInTest,
         EmailSetupMixInTest,
         SerialSetupMixInTest,
         CircutSetupMixInTest,
