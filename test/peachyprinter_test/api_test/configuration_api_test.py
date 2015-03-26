@@ -565,44 +565,6 @@ class CureTestSetupMixInTest(object):
 class OptionsSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
-    def test_get_write_wav_files_folder_returns_write_wav_files_folder(self, mock_load):
-        expected = "temp"
-        config = self.default_config
-        config.options.write_wav_files_folder = expected
-        mock_load.return_value = config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        self.assertEquals(expected, configuration_API.get_write_wav_files_folder())
-
-    @patch.object(ConfigurationManager, 'load')
-    @patch.object(ConfigurationManager, 'save')
-    def test_set_write_wav_files_sets_write_wav_files(self, mock_save, mock_load):
-        expected_write_wave_files = True
-        config = self.default_config
-        expected = config
-        expected.options.write_wav_files = expected_write_wave_files
-        mock_load.return_value = config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        configuration_API.set_write_wav_files(expected_write_wave_files)
-
-        self.assertEquals(expected_write_wave_files, configuration_API.get_write_wav_files())
-        mock_save.assert_called_with(expected)
-
-    @patch.object(ConfigurationManager, 'load')
-    def test_get_write_wav_files_returns_write_wav_files(self, mock_load):
-        expected = True
-        config = self.default_config
-        config.options.write_wav_files = expected
-        mock_load.return_value = config
-        configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
-
-        self.assertEquals(expected, configuration_API.get_write_wav_files())
-
-    @patch.object(ConfigurationManager, 'load')
     def test_get_wait_after_move_milliseconds_returns_wait_after_move_milliseconds(self, mock_load):
         expected = 7
         config = self.default_config
@@ -611,7 +573,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_wait_after_move_milliseconds())
+        self.assertEquals(expected, configuration_API.get_options_wait_after_move_milliseconds())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -624,9 +586,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_wait_after_move_milliseconds(expected_milliseconds)
+        configuration_API.set_options_wait_after_move_milliseconds(expected_milliseconds)
 
-        self.assertEquals(expected_milliseconds, configuration_API.get_wait_after_move_milliseconds())
+        self.assertEquals(expected_milliseconds, configuration_API.get_options_wait_after_move_milliseconds())
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
@@ -638,7 +600,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_pre_layer_delay())
+        self.assertEquals(expected, configuration_API.get_options_pre_layer_delay())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -651,9 +613,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_pre_layer_delay(expected_scale)
+        configuration_API.set_options_pre_layer_delay(expected_scale)
 
-        self.assertEquals(expected_scale, configuration_API.get_pre_layer_delay())
+        self.assertEquals(expected_scale, configuration_API.get_options_pre_layer_delay())
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
@@ -665,7 +627,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_max_lead_distance_mm())
+        self.assertEquals(expected, configuration_API.get_options_max_lead_distance_mm())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -677,9 +639,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_max_lead_distance_mm(expected)
+        configuration_API.set_options_max_lead_distance_mm(expected)
 
-        self.assertEquals(expected, configuration_API.get_max_lead_distance_mm())
+        self.assertEquals(expected, configuration_API.get_options_max_lead_distance_mm())
         self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
 
     @patch.object(ConfigurationManager, 'load')
@@ -692,9 +654,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_max_lead_distance_mm(expected)
+        configuration_API.set_options_max_lead_distance_mm(expected)
 
-        self.assertEquals(expected, configuration_API.get_max_lead_distance_mm())
+        self.assertEquals(expected, configuration_API.get_options_max_lead_distance_mm())
         self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
 
     @patch.object(ConfigurationManager, 'load')
@@ -705,15 +667,15 @@ class OptionsSetupMixInTest(object):
         configuration_API.load_printer("test")
 
         with self.assertRaises(Exception):
-            configuration_API.set_max_lead_distance_mm('a')
+            configuration_API.set_options_max_lead_distance_mm('a')
         with self.assertRaises(Exception):
-            configuration_API.set_max_lead_distance_mm(-1.0)
+            configuration_API.set_options_max_lead_distance_mm(-1.0)
         with self.assertRaises(Exception):
-            configuration_API.set_max_lead_distance_mm({'a': 'b'})
+            configuration_API.set_options_max_lead_distance_mm({'a': 'b'})
         with self.assertRaises(Exception):
-            configuration_API.set_max_lead_distance_mm(0)
+            configuration_API.set_options_max_lead_distance_mm(0)
         with self.assertRaises(Exception):
-            configuration_API.set_max_lead_distance_mm(1)
+            configuration_API.set_options_max_lead_distance_mm(1)
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_laser_thickness_mm_returns_thickness(self, mock_load):
@@ -724,7 +686,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_laser_thickness_mm())
+        self.assertEquals(expected, configuration_API.get_options_laser_thickness_mm())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -737,9 +699,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_laser_thickness_mm(expected_thickness)
+        configuration_API.set_options_laser_thickness_mm(expected_thickness)
 
-        self.assertEquals(expected_thickness, configuration_API.get_laser_thickness_mm())
+        self.assertEquals(expected_thickness, configuration_API.get_options_laser_thickness_mm())
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
@@ -750,15 +712,15 @@ class OptionsSetupMixInTest(object):
         configuration_API.load_printer("test")
 
         with self.assertRaises(Exception):
-            configuration_API.set_laser_thickness_mm('a')
+            configuration_API.set_options_laser_thickness_mm('a')
         with self.assertRaises(Exception):
-            configuration_API.set_laser_thickness_mm(-1.0)
+            configuration_API.set_options_laser_thickness_mm(-1.0)
         with self.assertRaises(Exception):
-            configuration_API.set_laser_thickness_mm({'a': 'b'})
+            configuration_API.set_options_laser_thickness_mm({'a': 'b'})
         with self.assertRaises(Exception):
-            configuration_API.set_laser_thickness_mm(0)
+            configuration_API.set_options_laser_thickness_mm(0)
         with self.assertRaises(Exception):
-            configuration_API.set_laser_thickness_mm(1)
+            configuration_API.set_options_laser_thickness_mm(1)
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_scaling_factor_returns_thickness(self, mock_load):
@@ -769,7 +731,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_scaling_factor())
+        self.assertEquals(expected, configuration_API.get_options_scaling_factor())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -782,9 +744,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_scaling_factor(expected_scale)
+        configuration_API.set_options_scaling_factor(expected_scale)
 
-        self.assertEquals(expected_scale, configuration_API.get_scaling_factor())
+        self.assertEquals(expected_scale, configuration_API.get_options_scaling_factor())
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
@@ -795,15 +757,15 @@ class OptionsSetupMixInTest(object):
         configuration_API.load_printer("test")
 
         with self.assertRaises(Exception):
-            configuration_API.set_scaling_factor('a')
+            configuration_API.set_options_scaling_factor('a')
         with self.assertRaises(Exception):
-            configuration_API.set_scaling_factor(-1.0)
+            configuration_API.set_options_scaling_factor(-1.0)
         with self.assertRaises(Exception):
-            configuration_API.set_scaling_factor({'a': 'b'})
+            configuration_API.set_options_scaling_factor({'a': 'b'})
         with self.assertRaises(Exception):
-            configuration_API.set_scaling_factor(0)
+            configuration_API.set_options_scaling_factor(0)
         with self.assertRaises(Exception):
-            configuration_API.set_scaling_factor(1)
+            configuration_API.set_options_scaling_factor(1)
 
     @patch.object(ConfigurationManager, 'load')
     def test_sublayer_height_mm_returns_theight(self, mock_load):
@@ -815,7 +777,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_sublayer_height_mm())
+        self.assertEquals(expected, configuration_API.get_options_sublayer_height_mm())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -828,9 +790,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_sublayer_height_mm(expected_height)
+        configuration_API.set_options_sublayer_height_mm(expected_height)
 
-        self.assertEquals(expected_height, configuration_API.get_sublayer_height_mm())
+        self.assertEquals(expected_height, configuration_API.get_options_sublayer_height_mm())
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
@@ -841,15 +803,15 @@ class OptionsSetupMixInTest(object):
         configuration_API.load_printer("test")
 
         with self.assertRaises(Exception):
-            configuration_API.set_sublayer_height_mm('a')
+            configuration_API.set_options_sublayer_height_mm('a')
         with self.assertRaises(Exception):
-            configuration_API.set_sublayer_height_mm(-1.0)
+            configuration_API.set_options_sublayer_height_mm(-1.0)
         with self.assertRaises(Exception):
-            configuration_API.set_sublayer_height_mm({'a': 'b'})
+            configuration_API.set_options_sublayer_height_mm({'a': 'b'})
         with self.assertRaises(Exception):
-            configuration_API.set_sublayer_height_mm(0)
+            configuration_API.set_options_sublayer_height_mm(0)
         with self.assertRaises(Exception):
-            configuration_API.set_sublayer_height_mm(1)
+            configuration_API.set_options_sublayer_height_mm(1)
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_slew_delay_returns_the_amount(self, mock_load):
@@ -861,7 +823,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_slew_delay())
+        self.assertEquals(expected, configuration_API.get_options_slew_delay())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -874,9 +836,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_slew_delay(slew_delay)
+        configuration_API.set_options_slew_delay(slew_delay)
 
-        self.assertEquals(slew_delay, configuration_API.get_slew_delay())
+        self.assertEquals(slew_delay, configuration_API.get_options_slew_delay())
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
@@ -889,7 +851,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_post_fire_delay())
+        self.assertEquals(expected, configuration_API.get_options_post_fire_delay())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -902,9 +864,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_post_fire_delay(post_fire_delay)
+        configuration_API.set_options_post_fire_delay(post_fire_delay)
 
-        self.assertEquals(post_fire_delay, configuration_API.get_post_fire_delay())
+        self.assertEquals(post_fire_delay, configuration_API.get_options_post_fire_delay())
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
@@ -917,7 +879,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_shuffle_layers_amount())
+        self.assertEquals(expected, configuration_API.get_options_shuffle_layers_amount())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -930,9 +892,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_shuffle_layers_amount(shuffle_layers_amount)
+        configuration_API.set_options_shuffle_layers_amount(shuffle_layers_amount)
 
-        self.assertEquals(shuffle_layers_amount, configuration_API.get_shuffle_layers_amount())
+        self.assertEquals(shuffle_layers_amount, configuration_API.get_options_shuffle_layers_amount())
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
@@ -945,7 +907,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_overlap_amount_mm())
+        self.assertEquals(expected, configuration_API.get_options_overlap_amount_mm())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -958,9 +920,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_overlap_amount_mm(overlap_amount)
+        configuration_API.set_options_overlap_amount_mm(overlap_amount)
 
-        self.assertEquals(overlap_amount, configuration_API.get_overlap_amount_mm())
+        self.assertEquals(overlap_amount, configuration_API.get_options_overlap_amount_mm())
         mock_save.assert_called_with(expected)
 
     @patch.object(ConfigurationManager, 'load')
@@ -973,7 +935,7 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        self.assertEquals(expected, configuration_API.get_print_queue_delay())
+        self.assertEquals(expected, configuration_API.get_options_print_queue_delay())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -986,9 +948,9 @@ class OptionsSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer("test")
 
-        configuration_API.set_print_queue_delay(print_queue_delay)
+        configuration_API.set_options_print_queue_delay(print_queue_delay)
 
-        self.assertEquals(print_queue_delay, configuration_API.get_print_queue_delay())
+        self.assertEquals(print_queue_delay, configuration_API.get_options_print_queue_delay())
         mock_save.assert_called_with(expected)
 
 

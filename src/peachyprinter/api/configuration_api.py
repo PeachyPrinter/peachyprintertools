@@ -301,7 +301,7 @@ class OptionsSetupMixIn(object):
 
     '''Gets the Post Fire Delay for each layer'''
     def get_options_post_fire_delay(self):
-        return self._current_config.options.post_fire_delay1
+        return self._current_config.options.post_fire_delay
 
     def get_post_fire_delay(self):
         logger.warning("get_post_fire_delay is depricated use get_options_post_fire_delay")
@@ -355,112 +355,168 @@ class OptionsSetupMixIn(object):
         logger.warning("get_use_overlap is depricated use get_options_use_overlap")
         return self.get_options_use_overlap()
 
-    '''Sets the wait after move milliseconds'''
     def set_wait_after_move_milliseconds(self, delay_milliseconds):
+        logger.warning(" set_wait_after_move_milliseconds is depricated use set_options_wait_after_move_milliseconds")
+        self.set_options_wait_after_move_milliseconds(delay_milliseconds)
+
+    '''Sets the wait after move milliseconds'''
+    def set_options_wait_after_move_milliseconds(self, delay_milliseconds):
         if self._zero_or_positive_int(delay_milliseconds):
             self._current_config.options.wait_after_move_milliseconds = delay_milliseconds
             self.save()
         else:
             raise Exception("Wait after move milliseconds must be a positive int number")
 
-    '''Sets the pre layer delay'''
     def set_pre_layer_delay(self, delay):
+        logger.warning(" is depricated use set_options_pre_layer_delay")
+        self.set_options_pre_layer_delay(delay)
+
+    '''Sets the pre layer delay'''
+    def set_options_pre_layer_delay(self, delay):
         if self._zero_or_positive_float(delay):
             self._current_config.options.pre_layer_delay = delay
             self.save()
         else:
             raise Exception("Print queue delay must be a positive floating point number")
 
-    '''Sets the print queue delay'''
     def set_print_queue_delay(self, delay):
+        logger.warning(" is depricated use set_options_print_queue_delay")
+        self.set_options_print_queue_delay(delay)
+
+    '''Sets the print queue delay'''
+    def set_options_print_queue_delay(self, delay):
         if self._zero_or_positive_float(delay):
             self._current_config.options.print_queue_delay = delay
             self.save()
         else:
             raise Exception("Print queue delay must be a positive floating point number")
 
-    '''Sets the laser thickness in mm'''
     def set_laser_thickness_mm(self, thickness_mm):
+        logger.warning("set_laser_thickness_mm is depricated use set_options_laser_thickness_mm")
+        self.set_options_laser_thickness_mm(thickness_mm)
+
+    '''Sets the laser thickness in mm'''
+    def set_options_laser_thickness_mm(self, thickness_mm):
         if self._positive_float(thickness_mm):
             self._current_config.options.laser_thickness_mm = thickness_mm
             self.save()
         else:
             raise Exception("Laser thickness must be a positive floating point number")
 
-    '''Sets the scaling factor in mm'''
     def set_scaling_factor(self, scaling_factor):
+        logger.warning("set_scaling_factor is depricated use set_options_scaling_factor")
+        self.set_options_scaling_factor(scaling_factor)
+
+    '''Sets the scaling factor in mm'''
+    def set_options_scaling_factor(self, scaling_factor):
         if self._positive_float(scaling_factor):
             self._current_config.options.scaling_factor = scaling_factor
             self.save()
         else:
             raise Exception("Scaling Factor must be a positive floating point number")
 
-    '''Sets the Sublayer height sublayers are added between layers for grater definition'''
     def set_sublayer_height_mm(self, thickness_mm):
+        logger.warning("set_sublayer_height_mm is depricated use set_options_sublayer_height_mm")
+        self.set_options_sublayer_height_mm(thickness_mm)
+
+    '''Sets the Sublayer height sublayers are added between layers for grater definition'''
+    def set_options_sublayer_height_mm(self, thickness_mm):
         if self._positive_float(thickness_mm):
             self._current_config.options.sublayer_height_mm = thickness_mm
             self.save()
         else:
             raise Exception("Sublayer height must be a positive floating point number")
 
-    '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
     def set_max_lead_distance_mm(self, lead_distance_mm):
+        logger.warning("set_max_lead_distance_mm is depricated use set_options_max_lead_distance_mm")
+        self.set_options_max_lead_distance_mm(lead_distance_mm)
+
+    '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
+    def set_options_max_lead_distance_mm(self, lead_distance_mm):
         if self._zero_or_positive_float(lead_distance_mm):
             self._current_config.dripper.max_lead_distance_mm = lead_distance_mm
             self.save()
         else:
             raise Exception("Max lead distance height must be a positive floating point number")
 
-    '''Sets the Overlap Amount for each layer'''
     def set_overlap_amount_mm(self, overlap_amount):
+        logger.warning("set_overlap_amount_mm is depricated use set_options_overlap_amount_mm")
+        self.set_options_overlap_amount_mm(overlap_amount)
+
+    '''Sets the Overlap Amount for each layer'''
+    def set_options_overlap_amount_mm(self, overlap_amount):
         if self._positive_float(overlap_amount):
             self._current_config.options.overlap_amount = overlap_amount
             self.save()
         else:
             raise Exception("Overlap Amount must be a positive floating point number")
 
-    '''Sets the Post Fire Delay for each layer'''
     def set_post_fire_delay(self, post_fire_delay):
+        logger.warning("set_post_fire_delay is depricated use set_options_post_fire_delay")
+        self.set_options_post_fire_delay(post_fire_delay)
+
+    '''Sets the Post Fire Delay for each layer'''
+    def set_options_post_fire_delay(self, post_fire_delay):
         if self._zero_or_positive_int(post_fire_delay):
             self._current_config.options.post_fire_delay = post_fire_delay
             self.save()
         else:
             raise Exception("Post Fire Delay must be a positive integer number")
 
-    '''Sets the Slew Delay for each layer'''
     def set_slew_delay(self, slew_delay):
+        logger.warning("set_slew_delay is depricated use set_options_slew_delay")
+        self.set_options_slew_delay(slew_delay)
+
+    '''Sets the Slew Delay for each layer'''
+    def set_options_slew_delay(self, slew_delay):
         if self._zero_or_positive_int(slew_delay):
             self._current_config.options.slew_delay = slew_delay
             self.save()
         else:
             raise Exception("Post Fire Delay must be a positive integer number")
 
-    '''Sets the Shuffle Layers Amount for each layer'''
     def set_shuffle_layers_amount(self, shuffle_layers_amount):
+        logger.warning("set_shuffle_layers_amount is depricated use set_options_shuffle_layers_amount")
+        self.set_options_shuffle_layers_amount(shuffle_layers_amount)
+
+    '''Sets the Shuffle Layers Amount for each layer'''
+    def set_options_shuffle_layers_amount(self, shuffle_layers_amount):
         if self._positive_float(shuffle_layers_amount):
             self._current_config.options.shuffle_layers_amount = shuffle_layers_amount
             self.save()
         else:
             raise Exception("Shuffle Layers Amount must be a positive floating point number")
 
-    '''Sets the Shuffle layers setting'''
     def set_use_shufflelayers(self, use_shufflelayers):
+        logger.warning("set_use_shufflelayers is depricated use set_options_use_shufflelayers")
+        self.set_options_use_shufflelayers(use_shufflelayers)
+
+    '''Sets the Shuffle layers setting'''
+    def set_options_use_shufflelayers(self, use_shufflelayers):
         if (type(use_shufflelayers) == types.BooleanType):
             self._current_config.options.use_shufflelayers = use_shufflelayers
             self.save()
         else:
             raise Exception("Use Shuffle Layers must be True or False")
 
-    '''Sets the Sub layers setting'''
     def set_use_sublayers(self, use_sublayers):
+        logger.warning("set_use_sublayers is depricated use set_options_use_sublayers")
+        self.set_options_use_sublayers(use_sublayers)
+
+    '''Sets the Sub layers setting'''
+    def set_options_use_sublayers(self, use_sublayers):
         if (type(use_sublayers) == types.BooleanType):
             self._current_config.options.use_sublayers = use_sublayers
             self.save()
         else:
             raise Exception("Use SubLayers must be True or False")
 
-    '''Sets the Overlap layers setting'''
     def set_use_overlap(self, use_overlap):
+        logger.warning("set_use_overlap is depricated use set_options_use_overlap")
+        self.set_options_use_overlap(use_overlap)
+
+    '''Sets the Overlap layers setting'''
+    def set_options_use_overlap(self, use_overlap):
         if (type(use_overlap) == types.BooleanType):
             self._current_config.options.use_overlap = use_overlap
             self.save()
