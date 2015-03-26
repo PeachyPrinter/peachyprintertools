@@ -476,7 +476,7 @@ class EmailSetupMixin(object):
         return self._current_config.email.password
 
 
-class AdvancedSetupMixin(object):
+class SerialSetupMixin(object):
 
     def get_serial_enabled(self):
         return self._current_config.serial.on
@@ -491,12 +491,24 @@ class AdvancedSetupMixin(object):
         return self._current_config.serial.off_command
 
     def get_layer_started_command(self):
-        return self._current_config.serial.layer_started
+        logger.warn("configuration_api.get_layer_started_command is depricated use get_serial_layer_started_command")
+        return self.get_serial_layer_started_command()
 
     def get_layer_ended_command(self):
-        return self._current_config.serial.layer_ended
+        logger.warn("configuration_api.get_layer_ended_command is depricated use get_serial_layer_ended_command")
+        return self.get_serial_layer_ended_command()
 
     def get_print_ended_command(self):
+        logger.warn("configuration_api.get_print_ended_command is depricated use get_serial_print_ended_command")
+        return self.get_serial_print_ended_command()
+
+    def get_serial_layer_started_command(self):
+        return self._current_config.serial.layer_started
+
+    def get_serial_layer_ended_command(self):
+        return self._current_config.serial.layer_ended
+
+    def get_serial_print_ended_command(self):
         return self._current_config.serial.print_ended
 
     def set_serial_enabled(self, enabled):
@@ -516,14 +528,26 @@ class AdvancedSetupMixin(object):
         self.save()
 
     def set_layer_started_command(self, layer_started):
+        logger.warn("configuration_api.set_layer_started_command is depricated use set_serial_layer_started_command")
+        self.set_serial_layer_started_command(self, layer_started)
+
+    def set_layer_ended_command(self, layer_ended):
+        logger.warn("configuration_api.set_layer_ended_command is depricated use set_serial_layer_ended_command")
+        self.set_serial_layer_ended_command(self, layer_ended)
+
+    def set_print_ended_command(self, print_ended):
+        logger.warn("configuration_api.set_print_ended_command is depricated use set_serial_print_ended_command")
+        self.set_serial_print_ended_command(self, print_ended)
+
+    def set_serial_layer_started_command(self, layer_started):
         self._current_config.serial.layer_started = layer_started
         self.save()
 
-    def set_layer_ended_command(self, layer_ended):
+    def set_serial_layer_ended_command(self, layer_ended):
         self._current_config.serial.layer_ended = layer_ended
         self.save()
 
-    def set_print_ended_command(self, print_ended):
+    def set_serial_print_ended_command(self, print_ended):
         self._current_config.serial.print_ended = print_ended
         self.save()
 
@@ -586,7 +610,7 @@ class ConfigurationAPI(
     CureTestSetupMixIn,
     GeneralSetupMixIn,
     EmailSetupMixin,
-    AdvancedSetupMixin,
+    SerialSetupMixin,
     CircutSetupMixIn
     ):
 

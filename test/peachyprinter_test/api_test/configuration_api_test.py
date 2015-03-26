@@ -561,6 +561,7 @@ class CureTestSetupMixInTest(object):
         # configuration_API.set_override_laser_power_amount(1.0)
         #TODO FIX THIS AGAIN
 
+
 class GeneralSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
@@ -1039,7 +1040,7 @@ class EmailSetupMixInTest(object):
         self.assertEquals(expected_password, configuration_API.get_email_password())
 
 
-class AdvancedSetupMixInTest(object):
+class SerialSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_serial_options_loads_correctly(self, mock_load):
@@ -1051,8 +1052,8 @@ class AdvancedSetupMixInTest(object):
         actual_port = configuration_API.get_serial_port()
         actual_on = configuration_API.get_serial_on_command()
         actual_off = configuration_API.get_serial_off_command()
-        actual_layer_start = configuration_API.get_layer_started_command()
-        actual_layer_ended = configuration_API.get_layer_ended_command()
+        actual_layer_start = configuration_API.get_serial_layer_started_command()
+        actual_layer_ended = configuration_API.get_serial_layer_ended_command()
 
         self.assertEquals(self.default_config.serial.on, actual_enabled)
         self.assertEquals(self.default_config.serial.port, actual_port)
@@ -1089,16 +1090,16 @@ class AdvancedSetupMixInTest(object):
         configuration_API.set_serial_port(expected_port)
         configuration_API.set_serial_on_command(expected_on)
         configuration_API.set_serial_off_command(expected_off)
-        configuration_API.set_layer_started_command(expected_layer_start)
-        configuration_API.set_layer_ended_command(expected_layer_end)
-        configuration_API.set_print_ended_command(expected_print_end)
+        configuration_API.set_serial_layer_started_command(expected_layer_start)
+        configuration_API.set_serial_layer_ended_command(expected_layer_end)
+        configuration_API.set_serial_print_ended_command(expected_print_end)
 
         self.assertEquals(expected_enabled, configuration_API.get_serial_enabled())
         self.assertEquals(expected_port, configuration_API.get_serial_port())
         self.assertEquals(expected_on, configuration_API.get_serial_on_command())
         self.assertEquals(expected_off, configuration_API.get_serial_off_command())
-        self.assertEquals(expected_layer_start, configuration_API.get_layer_started_command())
-        self.assertEquals(expected_layer_end, configuration_API.get_layer_ended_command())
+        self.assertEquals(expected_layer_start, configuration_API.get_serial_layer_started_command())
+        self.assertEquals(expected_layer_end, configuration_API.get_serial_layer_ended_command())
         self.assertEquals(expected_print_end, configuration_API.get_print_ended_command())
 
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
@@ -1165,7 +1166,7 @@ class ConfigurationAPITest(
         CureTestSetupMixInTest,
         GeneralSetupMixInTest,
         EmailSetupMixInTest,
-        AdvancedSetupMixInTest,
+        SerialSetupMixInTest,
         CircutSetupMixInTest,
         ):
 
