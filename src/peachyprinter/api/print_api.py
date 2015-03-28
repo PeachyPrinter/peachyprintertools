@@ -104,11 +104,6 @@ class PrintAPI(object):
     def _get_zaxis(self, dry_run):
         if dry_run:
             return None
-        elif self._configuration.options.write_wav_files:
-            return PhotoZAxis(
-                self._start_height,
-                0.0
-                )
         elif self._configuration.dripper.dripper_type == 'photo':
             logger.info("Photo Zaxis")
             return PhotoZAxis(
