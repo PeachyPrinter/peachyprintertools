@@ -198,7 +198,9 @@ class PrintAPI(object):
             self._configuration.options.laser_thickness_mm
             )
 
-        override_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
+        override_draw_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
+        override_move_speed = self._configuration.cure_rate.move_speed if self._configuration.cure_rate.use_draw_speed else None
+        
         pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else 0.0
         post_fire_delay_speed = None
         slew_delay_speed = None
@@ -213,7 +215,8 @@ class PrintAPI(object):
             self.laser_control,
             state,
             move_distance_to_ignore=self._configuration.options.laser_thickness_mm,
-            override_speed=override_speed,
+            override_draw_speed=override_draw_speed,
+            override_move_speed=override_move_speed,
             wait_speed=self._configuration.options.laser_thickness_mm / (float(self._configuration.options.wait_after_move_milliseconds) / 1000.0),
             post_fire_delay_speed=post_fire_delay_speed,
             slew_delay_speed=slew_delay_speed

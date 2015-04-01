@@ -24,7 +24,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_disseminator = mock_MicroDisseminator.return_value
         test_layer = Layer(0.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], 100.0)])
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
         self.writer.laser_off_override = True
 
         self.writer.process_layer(test_layer)
@@ -38,7 +38,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_disseminator = mock_MicroDisseminator.return_value
         test_layer = Layer(0.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], 100.0)])
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -50,7 +50,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_disseminator = mock_MicroDisseminator.return_value
         test_layer = Layer(0.0, [LateralDraw([2.0, 2.0], [1.0, 1.0], 100.0)])
         self.writer = LayerWriter(mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(
-        ), override_speed=100.0, wait_speed=5)
+        ), override_move_speed=100.0, override_draw_speed=100.0, wait_speed=5)
 
         self.writer.process_layer(test_layer)
 
@@ -68,7 +68,7 @@ class LayerWriterTests(unittest.TestCase):
         test_layer = Layer(0.0, [LateralMove(
             [0.0, 0.0], [2.0, 2.0], 100.0), LateralDraw([2.0, 2.0], [2.9, 2.9], 100.0)])
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -83,7 +83,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_path_to_points.process.return_value = "SomeAudio"
         mock_laser_control.modulate.return_value = "SomeModulatedAudio"
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -95,7 +95,7 @@ class LayerWriterTests(unittest.TestCase):
         disseminator = None
         test_layer = Layer(0.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], 100.0)])
         self.writer = LayerWriter(
-            disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -105,7 +105,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_disseminator = mock_MicroDisseminator.return_value
         test_layer = Layer(0.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], 2.0)])
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -120,7 +120,7 @@ class LayerWriterTests(unittest.TestCase):
             [0.0, 0.0], [2.0, 2.0], 2.0), LateralDraw([2.0, 2.0], [-1.0, -1.0], 2.0)])
 
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -134,7 +134,7 @@ class LayerWriterTests(unittest.TestCase):
         test_layer = Layer(0.0, [LateralDraw(
             [0.0, 0.0], [0.0, 0.0], 2.0), LateralDraw([2.0, 2.0], [-1.0, -1.0], 2.0)])
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -151,7 +151,7 @@ class LayerWriterTests(unittest.TestCase):
         test_layer = Layer(0.0, [LateralMove([0.0, 0.0], [0.0, 0.0], 2.0), LateralDraw(
             [0.0000001, 0.0], [-1.0, -1.0], 2.0)])
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -167,7 +167,7 @@ class LayerWriterTests(unittest.TestCase):
         test_layer = Layer(0.0, [LateralMove([0.0, 0.0], [1.0, 1.0], 2.0), LateralMove(
             [1.0, 1.0], [1.000001, 1.0], 2.0)])
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.process_layer(test_layer)
 
@@ -183,7 +183,7 @@ class LayerWriterTests(unittest.TestCase):
         test_layer = Layer(
             0.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], expected_speed + 100.0)])
         self.writer = LayerWriter(mock_disseminator, mock_path_to_points,
-                                  mock_laser_control, MachineState(), override_speed=expected_speed, )
+                                  mock_laser_control, MachineState(), override_move_speed=expected_speed, override_draw_speed=expected_speed, )
 
         self.writer.process_layer(test_layer)
 
@@ -198,12 +198,31 @@ class LayerWriterTests(unittest.TestCase):
         test_layer = Layer(
             0.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], expected_speed - 1.0)])
         self.writer = LayerWriter(mock_disseminator, mock_path_to_points,
-                                  mock_laser_control, MachineState(), override_speed=expected_speed, )
+                                  mock_laser_control, MachineState(), override_move_speed=expected_speed, override_draw_speed=expected_speed, )
 
         self.writer.process_layer(test_layer)
 
         mock_path_to_points.process.assert_called_with(
             [0.0, 0.0, 0.0], [2.0, 2.0, 0.0], expected_speed)
+
+    def test_process_layer_should_use_override_move_speed_if_provided(self, mock_MicroDisseminator, mock_PathToPoints, mock_LaserControl):
+        expected_draw_speed = 2.0
+        expected_move_speed = 2.0
+        mock_path_to_points = mock_PathToPoints.return_value
+        mock_disseminator = mock_MicroDisseminator.return_value
+        mock_laser_control = mock_LaserControl.return_value
+        test_layer = Layer(
+            0.0, [
+            LateralDraw([0.0, 0.0], [2.0, 2.0], expected_draw_speed - 1.0),
+            LateralMove([2.0, 2.0], [1.0, 1.0], expected_move_speed - 1.0)
+            ])
+        self.writer = LayerWriter(mock_disseminator, mock_path_to_points,
+                                  mock_laser_control, MachineState(), override_move_speed=expected_move_speed, override_draw_speed=expected_draw_speed, )
+
+        self.writer.process_layer(test_layer)
+
+        mock_path_to_points.process.assert_called_with(
+            [0.0, 0.0, 0.0], [2.0, 2.0, 0.0], expected_move_speed)
 
     def test_wait_till_time_will_move_to_existing_space(self, mock_MicroDisseminator, mock_PathToPoints, mock_LaserControl):
         mock_path_to_points = mock_PathToPoints.return_value
@@ -211,7 +230,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, state, override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, state, override_move_speed=2.0, override_draw_speed=2.0)
 
         before = time.time()
         self.writer.wait_till_time(before + 1)
@@ -227,7 +246,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
         self.writer = LayerWriter(mock_disseminator, mock_path_to_points,
-                                  mock_laser_control, state, override_speed=100.0, post_fire_delay_speed=100.0)
+                                  mock_laser_control, state, override_move_speed=100.0, override_draw_speed=100.0, post_fire_delay_speed=100.0)
 
         mock_laser_control.laser_is_on.return_value = False
         before = time.time()
@@ -237,12 +256,9 @@ class LayerWriterTests(unittest.TestCase):
         ]))
 
         (state.xyz, state.xyz, state.speed)
-        self.assertEqual(mock_path_to_points.process.call_args_list[0][
-                         0], ([0.0, 0.0, 0.0], [1.0, 1.0, 0.0], 100.0))
-        self.assertEqual(mock_path_to_points.process.call_args_list[1][
-                         0], ([1.0, 1.0, 0.0], [1.0, 1.0, 0.0], 100.0))
-        self.assertEqual(mock_path_to_points.process.call_args_list[2][
-                         0], ([1.0, 1.0, 0.0], [2.0, 2.0, 0.0], 100.0))
+        self.assertEqual(mock_path_to_points.process.call_args_list[0][0], ([0.0, 0.0, 0.0], [1.0, 1.0, 0.0], 100.0))
+        self.assertEqual(mock_path_to_points.process.call_args_list[1][0], ([1.0, 1.0, 0.0], [1.0, 1.0, 0.0], 100.0))
+        self.assertEqual(mock_path_to_points.process.call_args_list[2][0], ([1.0, 1.0, 0.0], [2.0, 2.0, 0.0], 100.0))
         self.assertEquals(1, mock_laser_control.set_laser_off.call_count)
 
     def test_slew_will_wait_before_laser_on(self, mock_MicroDisseminator, mock_PathToPoints, mock_LaserControl):
@@ -251,13 +267,12 @@ class LayerWriterTests(unittest.TestCase):
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
         self.writer = LayerWriter(mock_disseminator, mock_path_to_points,
-                                  mock_laser_control, state, override_speed=40.0, slew_delay_speed=100.0)
+                                  mock_laser_control, state, override_move_speed=40.0, override_draw_speed=40.0, slew_delay_speed=100.0)
 
         mock_laser_control.laser_is_on.return_value = True
         self.writer.process_layer(Layer(0.0, commands=[
             LateralDraw([0.0, 0.0], [1.0, 1.0], 100.0),
             LateralDraw([1.5, 1.5], [2.0, 2.0], 100.0),
-
         ]))
 
         (state.xyz, state.xyz, state.speed)
@@ -265,7 +280,6 @@ class LayerWriterTests(unittest.TestCase):
         self.assertEqual(mock_path_to_points.process.call_args_list[1][0], ([1.0, 1.0, 0.0], [1.0, 1.0, 0.0], 100.0))
         self.assertEqual(mock_path_to_points.process.call_args_list[2][0], ([1.0, 1.0, 0.0], [1.5, 1.5, 0.0], 40.0))
         self.assertEquals(2, mock_laser_control.set_laser_on.call_count)
-
 
     def test_wait_till_time_returns_instantly_if_shutting_down(self, mock_MicroDisseminator, mock_PathToPoints, mock_LaserControl):
         mock_path_to_points = mock_PathToPoints.return_value
@@ -288,7 +302,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, state, override_speed=2.0)
+            mock_disseminator, mock_path_to_points, mock_laser_control, state, override_move_speed=2.0, override_draw_speed=2.0)
 
         self.writer.terminate()
 
@@ -300,7 +314,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, state, override_speed=2.0,)
+            mock_disseminator, mock_path_to_points, mock_laser_control, state, override_move_speed=2.0, override_draw_speed=2.0,)
         test_layer = Layer(0.0, [LateralDraw([0.0, 0.0], [2.0, 2.0],  100.0)])
         self.writer.terminate()
 
@@ -313,7 +327,7 @@ class LayerWriterTests(unittest.TestCase):
         mock_laser_control = mock_LaserControl.return_value
         state = MachineState()
         self.writer = LayerWriter(
-            mock_disseminator, mock_path_to_points, mock_laser_control, state, override_speed=2.0,
+            mock_disseminator, mock_path_to_points, mock_laser_control, state, override_move_speed=2.0, override_draw_speed=2.0,
             )
 
         self.writer.process_layer(Layer(0.4, commands=[

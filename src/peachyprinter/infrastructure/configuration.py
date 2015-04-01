@@ -926,6 +926,7 @@ class ConfigurationGenerator(object):
         configuration.cure_rate.start_speed                = 50.0
         configuration.cure_rate.finish_speed               = 200.0
         configuration.cure_rate.draw_speed                 = 100.0
+        configuration.cure_rate.move_speed                 = 300.0
         configuration.cure_rate.use_draw_speed             = True
 
         configuration.micro_com.port                       = '/dev/ttyACM0'

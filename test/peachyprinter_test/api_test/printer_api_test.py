@@ -304,7 +304,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_laser_control,
             self.mock_machine_state,
             move_distance_to_ignore=config.options.laser_thickness_mm,
-            override_speed=config.cure_rate.draw_speed,
+            override_draw_speed=config.cure_rate.draw_speed,
+            override_move_speed=config.cure_rate.move_speed,
             wait_speed=100.0,
             post_fire_delay_speed=100.0,
             slew_delay_speed=100.0,
@@ -379,43 +380,6 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.print_ended,
             )
 
-    def test_print_gcode_should_create_required_classes_and_start_it_with_file_writer(self, *args):
-        self.setup_mocks(args)
-        gcode_path = "FakeFile"
-        config = self.default_config
-        config.options.write_wav_files = True
-        config.options.write_wav_files_folder = 'Magic Beans'
-        api = PrintAPI(config)
-
-        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
-            api.print_gcode(gcode_path)
-
-        self.mock_LayerWriter.assert_called_with(
-            self.mock_micro_disseminator,
-            self.mock_path_to_audio,
-            self.mock_laser_control,
-            self.mock_machine_state,
-            move_distance_to_ignore=config.options.laser_thickness_mm,
-            override_speed=config.cure_rate.draw_speed,
-            wait_speed=100.0,
-            post_fire_delay_speed=100.0,
-            slew_delay_speed=100.0
-            )
-
-        self.mock_LayerProcessing.assert_called_with(
-            self.mock_layer_writer,
-            self.mock_machine_state,
-            self.mock_machine_status,
-            self.mock_photo_zaxis,
-            config.dripper.max_lead_distance_mm,
-            self.mock_null_commander,
-            config.options.pre_layer_delay,
-            config.serial.layer_started,
-            config.serial.layer_ended,
-            config.serial.print_ended,
-            )
-        self.mock_PhotoZAxis.assert_called_with(0.0, 0)
-
     def test_print_gcode_should_create_file_writer_with_start_height(self, *args):
         self.setup_mocks(args)
         expected_start_height = 7.8
@@ -446,7 +410,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.mock_laser_control,
             self.mock_machine_state,
             move_distance_to_ignore=config.options.laser_thickness_mm,
-            override_speed=config.cure_rate.draw_speed,
+            override_draw_speed=config.cure_rate.draw_speed,
+            override_move_speed=config.cure_rate.move_speed,
             wait_speed=100.0,
             post_fire_delay_speed=100.0,
             slew_delay_speed=100.0
