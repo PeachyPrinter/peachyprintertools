@@ -353,8 +353,8 @@ class EmailConfiguration(ConfigurationBase):
 class OptionsConfiguration(ConfigurationBase):
     def __init__(self, source={}):
         self._shuffle_layers_amount = self.get(source, u'shuffle_layers_amount', 1.0)
-        self._post_fire_delay = self.get(source, u'post_fire_delay', 5)
-        self._slew_delay = self.get(source, u'slew_delay', 5)
+        self._post_fire_delay = self.get(source, u'post_fire_delay', 0)
+        self._slew_delay = self.get(source, u'slew_delay', 15)
         self._laser_offset = self.get(source, u'laser_offset', [0.0,0.0])
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm', 0.01)
         self._laser_thickness_mm = self.get(source, u'laser_thickness_mm', 0.5)
@@ -366,7 +366,7 @@ class OptionsConfiguration(ConfigurationBase):
         self._use_overlap = self.get(source, u'use_overlap', True)
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
         self._pre_layer_delay = self.get(source, u'pre_layer_delay',0.0)
-        self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds', 5)
+        self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds', 20)
         self._write_wav_files = self.get(source, u'write_wav_files',False)
         self._write_wav_files_folder= self.get(source, u'write_wav_files_folder', 'tmp')
 
