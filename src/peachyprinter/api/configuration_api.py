@@ -619,42 +619,52 @@ class SerialSetupMixin(object):
         return self._current_config.serial.print_ended
 
     def set_serial_enabled(self, enabled):
+        logger.info("Setting changed: serial_enabled -> %s" % enabled)
         self._current_config.serial.on = enabled
         self.save()
 
     def set_serial_port(self, port):
+        logger.info("Setting changed: serial_port -> %s" % port)
         self._current_config.serial.port = port
         self.save()
 
     def set_serial_on_command(self, on_command):
+        logger.info("Setting changed: serial_on_command -> %s" % on_command)
         self._current_config.serial.on_command = on_command
         self.save()
 
     def set_serial_off_command(self, off_command):
+        logger.info("Setting changed: serial_off_command -> %s" % off_command)
         self._current_config.serial.off_command = off_command
         self.save()
 
     def set_layer_started_command(self, layer_started):
+        logger.info("Setting changed: layer_started_command -> %s" % layer_started)
         logger.warn("configuration_api.set_layer_started_command is depricated use set_serial_layer_started_command")
         self.set_serial_layer_started_command(self, layer_started)
 
     def set_layer_ended_command(self, layer_ended):
+        logger.info("Setting changed: layer_ended_command -> %s" % layer_ended)
         logger.warn("configuration_api.set_layer_ended_command is depricated use set_serial_layer_ended_command")
         self.set_serial_layer_ended_command(self, layer_ended)
 
     def set_print_ended_command(self, print_ended):
+        logger.info("Setting changed: print_ended_command -> %s" % print_ended)
         logger.warn("configuration_api.set_print_ended_command is depricated use set_serial_print_ended_command")
         self.set_serial_print_ended_command(self, print_ended)
 
     def set_serial_layer_started_command(self, layer_started):
+        logger.info("Setting changed: serial_layer_started_command -> %s" % layer_started)
         self._current_config.serial.layer_started = layer_started
         self.save()
 
     def set_serial_layer_ended_command(self, layer_ended):
+        logger.info("Setting changed: serial_layer_ended_command -> %s" % layer_ended)
         self._current_config.serial.layer_ended = layer_ended
         self.save()
 
     def set_serial_print_ended_command(self, print_ended):
+        logger.info("Setting changed: serial_print_ended_command -> %s" % print_ended)
         self._current_config.serial.print_ended = print_ended
         self.save()
 

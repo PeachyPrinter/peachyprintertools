@@ -20,8 +20,8 @@
  * DONE - read 0x13
 */
 
-int g_xout;
-int g_yout;
+int g_xout = 0;
+int g_yout = 0;
 
 #define HEADER 0x40
 #define FOOTER 0x41

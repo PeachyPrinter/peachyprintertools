@@ -3,6 +3,9 @@
 
 #include <Arduino.h>
 
+extern int g_xout;
+extern int g_yout;
+
 typedef enum {
   SEARCHING = 1,
   READING = 2,
