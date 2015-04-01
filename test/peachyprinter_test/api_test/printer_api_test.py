@@ -253,6 +253,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.use_sublayers = False
         config.options.use_overlap = False
         config.options.post_fire_delay = 5
+        config.options.slew_delay = 5
+        config.options.wait_after_move_milliseconds = 5
         config.circut.circut_type = 'Digital'
         config.dripper.dripper_type = 'microcontroller'
         api = PrintAPI(config)
@@ -399,6 +401,10 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         gcode_path = "FakeFile"
         config = self.default_config
         config.cure_rate.draw_speed = 77.7
+        config.options.slew_delay = 5
+        config.options.post_fire_delay = 5
+        config.options.wait_after_move_milliseconds = 5
+
         api = PrintAPI(config)
 
         with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
