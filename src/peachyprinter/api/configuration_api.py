@@ -69,7 +69,6 @@ class DripperSetupMixIn(object):
     '''Sets the configured Dripper Type'''
     def set_dripper_type(self, value):
         self._current_config.dripper.dripper_type = value
-        self._change_dripper()
 
     '''Depricated use set_dripper_emulated_drips_per_second'''
     def set_emulated_drips_per_second(self, value):
