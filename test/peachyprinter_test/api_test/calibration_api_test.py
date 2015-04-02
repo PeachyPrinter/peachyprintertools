@@ -80,6 +80,9 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_micro_disseminator.samples_per_second = actual_samples
         config = self.default_config
         config.circut.circut_type = 'Digital'
+        config.options.post_fire_delay = 5
+        config.options.slew_delay = 5
+        config.options.wait_after_move_milliseconds = 5
         self.mock_configuration_manager.load.return_value = config
         CalibrationAPI(self.mock_configuration_manager, 'Spam')
 

@@ -61,7 +61,7 @@ class CircutConfiguration(ConfigurationBase):
 class MicroComConfiguration(ConfigurationBase):
     def __init__(self, source = {}):
         self._port   = self.get(source, u'port',  '/dev/ttyACM0')
-        self._rate   = self.get(source, u'rate', 8000)
+        self._rate   = self.get(source, u'rate', 2000)
         self._header = self.get(source, u'header', "@")
         self._footer = self.get(source, u'footer', "A")
         self._escape = self.get(source, u'escape', 'B')
@@ -134,6 +134,7 @@ class CureRateConfiguration(ConfigurationBase):
         self._start_speed                   = self.get(source, u'start_speed',                  50.0     )
         self._finish_speed                  = self.get(source, u'finish_speed',                 200.0    )
         self._draw_speed                    = self.get(source, u'draw_speed',                   100.0    )
+        self._move_speed                    = self.get(source, u'move_speed',                   300.0    )
         self._use_draw_speed                = self.get(source, u'use_draw_speed',               True     )
         self._override_laser_power          = self.get(source, u'override_laser_power',         True     )
         self._override_laser_power_amount   = self.get(source, u'override_laser_power_amount',  0.05     )
@@ -221,6 +222,18 @@ class CureRateConfiguration(ConfigurationBase):
             self._draw_speed = value
         else:
             raise ValueError("Draw Speed must be of %s was %s" % (_type, type(value)))
+
+    @property
+    def move_speed(self):
+        return self._move_speed
+
+    @move_speed.setter
+    def move_speed(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._move_speed = value
+        else:
+            raise ValueError("Move Speed must be of %s was %s" % (_type, type(value)))
 
     @property
     def use_draw_speed(self):
@@ -340,8 +353,8 @@ class EmailConfiguration(ConfigurationBase):
 class OptionsConfiguration(ConfigurationBase):
     def __init__(self, source={}):
         self._shuffle_layers_amount = self.get(source, u'shuffle_layers_amount', 1.0)
-        self._post_fire_delay = self.get(source, u'post_fire_delay', 5)
-        self._slew_delay = self.get(source, u'slew_delay', 5)
+        self._post_fire_delay = self.get(source, u'post_fire_delay', 0)
+        self._slew_delay = self.get(source, u'slew_delay', 15)
         self._laser_offset = self.get(source, u'laser_offset', [0.0,0.0])
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm', 0.01)
         self._laser_thickness_mm = self.get(source, u'laser_thickness_mm', 0.5)
@@ -353,7 +366,7 @@ class OptionsConfiguration(ConfigurationBase):
         self._use_overlap = self.get(source, u'use_overlap', True)
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
         self._pre_layer_delay = self.get(source, u'pre_layer_delay',0.0)
-        self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds', 5)
+        self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds', 20)
         self._write_wav_files = self.get(source, u'write_wav_files',False)
         self._write_wav_files_folder= self.get(source, u'write_wav_files_folder', 'tmp')
 
@@ -913,6 +926,7 @@ class ConfigurationGenerator(object):
         configuration.cure_rate.start_speed                = 50.0
         configuration.cure_rate.finish_speed               = 200.0
         configuration.cure_rate.draw_speed                 = 100.0
+        configuration.cure_rate.move_speed                 = 300.0
         configuration.cure_rate.use_draw_speed             = True
 
         configuration.micro_com.port                       = '/dev/ttyACM0'

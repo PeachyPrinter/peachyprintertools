@@ -13,24 +13,26 @@
 static const short DATA_PIN = 6;
 static const short SEND_PIN = 5;
 
-short BYTE_PIN_0 = 22;
-short BYTE_PIN_1 = 23;
-short BYTE_PIN_2 = 24;
-short BYTE_PIN_3 = 25;
-short BYTE_PIN_4 = 26;
-short BYTE_PIN_5 = 27;
-short BYTE_PIN_6 = 28;
-short BYTE_PIN_7 = 29;
-short BYTE_PIN_8 = 30;
-short BYTE_PIN_9 = 31;
-short BYTE_PIN_A = 32;
-short BYTE_PIN_B = 33;
-short BYTE_PIN_C = 34;
-short BYTE_PIN_D = 35;
-short BYTE_PIN_E = 36;
-short BYTE_PIN_F = 37;
+short BYTE_PIN_X0 = 38;
+short BYTE_PIN_X1 = 40;
+short BYTE_PIN_X2 = 42;
+short BYTE_PIN_X3 = 44;
+short BYTE_PIN_X4 = 46;
+short BYTE_PIN_X5 = 48;
+short BYTE_PIN_X6 = 50;
+short BYTE_PIN_X7 = 52;
 
-short bits[] = {BYTE_PIN_0, BYTE_PIN_1, BYTE_PIN_2, BYTE_PIN_3, BYTE_PIN_4, BYTE_PIN_5, BYTE_PIN_6, BYTE_PIN_7, BYTE_PIN_9, BYTE_PIN_9, BYTE_PIN_A, BYTE_PIN_B, BYTE_PIN_C, BYTE_PIN_D, BYTE_PIN_E, BYTE_PIN_F};
+short BYTE_PIN_Y0 = 39;
+short BYTE_PIN_Y1 = 41;
+short BYTE_PIN_Y2 = 43;
+short BYTE_PIN_Y3 = 45;
+short BYTE_PIN_Y4 = 47;
+short BYTE_PIN_Y5 = 49;
+short BYTE_PIN_Y6 = 51;
+short BYTE_PIN_Y7 = 53;
+
+short xbits[] = { BYTE_PIN_X0, BYTE_PIN_X1, BYTE_PIN_X2, BYTE_PIN_X3, BYTE_PIN_X4, BYTE_PIN_X5, BYTE_PIN_X6, BYTE_PIN_X7 };
+short ybits[] = { BYTE_PIN_Y0, BYTE_PIN_Y1, BYTE_PIN_Y2, BYTE_PIN_Y3, BYTE_PIN_Y4, BYTE_PIN_Y5, BYTE_PIN_Y6, BYTE_PIN_Y7 };
 
 uint8_t buffer[128];
 size_t message_length;
@@ -44,9 +46,11 @@ void setup() {
   digitalWrite(DATA_PIN, LOW);
   pinMode(SEND_PIN, OUTPUT);
   digitalWrite(SEND_PIN, LOW);
-  for(int idx = 0 ; idx < 16; idx++){
-    pinMode(bits[idx], OUTPUT);
-    digitalWrite(bits[idx], HIGH);
+  for(int idx = 0 ; idx < 8; idx++){
+    pinMode(xbits[idx], OUTPUT);
+    pinMode(ybits[idx], OUTPUT);
+    digitalWrite(xbits[idx], HIGH);
+    digitalWrite(ybits[idx], HIGH);
   }
 
 
@@ -54,10 +58,17 @@ void setup() {
 }
 
 void show_index(){
-  int data = millis() / 100;
-  for(int idx = 0 ; idx < 16; idx++){
-    bool bit = (data >> idx) & 1;
-    digitalWrite(bits[idx], !bit);
+  for(int idx = 0 ; idx < 8; idx++){
+    bool xbit = (g_xout >> idx) & 1;
+    bool ybit = (g_yout >> idx) & 1;
+    if (xbit)
+      digitalWrite(xbits[idx], HIGH);
+    else
+      digitalWrite(xbits[idx], LOW);
+    if (ybit)
+      digitalWrite(xbits[idx], HIGH);
+    else
+      digitalWrite(xbits[idx], LOW);
   }
 }
 

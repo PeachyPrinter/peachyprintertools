@@ -14,14 +14,16 @@ class LayerWriter():
                  laser_control,
                  state,
                  move_distance_to_ignore=0.00001,
-                 override_speed=None,
+                 override_draw_speed=None,
+                 override_move_speed=None,
                  wait_speed=None,
                  post_fire_delay_speed=None,
                  slew_delay_speed=None,
                  ):
         self._post_fire_delay_speed = post_fire_delay_speed
         self._slew_delay_speed = slew_delay_speed
-        self._override_speed = override_speed
+        self._override_draw_speed = override_draw_speed
+        self._override_move_speed = override_move_speed
         self._move_distance_to_ignore = move_distance_to_ignore
         self._state = state
         self._disseminator = disseminator
@@ -63,17 +65,21 @@ class LayerWriter():
                     self._draw_lateral(command.end, layer.z, command.speed)
 
     def _move_lateral(self, (to_x, to_y), to_z, speed):
+        if self._override_move_speed:
+            speed = self._override_move_speed
         laser_was_on = self._laser_control.laser_is_on()
         if laser_was_on and self._slew_delay_speed:
             self._write_lateral(
-                self._state.x, self._state.y, self._state.z, self._slew_delay_speed, ignore_override=True)
+                self._state.x, self._state.y, self._state.z, self._slew_delay_speed)
         self._laser_control.set_laser_off()
         self._write_lateral(to_x, to_y, to_z, speed)
         if self._after_move_wait_speed:
             self._write_lateral(
-                to_x, to_y, to_z, self._after_move_wait_speed, ignore_override=True)
+                to_x, to_y, to_z, self._after_move_wait_speed)
 
     def _draw_lateral(self, (to_x, to_y), to_z, speed):
+        if self._override_draw_speed:
+            speed = self._override_draw_speed
         laser_was_off = not self._laser_control.laser_is_on()
         if self.laser_off_override:
             self._laser_control.set_laser_off()
@@ -81,12 +87,10 @@ class LayerWriter():
             self._laser_control.set_laser_on()
         if laser_was_off and self._post_fire_delay_speed:
             self._write_lateral(
-                self._state.x, self._state.y, self._state.z, self._post_fire_delay_speed, ignore_override=True)
+                self._state.x, self._state.y, self._state.z, self._post_fire_delay_speed)
         self._write_lateral(to_x, to_y, to_z, speed)
 
-    def _write_lateral(self, to_x, to_y, to_z, speed, ignore_override=False):
-        if self._override_speed and not ignore_override:
-            speed = self._override_speed
+    def _write_lateral(self, to_x, to_y, to_z, speed):
         to_xyz = [to_x, to_y, to_z]
         path = self._path_to_points.process(self._state.xyz, to_xyz, speed)
         if self._disseminator:

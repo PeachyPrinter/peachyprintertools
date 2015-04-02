@@ -68,7 +68,7 @@ class MicroComTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_can_create_json_and_load_from_json(self):
 
         expected_port = '/dev/ttyACM0'
-        expected_rate = 8000
+        expected_rate = 2000
         expected_header = '@'
         expected_footer = 'A'
         expected_escape = 'B'
@@ -105,6 +105,7 @@ class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         expected_start_speed = True
         expected_finish_speed = True
         expected_draw_speed = True
+        expected_move_speed = True
         expected_use_draw_speed = 123
         expected_override_laser_power = 123
         expected_override_laser_power_amount = True
@@ -122,6 +123,8 @@ class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             cure_rate_config.draw_speed = expected_draw_speed
         with self.assertRaises(Exception):
+            cure_rate_config.draw_speed = expected_move_speed
+        with self.assertRaises(Exception):
             cure_rate_config.use_draw_speed = expected_use_draw_speed
         with self.assertRaises(Exception):
             cure_rate_config.override_laser_power = expected_override_laser_power
@@ -134,6 +137,7 @@ class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         expected_start_speed = 50.0
         expected_finish_speed = 200.0
         expected_draw_speed = 100.0
+        expected_move_speed = 300.0
         expected_use_draw_speed = True
         expected_override_laser_power = True
         expected_override_laser_power_amount = 0.05
@@ -145,6 +149,7 @@ class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         original_config.cure_rate.start_speed                   = expected_start_speed
         original_config.cure_rate.finish_speed                  = expected_finish_speed
         original_config.cure_rate.draw_speed                    = expected_draw_speed
+        original_config.cure_rate.move_speed                    = expected_move_speed
         original_config.cure_rate.use_draw_speed                = expected_use_draw_speed
         original_config.cure_rate.override_laser_power          = expected_override_laser_power
         original_config.cure_rate.override_laser_power_amount   = expected_override_laser_power_amount
@@ -157,6 +162,7 @@ class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(type(expected_start_speed),                   type(config.cure_rate.start_speed))
         self.assertEquals(type(expected_finish_speed),                  type(config.cure_rate.finish_speed))
         self.assertEquals(type(expected_draw_speed),                    type(config.cure_rate.draw_speed))
+        self.assertEquals(type(expected_move_speed),                    type(config.cure_rate.move_speed))
         self.assertEquals(type(expected_use_draw_speed),                type(config.cure_rate.use_draw_speed))
         self.assertEquals(type(expected_override_laser_power),          type(config.cure_rate.override_laser_power))
         self.assertEquals(type(expected_override_laser_power_amount),   type(config.cure_rate.override_laser_power_amount))
@@ -166,6 +172,7 @@ class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_start_speed,                     config.cure_rate.start_speed)
         self.assertEquals(expected_finish_speed,                    config.cure_rate.finish_speed)
         self.assertEquals(expected_draw_speed,                      config.cure_rate.draw_speed)
+        self.assertEquals(expected_move_speed,                      config.cure_rate.move_speed)
         self.assertEquals(expected_use_draw_speed,                  config.cure_rate.use_draw_speed)
         self.assertEquals(expected_override_laser_power,            config.cure_rate.override_laser_power)
         self.assertEquals(expected_override_laser_power_amount,     config.cure_rate.override_laser_power_amount)
