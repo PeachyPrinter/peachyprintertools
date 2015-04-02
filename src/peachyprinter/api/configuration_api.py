@@ -24,19 +24,75 @@ class InfoMixIn(object):
 
 class DripperSetupMixIn(object):
 
-    '''Sets the drip count back to 0'''
-    def reset_drips(self):
-        self._drip_detector.reset()
+    '''Depricated use get_dripper_drips_per_mm'''
+    def get_drips_per_mm(self):
+        logging.warning("Depricated use get_dripper_drips_per_mm")
+        return self.get_dripper_drips_per_mm()
 
     '''Returns Drips Per mm'''
-    def get_drips_per_mm(self):
+    def get_dripper_drips_per_mm(self):
         return self._current_config.dripper.drips_per_mm
 
-    '''Sets Drips Per mm'''
+    '''Returns the configured Dripper Type'''
+    def get_dripper_type(self):
+        return self._current_config.dripper.dripper_type
+
+    '''Depricated use get_dripper_emulated_drips_per_second'''
+    def get_emulated_drips_per_second(self):
+        logging.warning("Depricated use get_dripper_emulated_drips_per_second")
+        return self.get_dripper_emulated_drips_per_second()
+
+    '''Gets the drips per second to be emulated'''
+    def get_dripper_emulated_drips_per_second(self):
+        return self._current_config.dripper.emulated_drips_per_second
+
+    '''Depricated use get_dripper_photo_zaxis_delay'''
+    def get_photo_zaxis_delay(self):
+        logging.warning("Depricated use get_dripper_photo_zaxis_delay")
+        return self.get_dripper_photo_zaxis_delay()
+
+    '''Gets the photo delay in seconds'''
+    def get_dripper_photo_zaxis_delay(self):
+        return self._current_config.dripper.photo_zaxis_delay
+
+    '''Depricated use set_dripper_drips_per_mm'''
     def set_drips_per_mm(self, drips):
+        logging.warning("Depricated use set_dripper_drips_per_mm")
+        self.set_dripper_drips_per_mm(drips)
+
+    '''Sets Drips Per mm'''
+    def set_dripper_drips_per_mm(self, drips):
         self._current_config.dripper.drips_per_mm = drips
         if self._drip_detector:
             self._drip_detector.set_drips_per_mm(drips)
+
+    '''Sets the configured Dripper Type'''
+    def set_dripper_type(self, value):
+        self._current_config.dripper.dripper_type = value
+        self._change_dripper()
+
+    '''Depricated use set_dripper_emulated_drips_per_second'''
+    def set_emulated_drips_per_second(self, value):
+        logging.warning("Depricated use set_dripper_emulated_drips_per_second")
+        self.set_dripper_emulated_drips_per_second(value)
+
+    '''Sets the drips per second to be emulated'''
+    def set_dripper_emulated_drips_per_second(self, value):
+        self._current_config.dripper.emulated_drips_per_second = value
+
+    '''Depricated use set_dripper_photo_zaxis_delay'''
+    def set_photo_zaxis_delay(self, value):
+        logging.warning("Depricated use set_dripper_photo_zaxis_delay")
+        self.set_dripper_photo_zaxis_delay(value)
+
+    '''Sets the photo delay in seconds'''
+    def set_dripper_photo_zaxis_delay(self, value):
+        self._current_config.dripper.photo_zaxis_delay = value
+
+
+    '''Sets the drip count back to 0'''
+    def reset_drips(self):
+        self._drip_detector.reset()
 
     '''Turns on the counting of drips. Stop must be called to end this.'''
     def start_counting_drips(self, drip_call_back=None):
@@ -47,7 +103,6 @@ class DripperSetupMixIn(object):
 
     def _change_dripper(self):
         self._stop_current_dripper()
-        
         if self._current_config.dripper.dripper_type == 'emulated':
             pass
         elif self._current_config.dripper.dripper_type == 'photo':
@@ -74,31 +129,6 @@ class DripperSetupMixIn(object):
         if self._commander:
             self._commander.close()
         self._stop_current_dripper()
-
-    '''Returns the configured Dripper Type'''
-    def get_dripper_type(self):
-        return self._current_config.dripper.dripper_type
-
-    '''Sets the configured Dripper Type'''
-    def set_dripper_type(self, value):
-        self._current_config.dripper.dripper_type = value
-        self._change_dripper()
-
-    '''Gets the drips per second to be emulated'''
-    def get_emulated_drips_per_second(self):
-        return self._current_config.dripper.emulated_drips_per_second
-
-    '''Sets the drips per second to be emulated'''
-    def set_emulated_drips_per_second(self, value):
-        self._current_config.dripper.emulated_drips_per_second = value
-
-    '''Gets the photo delay in seconds'''
-    def get_photo_zaxis_delay(self):
-        return self._current_config.dripper.photo_zaxis_delay
-
-    '''Sets the photo delay in seconds'''
-    def set_photo_zaxis_delay(self, value):
-        self._current_config.dripper.photo_zaxis_delay = value
 
     def send_dripper_on_command(self):
         if self._commander:
