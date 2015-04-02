@@ -50,8 +50,7 @@ class DripperSetupMixInTest(object):
     @patch.object(SerialDripZAxis, 'start')
     @patch('peachyprinter.api.configuration_api.SerialCommunicator')
     @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
-    @patch('peachyprinter.api.configuration_api.NullCommander')
-    def test_start_counting_drips_should_pass_call_back_function(self, mock_NullCommander, mock_SerialDripZAxis, mock_SerialCommunicator, mock_start, mock_load, mock_save):
+    def test_start_counting_drips_should_pass_call_back_function(self, mock_SerialDripZAxis, mock_SerialCommunicator, mock_start, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('printer')
@@ -527,8 +526,8 @@ class CureTestSetupMixInTest(object):
         configuration_API.set_cure_rate_finish_speed(expected_finish_speed)
         configuration_API.set_cure_rate_draw_speed(expected_draw_speed)
         configuration_API.set_cure_rate_use_draw_speed(expected_use_draw_speed)
-        configuration_API.set_override_laser_power(expected_override_laser_power)
-        configuration_API.set_override_laser_power_amount(expected_override_laser_power_amount)
+        configuration_API.set_cure_rate_override_laser_power(expected_override_laser_power)
+        configuration_API.set_cure_rate_override_laser_power_amount(expected_override_laser_power_amount)
 
         configuration_API.save()
 
@@ -550,15 +549,15 @@ class CureTestSetupMixInTest(object):
         configuration_API.load_printer("test")
 
         with self.assertRaises(Exception):
-            configuration_API.set_override_laser_power_amount(-0.1)
+            configuration_API.set_cure_rate_override_laser_power_amount(-0.1)
         with self.assertRaises(Exception):
-            configuration_API.set_override_laser_power_amount(-1.0)
+            configuration_API.set_cure_rate_override_laser_power_amount(-1.0)
         with self.assertRaises(Exception):
-            configuration_API.set_override_laser_power_amount(1.1)
+            configuration_API.set_cure_rate_override_laser_power_amount(1.1)
 
-        configuration_API.set_override_laser_power_amount(0.0)
-        # configuration_API.set_override_laser_power_amount(0.5)
-        # configuration_API.set_override_laser_power_amount(1.0)
+        configuration_API.set_cure_rate_override_laser_power_amount(0.0)
+        # configuration_API.set_cure_rate_override_laser_power_amount(0.5)
+        # configuration_API.set_cure_rate_override_laser_power_amount(1.0)
         #TODO FIX THIS AGAIN
 
 

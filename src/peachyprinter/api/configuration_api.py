@@ -1,12 +1,11 @@
 import types
 import logging
-logger = logging.getLogger('peachy')
 
-from peachyprinter.infrastructure.timed_drip_zaxis import TimedDripZAxis
 from peachyprinter.infrastructure.zaxis import SerialDripZAxis
 from peachyprinter.infrastructure.communicator import SerialCommunicator
 from peachyprinter.infrastructure.layer_generators import CureTestGenerator
-from peachyprinter.infrastructure.commander import NullCommander, SerialCommander
+from peachyprinter.infrastructure.commander import SerialCommander
+logger = logging.getLogger('peachy')
 
 
 class InfoMixIn(object):
@@ -163,7 +162,7 @@ class CureTestSetupMixIn(object):
             raise Exception('base_height cannot be negitive')
 
     '''Sets the base_height for Cure Rate test.'''
-    def set_cure_rate_base_height(self,base_height):
+    def set_cure_rate_base_height(self, base_height):
         if (self._zero_or_positive_float(float(base_height))):
             self._current_config.cure_rate.base_height = base_height
         else:
@@ -171,7 +170,7 @@ class CureTestSetupMixIn(object):
             raise Exception('Specified base height must be positive')
 
     '''Sets the total_height for Cure Rate test.'''
-    def set_cure_rate_total_height(self,total_height):
+    def set_cure_rate_total_height(self, total_height):
         if (self._positive_float(float(total_height))):
             self._current_config.cure_rate.total_height = total_height
         else:
@@ -179,7 +178,7 @@ class CureTestSetupMixIn(object):
             raise Exception('Specified total height must be positive')
 
     '''Sets the start_speed for Cure Rate test.'''
-    def set_cure_rate_start_speed(self,start_speed):
+    def set_cure_rate_start_speed(self, start_speed):
         if (self._positive_float(float(start_speed))):
             self._current_config.cure_rate.start_speed = start_speed
         else:
@@ -187,16 +186,15 @@ class CureTestSetupMixIn(object):
             raise Exception('Specified start speed must be positive')
 
     '''Sets the finish_speed for Cure Rate test.'''
-    def set_cure_rate_finish_speed(self,finish_speed):
+    def set_cure_rate_finish_speed(self, finish_speed):
         if (self._positive_float(float(finish_speed))):
             self._current_config.cure_rate.finish_speed = finish_speed
         else:
             logger.warning('finish_speed must be positive')
             raise Exception('Specified finish speed must be positive')
 
-
     '''Sets the draw_speed for Cure Rate test.'''
-    def set_cure_rate_draw_speed(self,draw_speed):
+    def set_cure_rate_draw_speed(self, draw_speed):
         if (self._positive_float(float(draw_speed))):
             self._current_config.cure_rate.draw_speed = draw_speed
         else:
@@ -204,15 +202,25 @@ class CureTestSetupMixIn(object):
             raise Exception('Specified draw speed must be positive')
 
     '''Sets the use_draw_speed for Cure Rate test.'''
-    def set_cure_rate_use_draw_speed(self,use_draw_speed):
+    def set_cure_rate_use_draw_speed(self, use_draw_speed):
         self._current_config.cure_rate.use_draw_speed = use_draw_speed
 
-    '''Sets the override_laser_power for Cure Rate'''
+    '''Depricated use set_cure_rate_override_laser_power'''
     def set_override_laser_power(self, override_laser_power):
+        logging.warning("set_override_laser_power(self, override_laser_ is Depricated use set_cure_rate_override_laser_power")
+        self.set_cure_rate_override_laser_power(override_laser_power)
+
+    '''Depricated use set_cure_rate_override_laser_power_amount'''
+    def set_override_laser_power_amount(self, override_laser_power_amount):
+        logging.warning("set_override_laser_power_amount(self, override_laser_power_a is Depricated use set_cure_rate_override_laser_power_amount")
+        self.set_cure_rate_override_laser_power(override_laser_power_amount)
+
+    '''Sets the override_laser_power for Cure Rate'''
+    def set_cure_rate_override_laser_power(self, override_laser_power):
         self._current_config.cure_rate.override_laser_power = override_laser_power
 
     '''Sets the draw_speed for Cure Rate test.'''
-    def set_override_laser_power_amount(self, override_laser_power_amount):
+    def set_cure_rate_override_laser_power_amount(self, override_laser_power_amount):
         if override_laser_power_amount >= 0.1568:
             raise Exception("You just blew up your laser")
 
@@ -246,12 +254,22 @@ class CureTestSetupMixIn(object):
     def get_cure_rate_use_draw_speed(self):
         return self._current_config.cure_rate.use_draw_speed
 
-    '''Gets the override_laser_power for Cure Rate'''
+    '''Depricated get_cure_rate_override_laser_power'''
     def get_override_laser_power(self):
+        logging.warning("get_override_laser_power is Depricated use get_cure_rate_override_laser_power")
+        return self.get_cure_rate_override_laser_power()
+
+    '''Depricated get_cure_rate_override_laser_power_amount'''
+    def get_override_laser_power_amount(self):
+        logging.warning("get_override_laser_power_amount is Depricated use get_cure_rate_override_laser_power_amount")
+        return self.get_cure_rate_override_laser_power_amount()
+
+    '''Gets the override_laser_power for Cure Rate'''
+    def get_cure_rate_override_laser_power(self):
         return self._current_config.cure_rate.override_laser_power
 
     '''Gets the override_laser_power_amount for Cure Rate'''
-    def get_override_laser_power_amount(self):
+    def get_cure_rate_override_laser_power_amount(self):
         return self._current_config.cure_rate.override_laser_power_amount
 
 
