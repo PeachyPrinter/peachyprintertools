@@ -45,6 +45,7 @@ class SerialCommunicator(Communicator, threading.Thread):
         out.append(self._footer)
         self._send_lock.acquire()
         try:
+            self._connection.flush()
             self._connection.write(''.join(out))
             self._send_count += len(out)
             if self._send_count > 200000:
@@ -57,14 +58,15 @@ class SerialCommunicator(Communicator, threading.Thread):
             self._send_lock.release()
 
     def start(self):
+        logging.info("Opening Serial Port %s" % self._port)
         self._connection = serial.Serial(self._port, timeout=1)
         self._connection.writeTimeout = None
+        logging.info("Opened Serial Port %s Opened" % self._port)
         super(SerialCommunicator, self).start()
         while not self._running:
             time.sleep(0.01)
 
     def run(self):
-        logger.info("Opening serial port: %s" % (self._port,))
         try:
             self._running = True
             while self._running:

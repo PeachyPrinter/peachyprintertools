@@ -5,6 +5,7 @@ from peachyprinter.domain.commands import *
 from peachyprinter.domain.layer_generator import LayerGenerator, TestLayerGenerator
 import math
 from math import pi, sin, cos, asin
+from threading import Lock
 
 # -----------Testing Generators ----------------
 
@@ -30,13 +31,17 @@ class SinglePointGenerator(LayerGenerator):
     def __init__(self, starting_xy=[0.0, 0.0]):
         self.xy = starting_xy
         self.speed = 100.0
+        self.lock = Lock()
 
     def set(self, xy):
-        self.xy = xy
+        logging.warning("set")
+        with self.lock:
+            self.xy = xy
 
     def next(self):
         layer = Layer(0.0)
-        layer.commands.append(LateralDraw(self.xy, self.xy, self.speed))
+        with self.lock:
+            layer.commands.append(LateralDraw(self.xy, self.xy, self.speed))
         return layer
 
 
