@@ -436,7 +436,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
 
-    def test_set_orientation_saves_orientation_settings(self, *args):
+    def test_get_orientation_saves_orientation_settings(self, *args):
         self.setup_mocks(args)
         config = self.default_config
 
