@@ -672,6 +672,85 @@ class CalibrationConfiguration(ConfigurationBase):
         self._height = self.get(source, u'height',40.0)
         self._lower_points = [ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in source.get(u'lower_points', [[[0.0, 1.0],[-40.0, 40.0]],[[1.0, 0.0],[40.0, -40.0]],[[0.0, 0.0],[-40.0, -40.0]], [[1.0, 1.0],[40.0, 40.0]]]) ]
         self._upper_points = [ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in source.get(u'upper_points', [[[0.0, 1.0],[-30.0, 30.0]],[[1.0, 0.0],[30.0, -30.0]],[[0.0, 0.0],[-30.0, -30.0]], [[1.0, 1.0],[30.0, 30.0]]]) ]
+        self._print_area_x = self.get(source, u'print_area_x', 80.0)
+        self._print_area_y = self.get(source, u'print_area_y', 80.0)
+        self._print_area_z = self.get(source, u'print_area_z', 80.0)
+        self._flip_x_axis = self.get(source, u'flip_x_axis', False)
+        self._flip_y_axis = self.get(source, u'flip_y_axis', False)
+        self._swap_axis = self.get(source, u'swap_axis', False)
+
+
+    @property
+    def print_area_x(self):
+        return self._print_area_x
+
+    @print_area_x.setter
+    def print_area_x(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._print_area_x = value
+        else:
+            raise ValueError("print_area_x must be of type %s" % str(_type))
+
+    @property
+    def print_area_y(self):
+        return self._print_area_y
+
+    @print_area_y.setter
+    def print_area_y(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._print_area_y = value
+        else:
+            raise ValueError("print_area_y must be of type %s" % str(_type))
+
+    @property
+    def print_area_z(self):
+        return self._print_area_z
+
+    @print_area_z.setter
+    def print_area_z(self, value):
+        _type = types.FloatType
+        if type(value) == _type:
+            self._print_area_z = value
+        else:
+            raise ValueError("print_area_z must be of type %s" % str(_type))
+
+    @property
+    def flip_x_axis(self):
+        return self._flip_x_axis
+
+    @flip_x_axis.setter
+    def flip_x_axis(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._flip_x_axis = value
+        else:
+            raise ValueError("flip_x_axis must be of type %s" % str(_type))
+
+    @property
+    def flip_y_axis(self):
+        return self._flip_y_axis
+
+    @flip_y_axis.setter
+    def flip_y_axis(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._flip_y_axis = value
+        else:
+            raise ValueError("flip_y_axis must be of type %s" % str(_type))
+
+    @property
+    def swap_axis(self):
+        return self._swap_axis
+
+    @swap_axis.setter
+    def swap_axis(self, value):
+        _type = types.BooleanType
+        if type(value) == _type:
+            self._swap_axis = value
+        else:
+            raise ValueError("swap_axis must be of type %s" % str(_type))
 
     @property
     def height(self):

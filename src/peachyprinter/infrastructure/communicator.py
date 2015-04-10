@@ -1,9 +1,10 @@
 import serial
 import logging
-logger = logging.getLogger('peachy')
 import threading
 import time
 from messages import ProtoBuffableMessage
+
+logger = logging.getLogger('peachy')
 
 
 class Communicator(object):
@@ -49,7 +50,7 @@ class SerialCommunicator(Communicator, threading.Thread):
             self._connection.write(''.join(out))
             self._send_count += len(out)
             if self._send_count > 200000:
-                now =time.time()
+                now = time.time()
                 total = now - self._send_start
                 self._send_start = now
                 logger.info("WROTE: %s bytes in %5.f s (%f / sec)" % (self._send_count, total, self._send_count / total))

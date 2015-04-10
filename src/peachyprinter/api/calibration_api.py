@@ -1,5 +1,5 @@
 import logging
-logger = logging.getLogger('peachy')
+
 from peachyprinter.infrastructure.path_to_points import PathToPoints
 from peachyprinter.infrastructure.controller import Controller
 from peachyprinter.infrastructure.communicator import SerialCommunicator
@@ -10,6 +10,7 @@ from peachyprinter.infrastructure.layer_generators import *
 from peachyprinter.infrastructure.machine import *
 from peachyprinter.infrastructure.layer_control import LayerWriter, LayerProcessing
 
+logger = logging.getLogger('peachy')
 
 '''The calibration API proivides the tools required to setup a Peacy Printer'''
 
@@ -104,7 +105,7 @@ class CalibrationAPI(object):
 
     '''Used to show a single point with no calibration applied'''
     def show_point(self, xyz=[0.5, 0.5, 0.5]):
-        logger.info('Showing point')
+        # logger.info('Showing point')
         x, y, z = xyz
         self._point_generator.xy = [x, y]
         if (self._current_generator != self._point_generator):

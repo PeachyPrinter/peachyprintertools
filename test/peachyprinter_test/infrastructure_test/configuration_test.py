@@ -15,6 +15,65 @@ from peachyprinter.infrastructure.configuration import FileBasedConfigurationMan
 
 import test_helpers
 
+class CalibrationConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
+    def test_set_should_fail_for_bad_values(self):
+        expected_print_area_x = "Bad Values"
+        expected_print_area_y = "Bad Values"
+        expected_print_area_z = "Bad Values"
+        expected_flip_x_axis = "Bad Values"
+        expected_flip_y_axis = "Bad Values"
+        expected_swap_axis = "Bad Values"
+
+        calibration = CalibrationConfiguration()
+
+        with self.assertRaises(Exception):
+            calibration.print_area_x = expected_print_area_x
+        with self.assertRaises(Exception):
+            calibration.print_area_y = expected_print_area_y
+        with self.assertRaises(Exception):
+            calibration.print_area_z = expected_print_area_z
+        with self.assertRaises(Exception):
+            calibration.flip_x_axis = expected_flip_x_axis
+        with self.assertRaises(Exception):
+            calibration.flip_y_axis = expected_flip_y_axis
+        with self.assertRaises(Exception):
+            calibration.swap_axis = expected_swap_axis
+
+    def test_can_create_json_and_load_from_file(self):
+        expected_print_area_x = 10.0
+        expected_print_area_y = 20.0
+        expected_print_area_z = 30.0
+        expected_flip_x_axis = False
+        expected_flip_y_axis = False
+        expected_swap_axis = False
+
+
+        original_config= Configuration()
+
+        original_config.calibration.print_area_x = expected_print_area_x
+        original_config.calibration.print_area_y = expected_print_area_y
+        original_config.calibration.print_area_z = expected_print_area_z
+        original_config.calibration.flip_x_axis = expected_flip_x_axis
+        original_config.calibration.flip_y_axis = expected_flip_y_axis
+        original_config.calibration.swap_axis = expected_swap_axis
+
+        actual_json = json.loads(original_config.toJson())
+        config = Configuration(source=actual_json)
+
+        self.assertEquals(type(expected_print_area_x),  type(config.calibration.print_area_x))
+        self.assertEquals(type(expected_print_area_y),  type(config.calibration.print_area_y))
+        self.assertEquals(type(expected_print_area_z),  type(config.calibration.print_area_z))
+        self.assertEquals(type(expected_flip_x_axis),   type(config.calibration.flip_x_axis))
+        self.assertEquals(type(expected_flip_y_axis),   type(config.calibration.flip_y_axis))
+        self.assertEquals(type(expected_swap_axis),     type(config.calibration.swap_axis))
+
+        self.assertEquals(expected_print_area_x,    config.calibration.print_area_x)
+        self.assertEquals(expected_print_area_y,    config.calibration.print_area_y)
+        self.assertEquals(expected_print_area_z,    config.calibration.print_area_z)
+        self.assertEquals(expected_flip_x_axis,     config.calibration.flip_x_axis)
+        self.assertEquals(expected_flip_y_axis,     config.calibration.flip_y_axis)
+        self.assertEquals(expected_swap_axis,       config.calibration.swap_axis)
+
 
 class CircutConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):

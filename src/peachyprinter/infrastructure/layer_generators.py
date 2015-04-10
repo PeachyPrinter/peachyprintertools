@@ -46,7 +46,7 @@ class SinglePointGenerator(LayerGenerator):
 
 
 class CalibrationLineGenerator(LayerGenerator):
-    def __init__(self, speed=10.0):
+    def __init__(self, speed=30.0):
         self._speed = speed
 
     def next(self):
