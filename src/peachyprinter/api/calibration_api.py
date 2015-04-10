@@ -103,6 +103,16 @@ class CalibrationAPI(object):
         self.make_pattern_fit()
         self._controller.start()
 
+
+    def set_print_area(self, width, height, depth):
+        self._configuration.calibration.print_area_x = width
+        self._configuration.calibration.print_area_y = height
+        self._configuration.calibration.print_area_z = depth
+        self._save()
+
+    def get_print_area(self):
+        return (self._configuration.calibration.print_area_x, self._configuration.calibration.print_area_y, self._configuration.calibration.print_area_z)
+
     def set_orientation(self, x_flip, yflip, swap_axis):
         self._configuration.calibration.flip_x_axis = x_flip
         self._configuration.calibration.flip_y_axis = yflip

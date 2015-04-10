@@ -451,5 +451,44 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertEquals(result, (True, True, True))
 
+
+    def test_set_print_area_saves_print_area_settings(self, *args):
+        self.setup_mocks(args)
+        config = self.default_config
+        expected_config = self.default_config
+        expected_print_area_x = 20.0
+        expected_print_area_y = 20.0
+        expected_print_area_z = 20.0
+
+        config.calibration.print_area_x = 12.0
+        config.calibration.print_area_y = 12.0
+        config.calibration.print_area_z = 12.0
+
+        expected_config.calibration.print_area_x = 20.0
+        expected_config.calibration.print_area_y = 20.0
+        expected_config.calibration.print_area_z = 20.0
+
+        self.mock_configuration_manager.load.return_value = config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+
+        calibration_api.set_print_area(expected_print_area_x, expected_print_area_y, expected_print_area_z)
+
+        self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
+
+    def test_get_print_area_saves_print_area_settings(self, *args):
+        self.setup_mocks(args)
+        config = self.default_config
+
+        config.calibration.print_area_x = 20.0
+        config.calibration.print_area_y = 20.0
+        config.calibration.print_area_z = 20.0
+
+        self.mock_configuration_manager.load.return_value = config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+
+        result = calibration_api.get_print_area()
+
+        self.assertEquals(result, (20.0, 20.0, 20.0))
+
 if __name__ == '__main__':
     unittest.main()
