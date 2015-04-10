@@ -24,6 +24,7 @@ class CalibrationAPI(object):
 
         self._point_generator = SinglePointGenerator()
         self._blink_generator = BlinkGenerator()
+        self._orientaiton_generator = OrientationGenerator()
         self._alignment_generator = CalibrationLineGenerator()
         self._scale_generator = SquareGenerator(speed=1, radius=1)
 
@@ -120,6 +121,13 @@ class CalibrationAPI(object):
         if (self._current_generator != self._blink_generator):
             self._unapply_calibration()
             self._update_generator(self._blink_generator)
+
+    '''Used to show pattern with no calibration applied used for determining orientation'''
+    def show_orientation(self):
+        logger.info('Showing Orientation')
+        if (self._current_generator != self._orientaiton_generator):
+            self._unapply_calibration()
+            self._update_generator(self._orientaiton_generator)
 
     '''Used to show a single line on one axis used to line up calibration grid'''
     def show_line(self):

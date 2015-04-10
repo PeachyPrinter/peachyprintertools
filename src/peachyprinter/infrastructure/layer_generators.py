@@ -53,6 +53,24 @@ class CalibrationLineGenerator(LayerGenerator):
         return Layer(0.0, commands=[LateralDraw([0.0, 0.5], [1.0, 0.5], self._speed), LateralDraw([1.0, 0.5], [0.0, 0.5], self._speed)])
 
 
+class OrientationGenerator(LayerGenerator):
+    def __init__(self, speed=1.0):
+        self._speed = speed
+        self._commands = [
+                        LateralDraw([0.40, 0.20], [0.40, 0.60], self._speed),
+                        LateralDraw([0.40, 0.60], [0.50, 0.58], self._speed),
+                        LateralDraw([0.50, 0.58], [0.55, 0.54], self._speed),
+                        LateralDraw([0.55, 0.54], [0.60, 0.50], self._speed),
+                        LateralDraw([0.60, 0.50], [0.55, 0.46], self._speed),
+                        LateralDraw([0.55, 0.46], [0.50, 0.42], self._speed),
+                        LateralDraw([0.50, 0.42], [0.40, 0.40], self._speed),
+                        LateralMove([0.40, 0.40], [0.40, 0.20], self._speed),
+                    ]
+
+    def next(self):
+        return Layer(0.0, commands=self._commands)
+
+
 class BlinkGenerator(TestLayerGenerator):
     def __init__(self, starting_xy=[0.0, 0.0], radius=0.5, speed=0.5, steps=50):
         self.xy = starting_xy

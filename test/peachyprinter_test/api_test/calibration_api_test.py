@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'sr
 import test_helpers
 from peachyprinter.api.calibration_api import CalibrationAPI
 
+@patch('peachyprinter.api.calibration_api.OrientationGenerator')
 @patch('peachyprinter.api.calibration_api.SerialCommunicator')
 @patch('peachyprinter.api.calibration_api.MicroDisseminator')
 @patch('peachyprinter.api.calibration_api.LaserControl')
@@ -32,6 +33,7 @@ from peachyprinter.api.calibration_api import CalibrationAPI
 class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
+        self.mock_OrientationGenerator =                 args[20]
         self.mock_SerialCommunicator =                   args[19]
         self.mock_MicroDisseminator =                    args[18]
         self.mock_LaserControl =                         args[17]
@@ -53,6 +55,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_SpiralGenerator =                      args[1]
         self.mock_MemoryHourglassGenerator =             args[0]
 
+        self.mock_orientation_generator =                self.mock_OrientationGenerator.return_value
         self.mock_serial_communicator =                  self.mock_SerialCommunicator.return_value
         self.mock_micro_disseminator =                   self.mock_MicroDisseminator.return_value
         self.mock_laser_control =                        self.mock_LaserControl.return_value
@@ -197,6 +200,16 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         calibration_api.show_line()
 
         self.mock_controller.change_generator.assert_called_with(self.mock_calibration_line_generator)
+
+    def test_show_line_should_use_OrientationGenerator(self, *args):
+        self.setup_mocks(args)
+        self.mock_configuration_manager.load.return_value = self.default_config
+
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+
+        calibration_api.show_orientation()
+
+        self.mock_controller.change_generator.assert_called_with(self.mock_orientation_generator)
 
     def test_get_patterns_should_return_available_test_patterns(self, *args):
         self.setup_mocks(args)

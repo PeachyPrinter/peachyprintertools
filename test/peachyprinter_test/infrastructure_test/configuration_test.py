@@ -66,7 +66,7 @@ class CalibrationConfigurationTests(unittest.TestCase, test_helpers.TestHelpers)
         self.assertEquals(type(expected_flip_x_axis),   type(config.calibration.flip_x_axis))
         self.assertEquals(type(expected_flip_y_axis),   type(config.calibration.flip_y_axis))
         self.assertEquals(type(expected_swap_axis),     type(config.calibration.swap_axis))
-
+ 
         self.assertEquals(expected_print_area_x,    config.calibration.print_area_x)
         self.assertEquals(expected_print_area_y,    config.calibration.print_area_y)
         self.assertEquals(expected_print_area_z,    config.calibration.print_area_z)
