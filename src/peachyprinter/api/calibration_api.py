@@ -14,7 +14,6 @@ logger = logging.getLogger('peachy')
 
 '''The calibration API proivides the tools required to setup a Peacy Printer'''
 
-
 class CalibrationAPI(object):
     def __init__(self, configuration_manager, printer):
         logger.info("Calibartion API Startup")
@@ -103,6 +102,15 @@ class CalibrationAPI(object):
 
         self.make_pattern_fit()
         self._controller.start()
+
+    def set_orientation(self, x_flip, yflip, swap_axis):
+        self._configuration.calibration.flip_x_axis = x_flip
+        self._configuration.calibration.flip_y_axis = yflip
+        self._configuration.calibration.swap_axis = swap_axis
+        self._save()
+
+    def get_orientation(self):
+        return (self._configuration.calibration.flip_x_axis, self._configuration.calibration.flip_y_axis, self._configuration.calibration.swap_axis)
 
     '''Used to show a single point with no calibration applied'''
     def show_point(self, xyz=[0.5, 0.5, 0.5]):

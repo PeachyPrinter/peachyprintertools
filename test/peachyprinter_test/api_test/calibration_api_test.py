@@ -413,5 +413,43 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_spiral_generator.set_radius.assert_called_with(40.0)
         self.mock_memory_hourglass_generator.set_radius.assert_called_with(40.0)
 
+    def test_set_orientation_saves_orientation_settings(self, *args):
+        self.setup_mocks(args)
+        config = self.default_config
+        expected_config = self.default_config
+        expected_flip_x_axis = True
+        expected_flip_y_axis = True
+        expected_swap_axis = True
+
+        config.calibration.flip_x_axis = False
+        config.calibration.flip_y_axis = False
+        config.calibration.swap_axis = False
+
+        expected_config.calibration.flip_x_axis = True
+        expected_config.calibration.flip_y_axis = True
+        expected_config.calibration.swap_axis = True
+
+        self.mock_configuration_manager.load.return_value = config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+
+        calibration_api.set_orientation(expected_flip_x_axis, expected_flip_y_axis, expected_swap_axis)
+
+        self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
+
+    def test_set_orientation_saves_orientation_settings(self, *args):
+        self.setup_mocks(args)
+        config = self.default_config
+
+        config.calibration.flip_x_axis = True
+        config.calibration.flip_y_axis = True
+        config.calibration.swap_axis = True
+
+        self.mock_configuration_manager.load.return_value = config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+
+        result = calibration_api.get_orientation()
+
+        self.assertEquals(result, (True, True, True))
+
 if __name__ == '__main__':
     unittest.main()
