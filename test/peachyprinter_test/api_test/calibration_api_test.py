@@ -270,6 +270,35 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
 
+    def test_get_points_should_load_points(self, *args):
+        self.setup_mocks(args)
+        expected_lower = {
+                (1.0, 1.0): (1.0,  1.0), (0.0, 1.0): (-1.0,  1.0),
+                (1.0, 0.0): (1.0, -1.0), (0.0, 0.0): (-1.0, -1.0)
+                }
+        expected_upper = {
+                (1.0, 1.0): (1.0,  1.0), (0.0, 1.0): (-1.0,  1.0),
+                (1.0, 0.0): (1.0, -1.0), (0.0, 0.0): (-1.0, -1.0)
+                }
+        expected_height = 1.1
+        config = self.default_config
+        config.calibration.height = expected_height
+        config.calibration.lower_points = expected_lower
+        config.calibration.upper_points = expected_upper
+
+        self.mock_configuration_manager.load.return_value = config
+
+        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+
+        lower_points_result = calibration_api.get_lower_points()
+        upper_points_result = calibration_api.get_upper_points()
+        height_result = calibration_api.get_height()
+
+        self.assertEquals(expected_height, height_result)
+        self.assertEquals(expected_lower, lower_points_result)
+        self.assertEquals(expected_upper, upper_points_result)
+        
+
     @patch('peachyprinter.api.calibration_api.HomogenousTransformer')
     def test_show_test_pattern_should_apply_calibration_should_replace_controllers_transformer(self, mock_HomogenousTransformer, *args):
         self.setup_mocks(args)

@@ -209,15 +209,27 @@ class CalibrationAPI(object):
         self.set_upper_points(upper_points)
         self.set_height(height)
 
+    '''Gets the lower calibration points'''
+    def get_lower_points(self):
+        return self._configuration.calibration.lower_points
+
     '''Set and saves the suppliled lower calibration'''
     def set_lower_points(self, lower_points):
         self._configuration.calibration.lower_points = lower_points
         self._save()
 
+    '''Gets the upper calibration points'''
+    def get_upper_points(self):
+        return self._configuration.calibration.upper_points
+
     '''Set and saves the suppliled upper calibration'''
     def set_upper_points(self, upper_points):
         self._configuration.calibration.upper_points = upper_points
         self._save()
+
+    '''Gets the calibration height'''
+    def get_height(self):
+        return self._configuration.calibration.height
 
     '''Set and saves the upper calibration height'''
     def set_height(self, height):
