@@ -203,11 +203,25 @@ class CalibrationAPI(object):
     def current_calibration(self):
         return self._configuration.calibration
 
-    '''Saves the suppliled calibration'''
+    '''deprecated use set_lower_points and set_upper_points, set_height'''
     def save_points(self, height, lower_points, upper_points):
-        self._configuration.calibration.height = height
+        self.set_lower_points(lower_points)
+        self.set_upper_points(upper_points)
+        self.set_height(height)
+
+    '''Set and saves the suppliled lower calibration'''
+    def set_lower_points(self, lower_points):
         self._configuration.calibration.lower_points = lower_points
+        self._save()
+
+    '''Set and saves the suppliled upper calibration'''
+    def set_upper_points(self, upper_points):
         self._configuration.calibration.upper_points = upper_points
+        self._save()
+
+    '''Set and saves the upper calibration height'''
+    def set_height(self, height):
+        self._configuration.calibration.height = height
         self._save()
 
     def _save(self):

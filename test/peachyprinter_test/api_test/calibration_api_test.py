@@ -256,14 +256,17 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
                 (1.0, 1.0): (1.0,  1.0), (0.0, 1.0): (-1.0,  1.0),
                 (1.0, 0.0): (1.0, -1.0), (0.0, 0.0): (-1.0, -1.0)
                 }
-        expected_height = 1.0
+        expected_height = 1.1
         expected_config = self.default_config
         expected_config.calibration.height = expected_height
         expected_config.calibration.lower_points = expected_lower
         expected_config.calibration.upper_points = expected_upper
 
         calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
-        calibration_api.save_points(expected_height, expected_lower, expected_upper)
+
+        calibration_api.set_lower_points(expected_lower)
+        calibration_api.set_upper_points(expected_upper)
+        calibration_api.set_height(expected_height)
 
         self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
 
