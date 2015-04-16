@@ -355,7 +355,6 @@ class OptionsConfiguration(ConfigurationBase):
         self._shuffle_layers_amount = self.get(source, u'shuffle_layers_amount', 1.0)
         self._post_fire_delay = self.get(source, u'post_fire_delay', 0)
         self._slew_delay = self.get(source, u'slew_delay', 15)
-        self._laser_offset = self.get(source, u'laser_offset', [0.0,0.0])
         self._sublayer_height_mm = self.get(source, u'sublayer_height_mm', 0.01)
         self._laser_thickness_mm = self.get(source, u'laser_thickness_mm', 0.5)
         self._scaling_factor = self.get(source, u'scaling_factor', 1.0)
@@ -479,22 +478,6 @@ class OptionsConfiguration(ConfigurationBase):
             self._draw_speed = value
         else:
             raise ValueError("Draw Speed must be of %s" % (str(_type)))
-
-    @property
-    def laser_offset(self):
-        return self._laser_offset
-
-    @laser_offset.setter
-    def laser_offset(self, value):
-        _type = types.ListType
-        _inner_type = types.FloatType
-        if (type(value) == _type and 
-            len(value) == 2 and 
-            type(value[0]) == _inner_type and
-            type(value[1]) == _inner_type):
-            self._laser_offset = value
-        else:
-            raise ValueError("Laser Offset must be of %s" % (str(_type)))
 
     @property
     def sublayer_height_mm(self):
@@ -966,7 +949,6 @@ class ConfigurationGenerator(object):
 
         configuration.options.sublayer_height_mm           = 0.01
         configuration.options.laser_thickness_mm           = 0.5
-        configuration.options.laser_offset                 = [0.0,0.0]
         configuration.options.scaling_factor               = 1.0
         configuration.options.overlap_amount               = 1.0
         configuration.options.use_shufflelayers            = True

@@ -181,16 +181,6 @@ class CalibrationAPI(object):
     def set_laser_off_override(self, state):
         self._controller.laser_off_override = state
 
-    '''Gets the currently configured offset for laser on and off'''
-    def get_laser_offset(self):
-        return self._configuration.options.laser_offset
-
-    '''Sets the currently configured offset for laser on and off'''
-    def set_laser_offset(self, laser_offset):
-        self._configuration.options.laser_offset = laser_offset
-        self._disseminator.set_offset(laser_offset)
-        self._save()
-
     '''Changes the speed at which the test pattern is drawn in mm/sec'''
     def set_test_pattern_speed(self, speed):
         [pattern.set_speed(speed) for pattern in self._test_patterns.values()]

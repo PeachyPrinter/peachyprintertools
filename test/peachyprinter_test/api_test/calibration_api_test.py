@@ -381,33 +381,6 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
         self.mock_path_to_audio.set_transformer.assert_called_with(self.mock_tuning_transformer)
 
-    def test_get_laser_offset_should_return_laser_offset(self, *args):
-        self.setup_mocks(args)
-        config = self.default_config
-        expected = [0.01, 0.01]
-        config.options.laser_offset = expected
-        self.mock_configuration_manager.load.return_value = config
-
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
-
-        actual = calibration_api.get_laser_offset()
-        self.assertEquals(expected, actual)
-
-    def test_set_laser_offset_should_save_and_update_laser_offset(self, *args):
-        self.setup_mocks(args)
-        config = self.default_config
-        expected_config = self.default_config
-        expected = [0.01, 0.01]
-        expected_config.options.laser_offset = expected
-        config.laser_offset = [0.55, 0.55]
-        self.mock_configuration_manager.load.return_value = config
-
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
-        calibration_api.set_laser_offset(expected)
-
-        self.assertConfigurationEqual(expected_config, self.mock_configuration_manager.save.mock_calls[0][1][0])
-        self.mock_micro_disseminator.set_offset.assert_called_with(expected)
-
     @patch('peachyprinter.api.calibration_api.SquareGenerator')
     def test_show_scale_should_use_Square_Generator_and_Tuning_Transformer(self, mock_SquareGenerator, *args):
         self.setup_mocks(args)

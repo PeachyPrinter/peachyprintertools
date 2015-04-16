@@ -307,7 +307,6 @@ class OptionsConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
         expected_sublayer_height_mm = True
         expected_laser_thickness_mm = True
-        expected_laser_offset = True
         expected_scaling_factor = True
         expected_overlap_amount = True
         expected_shuffle_layers_amount = True
@@ -336,8 +335,6 @@ class OptionsConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
             options_config.options.laser_thickness_mm = expected_laser_thickness_mm
         with self.assertRaises(Exception):
             options_config.options.scaling_factor = expected_scaling_factor
-        with self.assertRaises(Exception):
-            options_config.options.laser_offset = expected_laser_offset
         with self.assertRaises(Exception):
             options_config.options.overlap_amount = expected_overlap_amount
         with self.assertRaises(Exception):
@@ -381,7 +378,6 @@ class OptionsConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         original_config.options.slew_delay                   = expected_slew_delay
         original_config.options.sublayer_height_mm           = expected_sublayer_height_mm
         original_config.options.laser_thickness_mm           = expected_laser_thickness_mm
-        original_config.options.laser_offset                 = expected_laser_offset
         original_config.options.overlap_amount               = expected_overlap_amount
         original_config.options.use_shufflelayers            = expected_use_shufflelayers
         original_config.options.use_sublayers                = expected_use_sublayers
@@ -401,7 +397,6 @@ class OptionsConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(type(expected_slew_delay), type(config.options.slew_delay))
         self.assertEquals(type(expected_sublayer_height_mm), type(config.options.sublayer_height_mm))
         self.assertEquals(type(expected_laser_thickness_mm), type(config.options.laser_thickness_mm))
-        self.assertEquals(type(expected_laser_offset), type(config.options.laser_offset))
         self.assertEquals(type(expected_scaling_factor), type(config.options.scaling_factor))
         self.assertEquals(type(expected_overlap_amount), type(config.options.overlap_amount))
         self.assertEquals(type(expected_use_shufflelayers), type(config.options.use_shufflelayers))
@@ -417,7 +412,6 @@ class OptionsConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_slew_delay, config.options.slew_delay)
         self.assertEquals(expected_sublayer_height_mm, config.options.sublayer_height_mm)
         self.assertEquals(expected_laser_thickness_mm, config.options.laser_thickness_mm)
-        self.assertEquals(expected_laser_offset, config.options.laser_offset)
         self.assertEquals(expected_scaling_factor, config.options.scaling_factor)
         self.assertEquals(expected_overlap_amount, config.options.overlap_amount)
         self.assertEquals(expected_use_shufflelayers, config.options.use_shufflelayers)
@@ -719,7 +713,6 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         del tmp['name']
         del tmp['options']['sublayer_height_mm']
         del tmp['options']['laser_thickness_mm']
-        del tmp['options']['laser_offset']
         del tmp['options']['scaling_factor']
         del tmp['options']['overlap_amount']
         del tmp['options']['use_shufflelayers']
