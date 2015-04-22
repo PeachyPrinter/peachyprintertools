@@ -102,11 +102,11 @@ class SolidObjectTestGenerator(LayerGenerator):
 
     def _radius(self):
         percent_complete = self._current_height / self._height
-        factor = (cos(sqrt(percent_complete) * 3.0 * pi) + 1.25) * ((self._max_radius / 2.0) - 0.25)
+        factor = ((cos(sqrt(percent_complete) * pi * 3.0) / 4.0) + 0.75 - (percent_complete * 0.5)) * self._max_radius
+        print(factor)
         return factor
 
     def next(self):
-        logger.info("Solidified Object current height: %s" % self._current_height)
         if self._current_height >= self._height:
             raise StopIteration
         points = self._points(self._radius(), self._start_angle())
