@@ -22,12 +22,14 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
       self._usbContext = None
       self._device = None
       self._devHandle = None
+      self._keepRunning = False
 
     def start(self):
       self._usbContext = usb1.USBContext()
       self._device = self._usbContext.getByVendorIDAndProductID(0x16d0, 0xaf3)
       self._devHandle = self._device.open()
       self._devHandle.claimInterface(0)
+      self._keepRunning = True
       super(UsbPacketCommunicator, self).start()
 
     def close(self):
