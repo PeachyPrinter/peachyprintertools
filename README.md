@@ -50,11 +50,11 @@ Development
 
 + python 2.7
 + numpy
-+ cx_freeze
 + mock
 + pyserial
 + python protobuf
 + protobuf
++ libusb1
 
 
 #### Runing the tests
