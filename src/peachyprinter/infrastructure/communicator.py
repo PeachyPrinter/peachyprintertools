@@ -1,4 +1,5 @@
-import serial
+import libusb1
+import usb1
 import logging
 import threading
 import time
@@ -14,6 +15,47 @@ class Communicator(object):
     def register_handler(self, message_type, handler):
         raise NotImplementedError()
 
+class UsbPacketCommunicator(Communicator, threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self._handlers = {}
+        self._usbContext = None
+        self._device = None
+        self._devHandle = None
+
+    def start(self):
+        self._usbContext = usb1.USBContext()
+        self._device = self._usbContext.getByVendorIDAndProductID(0x16d0, 0xaf3)
+        self._devHandle = self._device.open()
+        self._devHandle.claimInterface(0)
+        super(UsbPacketCommunicator, self).start()
+
+    def close(self):
+        self._devHandle.close()
+
+    def run(self):
+        while True:
+            data = None
+            try:
+                data = self._devHandle.bulkRead(3, 64, timeout=100)
+            except (libusb1.USBError,):
+                pass
+            if not data:
+                continue
+            logger.info("Received %d bytes from device" % (len(data),))
+
+    def send(self, message):
+        data = chr(message.TYPE_ID) + message.get_bytes()
+        self._devHandle.bulkWrite(2, data, timeout=1000)
+
+    def register_handler(self, message_type, handler):
+        if not issubclass(message_type, ProtoBuffableMessage):
+            logger.error("ProtoBuffableMessage required for message type")
+            raise Exception("ProtoBuffableMessage required for message type")
+        if message_type in self._handlers:
+            self._handlers[message_type].append(handler)
+        else:
+            self._handlers[message_type] = [handler]
 
 class SerialCommunicator(Communicator, threading.Thread):
     def __init__(self, port, header, footer, escape):

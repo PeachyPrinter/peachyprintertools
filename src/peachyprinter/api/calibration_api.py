@@ -2,7 +2,7 @@ import logging
 
 from peachyprinter.infrastructure.path_to_points import PathToPoints
 from peachyprinter.infrastructure.controller import Controller
-from peachyprinter.infrastructure.communicator import SerialCommunicator
+from peachyprinter.infrastructure.communicator import UsbPacketCommunicator
 from peachyprinter.domain.laser_control import LaserControl
 from peachyprinter.infrastructure.micro_disseminator import MicroDisseminator
 from peachyprinter.infrastructure.transformer import TuningTransformer, HomogenousTransformer
@@ -51,12 +51,7 @@ class CalibrationAPI(object):
         self._status = MachineStatus()
 
         if self._configuration.circut.circut_type == 'Digital':
-            self._communicator = SerialCommunicator(
-                self._configuration.micro_com.port,
-                self._configuration.micro_com.header,
-                self._configuration.micro_com.footer,
-                self._configuration.micro_com.escape,
-                )
+            self._communicator = UsbPacketCommunicator()
             self._communicator.start()
             self._disseminator = MicroDisseminator(
                 self._laser_control,

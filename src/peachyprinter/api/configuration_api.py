@@ -2,7 +2,7 @@ import types
 import logging
 
 from peachyprinter.infrastructure.zaxis import SerialDripZAxis
-from peachyprinter.infrastructure.communicator import SerialCommunicator
+from peachyprinter.infrastructure.communicator import UsbPacketCommunicator
 from peachyprinter.infrastructure.layer_generators import CureTestGenerator
 from peachyprinter.infrastructure.commander import SerialCommander
 logger = logging.getLogger('peachy')
@@ -107,12 +107,7 @@ class DripperSetupMixIn(object):
         elif self._current_config.dripper.dripper_type == 'photo':
             pass
         elif self._current_config.dripper.dripper_type == 'microcontroller':
-            self._communicator = SerialCommunicator(
-                self._current_config.micro_com.port,
-                self._current_config.micro_com.header,
-                self._current_config.micro_com.footer,
-                self._current_config.micro_com.escape
-                )
+            self._communicator = UsbPacketCommunicator()
             self._communicator.start()
             self._drip_detector = SerialDripZAxis(self._communicator, 1, 0.0, drip_call_back=self.drip_call_back)
 
