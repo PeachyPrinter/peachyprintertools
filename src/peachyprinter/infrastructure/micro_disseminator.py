@@ -11,7 +11,7 @@ class MicroDisseminator(Disseminator):
         self._laser_control = laser_control
         self._communication = comunication
         self.LASER_MAX = pow(2, 8) - 1
-        self.DEFLECTION_MAX = pow(2, 16) - 1
+        self.DEFLECTION_MAX = pow(2, 18) - 1
 
     def process(self, data):
         laser_power = int(self._laser_control.laser_power() * self.LASER_MAX)

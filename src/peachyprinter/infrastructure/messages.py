@@ -175,3 +175,44 @@ class MoveToDripCountMessage(ProtoBuffableMessage):
 
     def __repr__(self):
         return "drips={}".format(self._drips)
+
+class IdentifyMessage(ProtoBuffableMessage):
+    TYPE_ID = 7
+
+    def get_bytes(self):
+        return ""
+
+    @classmethod
+    def from_bytes(cls, proto_bytes):
+        return cls()
+
+class IAmMessage(ProtoBuffableMessage):
+    TYPE_ID = 8
+
+    def __init__(self, swrev, hwrev, sn, dataRate):
+        self._swrev = swrev
+        self._hwrev = hwrev
+        self._sn = sn
+        self._dataRate = dataRate
+
+    @property
+    def swrev(self):
+        return self._swrev
+    
+    @property
+    def hwrev(self):
+        return self._hwrev
+
+    @property
+    def sn(self):
+        return self._sn
+
+    @property
+    def dataRate(self):
+        return self._dataRate
+
+    @classmethod
+    def from_bytes(cls, proto_bytes):
+        decoded = IAm()
+        decoded.ParseFromString(proto_bytes)
+        return cls(decoded.swrev, decoded.hwrev, decoded.sn, decoded.dataRate)
