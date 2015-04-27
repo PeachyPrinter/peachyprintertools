@@ -15,40 +15,41 @@ class Communicator(object):
     def register_handler(self, message_type, handler):
         raise NotImplementedError()
 
+
 class UsbPacketCommunicator(Communicator, threading.Thread):
     def __init__(self):
-      threading.Thread.__init__(self)
-      self._handlers = {}
-      self._usbContext = None
-      self._device = None
-      self._devHandle = None
-      self._keepRunning = False
+        threading.Thread.__init__(self)
+        self._handlers = {}
+        self._usbContext = None
+        self._device = None
+        self._devHandle = None
+        self._keepRunning = False
 
     def start(self):
-      self._usbContext = usb1.USBContext()
-      self._device = self._usbContext.getByVendorIDAndProductID(0x16d0, 0xaf3)
-      self._devHandle = self._device.open()
-      self._devHandle.claimInterface(0)
-      self._keepRunning = True
-      super(UsbPacketCommunicator, self).start()
+        self._usbContext = usb1.USBContext()
+        self._device = self._usbContext.getByVendorIDAndProductID(0x16d0, 0xaf3)
+        self._devHandle = self._device.open()
+        self._devHandle.claimInterface(0)
+        self._keepRunning = True
+        super(UsbPacketCommunicator, self).start()
 
     def close(self):
-      self._keepRunning = False
+        self._keepRunning = False
 
     def run(self):
-      while self._keepRunning:
-        data = None
-        try:
-          data = self._devHandle.bulkRead(3, 64, timeout=100)
-        except (libusb1.USBError,), e:
-          if e.value == -7: # timeout
-            continue
-          raise
-        if not data:
-          continue
+        while self._keepRunning:
+            data = None
+            try:
+                data = self._devHandle.bulkRead(3, 64, timeout=100)
+            except (libusb1.USBError,), e:
+                if e.value == -7:  # timeout
+                    continue
+                raise
+            if not data:
+                continue
         logger.info("Received %d bytes from device" % (len(data),))
         self._process(data)
-      self._devHandle.close()
+        self._devHandle.close()
 
     def _process(self, data):
         message_type_id = ord(data[0])
@@ -58,19 +59,21 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
                     handler(message.from_bytes(data[1:]))
 
     def send(self, message):
-      if not self._keepRunning:
-        return
-      data = chr(message.TYPE_ID) + message.get_bytes()
-      self._devHandle.bulkWrite(2, data, timeout=1000)
+        if not self._keepRunning:
+            return
+
+        data = chr(message.TYPE_ID) + message.get_bytes()
+        self._devHandle.bulkWrite(2, data, timeout=1000)
 
     def register_handler(self, message_type, handler):
-      if not issubclass(message_type, ProtoBuffableMessage):
-        logger.error("ProtoBuffableMessage required for message type")
-        raise Exception("ProtoBuffableMessage required for message type")
-      if message_type in self._handlers:
-        self._handlers[message_type].append(handler)
-      else:
-        self._handlers[message_type] = [handler]
+        if not issubclass(message_type, ProtoBuffableMessage):
+            logger.error("ProtoBuffableMessage required for message type")
+            raise Exception("ProtoBuffableMessage required for message type")
+        if message_type in self._handlers:
+            self._handlers[message_type].append(handler)
+        else:
+            self._handlers[message_type] = [handler]
+
 
 class SerialCommunicator(Communicator, threading.Thread):
     def __init__(self, port, header, footer, escape):
