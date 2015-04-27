@@ -43,6 +43,16 @@ echo "revision='$GIT_REV'" >> version.properties
 echo "Git Revision Number is $GIT_REV_COUNT"
 cp version.properties src/VERSION.py
 
+
+echo "------------------------------------"
+echo "Running Setup"
+echo "------------------------------------"
+source ./setup_mac.sh
+if [ $? != 0 ]; then
+    echo "FAILED SETUP ABORTING"
+    exit 55
+fi
+
 echo "------------------------------------"
 echo "Running Tests"
 echo "------------------------------------"
