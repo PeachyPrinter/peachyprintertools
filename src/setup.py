@@ -10,7 +10,7 @@ setup(
       author="Peachy Printer",
       author_email="software+peachyprintertools@peachyprinter.com",
       data_files=[],
-      install_requires=['protobuf>=2.6.1', 'pyserial>=2.7', 'numpy>=1.8.2'],
+      install_requires=['protobuf>=2.6.1', 'pyserial>=2.7', 'numpy>=1.8.2', 'libusb1>=1.3.1'],
       packages=find_packages(),
       py_modules=['VERSION'],
       include_package_data=True

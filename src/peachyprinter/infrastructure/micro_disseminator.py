@@ -6,12 +6,13 @@ from peachyprinter.infrastructure.messages import MoveMessage
 
 
 class MicroDisseminator(Disseminator):
+    BIT_DEPTH = 18
     def __init__(self, laser_control, comunication, data_rate):
         self._data_rate = data_rate
         self._laser_control = laser_control
         self._communication = comunication
         self.LASER_MAX = pow(2, 8) - 1
-        self.DEFLECTION_MAX = pow(2, 18) - 1
+        self.DEFLECTION_MAX = pow(2, self.BIT_DEPTH) - 1
 
     def process(self, data):
         laser_power = int(self._laser_control.laser_power() * self.LASER_MAX)

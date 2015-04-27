@@ -103,7 +103,6 @@ class SolidObjectTestGenerator(LayerGenerator):
     def _radius(self):
         percent_complete = self._current_height / self._height
         factor = ((cos(sqrt(percent_complete) * pi * 3.0) / 4.0) + 0.75 - (percent_complete * 0.5)) * self._max_radius
-        print(factor)
         return factor
 
     def next(self):

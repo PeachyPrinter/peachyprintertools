@@ -100,6 +100,18 @@ if [ $? != 0 ]; then
     fi
 fi
 
+echo "--------Setting up libusb1----"
+python -c"import libusb1" 2>&1 >/dev/null
+if [ $? != 0 ]; then
+    echo "libusb1 not available adding"
+    pip install -U libusb1
+    if [ $? != 0 ]; then
+        echo "FAILURE: libusb1 failed installing"
+        WILL_FAIL=2
+        FAIL_REASONS="$FAIL_REASONS\nFAILURE: libusb1 failed installing"
+    fi
+fi
+
 echo "--------Setting up protobuf----"
 python -c"import protobuf" 2>&1 >/dev/null
 if [ $? != 0 ]; then

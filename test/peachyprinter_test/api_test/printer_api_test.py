@@ -168,7 +168,7 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
 @patch('peachyprinter.api.print_api.SerialDripZAxis')
 @patch('peachyprinter.api.print_api.MicroDisseminator')
-@patch('peachyprinter.api.print_api.SerialCommunicator')
+@patch('peachyprinter.api.print_api.UsbPacketCommunicator')
 @patch('peachyprinter.api.print_api.LaserControl')
 @patch('peachyprinter.api.print_api.FileWriter')
 @patch('peachyprinter.api.print_api.EmailNotificationService')
@@ -193,7 +193,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def setup_mocks(self, args):
         self.mock_SerialDripZAxis =               args[21]
         self.mock_MicroDisseminator =             args[20]
-        self.mock_SerialCommunicator =            args[19]
+        self.mock_UsbPacketCommunicator =         args[19]
         self.mock_LaserControl =                  args[18]
         self.mock_FileWriter =                    args[17]
         self.mock_EmailNotificationService =      args[16]
@@ -216,7 +216,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.mock_serial_drip_zaxis =               self.mock_SerialDripZAxis.return_value
         self.mock_micro_disseminator =              self.mock_MicroDisseminator.return_value
-        self.mock_serial_communicator =             self.mock_SerialCommunicator.return_value
+        self.mock_usb_packet_communicator =             self.mock_UsbPacketCommunicator.return_value
         self.mock_laser_control =                   self.mock_LaserControl.return_value
         self.mock_filewriter =                      self.mock_FileWriter.return_value
         self.mock_email_notification_service =      self.mock_EmailNotificationService.return_value
@@ -271,21 +271,17 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.cure_rate.override_laser_power_amount
             )
 
-        self.mock_SerialCommunicator.assert_called_with(
-            config.micro_com.port,
-            config.micro_com.header,
-            config.micro_com.footer,
-            config.micro_com.escape,
-            )
-        self.mock_serial_communicator.start.assert_called_with()
+        self.mock_UsbPacketCommunicator.assert_called()
+        
+        self.mock_usb_packet_communicator.start.assert_called_with()
 
         self.mock_MicroDisseminator.assert_called_with(
             self.mock_laser_control,
-            self.mock_serial_communicator,
+            self.mock_usb_packet_communicator,
             config.micro_com.rate
             )
 
-        self.assertEquals(0, self.mock_serial_communicator.call_count)
+        self.assertEquals(0, self.mock_usb_packet_communicator.call_count)
 
         self.mock_HomogenousTransformer.assert_called_with(
             config.calibration.max_deflection,
@@ -314,7 +310,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             )
 
         self.mock_SerialDripZAxis.assert_called_with(
-            self.mock_serial_communicator,
+            self.mock_usb_packet_communicator,
             config.dripper.drips_per_mm,
             0.0
             )
@@ -354,7 +350,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
                 )
 
         self.mock_SerialDripZAxis.assert_called_with(
-            self.mock_serial_communicator,
+            self.mock_usb_packet_communicator,
             config.dripper.drips_per_mm,
             expected_start_height,
             )

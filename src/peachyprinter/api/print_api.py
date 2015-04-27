@@ -10,7 +10,7 @@ from peachyprinter.infrastructure.timed_drip_zaxis import TimedDripZAxis, PhotoZ
 from peachyprinter.infrastructure.zaxis import SerialDripZAxis
 from peachyprinter.domain.laser_control import LaserControl
 from peachyprinter.infrastructure.micro_disseminator import MicroDisseminator
-from peachyprinter.infrastructure.communicator import UsbPacketCommunicator, SerialCommunicator, NullCommunicator
+from peachyprinter.infrastructure.communicator import UsbPacketCommunicator, NullCommunicator
 from peachyprinter.infrastructure.gcode_layer_generator import GCodeReader
 from peachyprinter.infrastructure.transformer import HomogenousTransformer
 from peachyprinter.infrastructure.layer_generators import SubLayerGenerator, ShuffleGenerator, OverLapGenerator

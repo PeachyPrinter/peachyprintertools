@@ -10,7 +10,7 @@ import test_helpers
 from peachyprinter.api.calibration_api import CalibrationAPI
 
 @patch('peachyprinter.api.calibration_api.OrientationGenerator')
-@patch('peachyprinter.api.calibration_api.SerialCommunicator')
+@patch('peachyprinter.api.calibration_api.UsbPacketCommunicator')
 @patch('peachyprinter.api.calibration_api.MicroDisseminator')
 @patch('peachyprinter.api.calibration_api.LaserControl')
 @patch('peachyprinter.domain.configuration_manager.ConfigurationManager')
@@ -34,7 +34,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
         self.mock_OrientationGenerator =                 args[20]
-        self.mock_SerialCommunicator =                   args[19]
+        self.mock_UsbPacketCommunicator =                args[19]
         self.mock_MicroDisseminator =                    args[18]
         self.mock_LaserControl =                         args[17]
         self.mock_ConfigurationManager =                 args[16]
@@ -56,7 +56,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_MemoryHourglassGenerator =             args[0]
 
         self.mock_orientation_generator =                self.mock_OrientationGenerator.return_value
-        self.mock_serial_communicator =                  self.mock_SerialCommunicator.return_value
+        self.mock_usb_packet_communicator =                  self.mock_UsbPacketCommunicator.return_value
         self.mock_micro_disseminator =                   self.mock_MicroDisseminator.return_value
         self.mock_laser_control =                        self.mock_LaserControl.return_value
         self.mock_configuration_manager =                self.mock_ConfigurationManager.return_value
@@ -96,18 +96,13 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             )
         self.mock_MicroDisseminator.assert_called_with(
             self.mock_laser_control,
-            self.mock_serial_communicator,
+            self.mock_usb_packet_communicator,
             self.default_config.micro_com.rate
             )
 
-        self.mock_SerialCommunicator.assert_called_with(
-            self.default_config.micro_com.port,
-            self.default_config.micro_com.header,
-            self.default_config.micro_com.footer,
-            self.default_config.micro_com.escape,
-            )
+        self.mock_UsbPacketCommunicator.assert_called()
 
-        self.mock_serial_communicator.start.assert_called_with()
+        self.mock_usb_packet_communicator.start.assert_called_with()
 
         self.mock_TuningTransformer.assert_called_with(
             scale=self.default_config.calibration.max_deflection

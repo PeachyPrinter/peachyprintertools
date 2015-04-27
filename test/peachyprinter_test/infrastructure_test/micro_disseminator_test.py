@@ -16,6 +16,7 @@ from peachyprinter.infrastructure.messages import MoveMessage
 
 class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
     def setUp(self):
+        self.max_value = pow(2, MicroDisseminator.BIT_DEPTH) - 1
         self.mock_comm = MagicMock()
         self.laser_control = LaserControl()
 
@@ -55,7 +56,7 @@ class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
         sample_data_chunk = numpy.array([(1, 1)])
         micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
         micro_disseminator.process(sample_data_chunk)
-        self.mock_comm.send.assert_called_with(MoveMessage(65535, 65535, 255))
+        self.mock_comm.send.assert_called_with(MoveMessage(self.max_value, self.max_value, 255))
 
     def test_process_should_handle_empty_lists(self):
         self.laser_control.set_laser_on()
@@ -70,9 +71,9 @@ class MicroDisseminatorTests(unittest.TestCase, TestHelpers):
         micro_disseminator = MicroDisseminator(self.laser_control, self.mock_comm, 8000)
         micro_disseminator.process(sample_data_chunk)
         self.mock_comm.send.assert_has_calls([
-            call(MoveMessage(0,     65535, 255)),
-            call(MoveMessage(32767, 0,     255)),
-            call(MoveMessage(65535, 32767, 255)),
+            call(MoveMessage(0,     self.max_value, 255)),
+            call(MoveMessage(self.max_value / 2, 0,     255)),
+            call(MoveMessage(self.max_value, self.max_value / 2, 255)),
             ])
 
     def test_close_calls_close_on_communicator(self):
