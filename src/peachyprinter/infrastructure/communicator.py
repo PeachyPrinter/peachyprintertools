@@ -38,11 +38,21 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
             data = None
             try:
                 data = self._devHandle.bulkRead(3, 64, timeout=100)
-            except (libusb1.USBError,):
-                pass
+            except (libusb1.USBError,), e:
+                if e.value == -7: # timeout
+                  continue
+                raise
             if not data:
                 continue
             logger.info("Received %d bytes from device" % (len(data),))
+            self._process(data)
+
+    def _process(self, data):
+        message_type_id = ord(data[0])
+        for (message, handlers) in self._handlers.items():
+            if message.TYPE_ID == message_type_id:
+                for handler in handlers:
+                    handler(message.from_bytes(data[1:]))
 
     def send(self, message):
         data = chr(message.TYPE_ID) + message.get_bytes()
