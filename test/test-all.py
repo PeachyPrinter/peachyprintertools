@@ -6,7 +6,7 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src', ))
 
 if os.name == 'nt':
-	dll_path = os.path.join(os.path.dirname(__file__), '..', 'src', 'resources', 'dll', 'libusb-1.0.dll')
+	dll_path = os.path.join(os.path.dirname(__file__), '..', 'src', 'peachyprinter', 'libusb-1.0.dll')
 	ctypes.cdll.LoadLibrary(dll_path)
 
 
