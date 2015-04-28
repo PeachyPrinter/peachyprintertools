@@ -3,7 +3,7 @@ from setuptools.command.install import install as _Install
 from VERSION import version
 import os
 
-data_files = [('resources/dll', ["resources/dll/libusb-1.0.dll"])]
+# data_files = [('peachyprinter/resources/dll', ["peachyprinter/dll/libusb-1.0.dll"])]
 
 setup(
     name='PeachyPrinterToolsAPI',
@@ -13,8 +13,7 @@ setup(
     url="http://www.peachyprinter.com",
     author="Peachy Printer",
     author_email="software+peachyprintertools@peachyprinter.com",
-    data_files=data_files,
-    zip_safe=False,
+    package_data = { 'peachyprinter': ['*.dll'] },
     install_requires=['protobuf>=2.6.1', 'pyserial>=2.7', 'numpy>=1.8.2', 'libusb1>=1.3.1'],
     packages=find_packages(),
     py_modules=['VERSION'],

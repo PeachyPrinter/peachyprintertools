@@ -61,7 +61,7 @@ echo ------------------------------------
 echo Create Peachy Tools Api
 echo ------------------------------------
 
-python setup.py bdist
+python setup.py sdist
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED PACKAGING ABORTING"
     cd ..
