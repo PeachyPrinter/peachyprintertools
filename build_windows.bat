@@ -38,26 +38,30 @@ echo revision='%GIT_REV%' >> version.properties
 echo Git Revision Number is %GIT_REV_COUNT%
 copy version.properties src\VERSION.py
 
+echo ------------------------------------
+echo Downlaoding and installing dependancies
+echo ------------------------------------
+call setup_windows.bat
+
+cd src
 
 echo ------------------------------------
 echo Running Tests
 echo ------------------------------------
-cd test
-python test-all.py
+set PYTHONPATH=%PYTHONPATH%;src
+python ..\test\test-all.py
+
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED TESTS ABORTING"
-    cd ..
     EXIT /B 2
 )
-cd ..
 
 
 echo ------------------------------------
 echo Create Peachy Tools Api
 echo ------------------------------------
 
-cd src
-python setup.py sdist
+python setup.py bdist
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED PACKAGING ABORTING"
     cd ..

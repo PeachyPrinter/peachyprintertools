@@ -56,6 +56,9 @@ Development
 + protobuf
 + libusb1
 
+##### Windows
+c++ compiler for python http://www.microsoft.com/en-us/download/details.aspx?id=44266
+
 
 #### Runing the tests
 
