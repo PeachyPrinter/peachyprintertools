@@ -4,7 +4,7 @@ if os.name == 'nt':
     import pkg_resources
     from pkg_resources import DistributionNotFound
 
-try:
+    try:
         dist = pkg_resources.get_distribution('PeachyPrinterToolsAPI')
         dll_path = os.path.join(dist.location, 'peachyprinter', 'libusb-1.0.dll')
     except DistributionNotFound:
