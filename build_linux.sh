@@ -18,7 +18,7 @@ echo "------------------------------------"
 echo "Setting up environment"
 echo "------------------------------------"
 
-source setup_linux.sh
+source setup_linux.sh -c
 
 echo "------------------------------------"
 echo "Extracting Git Revision Number"
