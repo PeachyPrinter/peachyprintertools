@@ -6,8 +6,16 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src', ))
 
 if os.name == 'nt':
-	dll_path = os.path.join(os.path.dirname(__file__), '..', 'src', 'peachyprinter', 'libusb-1.0.dll')
-	ctypes.cdll.LoadLibrary(dll_path)
+    dll_path = os.path.join(os.path.dirname(__file__), '..', 'src', 'peachyprinter', 'libusb-1.0.dll')
+    if not os.path.isfile(dll_path):
+        print('libusb missing')
+    print('Loading usb dll: %s' % dll_path)
+    try:
+        ctypes.cdll.LoadLibrary(dll_path)
+    except Exception as ex:
+        print("Loading library fails: ")
+        print(ex)
+        exit(324)
 
 
 loader = unittest.TestLoader()

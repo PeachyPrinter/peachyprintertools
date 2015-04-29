@@ -10,6 +10,10 @@ if os.name == 'nt':
     except DistributionNotFound:
         dll_path = os.path.join(os.path.dirname(__file__), 'libusb-1.0.dll')
 
-    ctypes.cdll.LoadLibrary(dll_path)
+    print("Attempting Loading usb dll from: %s" % dll_path)
+    try:
+        ctypes.cdll.LoadLibrary(dll_path)
+    except:
+        print("Failed Loading usb dll from: %s" % dll_path)
 
 from peachyprinter.api.peachy_printer_api import PrinterAPI
