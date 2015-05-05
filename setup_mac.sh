@@ -21,7 +21,7 @@ if [ $? != 0 ]; then
 fi
 
 echo "----Checking for and create a virtual environment----"
-if [! -d "venv" ]; then
+if [ ! -d "venv" ]; then
     virtualenv venv
     if [ $? != 0 ]; then
         echo "Virutal environment failed"
