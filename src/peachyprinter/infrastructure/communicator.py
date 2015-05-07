@@ -55,8 +55,8 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
                 raise
             if not data:
                 continue
-        logger.info("Received %d bytes from device" % (len(data),))
-        self._process(data)
+            logger.info("Received %d bytes from device" % (len(data),))
+            self._process(data)
         self._devHandle.close()
         self._isRunning = False
 
