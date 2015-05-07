@@ -15,6 +15,8 @@ class Communicator(object):
     def register_handler(self, message_type, handler):
         raise NotImplementedError()
 
+class MissingPrinterException(Exception):
+    pass
 
 class UsbPacketCommunicator(Communicator, threading.Thread):
     def __init__(self):
@@ -28,6 +30,8 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
     def start(self):
         self._usbContext = usb1.USBContext()
         self._device = self._usbContext.getByVendorIDAndProductID(0x16d0, 0xaf3)
+        if not self._device:
+            raise MissingPrinterException()
         self._devHandle = self._device.open()
         self._devHandle.claimInterface(0)
         self._keepRunning = True

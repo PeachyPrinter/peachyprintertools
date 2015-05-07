@@ -18,6 +18,7 @@ from peachyprinter.infrastructure.commander import SerialCommander, NullCommande
 from peachyprinter.infrastructure.notification import EmailNotificationService, EmailGateway
 from peachyprinter.infrastructure.layer_control import LayerWriter, LayerProcessing
 from peachyprinter.infrastructure.machine import *
+from peachyprinter.infrastructure.communicator import MissingPrinterException
 
 
 class PrintQueueAPI(object):
