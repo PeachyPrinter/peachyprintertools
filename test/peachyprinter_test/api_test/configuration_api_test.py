@@ -128,7 +128,8 @@ class DripperSetupMixInTest(object):
     @patch.object(ConfigurationManager, 'load')
     @patch('peachyprinter.api.configuration_api.SerialDripZAxis')
     @patch('peachyprinter.api.configuration_api.UsbPacketCommunicator')
-    def test_set_dripper_drips_per_mm_should_overwrite_current_setting_and_update_zaxis(self, mock_UsbPacketCommunicator, mock_SerialDripZAxis, mock_load):
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_dripper_drips_per_mm_should_overwrite_current_setting_and_update_zaxis(self, mock_save, mock_UsbPacketCommunicator, mock_SerialDripZAxis, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         mock_SerialDripZAxis = mock_SerialDripZAxis.return_value
@@ -140,6 +141,7 @@ class DripperSetupMixInTest(object):
         configuration_API.stop_counting_drips()
 
         mock_SerialDripZAxis.set_drips_per_mm.assert_called_with(expected)
+        mock_save.assert_called()
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_dripper_type_should_return_current_type(self, mock_load):
@@ -152,7 +154,8 @@ class DripperSetupMixInTest(object):
         self.assertEquals(self.default_config.dripper.dripper_type, actual)
 
     @patch.object(ConfigurationManager, 'load')
-    def test_set_dripper_type_should_return_current_type(self, mock_load):
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_dripper_type_should_return_current_type(self, mock_save, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('Printer')
@@ -161,6 +164,7 @@ class DripperSetupMixInTest(object):
         actual = configuration_API.get_dripper_type()
 
         self.assertEquals(expected, actual)
+        mock_save.assert_called()
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_dripper_delay_should_return_current_delay(self, mock_load):
@@ -173,7 +177,8 @@ class DripperSetupMixInTest(object):
         self.assertEquals(self.default_config.dripper.photo_zaxis_delay, actual)
 
     @patch.object(ConfigurationManager, 'load')
-    def test_set_dripper_delay_should_set_current_delay(self, mock_load):
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_dripper_delay_should_set_current_delay(self, mock_save, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('Printer')
@@ -182,7 +187,7 @@ class DripperSetupMixInTest(object):
         actual = configuration_API.get_dripper_photo_zaxis_delay()
 
         self.assertEquals(expected, actual)
-
+        mock_save.assert_called
     @patch.object(ConfigurationManager, 'load')
     def test_get_dripper_emulated_drips_per_second_should_return(self, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
@@ -194,7 +199,8 @@ class DripperSetupMixInTest(object):
         self.assertEquals(self.default_config.dripper.emulated_drips_per_second, actual)
 
     @patch.object(ConfigurationManager, 'load')
-    def test_set_dripper_emulated_drips_per_second_should_return(self, mock_load):
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_dripper_emulated_drips_per_second_should_return(self, mock_save, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
         configuration_API.load_printer('Printer')
@@ -203,6 +209,7 @@ class DripperSetupMixInTest(object):
         actual = configuration_API.get_dripper_emulated_drips_per_second() 
 
         self.assertEquals(expected, actual)
+        mock_save.assert_called()
 
     @patch.object(ConfigurationManager, 'load')
     @patch('peachyprinter.infrastructure.commander.SerialCommander')
