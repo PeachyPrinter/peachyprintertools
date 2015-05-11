@@ -26,6 +26,7 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
         self._device = None
         self._devHandle = None
         self._keepRunning = False
+        self._isRunning = False
 
     def start(self):
         self._usbContext = usb1.USBContext()
@@ -34,11 +35,14 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
             raise MissingPrinterException()
         self._devHandle = self._device.open()
         self._devHandle.claimInterface(0)
+        self._isRunning = True
         self._keepRunning = True
         super(UsbPacketCommunicator, self).start()
 
     def close(self):
         self._keepRunning = False
+        while self._isRunning:
+            time.sleep(0.1)
 
     def run(self):
         while self._keepRunning:
@@ -53,9 +57,10 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
                 raise
             if not data:
                 continue
-        logger.info("Received %d bytes from device" % (len(data),))
-        self._process(data)
+            logger.info("Received %d bytes from device" % (len(data),))
+            self._process(data)
         self._devHandle.close()
+        self._isRunning = False
 
     def _process(self, data):
         message_type_id = ord(data[0])
