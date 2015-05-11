@@ -5,7 +5,7 @@ import time
 import traceback
 from peachyprinter.domain.commands import *
 from peachyprinter.infrastructure.machine import MachineError
-
+from peachyprinter.infrastructure.communicator import MissingPrinterException
 
 class Controller(threading.Thread,):
     def __init__(self,
@@ -64,6 +64,10 @@ class Controller(threading.Thread,):
             except StopIteration:
                 logger.info('Layers Complete')
                 return
+            except MissingPrinterException as mpe:
+                self._status.add_error(MachineError(str(mpe), self._status.status()['current_layer']))
+                logger.error('Unexpected Error: %s' % str(mpe))
+                raise
             except Exception as ex:
                 self._status.add_error(MachineError(str(ex), self._status.status()['current_layer']))
                 logger.error('Unexpected Error: %s' % str(ex))

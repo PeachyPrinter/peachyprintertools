@@ -13,6 +13,7 @@ from peachyprinter.domain.commands import *
 from peachyprinter.infrastructure.machine import MachineStatus
 from peachyprinter.infrastructure.controller import *
 from peachyprinter.infrastructure.layer_generators import StubLayerGenerator
+from peachyprinter.infrastructure.communicator import MissingPrinterException
 
 @patch('infrastructure.layer_control.LayerWriter')
 @patch('infrastructure.layer_control.LayerProcessing')
@@ -92,6 +93,23 @@ class ControllerTests(unittest.TestCase):
         mock_layer_processing.process.assert_called_with(test_layer2)
         mock_layer_writer.terminate.assert_not_called()
         mock_layer_processing.terminate.assert_not_called()
+
+    def test_run_should_record_errors_and_abort_when_printer_is_detached(self, mock_LayerGenerator, mock_LayerWriter, mock_LayerProcessing):
+        mock_layer_writer = mock_LayerWriter.return_value
+        mock_layer_processing = mock_LayerProcessing.return_value
+        test_layer1 = Layer(0.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], 100.0)])
+        stub_layer_generator = StubLayerGenerator([test_layer1])
+        mock_layer_processing.process.side_effect = MissingPrinterException("Something Broke")
+
+        self.controller = Controller(mock_layer_writer, mock_layer_processing, stub_layer_generator, MachineStatus(), False)
+        self.controller.start()
+
+        self.wait_for_controller()
+
+        self.assertEquals(1, len(self.controller.get_status()['errors']), self.controller.get_status()['errors'])
+        mock_layer_processing.process.assert_called_with(test_layer1)
+        mock_layer_writer.terminate.assert_called()
+        mock_layer_processing.terminate.assert_called()
 
     def test_change_generator_should_change_layer_generator(self, mock_LayerGenerator, mock_LayerWriter, mock_LayerProcessing):
         mock_layer_writer = mock_LayerWriter.return_value

@@ -48,6 +48,8 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
             except (libusb1.USBError,), e:
                 if e.value == -7:  # timeout
                     continue
+                if e.value == -1:
+                    raise MissingPrinterException(e)
                 raise
             if not data:
                 continue
