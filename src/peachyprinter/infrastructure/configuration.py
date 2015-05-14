@@ -952,61 +952,61 @@ class ConfigurationGenerator(object):
         return configuration
 
 
-class FileBasedConfigurationManager(ConfigurationManager):
-    CONFIGURATION_EXTENSION = '.cfg'
+# class FileBasedConfigurationManager(ConfigurationManager):
+#     CONFIGURATION_EXTENSION = '.cfg'
 
-    def __init__(self):
-        pass
+#     def __init__(self):
+#         pass
 
-    def list(self):
-        printers = []
-        if os.path.exists(config.PEACHY_PATH):
-            for file_name in os.listdir(config.PEACHY_PATH):
-                if file_name.endswith(self.CONFIGURATION_EXTENSION):
-                    pth = os.path.join(self._path(), file_name)
-                    configuration = self._load_configuration(pth)
-                    if configuration:
-                        printers.append(configuration.name)
-        return printers
+#     def list(self):
+#         printers = []
+#         if os.path.exists(config.PEACHY_PATH):
+#             for file_name in os.listdir(config.PEACHY_PATH):
+#                 if file_name.endswith(self.CONFIGURATION_EXTENSION):
+#                     pth = os.path.join(self._path(), file_name)
+#                     configuration = self._load_configuration(pth)
+#                     if configuration:
+#                         printers.append(configuration.name)
+#         return printers
 
-    def load(self, printer_name):
-        logger.info('Loading configutation for "%s"' % printer_name)
-        filename = self._get_file_name(printer_name)
-        if not os.path.exists(filename):
-            raise Exception("Printer file not found")
-        configuration = self._load_configuration(filename)
-        if configuration:
-            return configuration
-        else:
-            raise Exception("Printer file corrupt or damaged")
+#     def load(self, printer_name):
+#         logger.info('Loading configutation for "%s"' % printer_name)
+#         filename = self._get_file_name(printer_name)
+#         if not os.path.exists(filename):
+#             raise Exception("Printer file not found")
+#         configuration = self._load_configuration(filename)
+#         if configuration:
+#             return configuration
+#         else:
+#             raise Exception("Printer file corrupt or damaged")
 
-    def _load_configuration(self, filename):
-        with open(filename, 'r') as file_handle:
-            try:
-                data = file_handle.read()
-                conf = Configuration(json.loads(data))
-                return conf
-            except Exception as ex:
-                logger.error("Error loading file: %s" % ex)
-                return None
+#     def _load_configuration(self, filename):
+#         with open(filename, 'r') as file_handle:
+#             try:
+#                 data = file_handle.read()
+#                 conf = Configuration(json.loads(data))
+#                 return conf
+#             except Exception as ex:
+#                 logger.error("Error loading file: %s" % ex)
+#                 return None
 
-    def save(self, configuration):
-        filename = self._get_file_name(configuration.name)
-        with open(filename, 'w') as file_handle:
-            file_handle.write(configuration.toJson())
+#     def save(self, configuration):
+#         filename = self._get_file_name(configuration.name)
+#         with open(filename, 'w') as file_handle:
+#             file_handle.write(configuration.toJson())
 
-    def new(self, printer_name):
-        new_printer_config = ConfigurationGenerator().default_configuration()
-        new_printer_config.name = printer_name
-        return new_printer_config
+#     def new(self, printer_name):
+#         new_printer_config = ConfigurationGenerator().default_configuration()
+#         new_printer_config.name = printer_name
+#         return new_printer_config
 
-    def _path(self):
-        if not os.path.exists(config.PEACHY_PATH):
-            os.makedirs(config.PEACHY_PATH)
-        return config.PEACHY_PATH
+#     def _path(self):
+#         if not os.path.exists(config.PEACHY_PATH):
+#             os.makedirs(config.PEACHY_PATH)
+#         return config.PEACHY_PATH
 
-    def _get_file_name(self, name):
-        safe_name = ''.join(l for l in name if l.isalnum())
-        filename = safe_name + self.CONFIGURATION_EXTENSION
-        return os.path.join(self._path(), filename)
+#     def _get_file_name(self, name):
+#         safe_name = ''.join(l for l in name if l.isalnum())
+#         filename = safe_name + self.CONFIGURATION_EXTENSION
+#         return os.path.join(self._path(), filename)
 

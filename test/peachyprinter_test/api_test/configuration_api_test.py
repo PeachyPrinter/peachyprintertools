@@ -22,7 +22,7 @@ class DripperSetupMixInTest(object):
     def test_start_counting_drips_should_start_getting_drips(self, mock_UsbPacketCommunicator,  mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('printer')
+        configuration_API.load_printer()
 
         configuration_API.start_counting_drips()
 
@@ -37,7 +37,7 @@ class DripperSetupMixInTest(object):
         config = self.default_config
         config.dripper.dripper_type ='microcontroller'
         mock_load.return_value = config
-        configuration_API.load_printer('printer')
+        configuration_API.load_printer()
         callback = MagicMock()
         configuration_API.start_counting_drips(callback)
 
@@ -53,7 +53,7 @@ class DripperSetupMixInTest(object):
     def test_start_counting_drips_should_pass_call_back_function(self, mock_SerialDripZAxis, mock_UsbPacketCommunicator, mock_start, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('printer')
+        configuration_API.load_printer()
 
         def callback(bla):
             pass
@@ -76,7 +76,7 @@ class DripperSetupMixInTest(object):
         config = self.default_config
         config.dripper.dripper_type ='microcontroller'
         mock_load.return_value = config
-        configuration_API.load_printer('printer')
+        configuration_API.load_printer()
         callback = MagicMock()
         configuration_API.start_counting_drips(callback)
 
@@ -92,7 +92,7 @@ class DripperSetupMixInTest(object):
     def test_stop_counting_drips_should_stop_getting_drips(self, mock_close, mock_UsbPacketCommunicator, mock_start, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('printer')
+        configuration_API.load_printer()
         configuration_API.start_counting_drips()
 
         configuration_API.stop_counting_drips()
@@ -107,7 +107,7 @@ class DripperSetupMixInTest(object):
     def test_drip_calibration_should_call_reset_when_reset_requested(self, mock_reset, mock_UsbPacketCommunicator, mock_start, mock_load, mock_save):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('printer')
+        configuration_API.load_printer()
 
         configuration_API.start_counting_drips()
         configuration_API.reset_drips()
@@ -119,7 +119,7 @@ class DripperSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
 
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
 
         actual = configuration_API.get_dripper_drips_per_mm()
 
@@ -135,7 +135,7 @@ class DripperSetupMixInTest(object):
         mock_SerialDripZAxis = mock_SerialDripZAxis.return_value
         expected = 6534.0
 
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
         configuration_API.start_counting_drips()
         configuration_API.set_dripper_drips_per_mm(expected)
         configuration_API.stop_counting_drips()
@@ -147,7 +147,7 @@ class DripperSetupMixInTest(object):
     def test_get_dripper_type_should_return_current_type(self, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
 
         actual = configuration_API.get_dripper_type()
 
@@ -158,7 +158,7 @@ class DripperSetupMixInTest(object):
     def test_set_dripper_type_should_return_current_type(self, mock_save, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
         expected = 'emulated'
         configuration_API.set_dripper_type(expected)
         actual = configuration_API.get_dripper_type()
@@ -170,7 +170,7 @@ class DripperSetupMixInTest(object):
     def test_get_dripper_delay_should_return_current_delay(self, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
 
         actual = configuration_API.get_dripper_photo_zaxis_delay()
 
@@ -181,7 +181,7 @@ class DripperSetupMixInTest(object):
     def test_set_dripper_delay_should_set_current_delay(self, mock_save, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
         expected = 2.0
         configuration_API.set_dripper_photo_zaxis_delay(expected)
         actual = configuration_API.get_dripper_photo_zaxis_delay()
@@ -192,7 +192,7 @@ class DripperSetupMixInTest(object):
     def test_get_dripper_emulated_drips_per_second_should_return(self, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
 
         actual = configuration_API.get_dripper_emulated_drips_per_second()
 
@@ -203,7 +203,7 @@ class DripperSetupMixInTest(object):
     def test_set_dripper_emulated_drips_per_second_should_return(self, mock_save, mock_load):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         mock_load.return_value = self.default_config
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
         expected = 302.0
         configuration_API.set_dripper_emulated_drips_per_second(expected)
         actual = configuration_API.get_dripper_emulated_drips_per_second() 
@@ -221,7 +221,7 @@ class DripperSetupMixInTest(object):
         config.serial.on = False
         mock_load.return_value = config
 
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
         configuration_API.start_counting_drips()
         with self.assertRaises(Exception):
             configuration_API.send_dripper_on_command()
@@ -241,7 +241,7 @@ class DripperSetupMixInTest(object):
         mock_load.return_value = config
         mock_serial_commander = mock_SerialCommander.return_value
 
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
         configuration_API.start_counting_drips()
         configuration_API.send_dripper_on_command()
 
@@ -258,7 +258,7 @@ class DripperSetupMixInTest(object):
         config.serial.on = False
         mock_load.return_value = config
 
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
         configuration_API.start_counting_drips()
         with self.assertRaises(Exception):
             configuration_API.send_dripper_off_command()
@@ -278,7 +278,7 @@ class DripperSetupMixInTest(object):
         mock_load.return_value = config
         mock_serial_commander = mock_SerialCommander.return_value
 
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
         configuration_API.start_counting_drips()
         configuration_API.send_dripper_off_command()
 
@@ -298,7 +298,7 @@ class DripperSetupMixInTest(object):
         mock_load.return_value = config
         mock_serial_commander = mock_SerialCommander.return_value
 
-        configuration_API.load_printer('Printer')
+        configuration_API.load_printer()
         configuration_API.start_counting_drips()
         configuration_API.stop_counting_drips()
 
@@ -312,7 +312,7 @@ class CureTestSetupMixInTest(object):
     def test_get_cure_test_total_height_must_exceed_base_height(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.get_cure_test(10, 1, 1, 2)
@@ -323,7 +323,7 @@ class CureTestSetupMixInTest(object):
     def test_get_cure_test_final_speed_exceeds_start_speed(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.get_cure_test(1, 10, 10, 1)
@@ -335,7 +335,7 @@ class CureTestSetupMixInTest(object):
     def test_get_cure_test_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.get_cure_test('a', 10, 10, 1)
@@ -370,7 +370,7 @@ class CureTestSetupMixInTest(object):
     def test_get_cure_test_returns_a_layer_generator(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         cure_test = configuration_API.get_cure_test(0, 1, 1, 2)
         cure_test.next()
@@ -379,7 +379,7 @@ class CureTestSetupMixInTest(object):
     def test_get_speed_at_height_must_exceed_base_height(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.get_speed_at_height(10, 1, 1, 2, 1)
@@ -390,7 +390,7 @@ class CureTestSetupMixInTest(object):
     def test_get_speed_at_height_must_have_height_between_total_and_base(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.get_speed_at_height(0, 10, 1, 2, 11)
@@ -401,7 +401,7 @@ class CureTestSetupMixInTest(object):
     def test_get_speed_at_height_final_speed_exceeds_start_speed(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.get_speed_at_height(1, 10, 10, 1, 1)
@@ -413,7 +413,7 @@ class CureTestSetupMixInTest(object):
     def test_get_speed_at_height_values_must_be_positive_non_0_numbers_for_all_but_base(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.get_speed_at_height('a', 10, 10, 1, 1)
@@ -448,7 +448,7 @@ class CureTestSetupMixInTest(object):
     def test_get_speed_at_height_returns_a_correct_height(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         speed = configuration_API.get_speed_at_height(0, 1, 10, 20, 0.5)
         self.assertEquals(15, speed)
@@ -460,7 +460,7 @@ class CureTestSetupMixInTest(object):
         expected_config = self.default_config
         expected_config.cure_rate.draw_speed = 121.0
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.set_speed(-1)
@@ -476,7 +476,7 @@ class CureTestSetupMixInTest(object):
 
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertTrue(configuration_API.get_use_shufflelayers())
         self.assertTrue(configuration_API.get_use_sublayers())
@@ -492,7 +492,7 @@ class CureTestSetupMixInTest(object):
         expected.options.use_overlap = False
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_use_shufflelayers(False)
         configuration_API.set_use_sublayers(False)
@@ -525,7 +525,7 @@ class CureTestSetupMixInTest(object):
 
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_cure_rate_base_height(expected_base_height)
         configuration_API.set_cure_rate_total_height(expected_total_height)
@@ -553,7 +553,7 @@ class CureTestSetupMixInTest(object):
     def test_get_and_set_laser_amount_fails_if_out_of_range(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.set_cure_rate_override_laser_power_amount(-0.1)
@@ -577,7 +577,7 @@ class OptionsSetupMixInTest(object):
         config.options.wait_after_move_milliseconds = expected
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_wait_after_move_milliseconds())
 
@@ -590,7 +590,7 @@ class OptionsSetupMixInTest(object):
         expected.options.wait_after_move_milliseconds = expected_milliseconds
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_wait_after_move_milliseconds(expected_milliseconds)
 
@@ -604,7 +604,7 @@ class OptionsSetupMixInTest(object):
         config.options.pre_layer_delay = expected
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_pre_layer_delay())
 
@@ -617,7 +617,7 @@ class OptionsSetupMixInTest(object):
         expected.options.pre_layer_delay = expected_scale
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_pre_layer_delay(expected_scale)
 
@@ -631,7 +631,7 @@ class OptionsSetupMixInTest(object):
         config.dripper.max_lead_distance_mm = expected
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_max_lead_distance_mm())
 
@@ -643,7 +643,7 @@ class OptionsSetupMixInTest(object):
         expected_config.dripper.max_lead_distance_mm = expected
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_max_lead_distance_mm(expected)
 
@@ -658,7 +658,7 @@ class OptionsSetupMixInTest(object):
         expected_config.dripper.max_lead_distance_mm = expected
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_max_lead_distance_mm(expected)
 
@@ -668,9 +668,9 @@ class OptionsSetupMixInTest(object):
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
     def test_set_max_lead_distance_mm_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
-        mock_load.return_value = {'name': 'test'}
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.set_options_max_lead_distance_mm('a')
@@ -690,7 +690,7 @@ class OptionsSetupMixInTest(object):
         config.options.laser_thickness_mm = expected
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_laser_thickness_mm())
 
@@ -703,7 +703,7 @@ class OptionsSetupMixInTest(object):
         expected.options.laser_thickness_mm = expected_thickness
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_laser_thickness_mm(expected_thickness)
 
@@ -713,9 +713,9 @@ class OptionsSetupMixInTest(object):
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
     def test_set_laser_thickness_mm_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
-        mock_load.return_value = {'name': 'test'}
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.set_options_laser_thickness_mm('a')
@@ -735,7 +735,7 @@ class OptionsSetupMixInTest(object):
         config.options.scaling_factor = expected
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_scaling_factor())
 
@@ -748,7 +748,7 @@ class OptionsSetupMixInTest(object):
         expected.options.scaling_factor = expected_scale
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_scaling_factor(expected_scale)
 
@@ -758,9 +758,9 @@ class OptionsSetupMixInTest(object):
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
     def test_set_scaling_factor_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
-        mock_load.return_value = {'name': 'test'}
+        mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.set_options_scaling_factor('a')
@@ -781,7 +781,7 @@ class OptionsSetupMixInTest(object):
         mock_load.return_value = expected_config
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_sublayer_height_mm())
 
@@ -794,7 +794,7 @@ class OptionsSetupMixInTest(object):
         expected.options.sublayer_height_mm = expected_height
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_sublayer_height_mm(expected_height)
 
@@ -806,7 +806,7 @@ class OptionsSetupMixInTest(object):
     def test_set_sublayer_height_mm_should_go_boom_if_not_positive_float(self, mock_save, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         with self.assertRaises(Exception):
             configuration_API.set_options_sublayer_height_mm('a')
@@ -827,7 +827,7 @@ class OptionsSetupMixInTest(object):
         mock_load.return_value = expected_config
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_slew_delay())
 
@@ -840,7 +840,7 @@ class OptionsSetupMixInTest(object):
         expected.options.slew_delay = slew_delay
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_slew_delay(slew_delay)
 
@@ -855,7 +855,7 @@ class OptionsSetupMixInTest(object):
         mock_load.return_value = expected_config
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_post_fire_delay())
 
@@ -868,7 +868,7 @@ class OptionsSetupMixInTest(object):
         expected.options.post_fire_delay = post_fire_delay
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_post_fire_delay(post_fire_delay)
 
@@ -883,7 +883,7 @@ class OptionsSetupMixInTest(object):
         mock_load.return_value = expected_config
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_shuffle_layers_amount())
 
@@ -896,7 +896,7 @@ class OptionsSetupMixInTest(object):
         expected.options.shuffle_layers_amount = shuffle_layers_amount
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_shuffle_layers_amount(shuffle_layers_amount)
 
@@ -911,7 +911,7 @@ class OptionsSetupMixInTest(object):
         mock_load.return_value = expected_config
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_overlap_amount_mm())
 
@@ -924,7 +924,7 @@ class OptionsSetupMixInTest(object):
         expected.options.overlap_amount = overlap_amount
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_overlap_amount_mm(overlap_amount)
 
@@ -939,7 +939,7 @@ class OptionsSetupMixInTest(object):
         mock_load.return_value = expected_config
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         self.assertEquals(expected, configuration_API.get_options_print_queue_delay())
 
@@ -952,7 +952,7 @@ class OptionsSetupMixInTest(object):
         expected.options.print_queue_delay = print_queue_delay
         mock_load.return_value = config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_options_print_queue_delay(print_queue_delay)
 
@@ -985,7 +985,7 @@ class EmailSetupMixInTest(object):
 
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_email_on(expected_on)
         configuration_API.set_email_port(expected_port)
@@ -1014,7 +1014,7 @@ class SerialSetupMixInTest(object):
     def test_get_serial_options_loads_correctly(self, mock_load):
         mock_load.return_value = self.default_config
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         actual_enabled = configuration_API.get_serial_enabled()
         actual_port = configuration_API.get_serial_port()
@@ -1052,7 +1052,7 @@ class SerialSetupMixInTest(object):
         expected.serial.print_ended       = expected_print_end
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
-        configuration_API.load_printer("test")
+        configuration_API.load_printer()
 
         configuration_API.set_serial_enabled(expected_enabled)
         configuration_API.set_serial_port(expected_port)
@@ -1083,58 +1083,34 @@ class ConfigurationAPITest(
         SerialSetupMixInTest,
         ):
 
-    @patch.object(ConfigurationManager, 'new')
-    @patch.object(ConfigurationManager, 'save')
-    def test_add_printer_should_save_itself(self, mock_save, mock_new):
-        capi = ConfigurationAPI(ConfigurationManager())
-        mock_new.return_value = "Some Printer Config"
+    # def test_current_printer_returns_none_when_no_printer_loaded(self):
+    #     capi = ConfigurationAPI(ConfigurationManager())
 
-        capi.add_printer("NewName")
+    #     actual = capi.current_printer()
 
-        mock_new.assert_called_with("NewName")
-        mock_save.assert_called_with("Some Printer Config")
+    #     self.assertEqual(None, actual)
 
-    @patch.object(ConfigurationManager, 'list')
-    def test_get_available_printers_lists_printers(self, mock_list):
-        printers = ['Tom', 'Dick', 'Harry']
-        capi = ConfigurationAPI(ConfigurationManager())
-        mock_list.return_value = printers
-
-        actual = capi.get_available_printers()
-
-        mock_list.assert_called_with()
-        self.assertEqual(printers, actual)
-
-    def test_current_printer_returns_none_when_no_printer_loaded(self):
-        capi = ConfigurationAPI(ConfigurationManager())
-
-        actual = capi.current_printer()
-
-        self.assertEqual(None, actual)
-
-    @patch.object(ConfigurationManager, 'save')
-    @patch.object(ConfigurationManager, 'new')
-    def test_current_printer_returns_printer_name(self, mock_new, mock_save):
+    @patch.object(ConfigurationManager, 'load')
+    def test_current_printer_returns_printer_name(self, mock_load):
         capi = ConfigurationAPI(ConfigurationManager())
         name = "Spam"
         config = self.default_config
         config.name = name
-        mock_new.return_value = config
-        capi.add_printer('Spam')
+        mock_load.return_value = config
 
+        capi.load_printer()
         actual = capi.current_printer()
 
         self.assertEqual('Spam', actual)
 
     @patch.object(ConfigurationManager, 'load')
     def test_load_printer_calls_load(self, mock_load):
-        printer_name = 'MegaPrint'
-        mock_load.return_value = {'name': printer_name}
+        mock_load.return_value = self.default_config
         capi = ConfigurationAPI(ConfigurationManager())
 
-        capi.load_printer(printer_name)
+        capi.load_printer()
 
-        mock_load.assert_called_with(printer_name)
+        mock_load.assert_called_with()
 
 
 if __name__ == '__main__':

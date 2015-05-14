@@ -740,25 +740,16 @@ class ConfigurationAPI(
         if self._current_config:
             return self._current_config.name
         else:
-            # logger.debug('Current config missing')
             return None
 
     '''Returns the current printer config in json'''
     def get_current_config(self):
         return self._current_config
 
-    '''Returns a list of available printers'''
-    def get_available_printers(self):
-        return self._configuration_manager.list()
-
-    '''Adds a printer by name with default settings'''
-    def add_printer(self, name):
-        self._current_config = self._configuration_manager.new(name)
-        self.save()
-
     '''Loads a previous configured printer by name'''
-    def load_printer(self, name):
-        self._current_config = self._configuration_manager.load(name)
+    def load_printer(self):
+        self._current_config = self._configuration_manager.load()
+        print(self._current_config.name)
         # logger.debug("Loaded config:\n%s" % self._current_config)
 
     '''Saves the currently selected config'''
