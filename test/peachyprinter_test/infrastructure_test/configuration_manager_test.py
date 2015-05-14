@@ -288,9 +288,9 @@ class CircutSourcedConfigurationManagerTests(unittest.TestCase, test_helpers.Tes
             actual = cscm.load()
 
             self.assertEquals(printer_name, actual.name)
-            self.assertEquals(actual.circut.software_revision, printer_name)
+            self.assertEquals(actual.circut.software_revision, software_rev)
             self.assertEquals(actual.circut.hardware_revision, hardware_rev)
-            self.assertEquals(actual.circut.serial_number, software_rev)
+            self.assertEquals(actual.circut.serial_number, printer_name)
             self.assertEquals(actual.circut.data_rate, data_rate)
 
 

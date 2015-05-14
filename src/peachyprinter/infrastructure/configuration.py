@@ -35,20 +35,20 @@ class CircutConfiguration(ConfigurationBase):
         self._hardware_revision = self.get(source, u'hardware_revision', "N/A")
         self._serial_number = self.get(source, u'serial_number', "N/A")
         self._data_rate = self.get(source, u'data_rate', 0)
-        
+
     @property
     def software_revision(self):
         return self._software_revision
 
     @software_revision.setter
-    def software_revision(self,value):
+    def software_revision(self, value):
         _type = types.StringType
         if type(value) == _type:
             self._software_revision = value
         else:
             raise ValueError("software_revision must be of type %s" % _type)
 
-    @property            
+    @property
     def hardware_revision(self):
         return self._hardware_revision
 
@@ -60,7 +60,7 @@ class CircutConfiguration(ConfigurationBase):
         else:
             raise ValueError("hardware_revision must be of type %s" % _type)
 
-    @property                
+    @property
     def serial_number(self):
         return self._serial_number
 
