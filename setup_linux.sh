@@ -15,7 +15,6 @@ while getopts "ch?:" opt; do
     esac
 done
 
-
 if [[ "$VIRTUAL_ENV" != "" ]]; then
     echo "Deactivitate the existing virtual enviroment before running this script."
     echo "This can be done with the \"deactivate\" command."

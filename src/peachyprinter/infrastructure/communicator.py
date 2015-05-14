@@ -15,8 +15,10 @@ class Communicator(object):
     def register_handler(self, message_type, handler):
         raise NotImplementedError()
 
+
 class MissingPrinterException(Exception):
     pass
+
 
 class UsbPacketCommunicator(Communicator, threading.Thread):
     def __init__(self):
@@ -52,6 +54,9 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
             except (libusb1.USBError,), e:
                 if e.value == -7:  # timeout
                     continue
+                if e.value == -1 or e.value == -4:
+                    logger.info("Printer missing or detached")
+                    raise MissingPrinterException(e)
                 raise
             if not data:
                 continue
@@ -70,9 +75,13 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
     def send(self, message):
         if not self._keepRunning:
             return
-
-        data = chr(message.TYPE_ID) + message.get_bytes()
-        self._devHandle.bulkWrite(2, data, timeout=1000)
+        try:
+            data = chr(message.TYPE_ID) + message.get_bytes()
+            self._devHandle.bulkWrite(2, data, timeout=1000)
+        except (libusb1.USBError,), e:
+            if e.value == -1 or e.value == -4:
+                logger.info("Printer missing or detached")
+                raise MissingPrinterException(e)
 
     def register_handler(self, message_type, handler):
         if not issubclass(message_type, ProtoBuffableMessage):
@@ -82,6 +91,7 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
             self._handlers[message_type].append(handler)
         else:
             self._handlers[message_type] = [handler]
+
 
 class NullCommunicator(Communicator):
     def send(self, message):

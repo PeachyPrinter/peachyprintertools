@@ -65,10 +65,12 @@ class DripperSetupMixIn(object):
         self._current_config.dripper.drips_per_mm = drips
         if self._drip_detector:
             self._drip_detector.set_drips_per_mm(drips)
+        self.save()
 
     '''Sets the configured Dripper Type'''
     def set_dripper_type(self, value):
         self._current_config.dripper.dripper_type = value
+        self.save()
 
     '''Depricated use set_dripper_emulated_drips_per_second'''
     def set_emulated_drips_per_second(self, value):
@@ -78,6 +80,7 @@ class DripperSetupMixIn(object):
     '''Sets the drips per second to be emulated'''
     def set_dripper_emulated_drips_per_second(self, value):
         self._current_config.dripper.emulated_drips_per_second = value
+        self.save()
 
     '''Depricated use set_dripper_photo_zaxis_delay'''
     def set_photo_zaxis_delay(self, value):
@@ -87,7 +90,7 @@ class DripperSetupMixIn(object):
     '''Sets the photo delay in seconds'''
     def set_dripper_photo_zaxis_delay(self, value):
         self._current_config.dripper.photo_zaxis_delay = value
-
+        self.save()
 
     '''Sets the drip count back to 0'''
     def reset_drips(self):
@@ -246,7 +249,7 @@ class CureTestSetupMixIn(object):
     '''Sets the draw_speed for Cure Rate test.'''
     def set_cure_rate_override_laser_power_amount(self, override_laser_power_amount):
         if override_laser_power_amount >= 0.1568:
-            raise Exception("You just blew up your laser")
+            raise Exception("Laser Power is too high")
 
         if (self._positive_percentage(float(override_laser_power_amount))):
             self._current_config.cure_rate.override_laser_power_amount = override_laser_power_amount
