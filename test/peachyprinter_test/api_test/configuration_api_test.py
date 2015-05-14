@@ -1137,6 +1137,5 @@ class ConfigurationAPITest(
         mock_load.assert_called_with(printer_name)
 
 
-
 if __name__ == '__main__':
     unittest.main()

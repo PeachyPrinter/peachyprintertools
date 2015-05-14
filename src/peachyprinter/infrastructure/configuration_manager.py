@@ -25,7 +25,13 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
             raise Exception("Printer Configurtations Cannot be loaded manually Do not specify a printer")
         details = self._get_printer_details()
         configuration = self._load_or_create_configuration(details.sn)
+        print(configuration.toJson())
+        configuration.circut.serial_number = details.sn
+        configuration.circut.hardware_rev = details.hwrev
+        configuration.circut.software_rev = details.swrev
+        configuration.circut.data_rate = details.dataRate
         self.save(configuration)
+        print(configuration.toJson())
         return configuration
 
     def _load_or_create_configuration(self, serial_number):
