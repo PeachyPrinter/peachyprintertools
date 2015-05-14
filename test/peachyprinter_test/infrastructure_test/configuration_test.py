@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 from peachyprinter.infrastructure.configuration import *
-from peachyprinter.infrastructure.configuration import FileBasedConfigurationManager as ConfigurationManager
+from peachyprinter.infrastructure.configuration import FileBasedConfigurationManager, CircutSourcedConfigurationManager
 
 import test_helpers
 
@@ -586,10 +586,10 @@ class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_print_ended, config.serial.print_ended)
 
 
-class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
+class FileBasedConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     maxDiff = None
     def test_new_creates_a_new_configution_dict_with_sane_values(self):
-        cm = ConfigurationManager()
+        cm = FileBasedConfigurationManager()
 
         actual =  cm.new('Peachy Printer')
         expected = self.default_config
@@ -603,7 +603,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools', printer_name + '.cfg')
         mocked_open = mock_open(read_data=self.default_config.toJson())
         with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
             data = cm.new(printer_name)
             expected_data = data.toJson()
             cm.save(data)
@@ -619,7 +619,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         expected_path =  expected_path = os.path.join(os.path.expanduser('~'), '.peachyprintertools')
         with patch('peachyprinter.infrastructure.configuration.open', create=True) as mock_open:
             mock_open.return_value = MagicMock(spec=file)
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
             data = cm.new('Test1')
 
             cm.save(data)
@@ -630,7 +630,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
     def test_list_should_return_empty_list_when_folder_doesnt_exist(self, mock_exists):
         mock_exists.return_value = False
         with patch('peachyprinter.infrastructure.configuration.open', create=True) as mock_open:
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
             self.assertEquals([] , cm.list())
 
     @patch.object(os.path, 'exists')
@@ -639,7 +639,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         mock_exists.return_value = True
         mock_listdir.return_value = []
         with patch('peachyprinter.infrastructure.configuration.open', create=True) as mock_open:
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
             self.assertEquals([] , cm.list())
 
     @patch.object(os.path, 'exists')
@@ -650,7 +650,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         expected = [ self.default_config.name ]
         mocked_open = mock_open(read_data=self.default_config.toJson())
         with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
 
             actual = cm.list()
 
@@ -664,7 +664,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         expected = [ ]
         mocked_open = mock_open(read_data=self.default_config.toJson())
         with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
             actual = cm.list()
             self.assertEquals(expected, actual)
 
@@ -675,7 +675,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         mock_exists.return_value = False
         mocked_open = mock_open()
         with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
             with self.assertRaises(Exception):
                 cm.load(u"Not There")
 
@@ -685,7 +685,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         with patch('peachyprinter.infrastructure.configuration.open', create=True) as mock_open:
             manager = mock_open.return_value.__enter__.return_value
             manager.read.return_value = StringIO("ASDFASDFASD")
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
 
             with self.assertRaises(Exception):
                 cm.load(u"Some Printer")
@@ -698,7 +698,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         mocked_open = mock_open(read_data=self.default_config.toJson())
         
         with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
             actual = cm.load('Some Printer')
             self.assertConfigurationEqual(expected, actual)
 
@@ -754,7 +754,7 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         mocked_open = mock_open(read_data=missing)
         
         with patch('peachyprinter.infrastructure.configuration.open', mocked_open, create=True):
-            cm = ConfigurationManager()
+            cm = FileBasedConfigurationManager()
             actual = cm.load('Some Printer')
             self.assertConfigurationEqual(expected, actual)
 
@@ -762,11 +762,23 @@ class ConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelpers):
         name = "Apple"
         expected = self.default_config
         expected.name = name
-        cm = ConfigurationManager()
+        cm = FileBasedConfigurationManager()
         
         actual = cm.new(name)
 
         self.assertConfigurationEqual(expected,actual)
+
+
+class CircutSourcedConfigurationManagerTests(unittest.TestCase):
+    def test_new_should_raise_exception(self):
+        cscm = CircutSourcedConfigurationManager()
+        with self.assertRaises(Exception):
+            cscm.new("Phish")
+
+    def test_load_requires_None_for_printer_name(self):
+        cscm = CircutSourcedConfigurationManager()
+        with self.assertRaises(Exception):
+            cscm.load("Phish")
 
 
 if __name__ == '__main__':

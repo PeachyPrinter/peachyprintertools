@@ -1059,3 +1059,16 @@ class FileBasedConfigurationManager(ConfigurationManager):
         filename = safe_name + self.CONFIGURATION_EXTENSION
         return os.path.join(self._path(), filename)
 
+
+class CircutSourcedConfigurationManager(FileBasedConfigurationManager):
+    def __init__(self):
+        pass
+
+    def load(self, printer_name=None):
+        if printer_name is not None:
+            raise Exception("Printer Configurtations Cannot be loaded manually Do not specify a printer")
+        pass
+
+    def new(self, printer_name):
+        raise Exception("Printer Configurtations Cannot be created manually")
+

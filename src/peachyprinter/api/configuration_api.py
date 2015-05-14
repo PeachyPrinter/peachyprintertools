@@ -661,7 +661,7 @@ class SerialSetupMixin(object):
         return self._current_config.serial.print_ended
 
     def set_serial_enabled(self, enabled):
-        logger.info("Setting changed: serial_enabled -> %s" % enabled)
+        logger.info("CFG Setting changed: serial_enabled -> %s" % enabled)
         self._current_config.serial.on = enabled
         self.save()
 
