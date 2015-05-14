@@ -50,14 +50,13 @@ class CalibrationAPI(object):
         self._state = MachineState()
         self._status = MachineStatus()
 
-        if self._configuration.circut.circut_type == 'Digital':
-            self._communicator = UsbPacketCommunicator()
-            self._communicator.start()
-            self._disseminator = MicroDisseminator(
-                self._laser_control,
-                self._communicator,
-                self._configuration.micro_com.rate
-                )
+        self._communicator = UsbPacketCommunicator()
+        self._communicator.start()
+        self._disseminator = MicroDisseminator(
+            self._laser_control,
+            self._communicator,
+            self._configuration.circut.data_rate
+            )
 
         self._path_to_points = PathToPoints(
             self._disseminator.samples_per_second,

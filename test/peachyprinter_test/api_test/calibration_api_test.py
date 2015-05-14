@@ -97,7 +97,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_MicroDisseminator.assert_called_with(
             self.mock_laser_control,
             self.mock_usb_packet_communicator,
-            self.default_config.micro_com.rate
+            self.default_config.circut.data_rate
             )
 
         self.mock_UsbPacketCommunicator.assert_called()

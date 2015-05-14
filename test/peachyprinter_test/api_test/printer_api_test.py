@@ -255,7 +255,6 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.post_fire_delay = 5
         config.options.slew_delay = 5
         config.options.wait_after_move_milliseconds = 5
-        config.circut.circut_type = 'Digital'
         config.dripper.dripper_type = 'microcontroller'
         api = PrintAPI(config)
 
@@ -278,7 +277,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_MicroDisseminator.assert_called_with(
             self.mock_laser_control,
             self.mock_usb_packet_communicator,
-            config.micro_com.rate
+            config.circut.data_rate
             )
 
         self.assertEquals(0, self.mock_usb_packet_communicator.call_count)

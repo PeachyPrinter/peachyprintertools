@@ -141,7 +141,7 @@ class PrintAPI(object):
             return MicroDisseminator(
                 self.laser_control,
                 self._get_communicator(dry_run),
-                self._configuration.micro_com.rate
+                self._configuration.circut.data_rate
                 )
 
     def print_layers(self, layer_generator, print_sub_layers=True, dry_run=False):
@@ -180,8 +180,7 @@ class PrintAPI(object):
 
         self._zaxis = self._get_zaxis(dry_run)
 
-        if self._configuration.circut.circut_type == 'Digital':
-            disseminator = self._get_digital_disseminator(dry_run)
+        disseminator = self._get_digital_disseminator(dry_run)
 
         path_to_points = PathToPoints(
             disseminator.samples_per_second,

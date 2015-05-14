@@ -53,7 +53,7 @@ class CircutConfiguration(ConfigurationBase):
         return self._hardware_revision
 
     @hardware_revision.setter
-    def hardware_revision(self,value):
+    def hardware_revision(self, value):
         _type = types.StringType
         if type(value) == _type:
             self._hardware_revision = value
@@ -65,7 +65,7 @@ class CircutConfiguration(ConfigurationBase):
         return self._serial_number
 
     @serial_number.setter
-    def serial_number(self,value):
+    def serial_number(self, value):
         _type = types.StringType
         if type(value) == _type:
             self._serial_number = value
@@ -83,75 +83,6 @@ class CircutConfiguration(ConfigurationBase):
             self._data_rate = value
         else:
             raise ValueError("data_rate must be of type %s" % _type)
-
-
-class MicroComConfiguration(ConfigurationBase):
-    def __init__(self, source = {}):
-        self._port   = self.get(source, u'port',  '/dev/ttyACM0')
-        self._rate   = self.get(source, u'rate', 2000)
-        self._header = self.get(source, u'header', "@")
-        self._footer = self.get(source, u'footer', "A")
-        self._escape = self.get(source, u'escape', 'B')
-
-    @property
-    def port(self):
-        return self._port
-
-    @port.setter
-    def port(self, value):
-        _type = types.StringType
-        if type(value) == _type:
-            self._port = value
-        else:
-            raise ValueError("Port must be of %s was %s" % (_type, type(value)))
-    
-    @property
-    def rate(self):
-        return self._rate
-
-    @rate.setter
-    def rate(self, value):
-        _type = types.IntType
-        if type(value) == _type:
-            self._rate = value
-        else:
-            raise ValueError("Rate must be of %s was %s" % (_type, type(value)))
-    
-    @property
-    def header(self):
-        return self._header
-
-    @header.setter
-    def header(self, value):
-        _type = types.StringType
-        if type(value) == _type:
-            self._header = value
-        else:
-            raise ValueError("Header must be of %s was %s" % (_type, type(value)))
-    
-    @property
-    def footer(self):
-        return self._footer
-
-    @footer.setter
-    def footer(self, value):
-        _type = types.StringType
-        if type(value) == _type:
-            self._footer = value
-        else:
-            raise ValueError("Footer must be of %s was %s" % (_type, type(value)))
-
-    @property
-    def escape(self):
-        return self._escape
-
-    @escape.setter
-    def escape(self, value):
-        _type = types.StringType
-        if type(value) == _type:
-            self._escape = value
-        else:
-            raise ValueError("Escape must be of %s was %s" % (_type, type(value)))
 
 
 class CureRateConfiguration(ConfigurationBase):
@@ -916,7 +847,6 @@ class Configuration(ConfigurationBase):
         self._options = OptionsConfiguration(source=source.get(u'options', {}))
         self._email = EmailConfiguration(source=source.get(u'email', {}))
         self._cure_rate = CureRateConfiguration(source=source.get(u'cure_rate', {}))
-        self._micro_com = MicroComConfiguration(source=source.get(u'micro_com', {}))
         self._circut = CircutConfiguration(source=source.get(u'circut', {}))
 
     def toJson(self):
@@ -948,16 +878,13 @@ class Configuration(ConfigurationBase):
         return self._cure_rate
 
     @property
-    def micro_com(self):
-        return self._micro_com
-
-    @property
     def circut(self):
         return self._circut
 
     @property
     def name(self):
         return self._name
+
     @name.setter
     def name(self, value):
         _type = types.StringType
@@ -971,7 +898,7 @@ class Configuration(ConfigurationBase):
 class ConfigurationGenerator(object):
     def default_configuration(self):
         configuration = Configuration()
-        
+
         configuration.name                                 = "Peachy Printer"
 
         configuration.options.sublayer_height_mm           = 0.01
@@ -1016,12 +943,6 @@ class ConfigurationGenerator(object):
         configuration.cure_rate.draw_speed                 = 100.0
         configuration.cure_rate.move_speed                 = 300.0
         configuration.cure_rate.use_draw_speed             = True
-
-        configuration.micro_com.port                       = '/dev/ttyACM0'
-        configuration.micro_com.rate                       = 8000
-        configuration.micro_com.header                     = '@'
-        configuration.micro_com.footer                     = 'A'
-        configuration.micro_com.escape                     = 'B'
 
         configuration.circut.software_revision             = 'sw1'
         configuration.circut.hardware_revision             = 'hw1'

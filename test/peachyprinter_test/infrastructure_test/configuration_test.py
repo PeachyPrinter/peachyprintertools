@@ -120,61 +120,6 @@ class CircutConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_serial_number,           config.circut.serial_number)
         self.assertEquals(expected_data_rate,               config.circut.data_rate)
 
-
-class MicroComTests(unittest.TestCase, test_helpers.TestHelpers):
-    def test_set_should_fail_for_incorrect_values(self):
-        expected_port = True
-        expected_rate = True
-        expected_header = True
-        expected_footer = True
-        expected_escape = True
-        
-        micro_com = MicroComConfiguration()
-
-        with self.assertRaises(Exception):
-            micro_com.port = expected_port
-        with self.assertRaises(Exception):
-            micro_com.rate = expected_rate
-        with self.assertRaises(Exception):
-            micro_com.header = expected_header
-        with self.assertRaises(Exception):
-            micro_com.footer = expected_footer
-        with self.assertRaises(Exception):
-            micro_com.escape = expected_escape
-
-    def test_can_create_json_and_load_from_json(self):
-
-        expected_port = '/dev/ttyACM0'
-        expected_rate = 2000
-        expected_header = '@'
-        expected_footer = 'A'
-        expected_escape = 'B'
-
-        original_config = Configuration()
-
-        original_config.micro_com.port      = expected_port
-        original_config.micro_com.rate      = expected_rate
-        original_config.micro_com.header    = expected_header
-        original_config.micro_com.footer    = expected_footer
-        original_config.micro_com.escape    = expected_escape
-
-
-        actual_json = json.loads(original_config.toJson())
-        config = Configuration(source=actual_json)
-
-        self.assertEquals(type(expected_port),    type(config.micro_com.port))
-        self.assertEquals(type(expected_rate),    type(config.micro_com.rate))
-        self.assertEquals(type(expected_header),  type(config.micro_com.header))
-        self.assertEquals(type(expected_footer),  type(config.micro_com.footer))
-        self.assertEquals(type(expected_escape),  type(config.micro_com.escape))
-
-        self.assertEquals(expected_port,      config.micro_com.port)
-        self.assertEquals(expected_rate,      config.micro_com.rate)
-        self.assertEquals(expected_header,    config.micro_com.header)
-        self.assertEquals(expected_footer,    config.micro_com.footer)
-        self.assertEquals(expected_escape,    config.micro_com.escape)
-
-
 class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
         expected_base_height = True
