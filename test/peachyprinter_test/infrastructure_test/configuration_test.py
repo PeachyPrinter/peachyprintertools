@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 from peachyprinter.infrastructure.configuration import *
-from peachyprinter.infrastructure.configuration import FileBasedConfigurationManager, CircutSourcedConfigurationManager
+from peachyprinter.infrastructure.configuration import FileBasedConfigurationManager
 
 import test_helpers
 
@@ -767,18 +767,6 @@ class FileBasedConfigurationManagerTests(unittest.TestCase,test_helpers.TestHelp
         actual = cm.new(name)
 
         self.assertConfigurationEqual(expected,actual)
-
-
-class CircutSourcedConfigurationManagerTests(unittest.TestCase):
-    def test_new_should_raise_exception(self):
-        cscm = CircutSourcedConfigurationManager()
-        with self.assertRaises(Exception):
-            cscm.new("Phish")
-
-    def test_load_requires_None_for_printer_name(self):
-        cscm = CircutSourcedConfigurationManager()
-        with self.assertRaises(Exception):
-            cscm.load("Phish")
 
 
 if __name__ == '__main__':

@@ -6,7 +6,8 @@ logger = logging.getLogger('peachy')
 import re
 from peachyprinter.domain.configuration_manager import ConfigurationManager
 import peachyprinter.config as config
-
+from peachyprinter.infrastructure.communicator import UsbPacketCommunicator
+from peachyprinter.infrastructure.messages import IAmMessage
 
 class ConfigurationBase(object):
     def get(self, source, key, default=None):
@@ -1058,17 +1059,4 @@ class FileBasedConfigurationManager(ConfigurationManager):
         safe_name = ''.join(l for l in name if l.isalnum())
         filename = safe_name + self.CONFIGURATION_EXTENSION
         return os.path.join(self._path(), filename)
-
-
-class CircutSourcedConfigurationManager(FileBasedConfigurationManager):
-    def __init__(self):
-        pass
-
-    def load(self, printer_name=None):
-        if printer_name is not None:
-            raise Exception("Printer Configurtations Cannot be loaded manually Do not specify a printer")
-        pass
-
-    def new(self, printer_name):
-        raise Exception("Printer Configurtations Cannot be created manually")
 
