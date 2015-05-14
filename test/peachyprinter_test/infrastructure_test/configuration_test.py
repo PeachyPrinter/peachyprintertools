@@ -77,48 +77,30 @@ class CalibrationConfigurationTests(unittest.TestCase, test_helpers.TestHelpers)
 
 class CircutConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):
-        expected_software_revision = True
-        expected_hardware_revision = True
-        expected_serial_number = True
-        expected_data_rate = True
+        expected_circut_type = True
+        expected_version = True
 
         circut = CircutConfiguration()
 
         with self.assertRaises(Exception):
-            circut.software_revision = expected_software_revision
+            circut.circut_type = expected_circut_type
         with self.assertRaises(Exception):
-            circut.hardware_revision = expected_hardware_revision
-        with self.assertRaises(Exception):
-            circut.serial_number = expected_serial_number
-        with self.assertRaises(Exception):
-            circut.data_rate = expected_data_rate
-
-
+            circut.version = expected_version
 
     def test_can_create_json_and_load_from_json(self):
-        expected_software_revision = "SR1"
-        expected_hardware_revision = "HW1"
-        expected_serial_number ="SN1"
-        expected_data_rate= 9600
-
+        expected_circut_type = 'Digital'
+        expected_version = 'unknown'
         original_config = Configuration()
-
-        original_config.circut.software_revision = expected_software_revision
-        original_config.circut.hardware_revision = expected_hardware_revision
-        original_config.circut.serial_number = expected_serial_number
-        original_config.circut.data_rate = expected_data_rate
+        original_config.circut.circut_type = expected_circut_type
+        original_config.circut.version = expected_version
 
         actual_json = json.loads(original_config.toJson())
         config = Configuration(source=actual_json)
 
-        self.assertEquals(type(expected_software_revision), type(config.circut.software_revision))
-        self.assertEquals(type(expected_hardware_revision), type(config.circut.hardware_revision))
-        self.assertEquals(type(expected_serial_number),     type(config.circut.serial_number))
-        self.assertEquals(type(expected_data_rate),         type(config.circut.data_rate))
-        self.assertEquals(expected_software_revision,       config.circut.software_revision)
-        self.assertEquals(expected_hardware_revision,       config.circut.hardware_revision)
-        self.assertEquals(expected_serial_number,           config.circut.serial_number)
-        self.assertEquals(expected_data_rate,               config.circut.data_rate)
+        self.assertEquals(type(expected_circut_type),    type(config.circut.circut_type))
+        self.assertEquals(type(expected_version),    type(config.circut.version))
+        self.assertEquals(expected_circut_type,      config.circut.circut_type)
+        self.assertEquals(expected_version,      config.circut.version)
 
 
 class MicroComTests(unittest.TestCase, test_helpers.TestHelpers):
