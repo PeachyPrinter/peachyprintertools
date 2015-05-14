@@ -12,6 +12,7 @@ from peachyprinter.infrastructure.communicator import UsbPacketCommunicator, Mis
 from peachyprinter.infrastructure.messages import IAmMessage, IdentifyMessage
 from peachyprinter.infrastructure.configuration import ConfigurationGenerator, Configuration
 
+
 class CircutSourcedConfigurationManager(ConfigurationManager):
     CONFIGURATION_EXTENSION = '.cfg'
 
@@ -65,10 +66,10 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
         safe_name = ''.join(l for l in name if l.isalnum())
         filename = safe_name + self.CONFIGURATION_EXTENSION
         return os.path.join(self._path(), filename)
-    
+
     def _get_printer_details(self):
         communicator = UsbPacketCommunicator()
-        communicator.register_handler(IAmMessage,self._ident_call_back)
+        communicator.register_handler(IAmMessage, self._ident_call_back)
         communicator.start()
         communicator.send(IdentifyMessage())
         until = time.time() + 5.0
