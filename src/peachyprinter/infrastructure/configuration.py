@@ -31,32 +31,58 @@ class ConfigurationBase(object):
 
 class CircutConfiguration(ConfigurationBase):
     def __init__(self, source={}):
-        self._circut_type   = self.get(source, u'circut_type', 'Digital')
-        self._version = self.get(source, u'version', 'unknown')
-
+        self._software_revision = self.get(source, u'software_revision', "N/A")
+        self._hardware_revision = self.get(source, u'hardware_revision', "N/A")
+        self._serial_number = self.get(source, u'serial_number', "N/A")
+        self._data_rate = self.get(source, u'data_rate', 0)
+        
     @property
-    def circut_type(self):
-        return self._circut_type
+    def software_revision(self):
+        return self._software_revision
 
-    @circut_type.setter
-    def circut_type(self, value):
+    @software_revision.setter
+    def software_revision(self,value):
         _type = types.StringType
         if type(value) == _type:
-            self._circut_type = value
+            self._software_revision = value
         else:
-            raise ValueError("Circut Type must be of %s was %s" % (_type, type(value)))
+            raise ValueError("software_revision must be of type %s" % _type)
 
-    @property
-    def version(self):
-        return self._version
+    @property            
+    def hardware_revision(self):
+        return self._hardware_revision
 
-    @version.setter
-    def version(self, value):
+    @hardware_revision.setter
+    def hardware_revision(self,value):
         _type = types.StringType
         if type(value) == _type:
-            self._version = value
+            self._hardware_revision = value
         else:
-            raise ValueError("Version must be of %s was %s" % (_type, type(value)))
+            raise ValueError("hardware_revision must be of type %s" % _type)
+
+    @property                
+    def serial_number(self):
+        return self._serial_number
+
+    @serial_number.setter
+    def serial_number(self,value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._serial_number = value
+        else:
+            raise ValueError("serial_number must be of type %s" % _type)
+
+    @property
+    def data_rate(self):
+        return self._data_rate
+
+    @data_rate.setter
+    def data_rate(self,value):
+        _type = types.IntType
+        if type(value) == _type:
+            self._data_rate = value
+        else:
+            raise ValueError("data_rate must be of type %s" % _type)
 
 
 class MicroComConfiguration(ConfigurationBase):
@@ -996,8 +1022,11 @@ class ConfigurationGenerator(object):
         configuration.micro_com.header                     = '@'
         configuration.micro_com.footer                     = 'A'
         configuration.micro_com.escape                     = 'B'
-        configuration.circut.circut_type                   = 'Digital'
-        configuration.circut.version                       = 'unknown'
+
+        configuration.circut.software_revision             = 'sw1'
+        configuration.circut.hardware_revision             = 'hw1'
+        configuration.circut.serial_number                 = 'sn1'
+        configuration.circut.data_rate                     = 0
 
         return configuration
 
