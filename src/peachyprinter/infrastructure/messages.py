@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger('peachy')
 try:
-    from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount
+    from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount, IAm
 except Exception as ex:
     logger.error(
         "\033[91m Cannot import protobuf classes, Have you compiled your protobuf files?\033[0m")
@@ -211,8 +211,34 @@ class IAmMessage(ProtoBuffableMessage):
     def dataRate(self):
         return self._dataRate
 
+    def get_bytes(self):
+        encoded = IAm()
+        encoded.swrev = self._swrev
+        encoded.hwrev = self._hwrev
+        encoded.sn = self._sn
+        encoded.dataRate = self._dataRate
+        if encoded.IsInitialized():
+            return encoded.SerializeToString()
+        else:
+            logger.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+            raise Exception("Protobuf Message encoding incomplete")
+
     @classmethod
     def from_bytes(cls, proto_bytes):
         decoded = IAm()
         decoded.ParseFromString(proto_bytes)
         return cls(decoded.swrev, decoded.hwrev, decoded.sn, decoded.dataRate)
+
+    def __eq__(self, other):
+        if (self.__class__ == other.__class__ and
+            self._swrev == other._swrev and
+            self._hwrev == other._hwrev and
+            self._sn == other._sn and
+            self._dataRate == other._dataRate
+            ):
+            return True
+        else:
+            return False
+
+    def __repr__(self):
+        return "Serial Number: {}\n Sofware Revision: {}\nHardware Revision: {}\nData Rate: {}".format(self._sn, self._swrev, self._hwrev, self._drips)
