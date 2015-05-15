@@ -227,7 +227,7 @@ class IAmMessage(ProtoBuffableMessage):
     def from_bytes(cls, proto_bytes):
         decoded = IAm()
         decoded.ParseFromString(proto_bytes)
-        return cls(decoded.swrev, decoded.hwrev, decoded.sn, decoded.dataRate)
+        return cls(str(decoded.swrev), str(decoded.hwrev), str(decoded.sn), decoded.dataRate)
 
     def __eq__(self, other):
         if (self.__class__ == other.__class__ and

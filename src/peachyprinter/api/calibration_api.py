@@ -15,11 +15,10 @@ logger = logging.getLogger('peachy')
 '''The calibration API proivides the tools required to setup a Peacy Printer'''
 
 class CalibrationAPI(object):
-    def __init__(self, configuration_manager, printer):
+    def __init__(self, configuration_manager):
         logger.info("Calibartion API Startup")
         self._configuration_manager = configuration_manager
-        self._printer = printer
-        self._configuration = self._configuration_manager.load(self._printer)
+        self._configuration = self._configuration_manager.load()
 
         self._point_generator = SinglePointGenerator()
         self._blink_generator = BlinkGenerator()

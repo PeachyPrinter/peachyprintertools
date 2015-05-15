@@ -75,7 +75,7 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
         until = time.time() + 5.0
         while (not self.printer_details and time.time() < until):
             time.sleep(0.1)
-        communicator.stop()
+        communicator.close()
         details = self.printer_details
         self.printer_details = None
         return details

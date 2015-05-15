@@ -13,13 +13,16 @@ class InfoMixIn(object):
         return "TBD"
 
     def get_info_serial_number(self):
-        return "TBD"
+        return self._current_config.circut.software_revision
 
     def get_info_hardware_version_number(self):
-        return "TBD"
+        return self._current_config.circut.hardware_revision
 
     def get_info_firmware_version_number(self):
-        return "TBD"
+        return self._current_config.circut.serial_number
+
+    def get_info_firmware_data_rate(self):
+        return self._current_config.circut.data_rate
 
 
 class DripperSetupMixIn(object):

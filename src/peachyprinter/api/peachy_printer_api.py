@@ -24,7 +24,7 @@ class PrinterAPI(object):
         return PrintQueueAPI(self._configuration_api.get_current_config(), status_call_back=status_call_back)
 
     def get_calibration_api(self, ):
-        return CalibrationAPI(self._configuration_manager, self._configuration_api.current_printer())
+        return CalibrationAPI(self._configuration_manager)
 
     def get_configuration_api(self):
         return self._configuration_api

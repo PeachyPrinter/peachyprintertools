@@ -54,7 +54,7 @@ class CircutSourcedConfigurationManagerTests(unittest.TestCase, test_helpers.Tes
             self.assertEquals(mocked_open.call_args_list[0][0][0], expected_path)
             mock_communicator.start.assert_called_with()
             mock_communicator.register_handler.assert_called_with(IAmMessage,cscm._ident_call_back)
-            mock_communicator.stop.assert_called_with()
+            mock_communicator.close.assert_called_with()
             
     @patch.object(os.path, 'exists')
     @patch.object(os.path, 'isfile')

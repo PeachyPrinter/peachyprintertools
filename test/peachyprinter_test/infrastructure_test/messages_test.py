@@ -54,6 +54,10 @@ class IAmMesssageTests(unittest.TestCase):
         proto_bytes = inital_message.get_bytes()
         self.assertTrue(len(proto_bytes) > 0)
         decoded_message = IAmMessage.from_bytes(proto_bytes)
+        self.assertEqual(type("a"), type(decoded_message.sn))
+        self.assertEqual(type("a"), type(decoded_message.hwrev))
+        self.assertEqual(type("a"), type(decoded_message.swrev))
+        self.assertEqual(type(9600), type(decoded_message.dataRate))
         self.assertEqual(inital_message, decoded_message)
 
 
