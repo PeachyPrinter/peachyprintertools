@@ -87,7 +87,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.options.slew_delay = 5
         config.options.wait_after_move_milliseconds = 5
         self.mock_configuration_manager.load.return_value = config
-        CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        CalibrationAPI(self.mock_configuration_manager)
 
         self.mock_SinglePointGenerator.assert_called_with()
 
@@ -126,7 +126,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def test_stop_should_call_stop_on_controller(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.close()
 
@@ -136,14 +136,14 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        CalibrationAPI(self.mock_configuration_manager)
 
-        self.mock_configuration_manager.load.assert_called_with('Spam')
+        self.mock_configuration_manager.load.assert_called_with()
 
     def test_show_point_should_set_coordanates_on_Single_Point_Generator(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
         x, y, z = 1.0, 0.2, 1.0
 
         calibration_api.show_point([x, y, z])
@@ -154,7 +154,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
         x, y, z = 1.0, 0.2, 1.0
 
         calibration_api.show_line()
@@ -166,7 +166,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
         x, y, z = 1.0, 0.2, 1.0
 
         calibration_api.show_line()
@@ -178,7 +178,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.set_laser_off_override(True)
         self.assertTrue(self.mock_controller.laser_off_override)
@@ -190,7 +190,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.show_line()
 
@@ -200,7 +200,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.show_orientation()
 
@@ -209,7 +209,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def test_get_patterns_should_return_available_test_patterns(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         patterns = calibration_api.get_test_patterns()
 
@@ -218,7 +218,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def test_change_pattern_should_raise_exception_when_test_patterns_unavailable(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         with self.assertRaises(Exception):
             calibration_api.show_test_pattern("Shrubberies")
@@ -228,7 +228,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
         calibration_api.show_test_pattern("Hilbert Space Filling Curve")
         self.mock_controller.change_generator.assert_called_with(self.mock_hilbert_generator)
 
@@ -236,7 +236,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
         expected_config = self.default_config
         self.mock_configuration_manager.load.return_value = expected_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         self.assertEqual(calibration_api.current_calibration(), expected_config.calibration)
 
@@ -257,7 +257,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         expected_config.calibration.lower_points = expected_lower
         expected_config.calibration.upper_points = expected_upper
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.set_lower_points(expected_lower)
         calibration_api.set_upper_points(expected_upper)
@@ -283,7 +283,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.mock_configuration_manager.load.return_value = config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         lower_points_result = calibration_api.get_lower_points()
         upper_points_result = calibration_api.get_upper_points()
@@ -298,7 +298,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def test_show_test_pattern_should_apply_calibration_should_replace_controllers_transformer(self, mock_HomogenousTransformer, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.show_test_pattern('Hilbert Space Filling Curve')
 
@@ -314,7 +314,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def test_show_line_should_replace_controllers_transformer(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.show_test_pattern('Hilbert Space Filling Curve')
         calibration_api.show_line()
@@ -325,7 +325,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def test_show_point_should_replace_controllers_transformer(self, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.show_test_pattern('Hilbert Space Filling Curve')
         calibration_api.show_point()
@@ -344,7 +344,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
                 }
         self.mock_configuration_manager.load.return_value = config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         actual = calibration_api.get_largest_object_radius()
         self.assertEquals(expected, actual)
@@ -356,7 +356,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.calibration.max_deflection = expected
         self.mock_configuration_manager.load.return_value = config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         actual = calibration_api.get_max_deflection()
         self.assertEquals(expected, actual)
@@ -369,7 +369,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         expected_config.calibration.max_deflection = expected
         config.calibration.max_deflection = 0.11
         self.mock_configuration_manager.load.return_value = config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.set_max_deflection(expected)
 
@@ -380,7 +380,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
     def test_show_scale_should_use_Square_Generator_and_Tuning_Transformer(self, mock_SquareGenerator, *args):
         self.setup_mocks(args)
         self.mock_configuration_manager.load.return_value = self.default_config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.show_scale()
 
@@ -392,7 +392,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.mock_configuration_manager.load.return_value = self.default_config
 
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
         calibration_api.set_test_pattern_speed(150.0)
 
         self.mock_hilbert_generator.set_speed.assert_called_with(150.0)
@@ -405,7 +405,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.setup_mocks(args)
 
         self.mock_configuration_manager.load.return_value = self.default_config
-        CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        CalibrationAPI(self.mock_configuration_manager)
 
         self.mock_hilbert_generator.set_radius.assert_called_with(40.0)
         self.mock_square_generator.set_radius.assert_called_with(40.0)
@@ -430,7 +430,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         expected_config.calibration.swap_axis = True
 
         self.mock_configuration_manager.load.return_value = config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.set_orientation(expected_flip_x_axis, expected_flip_y_axis, expected_swap_axis)
 
@@ -445,7 +445,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.calibration.swap_axis = True
 
         self.mock_configuration_manager.load.return_value = config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         result = calibration_api.get_orientation()
 
@@ -469,7 +469,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         expected_config.calibration.print_area_z = 20.0
 
         self.mock_configuration_manager.load.return_value = config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         calibration_api.set_print_area(expected_print_area_x, expected_print_area_y, expected_print_area_z)
 
@@ -484,7 +484,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         config.calibration.print_area_z = 20.0
 
         self.mock_configuration_manager.load.return_value = config
-        calibration_api = CalibrationAPI(self.mock_configuration_manager, 'Spam')
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
 
         result = calibration_api.get_print_area()
 
