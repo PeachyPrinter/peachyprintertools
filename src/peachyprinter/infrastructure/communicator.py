@@ -29,6 +29,8 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
         self._devHandle = None
         self._keepRunning = False
         self._isRunning = False
+        self.sent_bytes = 0
+        self.last_sent_time = time.time()
 
     def start(self):
         self._usbContext = usb1.USBContext()
@@ -78,6 +80,13 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
         try:
             data = chr(message.TYPE_ID) + message.get_bytes()
             self._devHandle.bulkWrite(2, data, timeout=1000)
+            self.sent_bytes += len(data)
+            if self.sent_bytes > 100000:
+                seconds = time.time() - self.last_sent_time
+                bps = self.sent_bytes / seconds
+                logger.info("Sent at %s bytes per second" % bps)
+                self.sent_bytes = 0
+                self.last_sent_time = time.time()
         except (libusb1.USBError,), e:
             if e.value == -1 or e.value == -4:
                 logger.info("Printer missing or detached")

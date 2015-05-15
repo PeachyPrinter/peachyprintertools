@@ -17,3 +17,4 @@ if os.name == 'nt':
         print("Failed Loading usb dll from: %s" % dll_path)
 
 from peachyprinter.api.peachy_printer_api import PrinterAPI
+from peachyprinter.infrastructure.communicator import MissingPrinterException
