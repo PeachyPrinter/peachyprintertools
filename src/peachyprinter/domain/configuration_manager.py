@@ -9,6 +9,9 @@ class ConfigurationManager(object):
     def save(self, configuration):
         raise NotImplementedException("Abstract Class")
 
+    def reset(self, configuration):
+        raise NotImplementedException("Abstract Class")
+
     def new(self, printer_name):
         raise NotImplementedException("Abstract Class")
 

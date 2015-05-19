@@ -1113,12 +1113,6 @@ class ConfigurationAPITest(
         SerialSetupMixInTest,
         ):
 
-    # def test_current_printer_returns_none_when_no_printer_loaded(self):
-    #     capi = ConfigurationAPI(ConfigurationManager())
-
-    #     actual = capi.current_printer()
-
-    #     self.assertEqual(None, actual)
 
     @patch.object(ConfigurationManager, 'load')
     def test_current_printer_returns_printer_name(self, mock_load):
@@ -1142,6 +1136,14 @@ class ConfigurationAPITest(
 
         mock_load.assert_called_with()
 
+    @patch.object(ConfigurationManager, 'reset')
+    def test_reset_printer_calls_reset(self, mock_reset):
+        mock_reset.return_value = self.default_config
+        capi = ConfigurationAPI(ConfigurationManager())
+
+        capi.reset_printer()
+
+        mock_reset.assert_called_with()
 
 if __name__ == '__main__':
     unittest.main()

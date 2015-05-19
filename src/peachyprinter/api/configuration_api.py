@@ -766,6 +766,10 @@ class ConfigurationAPI(
         self._current_config = self._configuration_manager.load()
         # logger.debug("Loaded config:\n%s" % self._current_config)
 
+    '''Resets configured printer to defaults'''
+    def reset_printer(self):
+        self._current_config = self._configuration_manager.reset()
+
     '''Saves the currently selected config'''
     def save(self):
         self._configuration_manager.save(self._current_config)
