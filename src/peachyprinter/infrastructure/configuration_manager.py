@@ -34,6 +34,12 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
         self.save(configuration)
         return configuration
 
+    def reset(self):
+        details = self._get_printer_details()
+        full_filepath = self._get_file_name(details.sn)
+        os.remove(full_filepath)
+        return self.load()
+
     def _load_or_create_configuration(self, serial_number):
         full_filepath = self._get_file_name(serial_number)
         if os.path.isfile(full_filepath):

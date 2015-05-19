@@ -764,7 +764,6 @@ class ConfigurationAPI(
     '''Loads a previous configured printer by name'''
     def load_printer(self):
         self._current_config = self._configuration_manager.load()
-        print(self._current_config.name)
         # logger.debug("Loaded config:\n%s" % self._current_config)
 
     '''Saves the currently selected config'''
