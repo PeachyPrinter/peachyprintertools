@@ -75,10 +75,8 @@ class HomogenousTransformer(Transformer):
         return (tx, ty)
 
     def _sort_points(self, points):
-        print points.items()
         distances = [distance for (deflection, distance) in points.items()]
         normals = [(int(x / abs(x)), int(y / abs(y))) for (x, y) in distances]
-        print(normals)
         return [
             points.items()[normals.index(( 1,  1))],
             points.items()[normals.index(( 1, -1))],
