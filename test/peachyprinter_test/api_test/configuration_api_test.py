@@ -455,17 +455,47 @@ class CureTestSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
-    def test_set_speed_should_throw_exception_if_less_then_or_0(self, mock_save, mock_load):
+    def test_set_cure_rate_draw_speed_should_throw_exception_if_less_then_or_0(self, mock_save, mock_load):
         mock_load.return_value = self.default_config
-        expected_config = self.default_config
-        expected_config.cure_rate.draw_speed = 121.0
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer()
 
         with self.assertRaises(Exception):
-            configuration_API.set_speed(-1)
+            configuration_API.set_cure_rate_draw_speed(-1)
         with self.assertRaises(Exception):
-            configuration_API.set_speed(0)
+            configuration_API.set_cure_rate_draw_speed(0)
+
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_cure_rate_move_speed_should_throw_exception_if_less_then_or_0(self, mock_save, mock_load):
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer()
+
+        with self.assertRaises(Exception):
+            configuration_API.set_cure_rate_move_speed(-1)
+        with self.assertRaises(Exception):
+            configuration_API.set_cure_rate_move_speed(0)
+
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_cure_rate_draw_speed_should_set(self, mock_save, mock_load):
+        mock_load.return_value = self.default_config
+        expected_speed = 121.0
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer()
+        configuration_API.set_cure_rate_draw_speed(121.0)
+        self.assertEquals(expected_speed, configuration_API.get_cure_rate_draw_speed())
+
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(ConfigurationManager, 'save')
+    def test_set_cure_rate_move_speed_should_set(self, mock_save, mock_load):
+        mock_load.return_value = self.default_config
+        expected_speed = 121.0
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer()
+        configuration_API.set_cure_rate_move_speed(121.0)
+        self.assertEquals(expected_speed, configuration_API.get_cure_rate_move_speed())
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_layer_settings(self, mock_load):

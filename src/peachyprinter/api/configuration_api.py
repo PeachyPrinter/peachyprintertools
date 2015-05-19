@@ -224,6 +224,14 @@ class CureTestSetupMixIn(object):
             raise Exception('Specified finish speed must be positive')
 
     '''Sets the draw_speed for Cure Rate test.'''
+    def set_cure_rate_move_speed(self, move_speed):
+        if (self._positive_float(float(move_speed))):
+            self._current_config.cure_rate.move_speed = move_speed
+        else:
+            logger.warning('move_speed must be positive')
+            raise Exception('Specified move speed must be positive')
+
+    '''Sets the draw_speed for Cure Rate test.'''
     def set_cure_rate_draw_speed(self, draw_speed):
         if (self._positive_float(float(draw_speed))):
             self._current_config.cure_rate.draw_speed = draw_speed
@@ -279,6 +287,10 @@ class CureTestSetupMixIn(object):
     '''Gets the draw_speed for Cure Rate test.'''
     def get_cure_rate_draw_speed(self):
         return self._current_config.cure_rate.draw_speed
+
+    '''Gets the move_speed for Cure Rate test.'''
+    def get_cure_rate_move_speed(self):
+        return self._current_config.cure_rate.move_speed
 
     '''Gets the usedraw_speed for Cure Rate test.'''
     def get_cure_rate_use_draw_speed(self):
