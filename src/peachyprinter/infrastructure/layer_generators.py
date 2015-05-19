@@ -73,6 +73,7 @@ class OrientationGenerator(LayerGenerator):
 
 class BlinkGenerator(TestLayerGenerator):
     def __init__(self, starting_xy=[0.0, 0.0], radius=0.5, speed=0.5, steps=50):
+        self._current_height = 0.0
         self.xy = starting_xy
         self._state = True
         self.set_speed(speed)
@@ -82,7 +83,7 @@ class BlinkGenerator(TestLayerGenerator):
         self._points = list(self.points())
 
     def next(self):
-        layer = Layer(0.0)
+        layer = Layer(self._current_height)
         for point in self._points:
             if self._state:
                 layer.commands.append(LateralDraw(self.last_xy, point, self._speed))
@@ -103,6 +104,7 @@ class BlinkGenerator(TestLayerGenerator):
 
 class HilbertGenerator(TestLayerGenerator):
     def __init__(self, order=4, speed=150.0, radius=40.0):
+        self._current_height = 0.0
         self._order = order
         self._last_xy = [0.0, 0.0]
         self.set_speed(speed)
@@ -111,7 +113,7 @@ class HilbertGenerator(TestLayerGenerator):
     def next(self):
         self._pattern = self._get_hilbert(self._order, [-self._radius, -self._radius], [self._radius, self._radius])
         # logger.debug('Pattern: %s' % self._pattern)
-        layer = Layer(0.0)
+        layer = Layer(self._current_height)
         layer.commands.append(LateralMove(self._last_xy, self._pattern[0], self._speed))
         self._last_xy = self._pattern[0]
         for x, y in self._pattern[1:]:
@@ -142,11 +144,12 @@ class HilbertGenerator(TestLayerGenerator):
 
 class SquareGenerator(TestLayerGenerator):
     def __init__(self, speed=100.0, radius=20.0):
+        self._current_height = 0.0
         self.set_speed(speed)
         self.set_radius(radius)
 
     def next(self):
-        layer = Layer(0.0)
+        layer = Layer(self._current_height)
         layer.commands.append(LateralDraw([-self._radius, self._radius], [self._radius, self._radius], self._speed))
         layer.commands.append(LateralDraw([self._radius, self._radius], [self._radius, -self._radius], self._speed))
         layer.commands.append(LateralDraw([self._radius, -self._radius], [-self._radius, -self._radius], self._speed))
@@ -156,11 +159,12 @@ class SquareGenerator(TestLayerGenerator):
 
 class DampingTestGenerator(TestLayerGenerator):
     def __init__(self, speed=100.0, radius=20.0):
+        self._current_height = 0.0
         self.set_speed(speed)
         self.set_radius(radius)
 
     def next(self):
-        layer = Layer(0.0)
+        layer = Layer(self._current_height)
         layer.commands.append(LateralMove([0.0, self._radius], [-self._radius, self._radius], self._speed))
         layer.commands.append(LateralMove([-self._radius, self._radius], [-self._radius, 0.0], self._speed * 100))
         layer.commands.append(LateralDraw([-self._radius, 0.0], [self._radius, 0.0], self._speed))
@@ -172,6 +176,7 @@ class DampingTestGenerator(TestLayerGenerator):
 
 class CircleGenerator(TestLayerGenerator):
     def __init__(self, speed=100.0, radius=20.0, steps=180):
+        self._current_height = 0.0
         self.set_speed(speed)
         self.set_radius(radius)
         self._steps = steps
@@ -179,7 +184,7 @@ class CircleGenerator(TestLayerGenerator):
         self.active_points = list(self.points())
 
     def next(self):
-        layer = Layer(0.0)
+        layer = Layer(self._current_height)
         for point in self.active_points:
             layer.commands.append(LateralDraw(self.last_xy, point, self._speed))
             self.last_xy = point
@@ -196,6 +201,7 @@ class CircleGenerator(TestLayerGenerator):
 
 class SpiralGenerator(TestLayerGenerator):
     def __init__(self, speed=100.0, radius=20.0, steps=50, overlaps=6):
+        self._current_height = 0.0
         self.set_speed(speed)
         self.set_radius(radius)
         self._steps = steps
@@ -203,7 +209,7 @@ class SpiralGenerator(TestLayerGenerator):
         self.last_xy = [0.0, 0.0]
 
     def next(self):
-        layer = Layer(0.0)
+        layer = Layer(self._current_height)
         layer.commands.append(LateralMove(self.last_xy, [0.0, 0.0], self._speed))
         self.last_xy = [0.0, 0.0]
         for point in self.points():
@@ -225,6 +231,7 @@ class SpiralGenerator(TestLayerGenerator):
 
 class MemoryHourglassGenerator(TestLayerGenerator):
     def __init__(self, speed=100.0, radius=20.0):
+        self._current_height = 0.0
         self.set_speed(speed)
         self.set_radius(radius)
         self.path = [
@@ -235,7 +242,7 @@ class MemoryHourglassGenerator(TestLayerGenerator):
                 ]
 
     def next(self):
-        layer = Layer(0.0)
+        layer = Layer(self._current_height)
         last = [a * self._radius for a in self.path[-1:][0]]
         for point in self.path:
             scaled_point = [a * self._radius for a in point]
@@ -246,6 +253,7 @@ class MemoryHourglassGenerator(TestLayerGenerator):
 
 class TwitchGenerator(TestLayerGenerator):
     def __init__(self, speed=100.0, radius=20.0):
+        self._current_height = 0.0
         self.set_speed(speed)
         self.set_radius(radius)
         self.path = [([-0.500, -1.000], 1), ([-0.500, 1.000], 1)]
@@ -255,7 +263,7 @@ class TwitchGenerator(TestLayerGenerator):
             self.path.append(([xd, yd], float(r) / 4))
 
     def next(self):
-        layer = Layer(0.0)
+        layer = Layer(self._current_height)
         last = [a * self._radius for a in self.path[-1:][0][0]]
         for (point, s) in self.path:
             scaled_point = [a * self._radius for a in point]
@@ -266,6 +274,7 @@ class TwitchGenerator(TestLayerGenerator):
 
 class NESWGenerator(TestLayerGenerator):
     def __init__(self, speed=100.0, radius=20.0):
+        self._current_height = 0.0
         self.set_speed(speed)
         self.set_radius(radius)
         self.path = [
@@ -276,7 +285,7 @@ class NESWGenerator(TestLayerGenerator):
                ]
 
     def next(self):
-        layer = Layer(0.0)
+        layer = Layer(self._current_height)
         last = [a * self._radius for a in self.path[1][-1:][0]]
         for (k, point) in self.path:
             scaled_point = [a * self._radius for a in point]
