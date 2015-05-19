@@ -28,14 +28,13 @@ class TestLayerGeneratorTests(unittest.TestCase):
             layer_generator.set_radius(0)
         layer_generator.set_radius(1)
 
-    def test_set_current_height_accepts_positive_numbers_only(self):
+    def test_set_current_height_accepts_zero_and_positive_numbers_only(self):
         layer_generator = TestLayerGenerator()
         with self.assertRaises(AttributeError):
             layer_generator.set_current_height('a')
         with self.assertRaises(AttributeError):
             layer_generator.set_current_height(-1)
-        with self.assertRaises(AttributeError):
-            layer_generator.set_current_height(0)
+        layer_generator.set_current_height(0)
         layer_generator.set_current_height(1)
 
 if __name__ == '__main__':

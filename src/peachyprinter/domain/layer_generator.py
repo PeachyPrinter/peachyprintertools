@@ -25,6 +25,16 @@ class TestLayerGenerator(LayerGenerator):
         except ValueError:
             return False
 
+    def _is_zero_or_positive(self, value):
+        try:
+            number = float(value)
+            if (number < 0.0):
+                return False
+            else:
+                return True
+        except ValueError:
+            return False
+
     def set_speed(self, speed):
         if (self._is_positive_float(speed)):
             self._speed = speed
@@ -40,6 +50,7 @@ class TestLayerGenerator(LayerGenerator):
 
     def set_current_height(self, current_height):
         logger.info("New current_height: %s" % current_height)
-        if (current_height < 0.0):
-            logger.warning("Current Height must be a positive number was %s" % current_height)
-        self._current_height = abs(current_height)
+        if (self._is_zero_or_positive(current_height)):
+            self._current_height = abs(current_height)
+        else:
+            raise AttributeError("Height must be zero or greater")
