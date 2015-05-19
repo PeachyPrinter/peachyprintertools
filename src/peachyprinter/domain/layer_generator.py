@@ -40,7 +40,6 @@ class TestLayerGenerator(LayerGenerator):
 
     def set_current_height(self, current_height):
         logger.info("New current_height: %s" % current_height)
-        if (self._is_positive_float(current_height)):
-            self._current_height = current_height
-        else:
-            raise AttributeError("Current Height must be a positive number")
+        if (current_height < 0.0):
+            logger.warning("Current Height must be a positive number was %s" % current_height)
+        self._current_height = abs(current_height)

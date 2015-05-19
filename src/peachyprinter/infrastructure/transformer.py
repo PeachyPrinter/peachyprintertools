@@ -49,13 +49,43 @@ class HomogenousTransformer(Transformer):
         self._lock = threading.Lock()
         self._scale = scale
         self._upper_height = upper_height
-        inter_scale_x = upper_points.items()[0][1][0] / lower_points.items()[0][1][0]
-        inter_scale_y = upper_points.items()[0][1][1] / lower_points.items()[0][1][1]
+
+        lower_points = self._sort_points(lower_points)
+        upper_points = self._sort_points(upper_points)
+
+        deflection_scale = (
+            (upper_points[0][0][0] - upper_points[2][0][0]) / (lower_points[0][0][0] - lower_points[2][0][0]),
+            (upper_points[0][0][1] - upper_points[2][0][1]) / (lower_points[0][0][1] - lower_points[2][0][1])
+            )
+
         self._lower_points = lower_points
-        self._upper_points = dict([(pre, (x * inter_scale_x, y * inter_scale_y)) for (pre, (x, y)) in lower_points.items()])
+        self._upper_points = [(self._scale_point(deflection, deflection_scale), distance) for (deflection, distance) in lower_points]
 
         self._get_transforms()
         self._cache = {}
+
+    def _scale_point(self, point, scale):
+        x, y = point
+        dx = x * 2.0 - 1.0
+        dy = y * 2.0 - 1.0
+        rx = dx * scale[0]
+        ry = dy * scale[1]
+        tx = (rx + 1.0) / 2.0
+        ty = (ry + 1.0) / 2.0
+        return (tx, ty)
+
+    def _sort_points(self, points):
+        print points.items()
+        distances = [distance for (deflection, distance) in points.items()]
+        normals = [(int(x / abs(x)), int(y / abs(y))) for (x, y) in distances]
+        print(normals)
+        return [
+            points.items()[normals.index(( 1,  1))],
+            points.items()[normals.index(( 1, -1))],
+            points.items()[normals.index((-1, -1))],
+            points.items()[normals.index((-1,  1))],
+            ]
+
 
     def _get_transforms(self):
         self._lock.acquire()
@@ -76,7 +106,7 @@ class HomogenousTransformer(Transformer):
     def _build_matrix(self, points):
         builder = []
         index = 0
-        for ((xp, yp), (xi, yi)) in points.items():
+        for ((xp, yp), (xi, yi)) in points:
             augment = self._augment(index, xi / self._scale, yi / self._scale)
             builder.append([ xp, yp,  1,  0,  0,  0,  0,  0,  0] + augment[0])
             builder.append([  0,  0,  0, xp, yp,  1,  0,  0,  0] + augment[1])
