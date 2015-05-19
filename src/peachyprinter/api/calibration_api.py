@@ -178,6 +178,10 @@ class CalibrationAPI(object):
     def set_test_pattern_speed(self, speed):
         [pattern.set_speed(speed) for pattern in self._test_patterns.values()]
 
+    '''Changes the height at which the test pattern is drawn in mm'''
+    def set_test_pattern_current_height(self, current_height):
+        [pattern.set_current_height(current_height) for pattern in self._test_patterns.values()]
+
     '''returns a list of test patterns'''
     def get_test_patterns(self):
         return self._test_patterns.keys()
