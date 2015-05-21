@@ -1,9 +1,10 @@
-from peachyprinter.infrastructure.configuration_manager import CircutSourcedConfigurationManager
 from peachyprinter.api.configuration_api import ConfigurationAPI
 from peachyprinter.api.calibration_api import CalibrationAPI
 from peachyprinter.api.print_api import PrintAPI, PrintQueueAPI
 from peachyprinter.api.test_print_api import TestPrintAPI
+
 from peachyprinter.infrastructure.communicator import MissingPrinterException
+from peachyprinter.infrastructure.configuration_manager import CircutSourcedConfigurationManager
 
 
 class PrinterAPI(object):
