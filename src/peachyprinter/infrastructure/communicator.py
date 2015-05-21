@@ -62,7 +62,6 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
                 raise
             if not data:
                 continue
-            logger.info("Received %d bytes from device" % (len(data),))
             self._process(data)
         self._devHandle.close()
         self._isRunning = False
@@ -81,7 +80,7 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
             data = chr(message.TYPE_ID) + message.get_bytes()
             self._devHandle.bulkWrite(2, data, timeout=1000)
             self.sent_bytes += len(data)
-            if self.sent_bytes > 100000:
+            if self.sent_bytes > 1024 * 1024:
                 seconds = time.time() - self.last_sent_time
                 bps = self.sent_bytes / seconds
                 logger.info("Sent at %s bytes per second" % bps)
