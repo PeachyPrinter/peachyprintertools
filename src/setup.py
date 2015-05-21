@@ -2,6 +2,7 @@ from setuptools import setup, find_packages
 from setuptools.command.install import install as _Install
 from VERSION import version
 import os
+import glob
 
 # data_files = [('peachyprinter/resources/dll', ["peachyprinter/dll/libusb-1.0.dll"])]
 
@@ -13,7 +14,7 @@ setup(
     url="http://www.peachyprinter.com",
     author="Peachy Printer",
     author_email="software+peachyprintertools@peachyprinter.com",
-    package_data = { 'peachyprinter': ['*.dll'] },
+    package_data = { '': ['*.dll', 'peachyprinter/dependancies/win/amd64/*'], '': ['*.dll', 'peachyprinter/dependancies/win/x86/*']},
     install_requires=['protobuf>=2.6.1', 'pyserial>=2.7', 'numpy>=1.8.2', 'libusb1>=1.3.1'],
     packages=find_packages(),
     py_modules=['VERSION'],

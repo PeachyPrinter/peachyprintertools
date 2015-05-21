@@ -1,1 +1,2 @@
-include peachyprinter/*.dll
+include peachyprinter/dependancies/win/amd64/*.dll
+include peachyprinter/dependancies/win/x86/*.dll
