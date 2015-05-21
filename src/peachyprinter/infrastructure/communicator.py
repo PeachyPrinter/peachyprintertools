@@ -4,6 +4,8 @@ import logging
 import threading
 import time
 from messages import ProtoBuffableMessage
+import Queue as queue
+from Queue import Empty
 
 logger = logging.getLogger('peachy')
 
@@ -20,6 +22,34 @@ class MissingPrinterException(Exception):
     pass
 
 
+class QueuedSender(threading.Thread):
+    def __init__(self, send_method):
+        self.qu = queue.Queue(maxsize=10)
+        self._keepRunning = True
+        self.running = False
+        self._send = send_method
+        super(QueuedSender, self).__init__()
+
+    def queue(self, message):
+        self.qu.put(message, True)
+        # logger.info('Queue Length: %s' % self.qu.qsize())
+
+    def run(self):
+        self.running = True
+        while self._keepRunning:
+            try:
+                message = self.qu.get(True, 0.1)
+                self._send(message)
+            except Empty:
+                pass
+        self.running = False
+
+    def close(self):
+        self._keepRunning = False
+        while self.running is True:
+            time.sleep(0.1)
+
+
 class UsbPacketCommunicator(Communicator, threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -31,6 +61,8 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
         self._isRunning = False
         self.sent_bytes = 0
         self.last_sent_time = time.time()
+        self.send_time = 0
+        self.qu = QueuedSender(self._send)
 
     def start(self):
         self._usbContext = usb1.USBContext()
@@ -44,11 +76,13 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
         super(UsbPacketCommunicator, self).start()
 
     def close(self):
+        self.qu.close()
         self._keepRunning = False
         while self._isRunning:
             time.sleep(0.1)
 
     def run(self):
+        self.qu.start()
         while self._keepRunning:
             data = None
             try:
@@ -74,18 +108,32 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
                     handler(message.from_bytes(data[1:]))
 
     def send(self, message):
+        self.qu.queue(message)
+
+
+    def _send(self, message):
         if not self._keepRunning:
             return
         try:
-            data = chr(message.TYPE_ID) + message.get_bytes()
-            self._devHandle.bulkWrite(2, data, timeout=1000)
-            self.sent_bytes += len(data)
-            if self.sent_bytes > 1024 * 1024:
-                seconds = time.time() - self.last_sent_time
-                bps = self.sent_bytes / seconds
-                logger.info("Sent at %s bytes per second" % bps)
-                self.sent_bytes = 0
-                self.last_sent_time = time.time()
+            if message.TYPE_ID != 99:
+                per_start_time = time.time()
+                data = chr(message.TYPE_ID) + message.get_bytes()
+                self._devHandle.bulkWrite(2, data, timeout=1000)
+                per_end_time = time.time() - per_start_time
+                self.send_time = self.send_time + per_end_time
+                self.sent_bytes += len(data)
+                if self.sent_bytes > 100000:
+                    seconds = time.time() - self.last_sent_time
+                    bps = (seconds * 1000.0) / (self.sent_bytes / 1024)
+                    time_per_byte = (self.send_time * 1000.0) / (self.sent_bytes / 1024)
+                    self.last_sent_time = time.time()
+                    self.send_time = 0
+                    self.sent_bytes = 0
+                    logger.info("Real Time   : %.2f uspKB" % bps)
+                    logger.info("CPU Time    : %.2f uspKB" % time_per_byte)
+            else:
+                time.sleep(1.0 / 2000.0)
+
         except (libusb1.USBError,), e:
             if e.value == -1 or e.value == -4:
                 logger.info("Printer missing or detached")
