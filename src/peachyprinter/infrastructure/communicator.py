@@ -124,13 +124,15 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
                 self.sent_bytes += len(data)
                 if self.sent_bytes > 100000:
                     seconds = time.time() - self.last_sent_time
-                    bps = (seconds * 1000.0) / (self.sent_bytes / 1024)
-                    time_per_byte = (self.send_time * 1000.0) / (self.sent_bytes / 1024)
+                    real_time_per_byte = (seconds * 1000.0) / (self.sent_bytes / 1024)
+                    cpu_time_per_byte = (self.send_time * 1000.0) / (self.sent_bytes / 1024)
+                    bps = self.sent_bytes / seconds
                     self.last_sent_time = time.time()
                     self.send_time = 0
                     self.sent_bytes = 0
-                    logger.info("Real Time   : %.2f uspKB" % bps)
-                    logger.info("CPU Time    : %.2f uspKB" % time_per_byte)
+                    logger.info("Real Time   : %.2f uspKB" % real_time_per_byte)
+                    logger.info("CPU Time    : %.2f uspKB" % cpu_time_per_byte)
+                    logger.info("Bytes       : %.2f bps" % bps)
             else:
                 time.sleep(1.0 / 2000.0)
 
