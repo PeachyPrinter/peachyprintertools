@@ -20,7 +20,7 @@ if os.name == 'nt':
         dll_path = os.path.join(dep_path, 'libusb-1.0.dll')
 
     except Exception:
-        if os.environ.get['PEACHY_API_DLL_PATH']:
+        if os.environ.get('PEACHY_API_DLL_PATH'):
             dep_path = os.environ.get('PEACHY_API_DLL_PATH')
         else:
             current_path = os.path.dirname(__file__)
