@@ -21,7 +21,7 @@ if os.name == 'nt':
 
     except Exception:
         if os.environ.get['PEACHY_API_DLL_PATH']:
-            dep_path = os.environ.get['PEACHY_API_DLL_PATH']
+            dep_path = os.environ.get('PEACHY_API_DLL_PATH')
         else:
             current_path = os.path.dirname(__file__)
             if python_64:
