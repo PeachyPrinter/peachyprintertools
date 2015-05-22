@@ -20,11 +20,14 @@ if os.name == 'nt':
         dll_path = os.path.join(dep_path, 'libusb-1.0.dll')
 
     except Exception:
-        current_path = os.path.dirname(__file__)
-        if python_64:
-            dep_path = os.path.join(current_path, '..','peachyprinter' ,'dependancies', 'win', 'amd64')
+        if os.environ.get['PEACHY_API_DLL_PATH']:
+            dep_path = os.environ.get['PEACHY_API_DLL_PATH']
         else:
-            dep_path = os.path.join(current_path, '..','peachyprinter' ,'dependancies', 'win', 'x86')
+            current_path = os.path.dirname(__file__)
+            if python_64:
+                dep_path = os.path.join(current_path, '..','peachyprinter' ,'dependancies', 'win', 'amd64')
+            else:
+                dep_path = os.path.join(current_path, '..','peachyprinter' ,'dependancies', 'win', 'x86')
 
         dll_path = os.path.join(dep_path, 'libusb-1.0.dll')
 
