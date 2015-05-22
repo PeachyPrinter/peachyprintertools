@@ -75,6 +75,7 @@ class ControllerTests(unittest.TestCase):
         self.assertEquals("Something Broke", self.controller.get_status()['errors'][0]['message'])
         mock_layer_writer.terminate.assert_called_with()
         mock_layer_processing.terminate.assert_called_with()
+        self.assertEquals("Cancelled", self.controller.get_status()['status'])
 
     def test_run_should_record_errors_and_continue_when_abort_on_error_is_false(self, mock_LayerGenerator, mock_LayerWriter, mock_LayerProcessing):
         mock_layer_writer = mock_LayerWriter.return_value
