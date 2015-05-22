@@ -10,7 +10,7 @@ if os.name == 'nt':
     from pkg_resources import DistributionNotFound
 
     python_64 = sys.maxsize > 2**32
-     if os.environ.get('PEACHY_API_DLL_PATH'):
+    if os.environ.get('PEACHY_API_DLL_PATH'):
         dep_path = os.environ.get('PEACHY_API_DLL_PATH')
         logging.info("Loading usb dll via PEACHY_API_DLL_PATH")
     else:
