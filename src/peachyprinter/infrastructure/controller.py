@@ -20,6 +20,7 @@ class Controller(threading.Thread,):
         self._shutting_down = False
         self._shutdown = False
         self._pausing = False
+        self._complete = False
 
         self._abort_on_error = abort_on_error
         self._layer_generator = layer_generator
@@ -34,7 +35,10 @@ class Controller(threading.Thread,):
         with self._run_lock:
             logger.info('Running Controller')
             self._process_layers()
-            self._status.set_complete()
+            if self._complete:
+                self._status.set_complete()
+            else:
+                self._status.set_aborted()
             self._writer.terminate()
             self._layer_processing.terminate()
             logger.info('Controller Shutdown')
@@ -63,6 +67,7 @@ class Controller(threading.Thread,):
                 self._layer_processing.process(layer)
             except StopIteration:
                 logger.info('Layers Complete')
+                self._complete = True
                 return
             except MissingPrinterException as mpe:
                 self._status.add_error(MachineError(str(mpe), self._status.status()['current_layer']))

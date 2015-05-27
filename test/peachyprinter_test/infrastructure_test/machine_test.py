@@ -85,6 +85,13 @@ class MachineStatusTests(unittest.TestCase):
         status.drip_call_back(45,10,12)
         self.assertEqual('Complete',status.status()['status'])
 
+    def test_once_aborted_drips_or_layers_dont_change_status(self):
+        status = MachineStatus()
+        status.set_aborted()
+        status.add_layer()
+        status.drip_call_back(45,10,12)
+        self.assertEqual('Cancelled',status.status()['status'])
+
     def test_add_error_adds_an_error(self):
         status = MachineStatus()
         status.add_error(MachineError("Error", "Test Error"))
