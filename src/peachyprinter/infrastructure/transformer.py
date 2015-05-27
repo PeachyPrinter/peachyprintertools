@@ -84,7 +84,6 @@ class HomogenousTransformer(Transformer):
             points.items()[normals.index((-1,  1))],
             ]
 
-
     def _get_transforms(self):
         self._lock.acquire()
         try:
