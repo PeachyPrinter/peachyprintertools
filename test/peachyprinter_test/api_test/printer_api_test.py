@@ -404,6 +404,33 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             slew_delay_speed=100.0
             )
 
+    def test_print_gcode_should_create_required_classes_and_start_it_without_override_speed_if_force_source_speed_flagged(self, *args):
+        self.setup_mocks(args)
+        gcode_path = "FakeFile"
+        config = self.default_config
+        config.cure_rate.draw_speed = 77.7
+        config.options.slew_delay = 5
+        config.options.post_fire_delay = 5
+        config.options.wait_after_move_milliseconds = 5
+
+        api = PrintAPI(config)
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
+            api.print_gcode(gcode_path, force_source_speed=True)
+
+        self.mock_LayerWriter.assert_called_with(
+            self.mock_micro_disseminator,
+            self.mock_path_to_audio,
+            self.mock_laser_control,
+            self.mock_machine_state,
+            move_distance_to_ignore=config.options.laser_thickness_mm,
+            override_draw_speed=None,
+            override_move_speed=None,
+            wait_speed=100.0,
+            post_fire_delay_speed=100.0,
+            slew_delay_speed=100.0
+            )
+
     def test_print_gcode_should_print_sublayers_if_requested(self, *args):
         self.setup_mocks(args)
         gcode_path = "FakeFile"

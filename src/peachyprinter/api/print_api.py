@@ -94,13 +94,13 @@ class PrintAPI(object):
     def configuration(self):
         return self._configuration
 
-    def print_gcode(self, file_name, print_sub_layers=True, dry_run=False):
+    def print_gcode(self, file_name, print_sub_layers=True, dry_run=False, force_source_speed=False):
         self._current_file_name = file_name
         self._current_file = open(file_name, 'r')
         gcode_reader = GCodeReader(self._current_file, scale=self._configuration.options.scaling_factor, start_height=self._start_height)
         gcode_layer_generator = gcode_reader.get_layers()
         layer_generator = gcode_layer_generator
-        self.print_layers(layer_generator, print_sub_layers, dry_run)
+        self.print_layers(layer_generator, print_sub_layers, dry_run, force_source_speed=force_source_speed)
 
     def _get_zaxis(self, dry_run):
         if dry_run:
@@ -144,7 +144,7 @@ class PrintAPI(object):
                 self._configuration.circut.data_rate
                 )
 
-    def print_layers(self, layer_generator, print_sub_layers=True, dry_run=False):
+    def print_layers(self, layer_generator, print_sub_layers=True, dry_run=False, force_source_speed=False):
         logger.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
         logger.info("Sublayered: %s" % self._configuration.options.use_sublayers)
         logger.info("Overlapped: %s" % self._configuration.options.use_overlap)
@@ -188,9 +188,13 @@ class PrintAPI(object):
             self._configuration.options.laser_thickness_mm
             )
 
-        override_draw_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
-        override_move_speed = self._configuration.cure_rate.move_speed if self._configuration.cure_rate.use_draw_speed else None
-        
+        if force_source_speed:
+            override_draw_speed = None
+            override_move_speed = None
+        else:
+            override_draw_speed = self._configuration.cure_rate.draw_speed if self._configuration.cure_rate.use_draw_speed else None
+            override_move_speed = self._configuration.cure_rate.move_speed if self._configuration.cure_rate.use_draw_speed else None
+
         pre_layer_delay = self._configuration.options.pre_layer_delay if self._configuration.options.pre_layer_delay else 0.0
         post_fire_delay_speed = None
         slew_delay_speed = None
