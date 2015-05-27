@@ -477,6 +477,24 @@ class CureTestGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertLayerEquals(expected_base, genererator.next())
         self.assertLayerEquals(expected_layer1, genererator.next())
 
+    def test_next_should_print_base_at_speed_specified(self):
+        start_speed = 50
+        stop_speed = 100
+        genererator = CureTestGenerator(1, 2, start_speed, stop_speed, 1, base_speed=12)
+        expected_base = Layer(0.0, commands=[
+            LateralDraw([0, 0], [10, 0], 12),
+            LateralDraw([10, 0], [10, 10], 12),
+            LateralDraw([10, 10], [0, 0], 12),
+           ])
+        expected_layer1 = Layer(1.0, commands=[
+            LateralDraw([0, 0], [10, 0], start_speed),
+            LateralDraw([10, 0], [10, 10], start_speed),
+            LateralMove([10, 10], [0, 0], start_speed),
+           ])
+
+        self.assertLayerEquals(expected_base, genererator.next())
+        self.assertLayerEquals(expected_layer1, genererator.next())
+
     def test_should_have_the_right_number_of_layers(self):
         start_speed = 50
         stop_speed = 100

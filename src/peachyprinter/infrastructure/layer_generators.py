@@ -300,7 +300,7 @@ class NESWGenerator(TestLayerGenerator):
 
 
 class CureTestGenerator(LayerGenerator):
-    def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height):
+    def __init__(self, base_height, total_height, start_speed, stop_speed, sublayer_height, base_speed=None):
         base_height = float(base_height)
         total_height = float(total_height)
         self.start_speed = float(start_speed)
@@ -315,7 +315,10 @@ class CureTestGenerator(LayerGenerator):
         self._base_layers = base_height / self._sub_layer_height
         self._number_of_layers = total_height / self._sub_layer_height
         logger.info("Total layer to print: %s" % self._number_of_layers)
-        self._base_layer_speed = self.start_speed + ((stop_speed - self.start_speed) / 2.0)
+        if base_speed:
+            self._base_layer_speed = base_speed
+        else:
+            self._base_layer_speed = self.start_speed + ((stop_speed - self.start_speed) / 2.0)
         self._speed_per_layer = (stop_speed - self.start_speed) / (self._number_of_layers - self._base_layers)
         self._current_layer = 0
 
