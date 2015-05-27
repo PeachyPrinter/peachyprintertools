@@ -146,13 +146,13 @@ class DripperSetupMixIn(object):
 class CureTestSetupMixIn(object):
 
     '''Returns a layer generator that can be used with the print API to print a cure test.'''
-    def get_cure_test(self, base_height, total_height, start_speed, stop_speed):
-        self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed)
+    def get_cure_test(self, base_height, total_height, start_speed, stop_speed, base_speed=None):
+        self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed, base_speed)
         return CureTestGenerator(base_height, total_height, start_speed, stop_speed, self._current_config.options.sublayer_height_mm)
 
     '''Based on provided setting returns the speed the printer was going at the specified height'''
-    def get_speed_at_height(self, base_height, total_height, start_speed, stop_speed, height):
-        self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed)
+    def get_speed_at_height(self, base_height, total_height, start_speed, stop_speed, height, base_speed=None):
+        self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed, base_speed)
         if (height < base_height or height > total_height):
             logger.warning('Height of ideal cure must be in range of cure test')
             raise Exception('Height of ideal cure must be in range of cure test')
@@ -161,12 +161,14 @@ class CureTestSetupMixIn(object):
         speed_delta = stop_speed -start_speed
         return start_speed + (speed_delta / actual_height * desired_height)
 
-    def _verify_cure_test_settings(self, base_height, total_height, start_speed, stop_speed):
+    def _verify_cure_test_settings(self, base_height, total_height, start_speed, stop_speed, base_speed):
         try:
             float(base_height)
             float(total_height)
             float(start_speed)
             float(stop_speed)
+            if base_speed:
+                float(base_speed)
         except ValueError:
             logger.warning('Entries for cure test settings must be numeric')
             raise Exception('Entries for cure test settings must be numeric')
@@ -190,6 +192,9 @@ class CureTestSetupMixIn(object):
         if(base_height < 0):
             logger.warning('base_height cannot be negitive')
             raise Exception('base_height cannot be negitive')
+        if base_speed and (base_speed <= 0):
+            logger.warning('base_speed cannot be zero or negitive')
+            raise Exception('base_speed cannot be zero or negitive')
 
     '''Sets the base_height for Cure Rate test.'''
     def set_cure_rate_base_height(self, base_height):

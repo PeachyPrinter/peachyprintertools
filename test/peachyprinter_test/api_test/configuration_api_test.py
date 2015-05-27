@@ -365,6 +365,12 @@ class CureTestSetupMixInTest(object):
             configuration_API.get_cure_test(1, 10, 10, 0)
         with self.assertRaises(Exception):
             configuration_API.get_cure_test(1, 10, 10, 1, 0)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, 11, base_speed=0)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, 11, base_speed=-1)
+        with self.assertRaises(Exception):
+            configuration_API.get_cure_test(1, 10, 10, 11, base_speed='a')
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_cure_test_returns_a_layer_generator(self, mock_load):
@@ -372,7 +378,7 @@ class CureTestSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer()
 
-        cure_test = configuration_API.get_cure_test(0, 1, 1, 2)
+        cure_test = configuration_API.get_cure_test(0, 1, 1, 2, 3)
         cure_test.next()
 
     @patch.object(ConfigurationManager, 'load')
