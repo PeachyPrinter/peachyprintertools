@@ -317,7 +317,7 @@ class OptionsConfiguration(ConfigurationBase):
         self._laser_thickness_mm = self.get(source, u'laser_thickness_mm', 0.5)
         self._scaling_factor = self.get(source, u'scaling_factor', 1.0)
         self._overlap_amount = self.get(source, u'overlap_amount', 1.0)
-        self._use_shufflelayers = self.get(source, u'use_shufflelayers', True)
+        self._use_shufflelayers = self.get(source, u'use_shufflelayers', False)
 
         self._use_sublayers = self.get(source, u'use_sublayers', False)
         self._use_overlap = self.get(source, u'use_overlap', True)
@@ -905,7 +905,7 @@ class ConfigurationGenerator(object):
         configuration.options.laser_thickness_mm           = 0.5
         configuration.options.scaling_factor               = 1.0
         configuration.options.overlap_amount               = 1.0
-        configuration.options.use_shufflelayers            = True
+        configuration.options.use_shufflelayers            = False
         configuration.options.use_sublayers                = False
         configuration.options.use_overlap                  = True
         configuration.options.print_queue_delay            = 0.0
