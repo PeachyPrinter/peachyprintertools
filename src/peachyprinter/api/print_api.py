@@ -203,6 +203,11 @@ class PrintAPI(object):
         if self._configuration.options.slew_delay:
             slew_delay_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.slew_delay) / 1000.0)
 
+        if self._configuration.options.wait_after_move_milliseconds > 0:
+            wait_speed = self._configuration.options.laser_thickness_mm / (float(self._configuration.options.wait_after_move_milliseconds) / 1000.0)
+        else:
+            wait_speed = None
+
         self._writer = LayerWriter(
             disseminator,
             path_to_points,
@@ -211,7 +216,7 @@ class PrintAPI(object):
             move_distance_to_ignore=self._configuration.options.laser_thickness_mm,
             override_draw_speed=override_draw_speed,
             override_move_speed=override_move_speed,
-            wait_speed=self._configuration.options.laser_thickness_mm / (float(self._configuration.options.wait_after_move_milliseconds) / 1000.0),
+            wait_speed=wait_speed,
             post_fire_delay_speed=post_fire_delay_speed,
             slew_delay_speed=slew_delay_speed
             )
