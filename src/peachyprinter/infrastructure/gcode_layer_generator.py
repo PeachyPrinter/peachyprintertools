@@ -96,7 +96,7 @@ class GCodeCommandReader(object):
 
     def __init__(self, verbose=False, scale=1.0):
         super(GCodeCommandReader, self).__init__()
-        self._mm_per_s = None
+        self._mm_per_s = 100
         self._current_xy = [0.0, 0.0]
         self._current_z_pos = 0.0
         self._layer_height = None

@@ -280,12 +280,13 @@ class GCodeCommandReaderTest(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertCommandsEqual(expected, actual)
 
-    def test_to_command_throws_exception_if_speed_never_specified(self):
+    def test_to_command_uses_default_if_speed_never_specified(self):
         gcode_test = "G1 X1.0 Y1.0 E12"
         command_reader = GCodeCommandReader()
+        expected = [LateralDraw([0.0, 0.0], [1.0, 1.0], 100.0)]
 
-        with self.assertRaises(Exception):
-            command_reader.to_command(gcode_test)
+        actual = command_reader.to_command(gcode_test)
+        self.assertCommandsEqual(expected, actual)
 
     def test_to_command_remembers_last_speed_if_only_specified(self):
         gcode_setup = "G1 F6000"
