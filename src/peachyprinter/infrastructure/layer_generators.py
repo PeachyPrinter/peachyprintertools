@@ -181,9 +181,13 @@ class CircleGenerator(TestLayerGenerator):
         self.set_radius(radius)
         self._steps = steps
         self.last_xy = [0.0, 0.0]
+        self._last_radius = None
         self.active_points = list(self.points())
 
     def next(self):
+        if self._last_radius != self._radius:
+            self._last_radius == self._radius
+            self.active_points = list(self.points())
         layer = Layer(self._current_height)
         for point in self.active_points:
             layer.commands.append(LateralDraw(self.last_xy, point, self._speed))

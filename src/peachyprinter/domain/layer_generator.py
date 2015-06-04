@@ -42,7 +42,7 @@ class TestLayerGenerator(LayerGenerator):
             raise AttributeError("Speed must be a positive number")
 
     def set_radius(self, radius):
-        logger.info("New Radius: %s" % radius)
+        logger.info("New %s Radius: %s" % (self.__class__.__name__, radius))
         if (self._is_positive_float(radius)):
             self._radius = radius
         else:
