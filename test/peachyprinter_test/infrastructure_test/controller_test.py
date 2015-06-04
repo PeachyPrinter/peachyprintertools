@@ -77,6 +77,24 @@ class ControllerTests(unittest.TestCase):
         mock_layer_processing.terminate.assert_called_with()
         self.assertEquals("Cancelled", self.controller.get_status()['status'])
 
+    def test_run_should_record_errors_and_fail(self, mock_LayerGenerator, mock_LayerWriter, mock_LayerProcessing):
+        mock_layer_writer = mock_LayerWriter.return_value
+        mock_layer_processing = mock_LayerProcessing.return_value
+        mock_layer_generator = mock_LayerGenerator.return_value
+        mock_layer_generator.next.return_value = Layer(1.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], 2.0)])
+        mock_layer_processing.process.side_effect = MissingPrinterException("Something Broke")
+
+        self.controller = Controller(mock_layer_writer, mock_layer_processing, mock_layer_generator, MachineStatus(), True)
+        self.controller.start()
+
+        self.wait_for_controller()
+
+        self.assertTrue(1 <= len(self.controller.get_status()['errors']))
+        self.assertEquals("Something Broke", self.controller.get_status()['errors'][0]['message'])
+        mock_layer_writer.terminate.assert_called_with()
+        mock_layer_processing.terminate.assert_called_with()
+        self.assertEquals("Failed", self.controller.get_status()['status'])
+
     def test_run_should_record_errors_and_continue_when_abort_on_error_is_false(self, mock_LayerGenerator, mock_LayerWriter, mock_LayerProcessing):
         mock_layer_writer = mock_LayerWriter.return_value
         mock_layer_processing = mock_LayerProcessing.return_value

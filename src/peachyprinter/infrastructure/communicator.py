@@ -21,6 +21,7 @@ class Communicator(object):
 class MissingPrinterException(Exception):
     pass
 
+
 class UsbPacketCommunicator(Communicator, threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)

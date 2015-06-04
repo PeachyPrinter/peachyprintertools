@@ -37,6 +37,7 @@ class MachineStatus(object):
         self._stop_time = None
         self._complete = False
         self._aborted = False
+        self._failed = False
         self._drips = 0
         self._drips_per_second = 0
         self._drip_history = []
@@ -90,6 +91,10 @@ class MachineStatus(object):
         self._aborted = True
         self._update()
 
+    def set_failed(self):
+        self._failed = True
+        self._update()
+
     def _elapsed_time(self):
         return datetime.datetime.now() - self._start_time
 
@@ -98,6 +103,8 @@ class MachineStatus(object):
             return 'Complete'
         if self._aborted:
             return 'Cancelled'
+        if self._failed:
+            return 'Failed'
         if (self._drips == 0 and self._current_layer == 0):
             return 'Starting'
         else:

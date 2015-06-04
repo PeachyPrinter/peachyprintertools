@@ -21,6 +21,7 @@ class Controller(threading.Thread,):
         self._shutdown = False
         self._pausing = False
         self._complete = False
+        self._failed = False
 
         self._abort_on_error = abort_on_error
         self._layer_generator = layer_generator
@@ -35,7 +36,9 @@ class Controller(threading.Thread,):
         with self._run_lock:
             logger.info('Running Controller')
             self._process_layers()
-            if self._complete:
+            if self._failed:
+                self._status.set_failed()
+            elif self._complete:
                 self._status.set_complete()
             else:
                 self._status.set_aborted()
@@ -71,8 +74,9 @@ class Controller(threading.Thread,):
                 return
             except MissingPrinterException as mpe:
                 self._status.add_error(MachineError(str(mpe), self._status.status()['current_layer']))
+                self._failed = True
                 logger.error('Unexpected Error: %s' % str(mpe))
-                raise
+                return
             except Exception as ex:
                 self._status.add_error(MachineError(str(ex), self._status.status()['current_layer']))
                 logger.error('Unexpected Error: %s' % str(ex))
