@@ -21,35 +21,6 @@ class Communicator(object):
 class MissingPrinterException(Exception):
     pass
 
-
-class QueuedSender(threading.Thread):
-    def __init__(self, send_method):
-        self.qu = queue.Queue(maxsize=10)
-        self._keepRunning = True
-        self.running = False
-        self._send = send_method
-        super(QueuedSender, self).__init__()
-
-    def queue(self, message):
-        self.qu.put(message, True)
-        # logger.info('Queue Length: %s' % self.qu.qsize())
-
-    def run(self):
-        self.running = True
-        while self._keepRunning:
-            try:
-                message = self.qu.get(True, 0.1)
-                self._send(message)
-            except Empty:
-                pass
-        self.running = False
-
-    def close(self):
-        self._keepRunning = False
-        while self.running is True:
-            time.sleep(0.1)
-
-
 class UsbPacketCommunicator(Communicator, threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)
@@ -62,7 +33,7 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
         self.sent_bytes = 0
         self.last_sent_time = time.time()
         self.send_time = 0
-        self.qu = QueuedSender(self._send)
+        self._detached = False
 
     def start(self):
         self._usbContext = usb1.USBContext()
@@ -76,13 +47,11 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
         super(UsbPacketCommunicator, self).start()
 
     def close(self):
-        self.qu.close()
         self._keepRunning = False
         while self._isRunning:
             time.sleep(0.1)
 
     def run(self):
-        self.qu.start()
         while self._keepRunning:
             data = None
             try:
@@ -90,10 +59,12 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
             except (libusb1.USBError,), e:
                 if e.value == -7:  # timeout
                     continue
-                if e.value == -1 or e.value == -4:
-                    logger.info("Printer missing or detached")
-                    raise MissingPrinterException(e)
-                raise
+                else:
+                    logger.error("Printer missing or detached")
+                    self._detached = e
+                    self._devHandle.close()
+                    self._isRunning = False
+                    self.close()
             if not data:
                 continue
             self._process(data)
@@ -108,8 +79,9 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
                     handler(message.from_bytes(data[1:]))
 
     def send(self, message):
-        self.qu.queue(message)
-
+        if self._detached:
+            raise MissingPrinterException(self._detached)
+        self._send(message)
 
     def _send(self, message):
         if not self._keepRunning:
@@ -139,6 +111,7 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
         except (libusb1.USBError,), e:
             if e.value == -1 or e.value == -4:
                 logger.info("Printer missing or detached")
+                self. _detached = e
                 raise MissingPrinterException(e)
 
     def register_handler(self, message_type, handler):
