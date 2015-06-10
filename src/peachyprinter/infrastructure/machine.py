@@ -75,6 +75,10 @@ class MachineStatus(object):
         self._waiting_for_drips = True
         self._update()
 
+    @property
+    def waiting_for_drips(self):
+        return self._waiting_for_drips
+    
     def set_not_waiting_for_drips(self):
         self._waiting_for_drips = False
         self._update()

@@ -3,7 +3,7 @@ import os
 import sys
 import time
 import logging
-from mock import patch, call
+from mock import patch, call, Mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
@@ -417,6 +417,7 @@ class LayerProcessingTest(unittest.TestCase):
         mock_writer = mock_Writer.return_value
         mock_zaxis = mock_ZAxis.return_value
         mock_machinestatus = mock_MachineStatus.return_value
+        mock_machinestatus.waiting_for_drips = False
         state = MachineState()
         zaxis_return_values = [0.0, 1.0, 1.0]
 
@@ -426,18 +427,19 @@ class LayerProcessingTest(unittest.TestCase):
         mock_zaxis.current_z_location_mm = z_axis_side_effect
 
         test_layer = Layer(1.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], 2.0)])
+        commander = Mock()
 
         layer_processing = LayerProcessing(
-            mock_writer, state, mock_machinestatus, mock_zaxis, 0.0, NullCommander(), 0, 'a', 'b', 'z')
+            mock_writer, state, mock_machinestatus, mock_zaxis, 0.0, commander, 0, 'a', 'b', 'z','o','f')
 
         layer_processing.process(test_layer)
 
         self.assertEqual(1, mock_writer.process_layer.call_count)
         self.assertEqual(1, mock_writer.wait_till_time.call_count)
-        self.assertEqual(
-            1, mock_machinestatus.set_waiting_for_drips.call_count)
-        self.assertEqual(
-            1, mock_machinestatus.set_not_waiting_for_drips.call_count)
+        self.assertEqual(1, mock_machinestatus.set_waiting_for_drips.call_count)
+        self.assertEqual(1, mock_machinestatus.set_not_waiting_for_drips.call_count)
+        print commander.send_command.call_args_list
+        self.assertEqual('o', commander.send_command.call_args_list[0][0][0])
 
     @patch('peachyprinter.infrastructure.commander.Commander')
     def test_process_should_write_layer_start_and_end_commands(self, mock_Commander, mock_ZAxis, mock_Writer):
@@ -450,12 +452,12 @@ class LayerProcessingTest(unittest.TestCase):
         test_layer = Layer(1.0, [LateralDraw(
             [0.0, 0.0], [2.0, 2.0], 2.0), LateralDraw([2.0, 2.0], [-1.0, -1.0], 2.0)])
         layer_processing = LayerProcessing(
-            mock_writer, state, status, mock_zaxis, 1.0, mock_commander, 0, 'a', 'b', 'z')
+            mock_writer, state, status, mock_zaxis, 1.0, mock_commander, 0, 'a', 'b', 'z','o','f')
 
         layer_processing.process(test_layer)
 
         self.assertEquals(
-            [call('a'), call('b')], mock_commander.send_command.call_args_list)
+            [call('f'), call('a'), call('b')], mock_commander.send_command.call_args_list)
 
     @patch('peachyprinter.infrastructure.commander.Commander')
     def test_abort_current_command_should(self, mock_Commander, mock_ZAxis, mock_Writer):

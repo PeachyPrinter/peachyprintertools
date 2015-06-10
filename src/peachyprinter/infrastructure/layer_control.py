@@ -134,6 +134,8 @@ class LayerProcessing():
                  layer_start_command=None,
                  layer_ended_command=None,
                  print_ended_command=None,
+                 dripper_on_command=None,
+                 dripper_off_command=None
                  ):
         self._writer = writer
         self._layer_count = 0
@@ -146,6 +148,8 @@ class LayerProcessing():
         self._layer_start_command = layer_start_command
         self._layer_ended_command = layer_ended_command
         self._print_ended_command = print_ended_command
+        self._dripper_on_command = dripper_on_command
+        self._dripper_off_command = dripper_off_command
         self._abort_current_command = False
 
         self._shutting_down = False
@@ -195,8 +199,12 @@ class LayerProcessing():
         while self._zaxis.current_z_location_mm() < height:
             if self._shutting_down or self._abort_current_command:
                 return
+            if not self._status.waiting_for_drips:
+                self._commander.send_command(self._dripper_on_command)
             self._status.set_waiting_for_drips()
             self._writer.wait_till_time(time.time() + (0.1))
+        if self._status.waiting_for_drips:
+            self._commander.send_command(self._dripper_off_command)
         self._status.set_not_waiting_for_drips()
 
     def terminate(self):
