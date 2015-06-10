@@ -325,6 +325,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.layer_started,
             config.serial.layer_ended,
             config.serial.print_ended,
+            config.serial.on_command,
+            config.serial.off_command,
             )
 
     def test_print_gcode_should_use_start_height(self, *args):
@@ -375,6 +377,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.layer_started,
             config.serial.layer_ended,
             config.serial.print_ended,
+            config.serial.on_command,
+            config.serial.off_command,
             )
 
     def test_print_gcode_should_handle_0_wait_after_move_settings(self, *args):
@@ -569,6 +573,9 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.layer_started,
             config.serial.layer_ended,
             config.serial.print_ended,
+            config.serial.on_command,
+            config.serial.off_command,
+
             )
 
     def test_get_status_calls_controller_status(self, *args):
@@ -602,6 +609,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.layer_started,
             config.serial.layer_ended,
             config.serial.print_ended,
+            config.serial.on_command,
+            config.serial.off_command,
             )
 
     def test_print_gcode_should_use_emulated_dripper_and_start_height(self, * args):
@@ -639,6 +648,8 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.serial.layer_started,
             config.serial.layer_ended,
             config.serial.print_ended,
+            config.serial.on_command,
+            config.serial.off_command,
             )
 
     def test_print_gcode_should_use_photo_dripper_and_start_height(self, * args):

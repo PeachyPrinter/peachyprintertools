@@ -232,6 +232,8 @@ class PrintAPI(object):
             self._configuration.serial.layer_started,
             self._configuration.serial.layer_ended,
             self._configuration.serial.print_ended,
+            self._configuration.serial.on_command,
+            self._configuration.serial.off_command,
             )
 
         if self._zaxis:
