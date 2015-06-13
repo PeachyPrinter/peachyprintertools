@@ -31,11 +31,7 @@ class UsbPacketCommunicator(Communicator):
 
     def start(self):
         self._device = PeachyUSB(500) # queue size, in packets (2000/sec)
-        def process(data, length):
-            print "Got data %d, %r"  %(length, data)
-            self._process(data)
-        self._read_callback = process # yes, this is weird.
-        self._device.set_read_callback(process)
+        self._device.set_read_callback(self._process)
         if not self._device:
             raise MissingPrinterException()
 
@@ -44,7 +40,7 @@ class UsbPacketCommunicator(Communicator):
         self._device = None
         del dev
 
-    def _process(self, data):
+    def _process(self, data, _):
         message_type_id = ord(data[0])
         for (message, handlers) in self._handlers.items():
             if message.TYPE_ID == message_type_id:
