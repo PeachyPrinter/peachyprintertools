@@ -3,7 +3,7 @@ import time
 from messages import ProtoBuffableMessage
 import Queue as queue
 from Queue import Empty
-from peachyusb import PeachyUSB, PeachyUSBException
+from peachyprinter.infrastructure.peachyusb import PeachyUSB, PeachyUSBException
 
 logger = logging.getLogger('peachy')
 
