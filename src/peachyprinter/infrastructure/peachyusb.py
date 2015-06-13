@@ -28,15 +28,21 @@ class PeachyUSBException(Exception):
 class PeachyUSB(object):
     def __init__(self, capacity):
         self.context = lib.peachyusb_init(capacity)
+        if not self.context:
+            raise PeachyUSBException("No printer found")
 
     def __del__(self):
         lib.peachyusb_shutdown(self.context)
         self.context = None
 
     def write(self, buf):
+        if not self.context:
+            raise PeachyUSBException("No printer found")
         lib.peachyusb_write(self.context, buf, len(buf))
         
     def set_read_callback(self, func):
-        callback = peachyusb_read_callback(func)
-        lib.peachyusb_set_read_callback(self.context, callback)
+        if not self.context:
+            raise PeachyUSBException("No printer found")
+        self._read_callback = peachyusb_read_callback(func)
+        lib.peachyusb_set_read_callback(self.context, self._read_callback)
         
