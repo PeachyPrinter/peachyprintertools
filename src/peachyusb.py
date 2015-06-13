@@ -1,4 +1,4 @@
-
+from peachyprinter.libraries import load_library
 import ctypes
 
 class peachyusb_t(ctypes.Structure):
@@ -8,11 +8,8 @@ peachyusb_t_p = ctypes.POINTER(peachyusb_t)
 
 peachyusb_read_callback = ctypes.CFUNCTYPE(None, ctypes.c_char_p, ctypes.c_uint)
 
-def _loadLibrary():
-    try:
-        dll = ctypes.CDLL("PeachyUSB.dll")
-    except (OSError,), e:
-        dll = ctypes.CDLL("./libPeachyUSB.so")
+def _load_library():
+    dll = load_library("libPeachyUSB")
     dll.peachyusb_init.argtypes = [ctypes.c_uint]
     dll.peachyusb_init.restype = peachyusb_t_p
     
@@ -23,7 +20,7 @@ def _loadLibrary():
     dll.peachyusb_write.restype = None
     return dll
 
-lib = _loadLibrary()
+lib = _load_library()
 
 class PeachyUSBException(Exception):
     pass
