@@ -1,11 +1,9 @@
-import libusb1
-import usb1
 import logging
-import threading
 import time
 from messages import ProtoBuffableMessage
 import Queue as queue
 from Queue import Empty
+from peachyprinter.infrastructure.peachyusb import PeachyUSB, PeachyUSBException
 
 logger = logging.getLogger('peachy')
 
@@ -22,57 +20,27 @@ class MissingPrinterException(Exception):
     pass
 
 
-class UsbPacketCommunicator(Communicator, threading.Thread):
+class UsbPacketCommunicator(Communicator):
     def __init__(self):
-        threading.Thread.__init__(self)
         self._handlers = {}
-        self._usbContext = None
         self._device = None
-        self._devHandle = None
-        self._keepRunning = False
-        self._isRunning = False
         self.sent_bytes = 0
         self.last_sent_time = time.time()
         self.send_time = 0
         self._detached = False
 
     def start(self):
-        self._usbContext = usb1.USBContext()
-        self._device = self._usbContext.getByVendorIDAndProductID(0x16d0, 0xaf3)
+        self._device = PeachyUSB(500) # queue size, in packets (2000/sec)
+        self._device.set_read_callback(self._process)
         if not self._device:
             raise MissingPrinterException()
-        self._devHandle = self._device.open()
-        self._devHandle.claimInterface(0)
-        self._isRunning = True
-        self._keepRunning = True
-        super(UsbPacketCommunicator, self).start()
 
     def close(self):
-        self._keepRunning = False
-        while self._isRunning:
-            time.sleep(0.1)
+        dev = self._device
+        self._device = None
+        del dev
 
-    def run(self):
-        while self._keepRunning:
-            data = None
-            try:
-                data = self._devHandle.bulkRead(3, 64, timeout=100)
-            except (libusb1.USBError,), e:
-                if e.value == -7:  # timeout
-                    continue
-                else:
-                    logger.error("Printer missing or detached")
-                    self._detached = e
-                    self._devHandle.close()
-                    self._isRunning = False
-                    self.close()
-            if not data:
-                continue
-            self._process(data)
-        self._devHandle.close()
-        self._isRunning = False
-
-    def _process(self, data):
+    def _process(self, data, _):
         message_type_id = ord(data[0])
         for (message, handlers) in self._handlers.items():
             if message.TYPE_ID == message_type_id:
@@ -85,13 +53,13 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
         self._send(message)
 
     def _send(self, message):
-        if not self._keepRunning:
+        if not self._device:
             return
         try:
             if message.TYPE_ID != 99:
                 per_start_time = time.time()
                 data = chr(message.TYPE_ID) + message.get_bytes()
-                self._devHandle.bulkWrite(2, data, timeout=1000)
+                self._device.write(data)
                 per_end_time = time.time() - per_start_time
                 self.send_time = self.send_time + per_end_time
                 self.sent_bytes += len(data)
@@ -109,10 +77,10 @@ class UsbPacketCommunicator(Communicator, threading.Thread):
             else:
                 time.sleep(1.0 / 2000.0)
 
-        except (libusb1.USBError,), e:
+        except (PeachyUSBException), e:
             if e.value == -1 or e.value == -4:
                 logger.info("Printer missing or detached")
-                self. _detached = e
+                self._detached = e
                 raise MissingPrinterException(e)
 
     def register_handler(self, message_type, handler):
