@@ -40,7 +40,8 @@ class UsbPacketCommunicator(Communicator):
         self._device = None
         del dev
 
-    def _process(self, data, _):
+    def _process(self, data, length):
+        data = data[:length]
         message_type_id = ord(data[0])
         for (message, handlers) in self._handlers.items():
             if message.TYPE_ID == message_type_id:
