@@ -8,9 +8,12 @@ import logging
 def load_library(name):
     suffix = ''
     python_64 = sys.maxsize > 2**32
-    if os.name == 'posix':
+    if sys.platform == 'linux2':
         suffix = '.so'
         dependency_platform = 'linux'
+    if sys.platform == 'darwin':
+        suffix = '.dylib'
+        dependency_platform = 'mac'
     if os.name == 'nt':
         suffix = '.dll'
         dependency_platform = 'win'
