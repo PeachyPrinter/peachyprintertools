@@ -6,7 +6,7 @@ class peachyusb_t(ctypes.Structure):
 
 peachyusb_t_p = ctypes.POINTER(peachyusb_t)
 
-peachyusb_read_callback = ctypes.CFUNCTYPE(None, ctypes.c_char_p, ctypes.c_uint)
+peachyusb_read_callback = ctypes.CFUNCTYPE(None, ctypes.POINTER(ctypes.c_char), ctypes.c_uint)
 
 def _load_library():
     dll = load_library("libPeachyUSB")

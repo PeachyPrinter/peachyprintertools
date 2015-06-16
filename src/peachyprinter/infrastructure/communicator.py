@@ -29,6 +29,9 @@ class UsbPacketCommunicator(Communicator):
         self.send_time = 0
         self._detached = False
 
+    def __del__(self):
+        self.close()
+
     def start(self):
         self._device = PeachyUSB(500) # queue size, in packets (2000/sec)
         self._device.set_read_callback(self._process)
