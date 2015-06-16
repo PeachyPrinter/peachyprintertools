@@ -43,7 +43,7 @@ class PathToPoints(object):
             samples = (self.samples_per_second * seconds) + self._left_over_samples
             if samples < 2.0:
                 if not self._reported_small_warning:
-                    logger.warning("The data in the model is too complex skipping vertex(s) at height %s mm" % start[2])
+                    logger.info("The data in the model is too complex skipping vertex(s) at height %s mm" % start[2])
                     self._reported_small_warning = True
                 if not self._left_over_start:
                     self._left_over_start = start
