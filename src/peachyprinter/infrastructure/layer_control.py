@@ -191,7 +191,7 @@ class LayerProcessing():
                 if self._pre_layer_delay:
                     self._writer.wait_till_time(
                         time.time() + self._pre_layer_delay)
-                self._writer.process_layer(layer)
+                self._status.add_axis_data(self._writer.process_layer(layer))
                 self._commander.send_command(self._layer_ended_command)
             else:
                 logger.warning('Dripping too fast, Skipping layer')

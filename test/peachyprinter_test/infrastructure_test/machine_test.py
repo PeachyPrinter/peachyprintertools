@@ -103,7 +103,13 @@ class MachineStatusTests(unittest.TestCase):
         status = MachineStatus()
         status.add_error(MachineError("Error", "Test Error"))
 
-        self.assertEqual(1,status.status()['errors'])
+        self.assertEqual(1,statadd_axis_dataus.status()['errors'])
+
+    def test_add_axis_data_adds_axis_data(self):
+        status = MachineStatus()
+        status.add_axis_data([[0.0,1.0],[-1.0,1.0],2.0])
+
+        self.assertEqual([[[0.0,1.0],[-1.0,1.0],2.0]],status.status()['axis'])
 
     def test_set_model_height_update_height_of_layer(self):
         status = MachineStatus()

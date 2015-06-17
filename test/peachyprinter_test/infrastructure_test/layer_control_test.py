@@ -551,6 +551,25 @@ class LayerProcessingTest(unittest.TestCase):
             layer_processing.process(
                 Layer(1.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], 2.0)]))
 
+    def test_process_should_update_axis(self, mock_ZAxis, mock_Writer):
+        mock_zaxis = mock_ZAxis.return_value
+        mock_writer = mock_Writer.return_value
+        expected_axis = [[1.0,2.0],[-1.0,1.0],2.0]
+        status = MachineStatus()
+        layer_processing = LayerProcessing(
+            mock_writer,
+            MachineState(),
+            status,
+            mock_zaxis, )
+        mock_zaxis.current_z_location_mm.return_value = 1.0
+        mock_writer.process_layer.return_value = expected_axis
+        test_layer = Layer(1.0, [LateralDraw([0.0, 0.0], [2.0, 2.0], 2.0)])
+
+        layer_processing.process(test_layer)
+
+        actual = status.status()['axis']
+        self.assertEquals([expected_axis], actual)
+
     def test_process_should_update_layer_height(self, mock_ZAxis, mock_Writer):
         mock_zaxis = mock_ZAxis.return_value
         status = MachineStatus()
@@ -579,8 +598,7 @@ class LayerProcessingTest(unittest.TestCase):
             status,
             mock_zaxis, )
         expected_model_height = 32.7
-        z_axis_results = [
-            expected_model_height - 1, expected_model_height, expected_model_height]
+        z_axis_results = [expected_model_height - 1, expected_model_height, expected_model_height]
         actual = []
 
         def side_effect():
@@ -589,8 +607,7 @@ class LayerProcessingTest(unittest.TestCase):
 
         mock_zaxis.current_z_location_mm.side_effect = side_effect
 
-        test_layer = Layer(
-            expected_model_height, [LateralDraw([0.0, 0.0], [2.0, 2.0], 2.0)])
+        test_layer = Layer(expected_model_height, [LateralDraw([0.0, 0.0], [2.0, 2.0], 2.0)])
 
         layer_processing.process(test_layer)
 
@@ -619,10 +636,8 @@ class LayerProcessingTest(unittest.TestCase):
         layer_processing.process(test_layer)
         end_time = time.time()
 
-        self.assertTrue(mock_writer.wait_till_time.call_args_list[0][0][
-                        0] >= start_time + pre_layer_delay, "Was %s, expected: %s" % (mock_writer.wait_till_time.call_args_list[0][0], start_time + pre_layer_delay))
-        self.assertTrue(mock_writer.wait_till_time.call_args_list[0][0][
-                        0] <= end_time + pre_layer_delay, "Was %s, expected: %s" % (mock_writer.wait_till_time.call_args_list[0][0], start_time + pre_layer_delay))
+        self.assertTrue(mock_writer.wait_till_time.call_args_list[0][0][0] >= start_time + pre_layer_delay, "Was %s, expected: %s" % (mock_writer.wait_till_time.call_args_list[0][0], start_time + pre_layer_delay))
+        self.assertTrue(mock_writer.wait_till_time.call_args_list[0][0][0] <= end_time + pre_layer_delay, "Was %s, expected: %s" % (mock_writer.wait_till_time.call_args_list[0][0], start_time + pre_layer_delay))
 
 if __name__ == '__main__':
     logging.basicConfig(

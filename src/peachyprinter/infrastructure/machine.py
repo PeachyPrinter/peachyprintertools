@@ -41,6 +41,7 @@ class MachineStatus(object):
         self._drips = 0
         self._drips_per_second = 0
         self._drip_history = []
+        self._axis = []
         self._skipped_layers = 0
         self._lock = threading.Lock()
 
@@ -69,6 +70,10 @@ class MachineStatus(object):
 
     def add_error(self, error):
         self._errors.append(error)
+        self._update()
+
+    def add_axis_data(self, axis):
+        self._axis.append(axis)
         self._update()
 
     def set_waiting_for_drips(self):
@@ -130,5 +135,6 @@ class MachineStatus(object):
             'drips_per_second' : self._drips_per_second,
             'model_height' : self._model_height,
             'skipped_layers' : self._skipped_layers,
-            'drip_history' : self._drip_history
+            'drip_history' : self._drip_history,
+            'axis': self._axis
         }
