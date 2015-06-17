@@ -338,6 +338,20 @@ class LayerWriterTests(unittest.TestCase):
         self.writer.terminate()
 
 
+    def test_process_layer_should_return_extents(self, mock_MicroDisseminator, mock_PathToPoints, mock_LaserControl):
+        mock_laser_control = mock_LaserControl.return_value
+        mock_path_to_points = mock_PathToPoints.return_value
+        mock_disseminator = mock_MicroDisseminator.return_value
+        test_layer = Layer(2.0, [LateralDraw([-2.0, 0.0], [-1.0, 2.0], 2.0)])
+        expected = [[-2.0,-1.0],[0.0,2.0],2.0]
+        self.writer = LayerWriter(
+            mock_disseminator, mock_path_to_points, mock_laser_control, MachineState(), override_move_speed=2.0, override_draw_speed=2.0)
+
+        result = self.writer.process_layer(test_layer)
+
+        self.assertEqual(expected, result)
+
+
 @patch('peachyprinter.infrastructure.layer_control.LayerWriter')
 @patch('peachyprinter.domain.zaxis.ZAxis')
 class LayerProcessingTest(unittest.TestCase):

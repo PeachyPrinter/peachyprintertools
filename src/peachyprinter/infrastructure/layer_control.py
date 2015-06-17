@@ -47,6 +47,7 @@ class LayerWriter():
     def process_layer(self, layer):
         if self._shutting_down or self._shutdown:
             raise Exception("LayerWriter already shutdown")
+        min_x,max_x,min_y,max_y,layer_height = None,None,None,None,None
         with self._lock:
             if self._disseminator:
                 self._disseminator.next_layer(layer.z)
@@ -59,10 +60,27 @@ class LayerWriter():
                     self._abort_current_command = False
                     break
                 if type(command) == LateralDraw:
+                    if layer_height is None:
+                        min_x = command.start[0]
+                        max_x = command.start[0]
+                        min_y = command.start[1]
+                        max_y = command.start[1]
+                        layer_height = layer.z
+                    x,y = command.start
+                    min_x = x if x < min_x else min_x
+                    max_x = x if x > max_x else max_x
+                    min_y = y if y < min_y else min_y
+                    max_y = y if y > max_y else max_y
+                    x,y = command.end
+                    min_x = x if x < min_x else min_x
+                    max_x = x if x > max_x else max_x
+                    min_y = y if y < min_y else min_y
+                    max_y = y if y > max_y else max_y
                     if not self._same_posisition(self._state.xy, command.start):
                         self._move_lateral(
                             command.start, layer.z, command.speed)
                     self._draw_lateral(command.end, layer.z, command.speed)
+        return [[min_x,max_x],[min_y,max_y],layer_height]
 
     def _move_lateral(self, (to_x, to_y), to_z, speed):
         if self._override_move_speed:
