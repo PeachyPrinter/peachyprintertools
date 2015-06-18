@@ -34,6 +34,9 @@ class PrinterAPI(object):
     def get_configuration_api(self):
         return self._configuration_api
 
+    def get_current_config(self):
+        return self._configuration_api.get_current_config()
+
     def get_test_print_api(self, ):
         if not self._test_print_api:
             self._test_print_api = TestPrintAPI()
