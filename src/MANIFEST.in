@@ -1,2 +1,4 @@
 include peachyprinter/dependancies/win/amd64/*.dll
 include peachyprinter/dependancies/win/x86/*.dll
+include peachyprinter/dependancies/mac/amd64/*.dylib
+include peachyprinter/dependancies/linux/amd64/*.so

@@ -14,7 +14,12 @@ setup(
     url="http://www.peachyprinter.com",
     author="Peachy Printer",
     author_email="software+peachyprintertools@peachyprinter.com",
-    package_data = { '': ['*.dll', 'peachyprinter/dependancies/win/amd64/*'], '': ['*.dll', 'peachyprinter/dependancies/win/x86/*']},
+    package_data = { 
+    '': ['*.dll', 'peachyprinter/dependancies/win/amd64/*'], 
+    '': ['*.dll', 'peachyprinter/dependancies/win/x86/*']
+    '': ['*.dylib', 'peachyprinter/dependancies/max/amd64/*'], 
+    '': ['*.so', 'peachyprinter/dependancies/linux/amd64/*'], 
+    },
     install_requires=['protobuf>=2.6.1', 'pyserial>=2.7', 'numpy>=1.8.2', 'libusb1>=1.3.1'],
     packages=find_packages(),
     py_modules=['VERSION'],
