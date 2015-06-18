@@ -19,24 +19,23 @@ def load_library(name):
         dependency_platform = 'win'
 
     if os.environ.get('PEACHY_API_DLL_PATH'):
-        dep_path = os.environ.get('PEACHY_API_DLL_PATH')
+        dll_path = os.environ.get('PEACHY_API_DLL_PATH')
         logging.info("Loading usb dll via PEACHY_API_DLL_PATH")
     else:
         try:
             dist = pkg_resources.get_distribution('PeachyPrinterToolsAPI')
             if python_64:
-                dep_path = os.path.join(dist,'peachyprinter' ,'dependancies', dependency_platform, 'amd64')
+                dll_path = os.path.join(dist,'peachyprinter' ,'dependancies', dependency_platform, 'amd64')
             else:
-                dep_path = os.path.join(dist,'peachyprinter' ,'dependancies', dependency_platform, 'x86')
+                dll_path = os.path.join(dist,'peachyprinter' ,'dependancies', dependency_platform, 'x86')
             logging.info("Loading usb dll via package resources")
         except Exception:
             current_path = os.path.dirname(__file__)
             if python_64:
-                dep_path = os.path.join(current_path, '..','peachyprinter' ,'dependancies', dependency_platform, 'amd64')
+                dll_path = os.path.join(current_path, '..','peachyprinter' ,'dependancies', dependency_platform, 'amd64')
             else:
-                dep_path = os.path.join(current_path, '..','peachyprinter' ,'dependancies', dependency_platform, 'x86')
+                dll_path = os.path.join(current_path, '..','peachyprinter' ,'dependancies', dependency_platform, 'x86')
             logging.info("Loading usb dll via relitive path")
-        dll_path = os.path.join(dep_path)
     
     dll_name = "%s%s" % (name, suffix)
     try:
