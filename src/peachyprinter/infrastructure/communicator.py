@@ -33,7 +33,8 @@ class UsbPacketCommunicator(Communicator):
         self.close()
 
     def start(self):
-        self._device = PeachyUSB(500) # queue size, in packets (2000/sec)
+        logging.info("USING PEACHY USB")
+        self._device = PeachyUSB(5000) # queue size, in packets (2000/sec)
         self._device.set_read_callback(self._process)
         if not self._device:
             raise MissingPrinterException()
