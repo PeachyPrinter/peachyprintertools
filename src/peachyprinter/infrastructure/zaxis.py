@@ -14,6 +14,7 @@ class SerialDripZAxis(ZAxis):
         self._drips = 0
         self._drip_call_back = drip_call_back
         self._communicator.send(SetDripCountMessage(0))
+        time.sleep(1) # Terrible accomendation for the latency of the command.
         self._communicator.register_handler(DripRecordedMessage, self.drip_reported_handler)
         self._drip_history = []
         self._drips_in_average = 10
