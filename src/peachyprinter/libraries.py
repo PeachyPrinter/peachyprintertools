@@ -9,7 +9,7 @@ def ensure_windows_dependancies():
     try:
         from ctypes import cdll
         cdll.msvcp120
-        print "success"
+        logging.info("Found Visual C++ Redistributable")
     except WindowsError:
         logging.error("Could not find MS c++ redist-brutal, will prompt for install")
         import webbrowser
