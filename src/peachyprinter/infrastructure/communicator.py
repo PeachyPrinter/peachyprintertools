@@ -64,6 +64,7 @@ class UsbPacketCommunicator(Communicator):
             if message.TYPE_ID != 99:
                 per_start_time = time.time()
                 data = chr(message.TYPE_ID) + message.get_bytes()
+                data = chr(len(data)) + data
                 self._device.write(data)
                 per_end_time = time.time() - per_start_time
                 self.send_time = self.send_time + per_end_time
