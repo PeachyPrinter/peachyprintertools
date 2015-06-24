@@ -150,10 +150,29 @@ class SquareGenerator(TestLayerGenerator):
 
     def next(self):
         layer = Layer(self._current_height)
-        layer.commands.append(LateralDraw([-self._radius, self._radius], [self._radius, self._radius], self._speed))
-        layer.commands.append(LateralDraw([self._radius, self._radius], [self._radius, -self._radius], self._speed))
-        layer.commands.append(LateralDraw([self._radius, -self._radius], [-self._radius, -self._radius], self._speed))
-        layer.commands.append(LateralDraw([-self._radius, -self._radius], [-self._radius, self._radius], self._speed))
+        rng = int(self._radius)
+        last = [-self._radius, self._radius]
+
+        for i in range(-rng, (rng + 1)):
+            i = float(i) / float(rng)
+            layer.commands.append(LateralDraw(last, [i * self._radius, self._radius], self._speed))
+            last = [i * self._radius, self._radius]
+
+        for i in range(rng, -(rng + 1), -1):
+            i = float(i) / float(rng)
+            layer.commands.append(LateralDraw(last, [self._radius, i * self._radius], self._speed))
+            last = [self._radius, i * self._radius]
+
+        for i in range(-rng, (rng + 1)):
+            i = float(i) / float(rng)
+            layer.commands.append(LateralDraw(last, [-self._radius, i * self._radius], self._speed))
+            last = [-self._radius, i * self._radius]
+
+        for i in range(rng, -(rng + 1), -1):
+            i = float(i) / float(rng)
+            layer.commands.append(LateralDraw(last, [i * self._radius, self._radius], self._speed))
+            last = [i * self._radius, self._radius]
+
         return layer
 
 
