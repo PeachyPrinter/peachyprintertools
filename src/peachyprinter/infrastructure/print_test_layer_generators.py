@@ -229,7 +229,7 @@ class ConcentricCircleTestGenerator(LayerGenerator):
         self._layer_height = float(layer_height)
         self._speed = speed
         self._current_height = 0.0
-        self._steps = 360
+        self._steps = 90
         self._rad_per_step = 2 * pi / float(self._steps)
         self._layers = self._height / self._layer_height
         self._angle_varience = pi / self._layers
@@ -286,7 +286,7 @@ class LollipopTestGenerator(LayerGenerator):
         remaining_height = height - self._base_height
         self._pop_radius = min(remaining_height / 2.0, float(width) / 2.0)
         self._pop_center_height = height - self._pop_radius
-        self._stick_complexity = 20
+        self._stick_complexity = 100
         self._pop_complexity = 100
 
         logger.info("Pop height: %s" % self._height)
