@@ -5,24 +5,6 @@ import os
 import sys
 import logging
 
-def ensure_windows_dependancies():
-    try:
-        from ctypes import cdll
-        cdll.msvcp120
-        logging.info("Found Visual C++ Redistributable")
-    except WindowsError:
-        logging.error("Could not find MS c++ redist-brutal, will prompt for install")
-        import webbrowser
-        import win32api
-
-        win32api.MessageBox(0, 'Visual C++ Redistributable for Visual Studio 2012 is required to run. Your browser should open on microsofts download page', 'One more thing!')
-
-        url = "https://www.microsoft.com/en-ca/download/details.aspx?id=30679"
-        new = 2 # new tab
-        webbrowser.open(url, new=new)
-        raise EnvironmentError("Could not find MS c++ redist-brutal, will prompt for install")
-    return True
-
 def load_library(name):
     suffix = ''
     python_64 = sys.maxsize > 2**32
@@ -33,7 +15,6 @@ def load_library(name):
         suffix = '.dylib'
         dependency_platform = 'mac'
     if os.name == 'nt':
-        ensure_windows_dependancies()
         suffix = '.dll'
         dependency_platform = 'win'
 
