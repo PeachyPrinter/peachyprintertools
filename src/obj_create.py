@@ -2,13 +2,16 @@ from peachyprinter.infrastructure import print_test_layer_generators as lg
 import inspect
 from peachyprinter.domain.layer_generator import LayerGenerator
 import re
+import os
 
 height = 1
 width = 1
-layer_height = 0.01
-out_folder = '/opt/git/kivypeachyprinter/src/resources/objects/'
+layer_height = 0.05
+out_folder = os.path.join('..', '..', 'kivypeachyprinter', 'src', 'resources', 'objects')
 
 pattern = re.compile('[\W_]+')
+
+
 
 available_prints = {}
 for name in dir(lg):
@@ -22,7 +25,7 @@ for name, cls in available_prints.items():
     print "Building: {}".format(name)
     layers = cls(height, width, layer_height)
     file_name = pattern.sub('', name)
-    outfile = out_folder + file_name + '.obj'
+    outfile = os.path.join(out_folder, file_name + '.obj')
 
 
     vertices = []
@@ -38,7 +41,7 @@ for name, cls in available_prints.items():
         for command in layer.commands:
             x, y = command.end
             z = layer.z
-            vertices.append([x, y, z])
+            vertices.append([x, z, y])
 
     print "Layers: {}".format(layer_count)
     print "Verticies count: {}".format(len(vertices))
@@ -57,12 +60,52 @@ for name, cls in available_prints.items():
 
     print "Faces aka polycount: {}".format(len(faces))
 
+    normals = []
+
+    def vminus(A, B):
+        return [
+            B[0]-A[0],
+            B[1]-A[1],
+            B[2]-A[2]
+            ]
+
+    def vcross(A, B):
+        return [
+            A[1]*B[2] - A[2]*B[1],
+            A[2]*B[0] - A[0]*B[2],
+            A[0]*B[1] - A[1]*B[0]
+            ]
+
+
+    for face in faces:
+        A = vertices[face[0] - 1]
+        B = vertices[face[1] - 1]
+        C = vertices[face[2] - 1]
+        D = vertices[face[3] - 1]
+
+        normals.append(vcross(vminus(D,A),vminus(B,A)))
+        normals.append(vcross(vminus(A,B),vminus(C,B)))
+        normals.append(vcross(vminus(B,C),vminus(D,C)))
+        normals.append(vcross(vminus(C,D),vminus(A,D)))
+
     with open(outfile, 'w') as out:
         out.write('o {}\n'.format(name))
+        out.write('\n')
         for vertex in vertices:
             out.write("v\t{:.4f}\t{:.4f}\t{:.4f}\n".format(*vertex))
         out.write('\n')
-        for face in faces:
-            out.write("f\t{}\t{}\t{}\t{}\n".format(*face))
+        for normal in normals:
+            out.write("vn\t{:.4f}\t{:.4f}\t{:.4f}\n".format(*normal))
+        out.write('\n')
+        for idx in range(0,len(faces)):
+            face = faces[idx]
+            norm = idx*4
+            out.write("f\t{0}//{n1}\t{1}//{n2}\t{2}//{n3}\t{3}//{n4}\n".format(
+                *face,
+                n1=(norm + 1),
+                n2=(norm + 2),
+                n3=(norm + 3),
+                n4=(norm + 4)
+                ))
     print ""
 
