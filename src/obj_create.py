@@ -1,6 +1,7 @@
 from peachyprinter.infrastructure import print_test_layer_generators as lg
 import inspect
 from peachyprinter.domain.layer_generator import LayerGenerator
+from peachyprinter.domain.commands import LateralMove
 import re
 import os
 
@@ -29,19 +30,28 @@ for name, cls in available_prints.items():
 
 
     vertices = []
+    breaks = []
     commands_per_layer = None
     layer_count = 0
+    last_pos = None
 
     for layer in layers:
+        last_pos = layer.commands[0].start
         layer_count += 1
         if commands_per_layer is None:
             commands_per_layer = len(layer.commands)
         if len(layer.commands) != commands_per_layer:
             print ("This aint going to work")
         for command in layer.commands:
+            if command.start != last_pos or type(command) == LateralMove:
+                breaks.append(True)
+            else:
+                breaks.append(False)
             x, y = command.end
             z = layer.z
             vertices.append([x, z, y])
+            last_pos = command.end
+
 
     print "Layers: {}".format(layer_count)
     print "Verticies count: {}".format(len(vertices))
@@ -51,11 +61,12 @@ for name, cls in available_prints.items():
     while current_layer < layer_count - 1:
         offset = current_layer * commands_per_layer
         for pos in range(0, commands_per_layer):
-            D = pos
-            C = (pos + 1) if (pos < commands_per_layer - 1) else 0
-            B = ((pos + 1) if (pos < commands_per_layer - 1) else 0) + commands_per_layer
-            A = pos + commands_per_layer
-            faces.append([offset + A + 1, offset + B + 1, offset + C + 1, offset + D + 1])
+            if breaks[offset + pos + 1] == False:
+                D = pos
+                C = (pos + 1) if (pos < commands_per_layer - 1) else 0
+                B = ((pos + 1) if (pos < commands_per_layer - 1) else 0) + commands_per_layer
+                A = pos + commands_per_layer
+                faces.append([offset + A + 1, offset + B + 1, offset + C + 1, offset + D + 1])
         current_layer += 1
 
     print "Faces aka polycount: {}".format(len(faces))

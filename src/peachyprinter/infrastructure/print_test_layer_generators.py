@@ -264,7 +264,7 @@ class ConcentricCircleTestGenerator(LayerGenerator):
         for i in range(1, self._rings + 1):
             radius = self._max_radius / self._rings * i
             points = self._points(0, radius)
-            commands += [LateralDraw(points[0], points[0], self._speed)]
+            commands += [LateralMove(points[0], points[0], self._speed)]
             commands += [LateralDraw(points[index - 1], points[index], self._speed) for index in range(1, len(points))]
 
         layer = Layer(self._current_height, commands=commands)
