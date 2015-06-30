@@ -265,7 +265,7 @@ class CureTestSetupMixIn(object):
 
     '''Sets the draw_speed for Cure Rate test.'''
     def set_cure_rate_override_laser_power_amount(self, override_laser_power_amount):
-        if override_laser_power_amount >= 0.1568:
+        if override_laser_power_amount >= 1.0:
             raise Exception("Laser Power is too high")
 
         if (self._positive_percentage(float(override_laser_power_amount))):
