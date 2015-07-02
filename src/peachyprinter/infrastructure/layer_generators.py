@@ -153,21 +153,21 @@ class SquareGenerator(TestLayerGenerator):
         layer = Layer(self._current_height)
         last = [-self._radius, self._radius]
 
-        for point in np.linspace(-self.radius, self.radius, 100):
+        for point in np.linspace(-self._radius, self._radius, 100):
             layer.commands.append(LateralDraw(last, [point, self._radius], self._speed))
             last = [point, self._radius]
 
-        for point in np.linspace(self.radius, -self.radius, 100):
+        for point in np.linspace(self._radius, -self._radius, 100):
             layer.commands.append(LateralDraw(last, [self._radius, point], self._speed))
             last = [self._radius, point]
 
-        for point in np.linspace(self.radius, -self.radius, 100):
+        for point in np.linspace(self._radius, -self._radius, 100):
             layer.commands.append(LateralDraw(last, [point, -self._radius], self._speed))
             last = [point, -self._radius]
 
-        for point in np.linspace(-self.radius, self.radius, 100):
-            layer.commands.append(LateralDraw(last, [self.radius, point], self._speed))
-            last = [self.radius, point]
+        for point in np.linspace(-self._radius, self._radius, 100):
+            layer.commands.append(LateralDraw(last, [self._radius, point], self._speed))
+            last = [self._radius, point]
 
         return layer
 
