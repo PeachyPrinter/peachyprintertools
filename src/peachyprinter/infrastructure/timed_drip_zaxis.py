@@ -24,8 +24,9 @@ class TimedDripZAxis(ZAxis, threading.Thread):
         self.start_time = 0
         self._call_back = call_back
         self._time_to_wait = 1.0 / (calls_back_per_second * 1.0)
-        self._drips_history = 0.0
+        self._last_drip = 0.0
         self._height_history = self._starting_height
+        self.drip_history = [time.time()]
 
     def set_call_back(self, call_back):
         self._call_back = call_back
@@ -33,7 +34,7 @@ class TimedDripZAxis(ZAxis, threading.Thread):
     def set_drips_per_second(self, dps):
         current_time = time.time() - self.start_time
         drips = current_time * self._drips_per_second
-        self._drips_history = self._drips_history + drips
+        self._last_drip = self._last_drip + drips
         self._height_history = self._height_history + (drips / self._drips_per_mm)
         self.start_time = time.time()
         self._drips_per_second = dps
@@ -54,10 +55,14 @@ class TimedDripZAxis(ZAxis, threading.Thread):
 
     def update_data(self):
         if self._call_back:
-            current_time = time.time() - self.start_time
+            tme = time.time()
+            current_time = tme - self.start_time
             drips = current_time * self._drips_per_second
             height = drips / self._drips_per_mm
-            self._call_back(math.ceil(self._drips_history + drips), self._height_history + height, self._drips_per_second)
+            new_drips = int(math.floor((tme - self.drip_history[-1]) * self._drips_per_second))
+            for i in range(0,new_drips):
+                self.drip_history.append(tme)
+            self._call_back(math.ceil(self._last_drip + drips), self._height_history + height, self._drips_per_second, self.drip_history)
 
     def start(self):
         threading.Thread.start(self)

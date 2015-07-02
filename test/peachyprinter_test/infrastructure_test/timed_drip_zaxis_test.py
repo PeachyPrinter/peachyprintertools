@@ -22,11 +22,12 @@ class TimedDripZaxisTests(unittest.TestCase):
         if self.tdza:
             self.tdza.close()
 
-    def call_back(self, drips, height, drips_per_second):
+    def call_back(self, drips, height, drips_per_second, drip_history):
         self.calls += 1
         self.drips = drips
         self.height = height
         self.drips_per_second = drips_per_second
+        self.drip_history = drip_history
 
     def test_shutsdown_cleanly(self):
         self.tdza = TimedDripZAxis(1, 0.0)
