@@ -6,6 +6,7 @@ from peachyprinter.domain.layer_generator import LayerGenerator, TestLayerGenera
 import math
 from math import pi, sin, cos, asin
 from threading import Lock
+import numpy as np
 
 # -----------Testing Generators ----------------
 
@@ -150,28 +151,23 @@ class SquareGenerator(TestLayerGenerator):
 
     def next(self):
         layer = Layer(self._current_height)
-        rng = int(self._radius)
         last = [-self._radius, self._radius]
 
-        for i in range(-rng, (rng + 1)):
-            i = float(i) / float(rng)
-            layer.commands.append(LateralDraw(last, [i * self._radius, self._radius], self._speed))
-            last = [i * self._radius, self._radius]
+        for point in np.linspace(-self.radius, self.radius, 100):
+            layer.commands.append(LateralDraw(last, [point, self._radius], self._speed))
+            last = [point, self._radius]
 
-        for i in range(rng, -(rng + 1), -1):
-            i = float(i) / float(rng)
-            layer.commands.append(LateralDraw(last, [self._radius, i * self._radius], self._speed))
-            last = [self._radius, i * self._radius]
+        for point in np.linspace(self.radius, -self.radius, 100):
+            layer.commands.append(LateralDraw(last, [self._radius, point], self._speed))
+            last = [self._radius, point]
 
-        for i in range(-rng, (rng + 1)):
-            i = float(i) / float(rng)
-            layer.commands.append(LateralDraw(last, [-self._radius, i * self._radius], self._speed))
-            last = [-self._radius, i * self._radius]
+        for point in np.linspace(self.radius, -self.radius, 100):
+            layer.commands.append(LateralDraw(last, [point, -self._radius], self._speed))
+            last = [point, -self._radius]
 
-        for i in range(rng, -(rng + 1), -1):
-            i = float(i) / float(rng)
-            layer.commands.append(LateralDraw(last, [i * self._radius, self._radius], self._speed))
-            last = [i * self._radius, self._radius]
+        for point in np.linspace(-self.radius, self.radius, 100):
+            layer.commands.append(LateralDraw(last, [self.radius, point], self._speed))
+            last = [self.radius, point]
 
         return layer
 
