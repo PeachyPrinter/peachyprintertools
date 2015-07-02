@@ -153,21 +153,21 @@ class SquareGenerator(TestLayerGenerator):
         layer = Layer(self._current_height)
         last = [-self._radius, self._radius]
 
-        for point in np.linspace(-self._radius, self._radius, 100):
-            layer.commands.append(LateralDraw(last, [point, self._radius], self._speed))
-            last = [point, self._radius]
+        for X_point in np.linspace(-self._radius, self._radius, 101)[:-1]:
+            layer.commands.append(LateralDraw(last, [X_point, self._radius], self._speed))
+            last = [X_point, self._radius]
 
-        for point in np.linspace(self._radius, -self._radius, 100):
-            layer.commands.append(LateralDraw(last, [self._radius, point], self._speed))
-            last = [self._radius, point]
+        for y_point in np.linspace(self._radius, -self._radius, 101)[:-1]:
+            layer.commands.append(LateralDraw(last, [self._radius, y_point], self._speed))
+            last = [self._radius, y_point]
 
-        for point in np.linspace(self._radius, -self._radius, 100):
-            layer.commands.append(LateralDraw(last, [point, -self._radius], self._speed))
-            last = [point, -self._radius]
+        for x_point in np.linspace(self._radius, -self._radius, 101)[:-1]:
+            layer.commands.append(LateralDraw(last, [x_point, -self._radius], self._speed))
+            last = [x_point, -self._radius]
 
-        for point in np.linspace(-self._radius, self._radius, 100):
-            layer.commands.append(LateralDraw(last, [self._radius, point], self._speed))
-            last = [self._radius, point]
+        for y_point in np.linspace(-self._radius, self._radius, 101)[:-1]:
+            layer.commands.append(LateralDraw(last, [-self._radius, y_point], self._speed))
+            last = [-self._radius, y_point]
 
         return layer
 

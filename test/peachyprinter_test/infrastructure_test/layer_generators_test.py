@@ -51,6 +51,29 @@ class CalibrationLineGeneratorTests(unittest.TestCase, test_helpers.TestHelpers)
 # --------------  Test Generators  ----------------------------------------
 
 
+class SquareGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
+    def test_can_call_next_and_get_specified_command(self):
+        speed = 100
+        radius = 50
+        layer_generator = SquareGenerator(speed=speed, radius=radius)
+        actual = layer_generator.next()
+
+        for command in actual.commands:
+            print command
+
+        self.assertCommandEqual(LateralDraw([-radius, radius], [-radius, radius], 100.0), actual.commands[0])
+        self.assertCommandEqual(LateralDraw([-1, radius], [0, radius], 100.0), actual.commands[50])
+
+        self.assertCommandEqual(LateralDraw([radius - 1, radius], [radius, radius], 100.0), actual.commands[100])
+        self.assertCommandEqual(LateralDraw([radius, 1], [radius, 0], 100.0), actual.commands[150])
+
+        self.assertCommandEqual(LateralDraw([radius, -radius + 1], [radius, -radius], 100.0), actual.commands[200])
+        self.assertCommandEqual(LateralDraw([1, -radius], [0, -radius], 100.0), actual.commands[250])
+
+        self.assertCommandEqual(LateralDraw([-radius + 1, -radius], [-radius, -radius], 100.0), actual.commands[300])
+        self.assertCommandEqual(LateralDraw([-radius, -1], [-radius, 0], 100.0), actual.commands[350])
+
+
 class HilbertGeneratorTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_can_call_next_and_get_specified_command(self):
         layer_generator = HilbertGenerator(order=1, speed=100.0, radius=50.0)
