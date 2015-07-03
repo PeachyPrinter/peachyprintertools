@@ -2,7 +2,9 @@
 import os
 import sys
 import logging
+import affinity
 
+affinity.set_process_affinity_mask(0, 0x00000001)
 logger = logging.getLogger('peachy')
     
 from peachyprinter.api.peachy_printer_api import PrinterAPI
