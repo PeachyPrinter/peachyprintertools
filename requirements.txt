@@ -2,4 +2,3 @@ mock==1.0.1
 numpy==1.9.2
 protobuf==2.6.1
 pyserial==2.7
-affinity==0.1.0
