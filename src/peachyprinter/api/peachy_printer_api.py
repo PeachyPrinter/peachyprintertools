@@ -22,11 +22,11 @@ class PrinterAPI(object):
     def current_printer(self):
         return self._configuration_api.current_printer()
 
-    def get_print_api(self, start_height=0.0, status_call_back=None):
-        return PrintAPI(self._configuration_api.get_current_config(), start_height=start_height, status_call_back=status_call_back)
+    def get_print_api(self, start_height=0.0):
+        return PrintAPI(self._configuration_api.get_current_config(), start_height=start_height)
 
-    def get_print_queue_api(self, status_call_back=None):
-        return PrintQueueAPI(self._configuration_api.get_current_config(), status_call_back=status_call_back)
+    def get_print_queue_api(self):
+        return PrintQueueAPI(self._configuration_api.get_current_config())
 
     def get_calibration_api(self, ):
         return CalibrationAPI(self._configuration_manager)
