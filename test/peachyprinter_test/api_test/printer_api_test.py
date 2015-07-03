@@ -131,21 +131,6 @@ class PrintQueueAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     @patch.object(os.path, 'isdir')
     @patch('peachyprinter.api.print_api.PrintAPI')
-    def test_print_folder_should_call_back_when_called_back(self, mock_PrintAPI, mock_isdir):
-        folder = os.path.join('', 'SomthingMadeUp')
-        expected_file1 = 'thingy1.gcode'
-        mock_isdir.return_value = True
-        with patch('peachyprinter.api.print_api.listdir', return_value=['ASDFAS.txt', 'bor.fa', expected_file1]):
-            api = PrintQueueAPI(self.default_config, self.call_back)
-            api.print_folder(folder)
-            call_back = mock_PrintAPI.call_args[0][1]
-            mock_status = {'status': 'Complete'}
-            call_back(mock_status)
-            self.assertEqual(1, len(self.call_backs))
-            self.assertEqual(mock_status, self.call_backs[0])
-
-    @patch.object(os.path, 'isdir')
-    @patch('peachyprinter.api.print_api.PrintAPI')
     def test_print_folder_should_delay_between_prints(self, mock_PrintAPI, mock_isdir):
         folder = os.path.join('', 'SomthingMadeUp')
         expected_file1 = 'thingy1.gcode'

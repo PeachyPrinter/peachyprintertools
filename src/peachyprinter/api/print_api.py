@@ -26,12 +26,9 @@ class PrintQueueAPI(object):
         self._configuration = configuration
         self._files = []
         self._api = None
-        self._status_call_back = status_call_back
         self._configuration.options.print_queue_delay
 
     def call_back(self, status):
-        if self._status_call_back:
-            self._status_call_back(status)
         if status['status'] == "Complete":
             if self._api:
                 self._api.close()
@@ -74,12 +71,11 @@ class PrintQueueAPI(object):
 
 
 class PrintAPI(object):
-    def __init__(self, configuration, start_height=0.0, status_call_back=None):
+    def __init__(self, configuration, start_height=0.0):
         logger.info('Print API Startup')
         self._configuration = configuration
         logger.info('Printer Name: %s' % self._configuration.name)
         self._controller = None
-        self._status_call_back = status_call_back
         self._zaxis = None
         self._start_height = start_height
         self._current_file_name = None
@@ -137,7 +133,7 @@ class PrintAPI(object):
         return self._communicator
 
     def _get_digital_disseminator(self, dry_run):
-            
+
             return MicroDisseminator(
                 self.laser_control,
                 self._get_communicator(dry_run),
@@ -171,7 +167,7 @@ class PrintAPI(object):
             )
 
         state = MachineState()
-        self._status = MachineStatus(self._status_call_back)
+        self._status = MachineStatus()
 
         if dry_run:
             abort_on_error = False
