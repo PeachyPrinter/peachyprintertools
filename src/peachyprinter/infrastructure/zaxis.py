@@ -13,10 +13,11 @@ class SerialDripZAxis(ZAxis):
         self._drips_per_mm = drips_per_mm
         self._drips = 0
         self._drip_call_back = drip_call_back
-        self._communicator.send(SetDripCountMessage(0))
+        self.reset()
         self._communicator.register_handler(DripRecordedMessage, self.drip_reported_handler)
         self._drip_history = []
         self._drips_in_average = 10
+        self._drip_history_length = 500
 
     def drip_reported_handler(self, drip_reported):
         drips_added = drip_reported.drips - self._drips
@@ -28,8 +29,8 @@ class SerialDripZAxis(ZAxis):
     def _append_drip(self, drips_count):
         for i in range(0, drips_count):
             self._drip_history.append(time.time())
-        if len(self._drip_history) > 100:
-            self._drip_history = self._drip_history[-100:]
+        if len(self._drip_history) > self._drip_history_length:
+            self._drip_history = self._drip_history[-self._drip_history_length:]
 
     @property
     def average_drips(self):
