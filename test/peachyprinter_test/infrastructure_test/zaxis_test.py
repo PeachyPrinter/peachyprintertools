@@ -130,8 +130,10 @@ class SerialDripZAxisTests(unittest.TestCase):
         sdza.drip_reported_handler(drip_message)
         sdza.reset()
         actual_height = sdza.current_z_location_mm()
+        history = sdza.drip_history
 
         self.assertEqual(0.0, actual_height)
+        self.assertEqual([], history)
 
     def test_reset_removes_drips_count_accounting_for_hardware(self):
         mock_communicatior = MagicMock()

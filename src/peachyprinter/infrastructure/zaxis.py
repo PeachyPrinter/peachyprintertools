@@ -48,8 +48,9 @@ class SerialDripZAxis(ZAxis):
         self._drip_call_back = call_back
 
     def reset(self):
-        self._drips = 0
         self._communicator.send(SetDripCountMessage(0))
+        self._drips = 0
+        self._drip_history = []
 
     def current_z_location_mm(self):
         return self._starting_height + (self._drips * 1.0 / self._drips_per_mm)
