@@ -19,7 +19,6 @@ class SerialDripZAxis(ZAxis):
         self._drips_in_average = 10
 
     def drip_reported_handler(self, drip_reported):
-
         drips_added = drip_reported.drips - self._drips
         self._drips = drip_reported.drips
         self._append_drip(drips_added)
@@ -48,7 +47,9 @@ class SerialDripZAxis(ZAxis):
         self._drip_call_back = call_back
 
     def reset(self):
+        logger.info("Resetting drip count")
         self._communicator.send(SetDripCountMessage(0))
+        time.sleep(0.2)
         self._drips = 0
         self._drip_history = []
 
