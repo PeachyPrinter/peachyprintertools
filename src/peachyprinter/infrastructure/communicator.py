@@ -21,21 +21,21 @@ class MissingPrinterException(Exception):
 
 
 class UsbPacketCommunicator(Communicator):
-    def __init__(self):
+    def __init__(self, queue_size=50):
         self._handlers = {}
         self._device = None
         self.sent_bytes = 0
         self.last_sent_time = time.time()
         self.send_time = 0
         self._detached = False
-        self._queue_size = 50
+        self._queue_size = queue_size
 
     def __del__(self):
         self.close()
 
     def start(self):
         logging.info("USING PEACHY USB")
-        self._device = PeachyUSB(self._queue_size) # queue size, in packets (2000/sec)
+        self._device = PeachyUSB(self._queue_size)
         self._device.set_read_callback(self._process)
         if not self._device:
             raise MissingPrinterException()
