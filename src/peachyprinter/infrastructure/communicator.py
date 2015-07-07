@@ -29,12 +29,12 @@ class UsbPacketCommunicator(Communicator):
         self.send_time = 0
         self._detached = False
         self._queue_size = queue_size
+        logger.info("Starting Usb Communications. Queue: {0:d}".format(self._queue_size))
 
     def __del__(self):
         self.close()
 
     def start(self):
-        logging.info("USING PEACHY USB")
         self._device = PeachyUSB(self._queue_size)
         self._device.set_read_callback(self._process)
         if not self._device:
@@ -86,7 +86,7 @@ class UsbPacketCommunicator(Communicator):
 
         except (PeachyUSBException), e:
             if e.value == -1 or e.value == -4:
-                logger.info("Printer missing or detached")
+                logger.error("Printer missing or detached")
                 self._detached = e
                 raise MissingPrinterException(e)
 
