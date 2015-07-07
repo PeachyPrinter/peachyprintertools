@@ -35,6 +35,8 @@ class CircutConfiguration(ConfigurationBase):
         self._hardware_revision = self.get(source, u'hardware_revision', "N/A")
         self._serial_number = self.get(source, u'serial_number', "N/A")
         self._data_rate = self.get(source, u'data_rate', 0)
+        self._print_queue_length = self.get(source, u'print_queue_length', 0)
+        self._calibration_queue_length = self.get(source, u'calibration_queue_length', 0)
 
     @property
     def software_revision(self):
@@ -83,6 +85,30 @@ class CircutConfiguration(ConfigurationBase):
             self._data_rate = value
         else:
             raise ValueError("data_rate must be of type %s was %s" % (_type , type(value)))
+
+    @property
+    def print_queue_length(self):
+        return self._print_queue_length
+
+    @print_queue_length.setter
+    def print_queue_length(self,value):
+        _type = types.IntType
+        if type(value) == _type:
+            self._print_queue_length = value
+        else:
+            raise ValueError("print_queue_length must be of type %s was %s" % (_type , type(value)))
+
+    @property
+    def calibration_queue_length(self):
+        return self._calibration_queue_length
+
+    @calibration_queue_length.setter
+    def calibration_queue_length(self,value):
+        _type = types.IntType
+        if type(value) == _type:
+            self._calibration_queue_length = value
+        else:
+            raise ValueError("calibration_queue_length must be of type %s was %s" % (_type , type(value)))
 
 
 class CureRateConfiguration(ConfigurationBase):
@@ -948,5 +974,7 @@ class ConfigurationGenerator(object):
         configuration.circut.hardware_revision             = 'hw1'
         configuration.circut.serial_number                 = 'sn1'
         configuration.circut.data_rate                     = 0
+        configuration.circut.print_queue_length            = 500
+        configuration.circut.calibration_queue_length      = 50
 
         return configuration

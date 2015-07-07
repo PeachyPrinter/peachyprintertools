@@ -13,17 +13,38 @@ class InfoMixIn(object):
         return "TBD"
 
     def get_info_serial_number(self):
-        return self._current_config.circut.software_revision
+        return self._current_config.circut.serial_number
 
     def get_info_hardware_version_number(self):
         return self._current_config.circut.hardware_revision
 
     def get_info_firmware_version_number(self):
-        return self._current_config.circut.serial_number
+        return self._current_config.circut.software_revision
 
     def get_info_firmware_data_rate(self):
         return self._current_config.circut.data_rate
 
+    def get_info_print_queue_length(self):
+        return self._current_config.circut.print_queue_length
+
+    def get_info_calibration_queue_length(self):
+        return self._current_config.circut.calibration_queue_length
+
+    '''Sets the circut queue length'''
+    def set_info_print_queue_length(self, length):
+        if self._zero_or_positive_int(length):
+            self._current_config.circut.print_queue_length = length
+            self.save()
+        else:
+            raise Exception("Print queue length must be a positive integer")
+
+    '''Sets the circut calibration queue length'''
+    def set_info_calibration_queue_length(self, length):
+        if self._zero_or_positive_int(length):
+            self._current_config.circut.calibration_queue_length = length
+            self.save()
+        else:
+            raise Exception("Calibration queue length must be a positive integer")
 
 class DripperSetupMixIn(object):
 

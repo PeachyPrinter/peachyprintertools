@@ -80,6 +80,8 @@ class CircutConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         expected_hardware_revision = True
         expected_serial_number = True
         expected_data_rate = True
+        expected_print_queue_length = True
+        expected_calibration_queue_length = True
 
         circut = CircutConfiguration()
 
@@ -91,14 +93,18 @@ class CircutConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
             circut.serial_number = expected_serial_number
         with self.assertRaises(Exception):
             circut.data_rate = expected_data_rate
-
-
+        with self.assertRaises(Exception):
+            circut.print_queue_length = expected_print_queue_length
+        with self.assertRaises(Exception):
+            circut.calibration_queue_length = expected_calibration_queue_length
 
     def test_can_create_json_and_load_from_json(self):
         expected_software_revision = "SR1"
         expected_hardware_revision = "HW1"
         expected_serial_number ="SN1"
         expected_data_rate= 9600
+        expected_print_queue_length = 500
+        expected_calibration_queue_length = 50
 
         original_config = Configuration()
 
@@ -106,18 +112,25 @@ class CircutConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         original_config.circut.hardware_revision = expected_hardware_revision
         original_config.circut.serial_number = expected_serial_number
         original_config.circut.data_rate = expected_data_rate
+        original_config.circut.print_queue_length = expected_print_queue_length
+        original_config.circut.calibration_queue_length = expected_calibration_queue_length
 
         actual_json = json.loads(original_config.toJson())
         config = Configuration(source=actual_json)
 
-        self.assertEquals(type(expected_software_revision), type(config.circut.software_revision))
-        self.assertEquals(type(expected_hardware_revision), type(config.circut.hardware_revision))
-        self.assertEquals(type(expected_serial_number),     type(config.circut.serial_number))
-        self.assertEquals(type(expected_data_rate),         type(config.circut.data_rate))
-        self.assertEquals(expected_software_revision,       config.circut.software_revision)
-        self.assertEquals(expected_hardware_revision,       config.circut.hardware_revision)
-        self.assertEquals(expected_serial_number,           config.circut.serial_number)
-        self.assertEquals(expected_data_rate,               config.circut.data_rate)
+        self.assertEquals(type(expected_software_revision),         type(config.circut.software_revision))
+        self.assertEquals(type(expected_hardware_revision),         type(config.circut.hardware_revision))
+        self.assertEquals(type(expected_serial_number),             type(config.circut.serial_number))
+        self.assertEquals(type(expected_data_rate),                 type(config.circut.data_rate))
+        self.assertEquals(type(expected_print_queue_length),        type(config.circut.print_queue_length))
+        self.assertEquals(type(expected_calibration_queue_length),  type(config.circut.calibration_queue_length))
+
+        self.assertEquals(expected_software_revision,        config.circut.software_revision)
+        self.assertEquals(expected_hardware_revision,        config.circut.hardware_revision)
+        self.assertEquals(expected_serial_number,            config.circut.serial_number)
+        self.assertEquals(expected_data_rate,                config.circut.data_rate)
+        self.assertEquals(expected_print_queue_length,       config.circut.print_queue_length)
+        self.assertEquals(expected_calibration_queue_length, config.circut.calibration_queue_length)
 
 class CureRateConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
     def test_set_should_fail_for_incorrect_values(self):

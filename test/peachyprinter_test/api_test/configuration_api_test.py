@@ -14,6 +14,48 @@ from peachyprinter.infrastructure.communicator import UsbPacketCommunicator
 import test_helpers
 
 
+class InfoMixInTest(object):
+
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(ConfigurationManager, 'save')
+    def test_get_and_set_info(self, mock_save, mock_load):
+        expected_info_version_number = "TBD"
+        expected_info_serial_number = "sn1"
+        expected_info_hardware_version_number = "hw1"
+        expected_info_firmware_version_number = "sw1"
+        expected_info_firmware_data_rate = 0
+        expected_info_print_queue_length = 500
+        expected_info_calibration_queue_length = 50
+
+        expected_config = self.default_config
+
+        expected_config.circut.version_number             = expected_info_version_number
+        expected_config.circut.serial_number              = expected_info_serial_number
+        expected_config.circut.hardware_version_number    = expected_info_hardware_version_number
+        expected_config.circut.firmware_version_number    = expected_info_firmware_version_number
+        expected_config.circut.firmware_data_rate         = expected_info_firmware_data_rate
+        expected_config.circut.print_queue_length         = expected_info_print_queue_length
+        expected_config.circut.calibration_queue_length   = expected_info_calibration_queue_length
+
+        mock_load.return_value = self.default_config
+        configuration_API = ConfigurationAPI(ConfigurationManager())
+        configuration_API.load_printer()
+
+        configuration_API.set_info_print_queue_length(expected_info_print_queue_length)
+        configuration_API.set_info_calibration_queue_length(expected_info_calibration_queue_length)
+
+        configuration_API.save()
+
+        self.assertConfigurationEqual(expected_config, mock_save.mock_calls[0][1][0])
+
+        self.assertEquals(expected_info_version_number,              configuration_API.get_info_version_number())
+        self.assertEquals(expected_info_serial_number,               configuration_API.get_info_serial_number())
+        self.assertEquals(expected_info_hardware_version_number,     configuration_API.get_info_hardware_version_number())
+        self.assertEquals(expected_info_firmware_version_number,     configuration_API.get_info_firmware_version_number())
+        self.assertEquals(expected_info_firmware_data_rate,          configuration_API.get_info_firmware_data_rate())
+        self.assertEquals(expected_info_print_queue_length,          configuration_API.get_info_print_queue_length())
+        self.assertEquals(expected_info_calibration_queue_length,    configuration_API.get_info_calibration_queue_length())
+
 class DripperSetupMixInTest(object):
 
     @patch.object(ConfigurationManager, 'save')
@@ -1112,6 +1154,7 @@ class SerialSetupMixInTest(object):
 class ConfigurationAPITest(
         unittest.TestCase,
         test_helpers.TestHelpers,
+        InfoMixInTest,
         DripperSetupMixInTest,
         CureTestSetupMixInTest,
         OptionsSetupMixInTest,
