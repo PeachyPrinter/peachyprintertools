@@ -128,7 +128,7 @@ class PrintAPI(object):
         if dry_run:
             self._communicator = NullCommunicator()
         else:
-            self._communicator = UsbPacketCommunicator()
+            self._communicator = UsbPacketCommunicator(self._configuration.circut.print_queue_length)
             self._communicator.start()
         return self._communicator
 

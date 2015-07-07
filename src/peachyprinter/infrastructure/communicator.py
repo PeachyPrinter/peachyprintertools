@@ -21,7 +21,7 @@ class MissingPrinterException(Exception):
 
 
 class UsbPacketCommunicator(Communicator):
-    def __init__(self, queue_size=500):
+    def __init__(self, queue_size):
         self._handlers = {}
         self._device = None
         self.sent_bytes = 0

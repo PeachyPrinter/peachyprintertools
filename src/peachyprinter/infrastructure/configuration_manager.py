@@ -18,6 +18,7 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
 
     def __init__(self):
         self.printer_details = None
+        self.usb_queue_length = 50
 
     def _ident_call_back(self, message):
         self.printer_details = message
@@ -74,7 +75,7 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
         return os.path.join(self._path(), filename)
 
     def _get_printer_details(self):
-        communicator = UsbPacketCommunicator()
+        communicator = UsbPacketCommunicator(self.usb_queue_length)
         communicator.register_handler(IAmMessage, self._ident_call_back)
         communicator.start()
         communicator.send(IdentifyMessage())

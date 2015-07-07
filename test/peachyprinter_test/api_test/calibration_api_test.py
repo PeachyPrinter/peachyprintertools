@@ -100,7 +100,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
             self.default_config.circut.data_rate
             )
 
-        self.mock_UsbPacketCommunicator.assert_called()
+        self.mock_UsbPacketCommunicator.assert_called(self.default_config.circut.calibration_queue_length)
 
         self.mock_usb_packet_communicator.start.assert_called_with()
 

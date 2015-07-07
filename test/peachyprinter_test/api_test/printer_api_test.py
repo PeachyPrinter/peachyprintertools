@@ -255,7 +255,7 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
             config.cure_rate.override_laser_power_amount
             )
 
-        self.mock_UsbPacketCommunicator.assert_called()
+        self.mock_UsbPacketCommunicator.assert_called_with(config.circut.print_queue_length)
         
         self.mock_usb_packet_communicator.start.assert_called_with()
 

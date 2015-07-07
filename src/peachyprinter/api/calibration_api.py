@@ -49,7 +49,7 @@ class CalibrationAPI(object):
         self._state = MachineState()
         self._status = MachineStatus()
 
-        self._communicator = UsbPacketCommunicator()
+        self._communicator = UsbPacketCommunicator(self._configuration.circut.calibration_queue_length)
         self._communicator.start()
         self._disseminator = MicroDisseminator(
             self._laser_control,

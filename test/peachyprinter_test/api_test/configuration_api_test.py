@@ -83,7 +83,7 @@ class DripperSetupMixInTest(object):
         callback = MagicMock()
         configuration_API.start_counting_drips(callback)
 
-        mock_UsbPacketCommunicator.assert_called_with()
+        mock_UsbPacketCommunicator.assert_called_with(config.circut.calibration_queue_length)
         mock_UsbPacketCommunicator.return_value.start.assert_called_with()
         mock_SerialDripZaxis.assert_called_with(mock_UsbPacketCommunicator.return_value, 1, 0, drip_call_back=callback)
 

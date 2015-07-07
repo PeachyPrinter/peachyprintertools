@@ -134,7 +134,7 @@ class DripperSetupMixIn(object):
         elif self._current_config.dripper.dripper_type == 'photo':
             pass
         elif self._current_config.dripper.dripper_type == 'microcontroller':
-            self._communicator = UsbPacketCommunicator()
+            self._communicator = UsbPacketCommunicator(self._current_config.circut.calibration_queue_length)
             self._communicator.start()
             self._drip_detector = SerialDripZAxis(self._communicator, 1, 0.0, drip_call_back=self.drip_call_back)
 
