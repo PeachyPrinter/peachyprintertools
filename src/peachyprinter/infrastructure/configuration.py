@@ -35,8 +35,8 @@ class CircutConfiguration(ConfigurationBase):
         self._hardware_revision = self.get(source, u'hardware_revision', "N/A")
         self._serial_number = self.get(source, u'serial_number', "N/A")
         self._data_rate = self.get(source, u'data_rate', 0)
-        self._print_queue_length = self.get(source, u'print_queue_length', 0)
-        self._calibration_queue_length = self.get(source, u'calibration_queue_length', 0)
+        self._print_queue_length = self.get(source, u'print_queue_length', 500)
+        self._calibration_queue_length = self.get(source, u'calibration_queue_length', 50)
 
     @property
     def software_revision(self):
