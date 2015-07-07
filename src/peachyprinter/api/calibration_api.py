@@ -24,7 +24,7 @@ class CalibrationAPI(object):
         self._blink_generator = BlinkGenerator()
         self._orientaiton_generator = OrientationGenerator()
         self._alignment_generator = CalibrationLineGenerator()
-        self._scale_generator = SquareGenerator(speed=1, radius=1)
+        self._scale_generator = ScaleGenerator(speed=2.0, radius=1.0)
 
         self._test_patterns = {
             'Hilbert Space Filling Curve': HilbertGenerator(),

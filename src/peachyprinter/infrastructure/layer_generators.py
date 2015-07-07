@@ -171,6 +171,34 @@ class SquareGenerator(TestLayerGenerator):
 
         return layer
 
+class ScaleGenerator(TestLayerGenerator):
+    def __init__(self, speed=1.0, radius=1.0):
+        self._current_height = 0.0
+        self.set_speed(speed)
+        self.set_radius(radius)
+
+    def next(self):
+        layer = Layer(self._current_height)
+        last = [0, self._radius]
+
+        for X_point in np.linspace(0, self._radius, 101)[:-1]:
+            layer.commands.append(LateralDraw(last, [X_point, self._radius], self._speed))
+            last = [X_point, self._radius]
+
+        for y_point in np.linspace(self._radius, 0, 101)[:-1]:
+            layer.commands.append(LateralDraw(last, [self._radius, y_point], self._speed))
+            last = [self._radius, y_point]
+
+        for x_point in np.linspace(self._radius, 0, 101)[:-1]:
+            layer.commands.append(LateralDraw(last, [x_point, 0], self._speed))
+            last = [x_point, 0]
+
+        for y_point in np.linspace(0, self._radius, 101)[:-1]:
+            layer.commands.append(LateralDraw(last, [0, y_point], self._speed))
+            last = [0, y_point]
+
+        return layer
+
 
 class DampingTestGenerator(TestLayerGenerator):
     def __init__(self, speed=100.0, radius=20.0):
