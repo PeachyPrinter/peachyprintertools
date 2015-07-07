@@ -9,6 +9,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'sr
 import test_helpers
 from peachyprinter.api.calibration_api import CalibrationAPI
 
+@patch('peachyprinter.api.calibration_api.ScaleGenerator')
 @patch('peachyprinter.api.calibration_api.OrientationGenerator')
 @patch('peachyprinter.api.calibration_api.UsbPacketCommunicator')
 @patch('peachyprinter.api.calibration_api.MicroDisseminator')
@@ -33,6 +34,7 @@ from peachyprinter.api.calibration_api import CalibrationAPI
 class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
     def setup_mocks(self, args):
+        self.mock_ScaleGenerator =                       args[21]
         self.mock_OrientationGenerator =                 args[20]
         self.mock_UsbPacketCommunicator =                args[19]
         self.mock_MicroDisseminator =                    args[18]
@@ -55,8 +57,9 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         self.mock_SpiralGenerator =                      args[1]
         self.mock_MemoryHourglassGenerator =             args[0]
 
+        self.mock_scale_generator =                      self.mock_ScaleGenerator.return_value
         self.mock_orientation_generator =                self.mock_OrientationGenerator.return_value
-        self.mock_usb_packet_communicator =                  self.mock_UsbPacketCommunicator.return_value
+        self.mock_usb_packet_communicator =              self.mock_UsbPacketCommunicator.return_value
         self.mock_micro_disseminator =                   self.mock_MicroDisseminator.return_value
         self.mock_laser_control =                        self.mock_LaserControl.return_value
         self.mock_configuration_manager =                self.mock_ConfigurationManager.return_value
@@ -384,7 +387,7 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         calibration_api.show_scale()
 
-        self.mock_controller.change_generator.assert_called_with(self.mock_square_generator)
+        self.mock_controller.change_generator.assert_called_with(self.mock_scale_generator)
         self.mock_path_to_audio.set_transformer.assert_called_with(self.mock_tuning_transformer)
 
     def test_set_test_pattern_speed_changes_speeds(self, *args):
