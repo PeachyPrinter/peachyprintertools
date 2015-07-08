@@ -121,7 +121,7 @@ class CureRateConfiguration(ConfigurationBase):
         self._move_speed                    = self.get(source, u'move_speed',                   300.0    )
         self._use_draw_speed                = self.get(source, u'use_draw_speed',               True     )
         self._override_laser_power          = self.get(source, u'override_laser_power',         True     )
-        self._override_laser_power_amount   = self.get(source, u'override_laser_power_amount',  0.05     )
+        self._override_laser_power_amount   = self.get(source, u'override_laser_power_amount',  0.50     )
 
     @property
     def override_laser_power(self):
