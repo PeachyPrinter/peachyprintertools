@@ -49,9 +49,15 @@ class SinglePointGenerator(LayerGenerator):
 class CalibrationLineGenerator(LayerGenerator):
     def __init__(self, speed=30.0):
         self._speed = speed
+        self._current = 0
 
     def next(self):
-        return Layer(0.0, commands=[LateralDraw([0.0, 0.5], [1.0, 0.5], self._speed), LateralDraw([1.0, 0.5], [0.0, 0.5], self._speed)])
+        self._current += 1
+        if self._current < 30:
+            return Layer(0.0, commands=[LateralDraw([0.0, 0.5], [1.0, 0.5], self._speed), LateralDraw([1.0, 0.5], [0.0, 0.5], self._speed)])
+        if self._current == 60:
+            self._current = 0
+        return Layer(0.0, commands=[LateralDraw([0.5, 0.5], [0.5, 0.5], self._speed)])
 
 
 class OrientationGenerator(LayerGenerator):
