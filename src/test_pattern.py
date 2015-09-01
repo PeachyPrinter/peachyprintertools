@@ -32,7 +32,8 @@ print "Loaded %s " % (api.current_printer(),)
 calibration_api = api.get_calibration_api()
 
 calibration_api.show_point([0.5, 0.5, 0.0])
-
-time.sleep(60)
-
+try:
+    time.sleep(60)
+except KeyboardInterrupt:
+    pass
 calibration_api.close()
