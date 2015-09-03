@@ -103,12 +103,12 @@ class CircutConfiguration(ConfigurationBase):
         return self._calibration_queue_length
 
     @calibration_queue_length.setter
-    def calibration_queue_length(self,value):
+    def calibration_queue_length(self, value):
         _type = types.IntType
         if type(value) == _type:
             self._calibration_queue_length = value
         else:
-            raise ValueError("calibration_queue_length must be of type %s was %s" % (_type , type(value)))
+            raise ValueError("calibration_queue_length must be of type %s was %s" % (_type, type(value)))
 
 
 class CureRateConfiguration(ConfigurationBase):
@@ -117,11 +117,11 @@ class CureRateConfiguration(ConfigurationBase):
         self._total_height                  = self.get(source, u'total_height',                 23.0     )
         self._start_speed                   = self.get(source, u'start_speed',                  50.0     )
         self._finish_speed                  = self.get(source, u'finish_speed',                 200.0    )
-        self._draw_speed                    = self.get(source, u'draw_speed',                   100.0    )
+        self._draw_speed                    = self.get(source, u'draw_speed',                   80.0     )
         self._move_speed                    = self.get(source, u'move_speed',                   300.0    )
         self._use_draw_speed                = self.get(source, u'use_draw_speed',               True     )
         self._override_laser_power          = self.get(source, u'override_laser_power',         True     )
-        self._override_laser_power_amount   = self.get(source, u'override_laser_power_amount',  0.50     )
+        self._override_laser_power_amount   = self.get(source, u'override_laser_power_amount',  0.65     )
 
     @property
     def override_laser_power(self):
@@ -346,13 +346,12 @@ class OptionsConfiguration(ConfigurationBase):
         self._use_shufflelayers = self.get(source, u'use_shufflelayers', False)
 
         self._use_sublayers = self.get(source, u'use_sublayers', False)
-        self._use_overlap = self.get(source, u'use_overlap', True)
+        self._use_overlap = self.get(source, u'use_overlap', False)
         self._print_queue_delay = self.get(source, u'print_queue_delay', 0.0)
-        self._pre_layer_delay = self.get(source, u'pre_layer_delay',0.0)
+        self._pre_layer_delay = self.get(source, u'pre_layer_delay', 0.0)
         self._wait_after_move_milliseconds = self.get(source, u'wait_after_move_milliseconds', 20)
-        self._write_wav_files = self.get(source, u'write_wav_files',False)
-        self._write_wav_files_folder= self.get(source, u'write_wav_files_folder', 'tmp')
-
+        self._write_wav_files = self.get(source, u'write_wav_files', False)
+        self._write_wav_files_folder = self.get(source, u'write_wav_files_folder', 'tmp')
 
     @property
     def write_wav_files(self):
@@ -565,17 +564,17 @@ class OptionsConfiguration(ConfigurationBase):
 
 
 class DripperConfiguration(ConfigurationBase):
-    def __init__(self, source = {}):
-        self._max_lead_distance_mm = self.get(source, u'max_lead_distance_mm',1.0)
-        self._drips_per_mm = self.get(source, u'drips_per_mm',100.0)
-        self._dripper_type = self.get(source, u'dripper_type','audio') #TODO
-        self._emulated_drips_per_second = self.get(source,u'emulated_drips_per_second',100.0)
-        self._photo_zaxis_delay = self.get(source,u'photo_zaxis_delay',3.0)
-    
+    def __init__(self, source={}):
+        self._max_lead_distance_mm = self.get(source, u'max_lead_distance_mm', 1.0)
+        self._drips_per_mm = self.get(source, u'drips_per_mm', 280.0)
+        self._dripper_type = self.get(source, u'dripper_type', 'microcontroller')
+        self._emulated_drips_per_second = self.get(source, u'emulated_drips_per_second', 2.75)
+        self._photo_zaxis_delay = self.get(source, u'photo_zaxis_delay', 3.0)
+
     @property
     def photo_zaxis_delay(self):
         return self._photo_zaxis_delay
-    
+
     @photo_zaxis_delay.setter
     def photo_zaxis_delay(self, value):
         _type = types.FloatType
@@ -587,7 +586,7 @@ class DripperConfiguration(ConfigurationBase):
     @property
     def max_lead_distance_mm(self):
         return self._max_lead_distance_mm
-    
+
     @max_lead_distance_mm.setter
     def max_lead_distance_mm(self, value):
         _type = types.FloatType
@@ -595,11 +594,11 @@ class DripperConfiguration(ConfigurationBase):
             self._max_lead_distance_mm = value
         else:
             raise ValueError("Max Lead distance must be of %s" % (str(_type)))
-    
+
     @property
     def dripper_type(self):
         return self._dripper_type
-    
+
     @dripper_type.setter
     def dripper_type(self, value):
         _type = types.StringType
@@ -607,11 +606,11 @@ class DripperConfiguration(ConfigurationBase):
             self._dripper_type = value
         else:
             raise ValueError("Dripper Type must be of %s" % (str(_type)))
-    
+
     @property
     def emulated_drips_per_second(self):
         return self._emulated_drips_per_second
-    
+
     @emulated_drips_per_second.setter
     def emulated_drips_per_second(self, value):
         _type = types.FloatType
@@ -619,11 +618,11 @@ class DripperConfiguration(ConfigurationBase):
             self._emulated_drips_per_second = value
         else:
             raise ValueError("Emulated Drips Per Second must be of %s" % (str(_type)))
-    
+
     @property
     def drips_per_mm(self):
         return self._drips_per_mm
-    
+
     @drips_per_mm.setter
     def drips_per_mm(self, value):
         _type = types.FloatType
@@ -634,18 +633,17 @@ class DripperConfiguration(ConfigurationBase):
 
 
 class CalibrationConfiguration(ConfigurationBase):
-    def __init__(self, source = {}):
+    def __init__(self, source={}):
         self._max_deflection = self.get(source, u'max_deflection', 0.95)
-        self._height = self.get(source, u'height',40.0)
-        self._lower_points = [ ((l[0][0],l[0][1]), (l[1][0],l[1][1])) for l in source.get(u'lower_points', [[[0.0, 1.0],[-40.0, 40.0]],[[1.0, 0.0],[40.0, -40.0]],[[0.0, 0.0],[-40.0, -40.0]], [[1.0, 1.0],[40.0, 40.0]]]) ]
-        self._upper_points = [ ((u[0][0],u[0][1]), (u[1][0],u[1][1])) for u in source.get(u'upper_points', [[[0.0, 1.0],[-30.0, 30.0]],[[1.0, 0.0],[30.0, -30.0]],[[0.0, 0.0],[-30.0, -30.0]], [[1.0, 1.0],[30.0, 30.0]]]) ]
+        self._height = self.get(source, u'height', 0.0)
+        self._lower_points = [((l[0][0], l[0][1]), (l[1][0], l[1][1])) for l in source.get(u'lower_points', [[[0.0, 1.0], [-40.0, 40.0]], [[1.0, 0.0], [40.0, -40.0]], [[0.0, 0.0], [-40.0, -40.0]], [[1.0, 1.0], [40.0, 40.0]]])]
+        self._upper_points = [((u[0][0], u[0][1]), (u[1][0], u[1][1])) for u in source.get(u'upper_points', [[[0.0, 1.0], [-30.0, 30.0]], [[1.0, 0.0], [30.0, -30.0]], [[0.0, 0.0], [-30.0, -30.0]], [[1.0, 1.0], [30.0, 30.0]]])]
         self._print_area_x = self.get(source, u'print_area_x', 80.0)
         self._print_area_y = self.get(source, u'print_area_y', 80.0)
         self._print_area_z = self.get(source, u'print_area_z', 80.0)
         self._flip_x_axis = self.get(source, u'flip_x_axis', False)
         self._flip_y_axis = self.get(source, u'flip_y_axis', False)
         self._swap_axis = self.get(source, u'swap_axis', False)
-
 
     @property
     def print_area_x(self):
@@ -730,7 +728,7 @@ class CalibrationConfiguration(ConfigurationBase):
             self._height = value
         else:
             raise ValueError("Height must be of %s" % (str(_type)))
-    
+
     @property
     def lower_points(self):
         return dict(self._lower_points)
@@ -739,10 +737,10 @@ class CalibrationConfiguration(ConfigurationBase):
     def lower_points(self, value):
         _type = types.DictType
         if type(value) == _type:
-            self._lower_points = [ (k,v) for k,v in value.items() ]
+            self._lower_points = [(k, v) for k, v in value.items()]
         else:
             raise ValueError("Data must be of %s" % (str(_type)))
-    
+
     @property
     def upper_points(self):
         return dict(self._upper_points)
@@ -751,7 +749,7 @@ class CalibrationConfiguration(ConfigurationBase):
     def upper_points(self, value):
         _type = types.DictType
         if type(value) == _type:
-            self._upper_points = [ (k,v) for k,v in value.items() ]
+            self._upper_points = [(k, v) for k, v in value.items()]
         else:
             raise ValueError("Data must be of %s" % (str(_type)))
 
@@ -769,15 +767,14 @@ class CalibrationConfiguration(ConfigurationBase):
 
 
 class SerialConfiguration(ConfigurationBase):
-    def __init__(self, source = {}):
+    def __init__(self, source={}):
         self._on = self.get(source, u'on', False)
-        self._port = self.get(source, u'port','COM2')
-        self._on_command = self.get(source, u'on_command','7')
-        self._off_command = self.get(source, u'off_command','8')
-        self._layer_started = self.get(source, u'layer_started','S')
-        self._layer_ended = self.get(source, u'layer_ended','E')
-        self._print_ended = self.get(source, u'print_ended','Z')
-
+        self._port = self.get(source, u'port', 'COM2')
+        self._on_command = self.get(source, u'on_command', '7')
+        self._off_command = self.get(source, u'off_command', '8')
+        self._layer_started = self.get(source, u'layer_started', 'S')
+        self._layer_ended = self.get(source, u'layer_ended', 'E')
+        self._print_ended = self.get(source, u'print_ended', 'Z')
 
     @property
     def on(self):
@@ -865,7 +862,7 @@ class SerialConfiguration(ConfigurationBase):
 
 
 class Configuration(ConfigurationBase):
-    def __init__(self, source = {}):
+    def __init__(self, source={}):
         self._name = self.get(source, u'name', 'Peachy Printer')
         self._serial = SerialConfiguration(source=source.get(u'serial', {}))
         self._calibration = CalibrationConfiguration(source=source.get(u'calibration', {}))
@@ -933,14 +930,14 @@ class ConfigurationGenerator(object):
         configuration.options.overlap_amount               = 1.0
         configuration.options.use_shufflelayers            = False
         configuration.options.use_sublayers                = False
-        configuration.options.use_overlap                  = True
+        configuration.options.use_overlap                  = False
         configuration.options.print_queue_delay            = 0.0
         configuration.options.pre_layer_delay              = 0.0
 
-        configuration.dripper.drips_per_mm                 = 100.0
+        configuration.dripper.drips_per_mm                 = 280.0
         configuration.dripper.max_lead_distance_mm         = 1.0
         configuration.dripper.dripper_type                 = 'microcontroller'
-        configuration.dripper.emulated_drips_per_second    = 1.0
+        configuration.dripper.emulated_drips_per_second    = 2.75
         configuration.dripper.photo_zaxis_delay            = 3.0
 
         configuration.calibration.max_deflection           = 0.95
@@ -966,7 +963,7 @@ class ConfigurationGenerator(object):
         configuration.cure_rate.total_height               = 23.0
         configuration.cure_rate.start_speed                = 50.0
         configuration.cure_rate.finish_speed               = 200.0
-        configuration.cure_rate.draw_speed                 = 100.0
+        configuration.cure_rate.draw_speed                 = 80.0
         configuration.cure_rate.move_speed                 = 300.0
         configuration.cure_rate.use_draw_speed             = True
 
