@@ -1,19 +1,15 @@
-import os
 import json
 import types
+import re
 import logging
 logger = logging.getLogger('peachy')
-import re
-from peachyprinter.domain.configuration_manager import ConfigurationManager
-import peachyprinter.config as config
-from peachyprinter.infrastructure.communicator import UsbPacketCommunicator
-from peachyprinter.infrastructure.messages import IAmMessage
+
 
 class ConfigurationBase(object):
     def get(self, source, key, default=None):
         if (key in source):
             value = source[key]
-            if type(value) == types.UnicodeType:
+            if isinstance(value, types.UnicodeType):
                 value = str(value)
             return value
         else:
@@ -48,7 +44,7 @@ class CircutConfiguration(ConfigurationBase):
         if type(value) == _type:
             self._software_revision = value
         else:
-            raise ValueError("software_revision must be of type %s was %s" % (_type , type(value)))
+            raise ValueError("software_revision must be of type %s was %s" % (_type, type(value)))
 
     @property
     def hardware_revision(self):
@@ -60,7 +56,7 @@ class CircutConfiguration(ConfigurationBase):
         if type(value) == _type:
             self._hardware_revision = value
         else:
-            raise ValueError("hardware_revision must be of type %s was %s" % (_type , type(value)))
+            raise ValueError("hardware_revision must be of type %s was %s" % (_type, type(value)))
 
     @property
     def serial_number(self):
@@ -72,31 +68,31 @@ class CircutConfiguration(ConfigurationBase):
         if type(value) == _type:
             self._serial_number = value
         else:
-            raise ValueError("serial_number must be of type %s was %s" % (_type , type(value)))
+            raise ValueError("serial_number must be of type %s was %s" % (_type, type(value)))
 
     @property
     def data_rate(self):
         return self._data_rate
 
     @data_rate.setter
-    def data_rate(self,value):
+    def data_rate(self, value):
         _type = types.IntType
         if type(value) == _type:
             self._data_rate = value
         else:
-            raise ValueError("data_rate must be of type %s was %s" % (_type , type(value)))
+            raise ValueError("data_rate must be of type %s was %s" % (_type, type(value)))
 
     @property
     def print_queue_length(self):
         return self._print_queue_length
 
     @print_queue_length.setter
-    def print_queue_length(self,value):
+    def print_queue_length(self, value):
         _type = types.IntType
         if type(value) == _type:
             self._print_queue_length = value
         else:
-            raise ValueError("print_queue_length must be of type %s was %s" % (_type , type(value)))
+            raise ValueError("print_queue_length must be of type %s was %s" % (_type, type(value)))
 
     @property
     def calibration_queue_length(self):
