@@ -46,6 +46,7 @@ class UsbPacketCommunicator(Communicator):
         del dev
 
     def _process(self, data, length):
+        logger.info("Received packet of length %d" % (length,))
         data = data[:length]
         message_type_id = ord(data[0])
         for (message, handlers) in self._handlers.items():

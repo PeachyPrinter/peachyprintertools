@@ -78,10 +78,13 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
         communicator = UsbPacketCommunicator(self.usb_queue_length)
         communicator.register_handler(IAmMessage, self._ident_call_back)
         communicator.start()
-        communicator.send(IdentifyMessage())
-        until = time.time() + 5.0
-        while (not self.printer_details and time.time() < until):
-            time.sleep(0.1)
+        for x in xrange(5):
+            communicator.send(IdentifyMessage())
+            until = time.time() + 1.0
+            while (not self.printer_details and time.time() < until):
+                time.sleep(0.1)
+            if self.printer_details:
+                break
         communicator.close()
         details = self.printer_details
         self.printer_details = None
