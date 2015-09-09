@@ -1185,6 +1185,16 @@ class ConfigurationAPITest(
 
         mock_load.assert_called_with()
 
+    @patch.object(ConfigurationManager, 'load')
+    @patch.object(ConfigurationManager, 'save')
+    def test_get_current_config_loads(self, mock_save, mock_load):
+        mock_load.return_value = self.default_config
+        capi1 = ConfigurationAPI(ConfigurationManager())
+
+        capi1.get_current_config()
+
+        mock_load.assert_called_with()
+
     @patch.object(ConfigurationManager, 'reset')
     def test_reset_printer_calls_reset(self, mock_reset):
         mock_reset.return_value = self.default_config

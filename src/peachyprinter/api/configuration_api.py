@@ -786,6 +786,7 @@ class ConfigurationAPI(
 
     '''Returns the current printer config in json'''
     def get_current_config(self):
+        self.load_printer()
         return self._current_config
 
     '''Loads a previous configured printer by name'''
