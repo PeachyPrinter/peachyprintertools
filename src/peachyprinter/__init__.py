@@ -9,6 +9,6 @@ from peachyprinter.api.peachy_printer_api import PrinterAPI
 from peachyprinter.infrastructure.communicator import MissingPrinterException
 
 try:
-    from peachyprinter.VERSION import version
+    from VERSION import version
 except:
     version = "DEV"
