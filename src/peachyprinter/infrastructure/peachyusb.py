@@ -22,6 +22,8 @@ def _load_library():
 
 lib = _load_library()
 
+lib_version = "Not Implemented"
+
 class PeachyUSBException(Exception):
     pass
 
