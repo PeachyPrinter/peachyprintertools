@@ -37,6 +37,7 @@ echo version='%VERSION%' >> version.properties
 echo revision='%GIT_REV%' >> version.properties
 echo Git Revision Number is %GIT_REV_COUNT%
 copy version.properties src\peachyprinter\VERSION.py
+copy version.properties src\VERSION.py
 
 echo ------------------------------------
 echo Downlaoding and installing dependancies
