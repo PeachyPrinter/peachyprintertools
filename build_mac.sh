@@ -9,6 +9,7 @@ rm -rf src/build
 rm -rf *.dmg
 rm -rf *.tar.gz
 rm -f src/VERSION.py
+rm -rf src/peachyprinter/VERSION.py
 rm -f version.properties 
 
 echo "------------------------------------"
@@ -43,6 +44,7 @@ echo "version='$VERSION'" >> version.properties
 echo "revision='$GIT_REV'" >> version.properties
 echo "Git Revision Number is $GIT_REV_COUNT"
 cp version.properties src/peachyprinter/VERSION.py
+cp version.properties src/VERSION.py
 
 
 echo "------------------------------------"
