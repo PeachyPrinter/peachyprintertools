@@ -241,4 +241,4 @@ class IAmMessage(ProtoBuffableMessage):
             return False
 
     def __repr__(self):
-        return "Serial Number: {}\n Sofware Revision: {}\nHardware Revision: {}\nData Rate: {}".format(self._sn, self._swrev, self._hwrev, self._drips)
+        return "Serial Number: {}\n Sofware Revision: {}\nHardware Revision: {}\nData Rate: {}".format(self._sn, self._swrev, self._hwrev, self._dataRate)

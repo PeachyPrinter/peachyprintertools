@@ -44,8 +44,10 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
     def _load_or_create_configuration(self, serial_number):
         full_filepath = self._get_file_name(serial_number)
         if os.path.isfile(full_filepath):
+            logger.info("Loading configuration from: {}".format(str(full_filepath)))
             cfg = self._load_configuration(full_filepath)
         else:
+            logger.info("Creating configuration at: {}".format(str(full_filepath)))
             cfg = self._create_configuration(full_filepath, serial_number)
         return cfg
 
@@ -85,6 +87,7 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
         communicator.close()
         details = self.printer_details
         self.printer_details = None
+        logger.info("Loaded printer \n{}".format(str(details.sn)))
         return details
 
     def new(self, printer_name):
@@ -92,5 +95,6 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
 
     def save(self, configuration):
         full_filepath = self._get_file_name(configuration.name)
+        logger.info("Saving configuration to: {}".format(str(full_filepath)))
         with open(full_filepath, 'w') as file_handle:
             file_handle.write(configuration.toJson())
