@@ -85,6 +85,8 @@ class CircutSourcedConfigurationManager(ConfigurationManager):
         while (not self.printer_details and time.time() < until):
             time.sleep(0.1)
         communicator.close()
+        if not self.printer_details:
+            raise MissingPrinterException()
         details = self.printer_details
         self.printer_details = None
         logger.info("Loaded printer \n{}".format(str(details.sn)))

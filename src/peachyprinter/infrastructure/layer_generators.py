@@ -597,7 +597,7 @@ class OverLapGenerator(LayerGenerator):
         index = 0
         remainder = self.overlap_mm
         while remainder > threshold:  # almost
-            if len(layer.commands) < index:
+            if len(layer.commands) <= index:
                 break
             if type(layer.commands[index]) == LateralMove:
                 break

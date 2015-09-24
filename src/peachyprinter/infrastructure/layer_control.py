@@ -47,7 +47,7 @@ class LayerWriter():
     def process_layer(self, layer):
         if self._shutting_down or self._shutdown:
             raise Exception("LayerWriter already shutdown")
-        min_x,max_x,min_y,max_y,layer_height = None,None,None,None,None
+        min_x, max_x, min_y, max_y, layer_height = None, None, None, None, None
         with self._lock:
             if self._disseminator:
                 self._disseminator.next_layer(layer.z)
@@ -66,12 +66,12 @@ class LayerWriter():
                         min_y = command.start[1]
                         max_y = command.start[1]
                         layer_height = layer.z
-                    x,y = command.start
+                    x, y = command.start
                     min_x = x if x < min_x else min_x
                     max_x = x if x > max_x else max_x
                     min_y = y if y < min_y else min_y
                     max_y = y if y > max_y else max_y
-                    x,y = command.end
+                    x, y = command.end
                     min_x = x if x < min_x else min_x
                     max_x = x if x > max_x else max_x
                     min_y = y if y < min_y else min_y
@@ -80,7 +80,7 @@ class LayerWriter():
                         self._move_lateral(
                             command.start, layer.z, command.speed)
                     self._draw_lateral(command.end, layer.z, command.speed)
-        return [[min_x,max_x],[min_y,max_y],layer_height]
+        return [[min_x, max_x], [min_y, max_y], layer_height]
 
     def _move_lateral(self, (to_x, to_y), to_z, speed):
         if self._override_move_speed:
@@ -134,7 +134,7 @@ class LayerWriter():
             try:
                 if self._disseminator:
                     self._disseminator.close()
-                logger.info("Audio shutdown correctly")
+                logger.info("Layer writer shutdown correctly")
             except Exception as ex:
                 logger.error(ex)
 
@@ -176,7 +176,7 @@ class LayerProcessing():
 
     def process(self, layer):
         if self._shutting_down or self._shutdown:
-            raise Exception("LayerProcessing alreay shutdown")
+            raise Exception("LayerProcessing already shutdown")
         with self._lock:
             self._layer_count += 1
             ahead_by = 0
