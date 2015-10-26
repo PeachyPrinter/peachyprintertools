@@ -67,7 +67,7 @@ class EnterBootloaderTests(unittest.TestCase):
         initial_message = EnterBootloaderMessage()
         proto_bytes = initial_message.get_bytes()
         decoded_message = EnterBootloaderMessage.from_bytes(proto_bytes)
-        self.assertEqual(type(initial_message), type(decoded_message))
+        self.assertEqual(initial_message, decoded_message)
 
 if __name__ == '__main__':
     unittest.main()

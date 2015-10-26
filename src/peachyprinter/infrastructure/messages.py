@@ -255,3 +255,6 @@ class EnterBootloaderMessage(ProtoBuffableMessage):
     @classmethod
     def from_bytes(cls, proto_bytes):
         return cls()
+
+    def __eq__(self, other):
+        return type(other) == type(self)
