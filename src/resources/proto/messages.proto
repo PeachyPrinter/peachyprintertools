@@ -20,10 +20,10 @@ message Identify {
 }
 
 message IAm {
-  required string swrev = 1;
-  required string hwrev = 2;
-  required string sn = 3;
-  required uint32 dataRate = 4;
+   required string swrev = 1;
+   required string hwrev = 2;
+   required string sn = 3;
+   required uint32 dataRate = 4;
 }
 
 message Measure {
@@ -31,3 +31,5 @@ message Measure {
   required int32 channel = 2;
 }
 
+message EnterBootloader {
+}

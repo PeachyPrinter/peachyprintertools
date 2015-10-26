@@ -5,7 +5,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
-from peachyprinter.infrastructure.messages import MoveMessage, DripRecordedMessage, SetDripCountMessage, MoveToDripCountMessage, IAmMessage
+from peachyprinter.infrastructure.messages import MoveMessage, DripRecordedMessage, SetDripCountMessage, MoveToDripCountMessage, IAmMessage, EnterBootloaderMessage
 
 
 class MoveMesssageTests(unittest.TestCase):
@@ -47,6 +47,7 @@ class MoveToDripCountMesssageTests(unittest.TestCase):
         decoded_message = MoveToDripCountMessage.from_bytes(proto_bytes)
         self.assertEqual(inital_message, decoded_message)
 
+
 class IAmMesssageTests(unittest.TestCase):
 
     def test_move_message_encodes_and_decodes(self):
@@ -60,6 +61,13 @@ class IAmMesssageTests(unittest.TestCase):
         self.assertEqual(type(9600), type(decoded_message.dataRate))
         self.assertEqual(inital_message, decoded_message)
 
+
+class EnterBootloaderTests(unittest.TestCase):
+    def test_enter_boot_loader_encodes_and_decodes(self):
+        initial_message = EnterBootloaderMessage()
+        proto_bytes = initial_message.get_bytes()
+        decoded_message = EnterBootloaderMessage.from_bytes(proto_bytes)
+        self.assertEqual(type(initial_message), type(decoded_message))
 
 if __name__ == '__main__':
     unittest.main()

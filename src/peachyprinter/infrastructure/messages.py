@@ -176,6 +176,7 @@ class MoveToDripCountMessage(ProtoBuffableMessage):
     def __repr__(self):
         return "drips={}".format(self._drips)
 
+
 class IdentifyMessage(ProtoBuffableMessage):
     TYPE_ID = 7
 
@@ -185,6 +186,7 @@ class IdentifyMessage(ProtoBuffableMessage):
     @classmethod
     def from_bytes(cls, proto_bytes):
         return cls()
+
 
 class IAmMessage(ProtoBuffableMessage):
     TYPE_ID = 8
@@ -242,3 +244,14 @@ class IAmMessage(ProtoBuffableMessage):
 
     def __repr__(self):
         return "Serial Number: {}\n Sofware Revision: {}\nHardware Revision: {}\nData Rate: {}".format(self._sn, self._swrev, self._hwrev, self._dataRate)
+
+
+class EnterBootloaderMessage(ProtoBuffableMessage):
+    TYPE_ID = 10
+
+    def get_bytes(self):
+        return ""
+
+    @classmethod
+    def from_bytes(cls, proto_bytes):
+        return cls()
