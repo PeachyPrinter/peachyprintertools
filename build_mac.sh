@@ -60,6 +60,7 @@ echo "------------------------------------"
 echo "Running Tests"
 echo "------------------------------------"
 
+python -m pip install mock==1.0.1
 python test/test-all.py
 
 if [ $? != 0 ]; then
