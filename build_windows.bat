@@ -1,6 +1,6 @@
 @echo off
 
-SET PYTHON_PATH=c:\Python27
+SET PYTHON_PATH=c:\Python27_64
 
 
 echo ------------------------------------
