@@ -1,5 +1,7 @@
 @echo off
 
+SET PYTHON_PATH=c:\Python27_64
+
 echo ------------------------------------
 echo Cleaning workspace
 echo ------------------------------------
@@ -50,7 +52,7 @@ echo ------------------------------------
 echo Running Tests
 echo ------------------------------------
 set PYTHONPATH=%PYTHONPATH%;src
-python ..\test\test-all.py
+%PYTHON_PATH%\python ..\test\test-all.py
 
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED TESTS ABORTING"
@@ -62,7 +64,7 @@ echo ------------------------------------
 echo Create Peachy Tools Api
 echo ------------------------------------
 
-python setup.py sdist
+%PYTHON_PATH%\python setup.py sdist
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "FAILED PACKAGING ABORTING"
     cd ..
