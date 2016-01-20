@@ -9,7 +9,7 @@ fi
 
 echo "----Checking for and create a virtual environment----"
 if [ ! -d "venv" ]; then
-    virtualenv venv
+    python -m virtualenv venv
     if [ $? != 0 ]; then
         echo "Virutal environment failed"
         exit 59
