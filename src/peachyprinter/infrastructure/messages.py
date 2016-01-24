@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger('peachy')
 try:
-    from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount, IAm
+    from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount, IAm, EnterBootloader
 except Exception as ex:
     logger.error(
         "\033[91m Cannot import protobuf classes, Have you compiled your protobuf files?\033[0m")

@@ -6,6 +6,7 @@ message Move {
 
 message DripRecorded {
   required uint32 drips = 1;
+  optional uint32 ghostDrips = 2;
 }
 
 message SetDripCount {
@@ -19,17 +20,24 @@ message MoveToDripCount {
 message Identify {
 }
 
+message SetDebug{
+	optional uint32 debug = 1;
+}
+
+message GetAdcVal{
+  optional uint32 adcNum = 1;
+}
+
+message ReturnAdcVal{
+  optional uint32 adcVal = 1;
+}
+
+message EnterBootloader{
+}
+
 message IAm {
-   required string swrev = 1;
-   required string hwrev = 2;
-   required string sn = 3;
-   required uint32 dataRate = 4;
-}
-
-message Measure {
-  required int32 id = 1;
-  required int32 channel = 2;
-}
-
-message EnterBootloader {
+  required string swrev = 1;
+  required string hwrev = 2;
+  required string sn = 3;
+  required uint32 dataRate = 4;
 }
