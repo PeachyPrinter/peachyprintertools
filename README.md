@@ -4,15 +4,18 @@ Peachy Printer Tools
 Status
 -------------------------
 
-Very Active Development (BETA - 2)
+Active Development as of 25-Jan-2016
+
+Note
+---------------------------
+This is an API only to run the full suite of peachy printer use peachyprinter at https://github.com/PeachyPrinter/peachyprinter
 
 
 Known Issues
 --------------------------
 
-+ Drip detection may require audio boost on some systems.
-+ Models pre PP29 may drive mirrors too far to calibrate properly
-
+Calibration can be poor in some circumstances
+Low level error are not raised properly
 
 Support
 --------------------------
@@ -50,7 +53,7 @@ Development
 
 + python 2.7
 + numpy
-+ mock
++ mock (development only)
 + pyserial
 + python protobuf
 + protobuf
@@ -70,27 +73,7 @@ Run Suite on Every Change (linux like OS only )
 
 **./runsuite test/test-all.py**
 
-#### Running the application 
 
-Run the application
-
-**python src/peachyprintertools.py**
-
-Run in Debug Logging Mode
-
-**python src/peachyprintertools.py --log=DEBUG**
-
-Run in DEBUG to Console (Very slow)
-
-**python src/peachyprintertools.py -c --log=DEBUG**
-
-Log Levels:
-+ DEBUG
-+ INFO
-+ WARN
-+ ERROR
-
-Logs and configs are stored in the user folder in the .peachyprintertools directory.
 
 
 Software Contributers
