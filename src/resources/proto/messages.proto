@@ -25,11 +25,11 @@ message SetDebug{
 }
 
 message GetAdcVal{
-  optional uint32 adcNum = 1;
+  required uint32 adcNum = 1;
 }
 
 message ReturnAdcVal{
-  optional uint32 adcVal = 1;
+  required uint32 adcVal = 1;
 }
 
 message EnterBootloader{

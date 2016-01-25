@@ -1,7 +1,7 @@
 import logging
 logger = logging.getLogger('peachy')
 try:
-    from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount, IAm, EnterBootloader
+    from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount, IAm, EnterBootloader,GetAdcVal, ReturnAdcVal
 except Exception as ex:
     logger.error(
         "\033[91m Cannot import protobuf classes, Have you compiled your protobuf files?\033[0m")
@@ -258,3 +258,73 @@ class EnterBootloaderMessage(ProtoBuffableMessage):
 
     def __eq__(self, other):
         return type(other) == type(self)
+
+class GetAdcValMessage(ProtoBuffableMessage):
+		TYPE_ID = 12
+
+		def __init__(self, adcNum):
+			self._adcNum = adcNum
+
+		@property
+		def adcNum(self):
+				return self._adcNum
+
+		def get_bytes(self):
+		    encoded = GetAdcVal()
+		    encoded.adcNum = self._adcNum
+		    if encoded.IsInitialized():
+		        return encoded.SerializeToString()
+		    else:
+		        logger.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+		        raise Exception("Protobuf Message encoding incomplete")
+		
+		@classmethod
+		def from_bytes(cls, proto_bytes):
+		    decoded = GetAdcVal()
+		    decoded.ParseFromString(proto_bytes)
+		    return cls(decoded.adcNum)
+		
+		def __eq__(self, other):
+		    if (self.__class__ == other.__class__ and
+		            self._adcNum == other._adcNum):
+		        return True
+		    else:
+		        return False
+		
+		def __repr__(self):
+		    return "adcNum={}".format(self._adcNum)
+
+class ReturnAdcValMessage(ProtoBuffableMessage):
+		TYPE_ID = 13
+		def __init__(self, adcVal):
+		    self._adcVal = adcVal
+		
+		@property
+		def adcVal(self):
+		    return self._adcVal;
+		
+		def get_bytes(self):
+		    encoded = ReturnAdcVal()
+		    encoded.adcVal = self._adcVal
+		    if encoded.IsInitialized():
+		        return encoded.SerializeToString()
+		    else:
+		        logger.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+		        raise Exception("Protobuf Message encoding incomplete")
+		
+		@classmethod
+		def from_bytes(cls, proto_bytes):
+		    decoded = ReturnAdcVal()
+		    decoded.ParseFromString(proto_bytes)
+		    return cls(decoded.adcVal)
+		
+		def __eq__(self, other):
+		    if (self.__class__ == other.__class__ and
+		            self._adcVal == other._adcVal):
+		        return True
+		    else:
+		        return False
+		
+		def __repr__(self):
+		    return "adcVal={}".format(self._adcVal)
+		
