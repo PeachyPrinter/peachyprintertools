@@ -23,6 +23,9 @@ class FirmwareAPI(object):
             raise Exception("Unexpected firmware files")
         return bin_file[0]
 
+    def make_ready(self):
+        pass
+
     def is_ready(self):
         pass
 
