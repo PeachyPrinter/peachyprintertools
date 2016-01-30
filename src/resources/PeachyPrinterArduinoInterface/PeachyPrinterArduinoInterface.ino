@@ -8,7 +8,8 @@
 #include <Servo.h> 
 
 Servo valveServo; 
-
+int layersPerPicture = 10;
+int layerCount = 0;
 int camera_pin = 8;
 int onLed = 4;
 int offLed = 3;
@@ -108,6 +109,8 @@ void run() {
   } else if (incommingByte == dripOffCommand) {
     dripperOff();
   } else if (incommingByte == layerStartCommand) {
+    layerCount++;
+    if (layerCount % layersPerPicture == 0)
     camera_on();
   } else if (incommingByte == layerEndCommand) {
     camera_off();
