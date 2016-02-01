@@ -2,6 +2,7 @@ from peachyprinter.api.configuration_api import ConfigurationAPI
 from peachyprinter.api.calibration_api import CalibrationAPI
 from peachyprinter.api.print_api import PrintAPI, PrintQueueAPI
 from peachyprinter.api.test_print_api import TestPrintAPI
+from peachyprinter.api.firmware_api import FirmwareAPI
 from peachyprinter.infrastructure.configuration_manager import CircutSourcedConfigurationManager
 
 
@@ -26,6 +27,9 @@ class PrinterAPI(object):
 
     def get_calibration_api(self, ):
         return CalibrationAPI(self._configuration_manager)
+
+    def get_firmware_api(self):
+        return FirmwareAPI()
 
     def get_configuration_api(self):
         return self._configuration_api

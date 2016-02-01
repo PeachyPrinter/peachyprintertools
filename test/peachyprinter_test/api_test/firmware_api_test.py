@@ -128,7 +128,6 @@ class FirmwareUpdateTests(unittest.TestCase):
         mock_updater.update.assert_called_with(expected_file)
         call_back.assert_called_with(True)
 
-
     def test_start_should_call_firmware_updater_and_then_call_back_with_false(self):
         mock_updater = MagicMock()
         mock_updater.update.return_value = False
