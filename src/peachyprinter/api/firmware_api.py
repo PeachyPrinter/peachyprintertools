@@ -1,17 +1,18 @@
 import logging
-logger = logging.getLogger('peachy')
 import os
 import re
 from glob import glob
 import threading
 import firmware as firmware_manager
 
+logger = logging.getLogger('peachy')
+
 
 class FirmwareAPI(object):
     version_regex = '''.*-([0-9]*[.][0-9]*[.][0-9]*).bin'''
+
     def __init__(self):
         self.firmware_updater = firmware_manager.get_firmware_updater(logger)
-
 
     def is_firmware_valid(self, current_firmware):
         bin_file = self._bin_file()
@@ -43,7 +44,14 @@ class FirmwareAPI(object):
 
 class FirmwareUpdate(threading.Thread):
     def __init__(self, file, firmware_updater, complete_call_back=None):
-        pass
+        threading.Thread.__init__(self)
+        self.file = file
+        self.firmware_updater = firmware_updater
+        self.complete_call_back = complete_call_back
 
     def run(self):
-        pass
+        logger.info("Starting firmware update")
+        result = self.firmware_updater.update(self.file)
+        self.complete_call_back(result)
+        logger.info("Firmware update {}".format("succeeded" if result else "failed"))
+

@@ -3,12 +3,13 @@ import os
 import sys
 from mock import patch, MagicMock
 import logging
+import time
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 import peachyprinter.api.firmware_api as firmware_api
-from peachyprinter.api.firmware_api import FirmwareAPI
+from peachyprinter.api.firmware_api import FirmwareAPI, FirmwareUpdate
 
 
 @patch('peachyprinter.api.firmware_api.FirmwareUpdate')
@@ -109,6 +110,38 @@ class FirmwareAPITests(unittest.TestCase):
         mock_FirmwareUpdate.assert_called_with(self.expected_firmware_file, self.mock_firmware_updater, expected_call_back)
         mock_firmware_update.start.assert_called_with()
 
+
+class FirmwareUpdateTests(unittest.TestCase):
+    wait_time = 0.2
+
+    def test_start_should_call_firmware_updater_and_then_call_back_with_true(self):
+        mock_updater = MagicMock()
+        mock_updater.update.return_value = True
+        call_back = MagicMock()
+        expected_file = "A bin file"
+
+        firmware_update = FirmwareUpdate(expected_file, mock_updater, call_back)
+        firmware_update.start()
+
+        time.sleep(self.wait_time)
+
+        mock_updater.update.assert_called_with(expected_file)
+        call_back.assert_called_with(True)
+
+
+    def test_start_should_call_firmware_updater_and_then_call_back_with_false(self):
+        mock_updater = MagicMock()
+        mock_updater.update.return_value = False
+        call_back = MagicMock()
+        expected_file = "A bin file"
+
+        firmware_update = FirmwareUpdate(expected_file, mock_updater, call_back)
+        firmware_update.start()
+
+        time.sleep(self.wait_time)
+
+        mock_updater.update.assert_called_with(expected_file)
+        call_back.assert_called_with(False)
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
