@@ -26,7 +26,6 @@ setup(
       'pyserial>=2.7',
       'numpy>=1.9.2',
       'libusb1>=1.3.1',
-      'PeachyPrinterFirmwareAPI==0.0.1.22'
     ],
     packages=find_packages(),
     py_modules=['VERSION'],
