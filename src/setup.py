@@ -20,7 +20,13 @@ setup(
                   '': ['*.so', 'peachyprinter/dependancies/linux/amd64/*'],
                   '': ['*.bin', 'peachyprinter/dependancies/firmware/*']
                   },
-    install_requires=['protobuf>=2.6.1', 'pyserial>=2.7', 'numpy>=1.9.2', 'libusb1>=1.3.1'],
+    install_requires=[
+      'protobuf>=2.6.1',
+      'pyserial>=2.7',
+      'numpy>=1.9.2',
+      'libusb1>=1.3.1',
+      'https://github.com/PeachyPrinter/peachy-firmware-flash/releases/download/0.0.1.22/PeachyPrinterFirmwareAPI-0.0.1.22.tar.gz'
+    ],
     packages=find_packages(),
     py_modules=['VERSION'],
     include_package_data=True
