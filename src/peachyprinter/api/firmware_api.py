@@ -3,11 +3,15 @@ logger = logging.getLogger('peachy')
 import os
 import re
 from glob import glob
-
+import threading
+import firmware
 
 
 class FirmwareAPI(object):
     version_regex = '''.*-([0-9]*[.][0-9]*[.][0-9]*).bin'''
+    def __init__(self):
+        self.firmware_updater = firmware.get_firmware_updater(logger)
+
 
     def is_firmware_valid(self, current_firmware):
         bin_file = self._bin_file()
@@ -27,7 +31,15 @@ class FirmwareAPI(object):
         pass
 
     def is_ready(self):
+        return self.firmware_updater.check_ready()
+
+    def update_firmware(self, complete_call_back=None):
         pass
 
-    def update_firmware(self):
+
+class FirmwareUpdate(threading.Thread):
+    def __init__(self, file, firmware_updater, complete_call_back=None):
+        pass
+
+    def run(self):
         pass
