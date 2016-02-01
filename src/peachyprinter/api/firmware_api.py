@@ -4,13 +4,13 @@ import os
 import re
 from glob import glob
 import threading
-import firmware
+import firmware as firmware_manager
 
 
 class FirmwareAPI(object):
     version_regex = '''.*-([0-9]*[.][0-9]*[.][0-9]*).bin'''
     def __init__(self):
-        self.firmware_updater = firmware.get_firmware_updater(logger)
+        self.firmware_updater = firmware_manager.get_firmware_updater(logger)
 
 
     def is_firmware_valid(self, current_firmware):
@@ -34,7 +34,11 @@ class FirmwareAPI(object):
         return self.firmware_updater.check_ready()
 
     def update_firmware(self, complete_call_back=None):
-        pass
+        if self.is_ready():
+            FirmwareUpdate(self._bin_file(), self.firmware_updater, complete_call_back).start()
+        else:
+            logger.error("Peachy Printer not ready for update")
+            raise Exception("Peachy Printer not ready for update")
 
 
 class FirmwareUpdate(threading.Thread):
