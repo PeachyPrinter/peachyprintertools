@@ -5,7 +5,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
-from peachyprinter.infrastructure.messages import MoveMessage, DripRecordedMessage, SetDripCountMessage, MoveToDripCountMessage, IAmMessage, EnterBootloaderMessage
+from peachyprinter.infrastructure.messages import MoveMessage, DripRecordedMessage, SetDripCountMessage, MoveToDripCountMessage, IAmMessage, EnterBootloaderMessage, GetAdcValMessage, ReturnAdcValMessage
 
 
 class MoveMesssageTests(unittest.TestCase):
@@ -60,6 +60,26 @@ class IAmMesssageTests(unittest.TestCase):
         self.assertEqual(type("a"), type(decoded_message.swrev))
         self.assertEqual(type(9600), type(decoded_message.dataRate))
         self.assertEqual(inital_message, decoded_message)
+
+
+class ReturnAdcValMessageTests(unittest.TestCase):
+
+    def test_returnadcval_message_encodes_and_decodes(self):
+        initial_message = ReturnAdcValMessage(3)
+        proto_bytes = initial_message.get_bytes()
+        self.assertTrue(len(proto_bytes) > 0)
+        decoded_message = ReturnAdcValMessage.from_bytes(proto_bytes)
+        self.assertEqual(initial_message, decoded_message)
+
+
+class GetAdcValMessageTests(unittest.TestCase):
+
+    def test_getadcval_message_encodes_and_decodes(self):
+        initial_message = GetAdcValMessage(3)
+        proto_bytes = initial_message.get_bytes()
+        self.assertTrue(len(proto_bytes) > 0)
+        decoded_message = GetAdcValMessage.from_bytes(proto_bytes)
+        self.assertEqual(initial_message, decoded_message)
 
 
 class EnterBootloaderTests(unittest.TestCase):

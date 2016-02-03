@@ -13,7 +13,7 @@ from google.protobuf import descriptor_pb2
 DESCRIPTOR = _descriptor.FileDescriptor(
   name='messages.proto',
   package='',
-  serialized_pb='\n\x0emessages.proto\"0\n\x04Move\x12\t\n\x01x\x18\x01 \x02(\x05\x12\t\n\x01y\x18\x02 \x02(\x05\x12\x12\n\nlaserPower\x18\x03 \x02(\r\"1\n\x0c\x44ripRecorded\x12\r\n\x05\x64rips\x18\x01 \x02(\r\x12\x12\n\nghostDrips\x18\x02 \x01(\r\"\x1d\n\x0cSetDripCount\x12\r\n\x05\x64rips\x18\x01 \x02(\r\" \n\x0fMoveToDripCount\x12\r\n\x05\x64rips\x18\x01 \x02(\r\"\n\n\x08Identify\"\x19\n\x08SetDebug\x12\r\n\x05\x64\x65\x62ug\x18\x01 \x01(\r\"\x1b\n\tGetAdcVal\x12\x0e\n\x06\x61\x64\x63Num\x18\x01 \x02(\r\"\x1e\n\x0cReturnAdcVal\x12\x0e\n\x06\x61\x64\x63Val\x18\x01 \x02(\r\"\x11\n\x0f\x45nterBootloader\"A\n\x03IAm\x12\r\n\x05swrev\x18\x01 \x02(\t\x12\r\n\x05hwrev\x18\x02 \x02(\t\x12\n\n\x02sn\x18\x03 \x02(\t\x12\x10\n\x08\x64\x61taRate\x18\x04 \x02(\r')
+  serialized_pb='\n\x0emessages.proto\"0\n\x04Move\x12\t\n\x01x\x18\x01 \x02(\x05\x12\t\n\x01y\x18\x02 \x02(\x05\x12\x12\n\nlaserPower\x18\x03 \x02(\r\"\x1d\n\x0c\x44ripRecorded\x12\r\n\x05\x64rips\x18\x01 \x02(\r\"\x1d\n\x0cSetDripCount\x12\r\n\x05\x64rips\x18\x01 \x02(\r\" \n\x0fMoveToDripCount\x12\r\n\x05\x64rips\x18\x01 \x02(\r\"\n\n\x08Identify\"\x1b\n\tGetAdcVal\x12\x0e\n\x06\x61\x64\x63Num\x18\x01 \x02(\r\"\x1e\n\x0cReturnAdcVal\x12\x0e\n\x06\x61\x64\x63Val\x18\x01 \x02(\r\"\x11\n\x0f\x45nterBootloader\"A\n\x03IAm\x12\r\n\x05swrev\x18\x01 \x02(\t\x12\r\n\x05hwrev\x18\x02 \x02(\t\x12\n\n\x02sn\x18\x03 \x02(\t\x12\x10\n\x08\x64\x61taRate\x18\x04 \x02(\r')
 
 
 
@@ -74,13 +74,6 @@ _DRIPRECORDED = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
-    _descriptor.FieldDescriptor(
-      name='ghostDrips', full_name='DripRecorded.ghostDrips', index=1,
-      number=2, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
   ],
   extensions=[
   ],
@@ -91,7 +84,7 @@ _DRIPRECORDED = _descriptor.Descriptor(
   is_extendable=False,
   extension_ranges=[],
   serialized_start=68,
-  serialized_end=117,
+  serialized_end=97,
 )
 
 
@@ -118,8 +111,8 @@ _SETDRIPCOUNT = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=119,
-  serialized_end=148,
+  serialized_start=99,
+  serialized_end=128,
 )
 
 
@@ -146,8 +139,8 @@ _MOVETODRIPCOUNT = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=150,
-  serialized_end=182,
+  serialized_start=130,
+  serialized_end=162,
 )
 
 
@@ -167,36 +160,8 @@ _IDENTIFY = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=184,
-  serialized_end=194,
-)
-
-
-_SETDEBUG = _descriptor.Descriptor(
-  name='SetDebug',
-  full_name='SetDebug',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='debug', full_name='SetDebug.debug', index=0,
-      number=1, type=13, cpp_type=3, label=1,
-      has_default_value=False, default_value=0,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  extension_ranges=[],
-  serialized_start=196,
-  serialized_end=221,
+  serialized_start=164,
+  serialized_end=174,
 )
 
 
@@ -223,8 +188,8 @@ _GETADCVAL = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=223,
-  serialized_end=250,
+  serialized_start=176,
+  serialized_end=203,
 )
 
 
@@ -251,8 +216,8 @@ _RETURNADCVAL = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=252,
-  serialized_end=282,
+  serialized_start=205,
+  serialized_end=235,
 )
 
 
@@ -272,8 +237,8 @@ _ENTERBOOTLOADER = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=284,
-  serialized_end=301,
+  serialized_start=237,
+  serialized_end=254,
 )
 
 
@@ -321,8 +286,8 @@ _IAM = _descriptor.Descriptor(
   options=None,
   is_extendable=False,
   extension_ranges=[],
-  serialized_start=303,
-  serialized_end=368,
+  serialized_start=256,
+  serialized_end=321,
 )
 
 DESCRIPTOR.message_types_by_name['Move'] = _MOVE
@@ -330,7 +295,6 @@ DESCRIPTOR.message_types_by_name['DripRecorded'] = _DRIPRECORDED
 DESCRIPTOR.message_types_by_name['SetDripCount'] = _SETDRIPCOUNT
 DESCRIPTOR.message_types_by_name['MoveToDripCount'] = _MOVETODRIPCOUNT
 DESCRIPTOR.message_types_by_name['Identify'] = _IDENTIFY
-DESCRIPTOR.message_types_by_name['SetDebug'] = _SETDEBUG
 DESCRIPTOR.message_types_by_name['GetAdcVal'] = _GETADCVAL
 DESCRIPTOR.message_types_by_name['ReturnAdcVal'] = _RETURNADCVAL
 DESCRIPTOR.message_types_by_name['EnterBootloader'] = _ENTERBOOTLOADER
@@ -365,12 +329,6 @@ class Identify(_message.Message):
   DESCRIPTOR = _IDENTIFY
 
   # @@protoc_insertion_point(class_scope:Identify)
-
-class SetDebug(_message.Message):
-  __metaclass__ = _reflection.GeneratedProtocolMessageType
-  DESCRIPTOR = _SETDEBUG
-
-  # @@protoc_insertion_point(class_scope:SetDebug)
 
 class GetAdcVal(_message.Message):
   __metaclass__ = _reflection.GeneratedProtocolMessageType
