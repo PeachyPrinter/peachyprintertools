@@ -6,7 +6,6 @@ message Move {
 
 message DripRecorded {
   required uint32 drips = 1;
-  optional uint32 ghostDrips = 2;
 }
 
 message SetDripCount {
@@ -18,10 +17,6 @@ message MoveToDripCount {
 }
 
 message Identify {
-}
-
-message SetDebug{
-	optional uint32 debug = 1;
 }
 
 message GetAdcVal{
