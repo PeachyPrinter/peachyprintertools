@@ -8,14 +8,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 from peachyprinter.infrastructure.communicator import UsbPacketCommunicator
 from peachyprinter.infrastructure.messages import *
 
-    #ADC NUMBERS:
-    #0 - Vref Calibration Factor
-    #1 - 30C temperature calibration
-    #2 - 110C temperature calibration
-    #3 - ADC key (PA2)
-    #4 - Pin (PA3)
-    #5 - Temperature
-    #6 - Vref (3.3V volts)
 
 class UsbTestTerminal(object):
     VREF_CAL_POS = 0
@@ -37,38 +29,51 @@ class UsbTestTerminal(object):
         self._adcVal=[]
         self._dataRate=None
         self._adcCals=[]
-        self._move=[]
+        self._move=[0,0,0]
 
         self._usb = UsbPacketCommunicator(10)
-        self._usb.register_handler(IAmMessage, self.i_am_handler)
-        self._usb.register_handler(DripRecordedMessage, self.drip_handler)
-        self._usb.register_handler(ReturnAdcValMessage, self.adc_handler)
+        self._usb.register_handler(IAmMessage, self.iAmHandler)
+        self._usb.register_handler(DripRecordedMessage, self.dripHandler)
+        self._usb.register_handler(ReturnAdcValMessage, self.adcHandler)
         self._usb.start()
         if verbose:
             print "Started usb terminal"
         time.sleep(0.1)
 
-    def usb_close(self):
+    def usbClose(self):
         self._usb.close()
 
-    def move(self,x,y,laserPower):
+    def laserOff():
+        move=self._move
+        self._usb.send(MoveMessage(move[0],move[1],0))
+
+    def laserOn():
+        move=self._move
+        self._usb.send(MoveMessage(move[0],move[1],255))
+
+    def move(self,x,y,laserPower=0):
         self._move=[x,y,laserPower]
         self._usb.send(MoveMessage(x,y,laserPower))
 
-    def set_drips(self,dripCount=0):
+    def setDrips(self,dripCount=0):
         self._usb.send(SetDripCountMessage(dripCount))
 
     def identify(self):
         self._usb.send(IdentifyMessage())
 
-    def enter_bootloader(self):
-        self._usb.send(EnterBootloaderMessage())
-        if (self._verbose):
-            print "Bootloadereded"
+    def enterBootloader(self,i_am_sure=None):
+        if i_am_sure==(0xDEADBEEF):
+            self._usb.send(EnterBootloaderMessage())
+            if (self._verbose):
+                print "Bootloadereded"
+        elif (self._verbose):
+            print "i_am_sure not loaded with the correct value"
+            print "Note: This may lock your peachy into the bootloader"
+            print "      if you have old firmware on your board"
 
     #A non-ideal push/pop queue interface.
     #Doesn't account for mis-matching - May be worth clearing on each request?
-    def pop_adc(self,timeout=0.1):
+    def popAdc(self,timeout=0.1):
         start=time.time()
         timeout=start+timeout #in seconds
         while(time.time()<timeout): #wait for data being available or 
@@ -80,20 +85,20 @@ class UsbTestTerminal(object):
             else:
                 time.sleep(0.01)
 
-    def clear_adc_queues(self):
+    def clearAdcQueues(self):
         self._adcNum=[]
         self._adcVal=[]
 
-    def get_adc_calibrations(self):
+    def getAdcCalibrations(self):
         if len(self._adcCals)!=3:
-            [adcNum,adcVrefCal] = self.get_adc_val(self.VREF_CAL_POS)
-            [adcNum,adcTemp30] = self.get_adc_val(self.TEMP30_CAL_POS)
-            [adcNum,adcTemp110] = self.get_adc_val(self.TEMP110_CAL_POS)
+            [adcNum,adcVrefCal] = self.getAdcVal(self.VREF_CAL_POS)
+            [adcNum,adcTemp30] = self.getAdcVal(self.TEMP30_CAL_POS)
+            [adcNum,adcTemp110] = self.getAdcVal(self.TEMP110_CAL_POS)
             self._adcCals = [adcVrefCal,adcTemp30,adcTemp110]
 
-    def get_temperature(self):
+    def getTemperature(self):
 
-        self.get_adc_calibrations()
+        self.getAdcCalibrations()
 
         #Return actual Temperature in C
         #Formulas taken from STM32F0 datasheet page 252
@@ -102,8 +107,8 @@ class UsbTestTerminal(object):
         adcTemp110 = self._adcCals[self.TEMP110_CAL_POS]
 
         #Get the current Vref and Temperature each time
-        [adcNum,adcTemperature]=self.get_adc_val(self.ADC_TEMP_POS)
-        [adcNum,adcVref]=self.get_adc_val(self.ADC_VREF_POS)
+        [adcNum,adcTemperature]=self.getAdcVal(self.ADC_TEMP_POS)
+        [adcNum,adcVref]=self.getAdcVal(self.ADC_VREF_POS)
 
         vrefCompensation = 1.0*adcVrefCal/adcVref
         temperature = adcTemperature*vrefCompensation-adcTemp30
@@ -115,11 +120,11 @@ class UsbTestTerminal(object):
 
         return temperature
 
-    def get_supply_voltage(self):
+    def getSupplyVoltage(self):
 
-        self.get_adc_calibrations()
+        self.getAdcCalibrations()
         adcVrefCal=self._adcCals[self.VREF_CAL_POS]
-        [adcNum,adcVref]=self.get_adc_val(self.ADC_VREF_POS)
+        [adcNum,adcVref]=self.getAdcVal(self.ADC_VREF_POS)
 
         vrefCompensation = 1.0*adcVrefCal/adcVref
         
@@ -131,30 +136,40 @@ class UsbTestTerminal(object):
 
         return supplyVoltage
 
-    def get_adc_key_val(self):
-        return self.get_adc_val(self.ADC_KEY_POS)
+    def getAdcKeyVal(self):
+        return self.getAdcVal(self.ADC_KEY_POS)
 
-    def get_adc_val(self,adcNum):
+    def getAdcVal(self,adcNum):
+        '''ADC NUMBERS:
+        0 - Vref Calibration Factor
+        1 - 30C temperature calibration
+        2 - 110C temperature calibration
+        3 - ADC key (PA2)
+        4 - Pin (PA3)
+        5 - Temperature
+        6 - Vref (3.3V volts)
+        '''
+
         self._adcNum.append(adcNum)
         self._usb.send(GetAdcValMessage(adcNum))
         if self._verbose:
             print('adcNum: {0}'.format(adcNum))
-        return self.pop_adc()
+        return self.popAdc()
 
-    def adc_handler(self,message):
+    def adcHandler(self,message):
         if (len(self._adcNum) > len(self._adcVal)):
             self._adcVal.append(message.adcVal)
             if self._verbose:
                 print('adcNum: {0} adcVal: {1}'.format(self._adcNum[-1], self._adcVal[-1]))
         else:
-            self.clear_adc_queues()
+            self.clearAdcQueues()
 
-    def drip_handler(self, message):
+    def dripHandler(self, message):
         self._drips=message.drips
         if self._verbose:
             print('Recieved drip: {0}'.format(message.drips))
 
-    def i_am_handler(self, message):
+    def iAmHandler(self, message):
         self._serial=message.sn
         self._swrev=message.swrev
         self._hwrev=message.hwrev
@@ -165,31 +180,28 @@ class UsbTestTerminal(object):
             print('HW rev number: {0}'.format(message.hwrev))
             print('Data Rate:     {0}'.format(message.dataRate))
 
-def test_adc_key(t):
+def testAdcKey(t):
     key_min=4095
     key_max=0
     while(1):
-        adcKeyVal = t.get_adc_key_val()
+        adcKeyVal = t.getAdcKeyVal()
         if adcKeyVal[1]>key_max:
             key_max=adcKeyVal[1]
         if adcKeyVal[1]<key_min:
             key_min=adcKeyVal[1]
 
-        #print "Voltage: {0} V, Temperature {1} oC".format(voltage,temperature)
         print "Adc Key Value: {0} Max: {1} Min: {2}".format(adcKeyVal,key_max,key_min)
         time.sleep(1)
 
 if __name__ == '__main__':
-    t = UsbTestTerminal(verbose=False); 
+    t = UsbTestTerminal(verbose=True); 
     t.identify()
-    t.set_drips(0)
-    t.enter_bootloader()
-    #test_adc_key(t)
+    t.setDrips(0)
     while(1): 
-        print "Voltage: {0} Temperature {1}".format(t.get_supply_voltage(), t.get_temperature())
-        adcKeyVal = t.get_adc_key_val()
+        print "Voltage: {0} Temperature {1}".format(t.getSupplyVoltage(), t.getTemperature())
+        adcKeyVal = t.getAdcKeyVal()
         print "Adc Key Value: {0}".format(adcKeyVal)
-        time.sleep(0.1)
+        time.sleep(1)
 
 
 
