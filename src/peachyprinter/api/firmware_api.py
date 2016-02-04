@@ -3,7 +3,10 @@ import os
 import re
 from glob import glob
 import threading
-import firmware as firmware_manager
+import firmware as firmware_manager_factory
+
+from peachyprinter.infrastructure.communicator import UsbPacketCommunicator
+from peachyprinter.infrastructure.messages import EnterBootloaderMessage
 
 logger = logging.getLogger('peachy')
 
@@ -12,8 +15,9 @@ class FirmwareAPI(object):
     version_regex = '''.*-([0-9]*[.][0-9]*[.][0-9]*).bin'''
 
     def __init__(self):
-        self.firmware_updater = firmware_manager.get_firmware_updater(logger)
+        self.firmware_manager = firmware_manager_factory.get_firmware_updater(logger)
         self._required_version = None
+        self._firmware_update = FirmwareUpdate(self._bin_file(), self.firmware_manager)
 
     @property
     def required_version(self):
@@ -35,14 +39,14 @@ class FirmwareAPI(object):
         return bin_file[0]
 
     def make_ready(self):
-        pass
+        self._firmware_update.prepare()
 
     def is_ready(self):
-        return self.firmware_updater.check_ready()
+        return self.firmware_manager.check_ready()
 
     def update_firmware(self, complete_call_back=None):
         if self.is_ready():
-            FirmwareUpdate(self._bin_file(), self.firmware_updater, complete_call_back).start()
+            self._firmware_update.start(complete_call_back)
         else:
             logger.error("Peachy Printer not ready for update")
             raise Exception("Peachy Printer not ready for update")
@@ -52,12 +56,20 @@ class FirmwareUpdate(threading.Thread):
     def __init__(self, file, firmware_updater, complete_call_back=None):
         threading.Thread.__init__(self)
         self.file = file
-        self.firmware_updater = firmware_updater
+        self.firmware_manager = firmware_updater
+
+    def start(self, complete_call_back):
         self.complete_call_back = complete_call_back
+        threading.Thread.start(self)
 
     def run(self):
         logger.info("Starting firmware update")
-        result = self.firmware_updater.update(self.file)
+        result = self.firmware_manager.update(self.file)
         self.complete_call_back(result)
         logger.info("Firmware update {}".format("succeeded" if result else "failed"))
 
+    def prepare(self):
+        usb_communicator = UsbPacketCommunicator(0)
+        usb_communicator.start()
+        usb_communicator.send(EnterBootloaderMessage())
+        usb_communicator.close()
