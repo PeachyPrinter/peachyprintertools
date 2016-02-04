@@ -13,11 +13,17 @@ class FirmwareAPI(object):
 
     def __init__(self):
         self.firmware_updater = firmware_manager.get_firmware_updater(logger)
+        self._required_version = None
+
+    @property
+    def required_version(self):
+        if self._required_version is None:
+            bin_file = self._bin_file()
+            self._required_version = re.match(self.version_regex, bin_file).group(1)
+        return self._required_version
 
     def is_firmware_valid(self, current_firmware):
-        bin_file = self._bin_file()
-        available_version = re.match(self.version_regex, bin_file).group(1)
-        return available_version == current_firmware
+        return self.required_version == current_firmware
 
     def _bin_file(self):
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dependancies', 'firmware'))

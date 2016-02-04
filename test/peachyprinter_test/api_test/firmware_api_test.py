@@ -17,9 +17,9 @@ from peachyprinter.api.firmware_api import FirmwareAPI, FirmwareUpdate
 @patch('peachyprinter.api.firmware_api.glob')
 class FirmwareAPITests(unittest.TestCase):
 
-    def _setup_mock(self, mock_firmware_manager, mock_glob):
+    def _setup_mock(self, mock_firmware_manager, mock_glob, firmware_version='1.0.0'):
         self.mock_firmware_updater = MagicMock()
-        self.expected_firmware_file = 'peachyprinter-firmware-1.0.0.bin'
+        self.expected_firmware_file = 'peachyprinter-firmware-{}.bin'.format(firmware_version)
         mock_firmware_manager.get_firmware_updater.return_value = self.mock_firmware_updater
         self.mock_firmware_updater.check_ready.return_value = True
         mock_glob.return_value = [self.expected_firmware_file]
@@ -73,6 +73,13 @@ class FirmwareAPITests(unittest.TestCase):
 
         FirmwareAPI()
         mock_firmware_manager.get_firmware_updater.assert_called_with(firmware_api.logger)
+
+    def test_required_version_gets_version_from_bin(self, mock_glob, mock_firmware_manager, mock_FirmwareUpdate):
+        expected_verison = "1.8.2"
+        self._setup_mock(mock_firmware_manager, mock_glob, firmware_version=expected_verison)
+        fwapi = FirmwareAPI()
+
+        self.assertEquals(expected_verison, fwapi.required_version)
 
     # @patch('peachyprinter.api.firmware_api.UsbPacketCommunicator')
     # def test_make_ready_should_create_a_communicator_and_send_the_correct_message(self, mock_glob, mock_firmware_manager, mock_UsbPacketCommunicator):
