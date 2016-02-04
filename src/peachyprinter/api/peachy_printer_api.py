@@ -11,6 +11,7 @@ class PrinterAPI(object):
         self._configuration_manager = CircutSourcedConfigurationManager()
         self._configuration_api = ConfigurationAPI(self._configuration_manager)
         self._test_print_api = None
+        self._firmware_api = None
 
     '''Loads a connected printer'''
     def load_printer(self):
@@ -29,7 +30,9 @@ class PrinterAPI(object):
         return CalibrationAPI(self._configuration_manager)
 
     def get_firmware_api(self):
-        return FirmwareAPI()
+        if not self._firmware_api:
+            self._firmware_api = FirmwareAPI()
+        return self._firmware_api
 
     def get_configuration_api(self):
         return self._configuration_api
