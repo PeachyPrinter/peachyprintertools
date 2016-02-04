@@ -8,7 +8,10 @@
 #include <Servo.h> 
 
 Servo valveServo; 
-
+bool photographLaser = true; 
+int bufferSize = 500;
+int layersPerPicture = 10;
+int layerCount = 0;
 int camera_pin = 8;
 int onLed = 4;
 int offLed = 3;
@@ -18,7 +21,7 @@ int servoLo = 2;
 int loPot = A0;
 int hiPot = A1;
 int testSwitch = 5;
-int bufferSize = 500;
+
 
 int dripOnCommand = 49;
 int dripOffCommand = 48;
@@ -76,7 +79,9 @@ void dripperOff(){
 }
 
 void camera_on(){
+  if (layerCount % layersPerPicture == 0){
   cameraStateOnTime = millis() + bufferSize;
+  }
 }
 
 void camera_off(){
@@ -108,9 +113,21 @@ void run() {
   } else if (incommingByte == dripOffCommand) {
     dripperOff();
   } else if (incommingByte == layerStartCommand) {
-    camera_on();
-  } else if (incommingByte == layerEndCommand) {
-    camera_off();
+    layerCount++;
+    if (photographLaser){
+      camera_on();
+    }
+    else{
+      camera_off();
+    }
+    }
+    else if (incommingByte == layerEndCommand) {
+    if (photographLaser){
+      camera_off();
+    }
+    else{
+      camera_on();
+    }
   } else if (incommingByte == 'D') {
     Serial.write("OK\n");
     incommingByte = 0;

@@ -1,9 +1,7 @@
 @ECHO OFF
 
-REM "Virtual env not used on windows for now."
-
-call pip install -r requirements.txt
-REM call python build_dep.py
+call python -m pip install --upgrade setuptools==19.2
+call python -m pip install -r requirements.txt
 
 
 

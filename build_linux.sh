@@ -54,19 +54,12 @@ echo "Git Revision Number is $GIT_REV_COUNT"
 cp version.properties src/peachyprinter/VERSION.py
 cp version.properties src/VERSION.py
 
+
 echo "------------------------------------"
 echo "Running Tests"
 echo `python2.7 --version`
 echo "------------------------------------"
 
-python test/test-all.py
-
-if [ $? != 0 ]; then
-    echo "FAILED TESTS ABORTING"
-    exit 55
-fi
-
-echo "TESTS COMPLETE SUCCESS"
 cd src
 python setup.py sdist
 
@@ -77,6 +70,23 @@ fi
 cd ..
 
 echo "PACKAGING COMPLETE SUCCESS"
+
+
+echo "------------------------------------"
+echo "Running Tests"
+echo `python2.7 --version`
+echo "------------------------------------"
+
+python -m pip install mock==1.0.1
+python test/test-all.py
+
+if [ $? != 0 ]; then
+    echo "FAILED TESTS ABORTING"
+    exit 55
+fi
+
+echo "TESTS COMPLETE SUCCESS"
+
 
 mv src/dist/PeachyPrinterToolsAPI*.tar.gz .
 
