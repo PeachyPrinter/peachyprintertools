@@ -43,11 +43,11 @@ class UsbTestTerminal(object):
     def usbClose(self):
         self._usb.close()
 
-    def laserOff():
+    def laserOff(self):
         move=self._move
         self._usb.send(MoveMessage(move[0],move[1],0))
 
-    def laserOn():
+    def laserOn(self):
         move=self._move
         self._usb.send(MoveMessage(move[0],move[1],255))
 
