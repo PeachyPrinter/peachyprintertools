@@ -85,13 +85,12 @@ class FirmwareAPITests(unittest.TestCase):
     def test_make_ready_should_create_a_communicator_and_send_the_correct_message(self, mock_glob, mock_firmware_manager_factory, mock_FirmwareUpdate):
         mock_firmware_update = mock_FirmwareUpdate.return_value
         self._setup_mock(mock_firmware_manager_factory, mock_glob)
-        
+
         fwapi = FirmwareAPI()
         fwapi.make_ready()
-        
+
         mock_firmware_update.prepare.assert_called_with()
         mock_FirmwareUpdate.assert_called_with(self.expected_firmware_file, self.mock_firmware_updater)
-
 
     def test_firmware_update_should_raise_exception_if_not_ready(self, mock_glob, mock_firmware_manager_factory, mock_FirmwareUpdate):
         self._setup_mock(mock_firmware_manager_factory, mock_glob)
@@ -149,15 +148,12 @@ class FirmwareUpdateTests(unittest.TestCase):
 
     @patch('peachyprinter.api.firmware_api.UsbPacketCommunicator')
     def test_prepare_creates_a_usb_communicator_and_sends_enter_bootloader(self, mock_UsbPacketCommunicator):
-        #Setup
         mock_updater = MagicMock()
         mock_usb_packet_communicator = mock_UsbPacketCommunicator.return_value
 
-        #Test
         fw_update = FirmwareUpdate('afile', mock_updater)
         fw_update.prepare()
 
-        #Assert
         mock_usb_packet_communicator.start.assert_called_with()
         mock_usb_packet_communicator.send.assert_called_with(EnterBootloaderMessage())
         mock_usb_packet_communicator.close.assert_called_with()

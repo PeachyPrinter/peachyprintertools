@@ -33,8 +33,10 @@ class FirmwareAPI(object):
         path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dependancies', 'firmware'))
         bin_file = glob(os.path.join(path, 'peachyprinter-firmware-*.bin'))
         if not bin_file:
+            logger.error("Package missing required firmware")
             raise Exception("Package missing required firmware")
         if len(bin_file) > 1:
+            logger.error("Unexpected firmware files")
             raise Exception("Unexpected firmware files")
         return bin_file[0]
 
@@ -46,6 +48,7 @@ class FirmwareAPI(object):
 
     def update_firmware(self, complete_call_back=None):
         if self.is_ready():
+            logger.info("Starting external update")
             self._firmware_update.start(complete_call_back)
         else:
             logger.error("Peachy Printer not ready for update")
@@ -63,10 +66,17 @@ class FirmwareUpdate(threading.Thread):
         threading.Thread.start(self)
 
     def run(self):
-        logger.info("Starting firmware update")
-        result = self.firmware_manager.update(self.file)
-        self.complete_call_back(result)
-        logger.info("Firmware update {}".format("succeeded" if result else "failed"))
+        # import traceback
+        # try:
+            logger.info("Starting firmware update")
+            result = self.firmware_manager.update(self.file)
+            self.complete_call_back(result)
+            logger.info("Firmware update {}".format("succeeded" if result else "failed"))
+        # except Exception as ex:
+            
+        #     traceback.print_last()
+        #     logger.error(ex.message)
+        #     self.complete_call_back(False)
 
     def prepare(self):
         usb_communicator = UsbPacketCommunicator(0)
