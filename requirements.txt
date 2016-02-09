@@ -1,4 +1,4 @@
 numpy==1.9.2
 protobuf==2.6.1
 pyserial==2.7
-https://github.com/PeachyPrinter/peachy-firmware-flash/releases/download/0.0.1.36/PeachyPrinterFirmwareAPI-0.0.1.36.zip
+https://github.com/PeachyPrinter/peachy-firmware-flash/releases/download/0.0.1.48/PeachyPrinterFirmwareAPI-0.0.1.48.zip

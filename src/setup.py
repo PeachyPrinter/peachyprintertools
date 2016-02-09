@@ -20,7 +20,7 @@ setup(
                   '': ['*.so', 'peachyprinter/dependancies/linux/amd64/*'],
                   '': ['*.bin', 'peachyprinter/dependancies/firmware/*']
                   },
-    dependency_links=['https://github.com/PeachyPrinter/peachy-firmware-flash/releases/download/0.0.1.36/PeachyPrinterFirmwareAPI-0.0.1.36.tar.gz'],
+    dependency_links=['https://github.com/PeachyPrinter/peachy-firmware-flash/releases/download/0.0.1.48/PeachyPrinterFirmwareAPI-0.0.1.48.tar.gz'],
     install_requires=[
       'protobuf>=2.6.1',
       'pyserial>=2.7',

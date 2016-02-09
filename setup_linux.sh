@@ -65,6 +65,10 @@ SETUP_TMP="setup_tmp"
 
 echo "--------Install requirements---------"
 pip install -r requirements.txt
+if [ $? != 0 ]; then
+    echo "Pip install or requirements failed"
+    exit 59
+fi
 
 echo ""
 echo "-----------------------------------"
