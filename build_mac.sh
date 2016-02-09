@@ -73,7 +73,7 @@ if [ $? != 0 ]; then
     echo "FAILED PACKAGING ABORTING"
     exit 56
 fi
-python -m pip install dist/PeachyPrinterToolsAPI-$VERISON.tar.gz
+python -m pip install dist/PeachyPrinterToolsAPI-$VERSION.tar.gz
 if [ $? != 0 ]; then
     echo "PACKAGE INSTALL FAILED ABORTING"
     exit 56
