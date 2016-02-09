@@ -77,7 +77,7 @@ IF NOT "%ERRORLEVEL%" == "0" (
     cd ..
     EXIT /B 3
 )
-python -m pip install dist/PeachyPrinterToolsAPI-%VERSION%.tar.gz
+python -m pip install dist\PeachyPrinterToolsAPI-%VERSION%.zip
 IF NOT "%ERRORLEVEL%" == "0" (
     echo "PACKAGE INSTALL FAILED ABORTING"
     cd ..
