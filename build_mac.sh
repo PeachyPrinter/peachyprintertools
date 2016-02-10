@@ -57,16 +57,10 @@ if [ $? != 0 ]; then
 fi
 
 echo "------------------------------------"
-echo "Running Tests"
+echo "Packaging"
 echo "------------------------------------"
 
-python -m pip install mock==1.0.1
-python test/test-all.py
 
-if [ $? != 0 ]; then
-    echo "FAILED TESTS ABORTING"
-    exit 55
-fi
 cd src
 python setup.py sdist
 if [ $? != 0 ]; then
@@ -78,8 +72,21 @@ if [ $? != 0 ]; then
     echo "PACKAGE INSTALL FAILED ABORTING"
     exit 56
 fi
-
 cd ..
+
+
+echo "------------------------------------"
+echo "Running Tests"
+echo "------------------------------------"
+
+python -m pip install mock==1.0.1
+python test/test-all.py
+
+if [ $? != 0 ]; then
+    echo "FAILED TESTS ABORTING"
+    exit 55
+fi
+
 
 mv src/dist/PeachyPrinterToolsAPI*.tar.gz .
 

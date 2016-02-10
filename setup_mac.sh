@@ -27,8 +27,12 @@ SETUP_TMP="setup_tmp"
 export CFLAGS=-Qunused-arguments
 export CPPFLAGS=-Qunused-arguments
 
-echo "--------Install requirements---------"
-pip install -r requirements.txt
+
+python -m pip install -r requirements.txt
+if [ $? != 0 ]; then
+    echo "Requirements install failed"
+    exit 59
+fi
 
 echo "--------Applying work around to googles protobuf library----"
 touch venv/lib/python2.7/site-packages/google/__init__.py

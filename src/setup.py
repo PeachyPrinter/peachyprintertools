@@ -6,6 +6,7 @@ import glob
 
 # data_files = [('peachyprinter/resources/dll', ["peachyprinter/dll/libusb-1.0.dll"])]
 
+
 setup(
     name='PeachyPrinterToolsAPI',
     version=version,
@@ -20,13 +21,12 @@ setup(
                   '': ['*.so', 'peachyprinter/dependancies/linux/amd64/*'],
                   '': ['*.bin', 'peachyprinter/dependancies/firmware/*']
                   },
-    dependency_links=['https://github.com/PeachyPrinter/peachy-firmware-flash/releases/download/0.0.1.48/PeachyPrinterFirmwareAPI-0.0.1.48.tar.gz'],
     install_requires=[
       'protobuf>=2.6.1',
       'pyserial>=2.7',
       'numpy>=1.9.2',
       'libusb1>=1.3.1',
-      'PeachyPrinterFirmwareAPI>=0.0.1.48'
+      'PeachyPrinterFirmwareAPI==0.0.1.48'
     ],
     packages=find_packages(),
     py_modules=['VERSION'],
