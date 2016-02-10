@@ -66,20 +66,13 @@ class FirmwareUpdate(threading.Thread):
         threading.Thread.start(self)
 
     def run(self):
-        # import traceback
-        # try:
-            logger.info("Starting firmware update")
-            result = self.firmware_manager.update(self.file)
-            self.complete_call_back(result)
-            logger.info("Firmware update {}".format("succeeded" if result else "failed"))
-        # except Exception as ex:
-            
-        #     traceback.print_last()
-        #     logger.error(ex.message)
-        #     self.complete_call_back(False)
+        logger.info("Starting firmware update")
+        result = self.firmware_manager.update(self.file)
+        self.complete_call_back(result)
+        logger.info("Firmware update {}".format("succeeded" if result else "failed"))
 
     def prepare(self):
-        usb_communicator = UsbPacketCommunicator(0)
+        usb_communicator = UsbPacketCommunicator(50)
         usb_communicator.start()
         usb_communicator.send(EnterBootloaderMessage())
         usb_communicator.close()
