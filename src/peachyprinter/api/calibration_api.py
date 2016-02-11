@@ -3,6 +3,7 @@ import logging
 from peachyprinter.infrastructure.path_to_points import PathToPoints
 from peachyprinter.infrastructure.controller import Controller
 from peachyprinter.infrastructure.communicator import UsbPacketCommunicator
+from peachyprinter.infrastructure.messages import PrinterStatusMessage
 from peachyprinter.domain.laser_control import LaserControl
 from peachyprinter.infrastructure.micro_disseminator import MicroDisseminator
 from peachyprinter.infrastructure.transformer import TuningTransformer, HomogenousTransformer
@@ -96,6 +97,8 @@ class CalibrationAPI(object):
         self.make_pattern_fit()
         self._controller.start()
 
+    def subscribe_to_status(self, callback):
+        self._communicator.register_handler(PrinterStatusMessage, callback)
 
     def set_print_area(self, width, height, depth):
         self._configuration.calibration.print_area_x = width

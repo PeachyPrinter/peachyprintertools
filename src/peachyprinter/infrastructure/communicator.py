@@ -3,6 +3,7 @@ import time
 from messages import ProtoBuffableMessage
 import Queue as queue
 from Queue import Empty
+from threading import Lock
 from peachyprinter.infrastructure.peachyusb import PeachyUSB, PeachyUSBException
 
 logger = logging.getLogger('peachy')
@@ -29,6 +30,7 @@ class UsbPacketCommunicator(Communicator):
         self.send_time = 0
         self._detached = False
         self._queue_size = queue_size
+        self._handler_lock = Lock()
         logger.info("Starting Usb Communications. Queue: {0:d}".format(self._queue_size))
 
     def __del__(self):
@@ -51,10 +53,11 @@ class UsbPacketCommunicator(Communicator):
     def _process(self, data, length):
         data = data[:length]
         message_type_id = ord(data[0])
-        for (message, handlers) in self._handlers.items():
-            if message.TYPE_ID == message_type_id:
-                for handler in handlers:
-                    handler(message.from_bytes(data[1:]))
+        with self._handler_lock:
+            for (message, handlers) in self._handlers.items():
+                if message.TYPE_ID == message_type_id:
+                    for handler in handlers:
+                        handler(message.from_bytes(data[1:]))
 
     def send(self, message):
         if self._detached:
@@ -94,13 +97,15 @@ class UsbPacketCommunicator(Communicator):
                 raise MissingPrinterException(e)
 
     def register_handler(self, message_type, handler):
+        logger.info("Registering handler for: {}".format(message_type.__name__))
         if not issubclass(message_type, ProtoBuffableMessage):
             logger.error("ProtoBuffableMessage required for message type")
             raise Exception("ProtoBuffableMessage required for message type")
-        if message_type in self._handlers:
-            self._handlers[message_type].append(handler)
-        else:
-            self._handlers[message_type] = [handler]
+        with self._handler_lock:
+            if message_type in self._handlers:
+                self._handlers[message_type].append(handler)
+            else:
+                self._handlers[message_type] = [handler]
 
 
 class NullCommunicator(Communicator):

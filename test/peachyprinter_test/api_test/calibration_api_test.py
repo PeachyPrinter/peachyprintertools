@@ -1,13 +1,14 @@
 import unittest
 import os
 import sys
-from mock import patch
+from mock import patch, MagicMock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'src'))
 
 import test_helpers
 from peachyprinter.api.calibration_api import CalibrationAPI
+from peachyprinter.infrastructure.messages import PrinterStatusMessage
 
 @patch('peachyprinter.api.calibration_api.ScaleGenerator')
 @patch('peachyprinter.api.calibration_api.OrientationGenerator')
@@ -506,6 +507,18 @@ class CalibrationAPITests(unittest.TestCase, test_helpers.TestHelpers):
         result = calibration_api.get_print_area()
 
         self.assertEquals(result, (20.0, 20.0, 20.0))
+
+    def test_subscribe_to_status_should(self, *args):
+        self.setup_mocks(args)
+        self.mock_configuration_manager.load.return_value = self.default_config
+        calibration_api = CalibrationAPI(self.mock_configuration_manager)
+        mock_call_back = MagicMock()
+
+        calibration_api.subscribe_to_status(mock_call_back)
+
+        self.mock_UsbPacketCommunicator.return_value.register_handler.assert_called_with(PrinterStatusMessage, mock_call_back)
+
+
 
 if __name__ == '__main__':
     unittest.main()

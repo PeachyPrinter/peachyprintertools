@@ -364,7 +364,6 @@ class PrinterStatusMessage(ProtoBuffableMessage):
     def laserPowerFeedback(self):
         return self._laserPowerFeedback
 
-
     def get_bytes(self):
         encoded = PrinterStatus()
         encoded.cardInserted = self._cardInserted
