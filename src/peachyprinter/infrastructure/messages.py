@@ -3,7 +3,7 @@ import logging
 logger = logging.getLogger('peachy')
 
 try:
-    from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount, IAm, EnterBootloader, GetAdcVal, ReturnAdcVal
+    from messages_pb2 import Move, DripRecorded, SetDripCount, MoveToDripCount, IAm, EnterBootloader, GetAdcVal, ReturnAdcVal, PrinterStatus
 except Exception as ex:
     logger.error(
         "\033[91m Cannot import protobuf classes, Have you compiled your protobuf files?\033[0m")
@@ -332,3 +332,69 @@ class ReturnAdcValMessage(ProtoBuffableMessage):
 
     def __repr__(self):
         return "adcVal={}".format(self._adcVal)
+
+
+class PrinterStatusMessage(ProtoBuffableMessage):
+    TYPE_ID = 14
+
+    def __init__(self, cardInserted, overrideSwitch, keyInserted, laserOn, laserPowerFeedback):
+        self._cardInserted = cardInserted
+        self._overrideSwitch = overrideSwitch
+        self._keyInserted = keyInserted
+        self._laserOn = laserOn
+        self._laserPowerFeedback = laserPowerFeedback
+
+    @property
+    def cardInserted(self):
+        return self._cardInserted
+
+    @property
+    def overrideSwitch(self):
+        return self._overrideSwitch
+
+    @property
+    def keyInserted(self):
+        return self._keyInserted
+
+    @property
+    def laserOn(self):
+        return self._laserOn
+
+    @property
+    def laserPowerFeedback(self):
+        return self._laserPowerFeedback
+
+
+    def get_bytes(self):
+        encoded = PrinterStatus()
+        encoded.cardInserted = self._cardInserted
+        encoded.overrideSwitch = self._overrideSwitch
+        encoded.keyInserted = self._keyInserted
+        encoded.laserOn = self._laserOn
+        encoded.laserPowerFeedback = self._laserPowerFeedback
+        if encoded.IsInitialized():
+            return encoded.SerializeToString()
+        else:
+            logger.error("Protobuf Message encoding incomplete. Did the spec change? Have you compiled your proto files?")
+            raise Exception("Protobuf Message encoding incomplete")
+
+    @classmethod
+    def from_bytes(cls, proto_bytes):
+        decoded = PrinterStatus()
+        decoded.ParseFromString(proto_bytes)
+        return cls(decoded.cardInserted, decoded.overrideSwitch, decoded.keyInserted, decoded.laserOn, decoded.laserPowerFeedback)
+
+    def __eq__(self, other):
+        if (self.__class__ == other.__class__ and
+                self._cardInserted == other._cardInserted and
+                self._overrideSwitch == other._overrideSwitch and
+                self._keyInserted == other._keyInserted and
+                self._laserOn == other._laserOn and
+                self._laserPowerFeedback == other._laserPowerFeedback
+                ):
+            return True
+        else:
+            return False
+
+    def __repr__(self):
+        return "cardInserted = {} overrideSwitch = {} keyInserted = {} laserOn = {} laserPowerFeedback  = {}".format(self._cardInserted, self._overrideSwitch, self._keyInserted, self._laserOn, self._laserPowerFeedback)

@@ -36,3 +36,11 @@ message IAm {
   required string sn = 3;
   required uint32 dataRate = 4;
 }
+
+message PrinterStatus {
+  required bool cardInserted = 1;
+  required bool overrideSwitch = 2;
+  required bool keyInserted = 3;
+  required bool laserOn =4;
+  required int32 laserPowerFeedback =5;
+}
