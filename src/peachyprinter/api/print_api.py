@@ -19,6 +19,7 @@ from peachyprinter.infrastructure.notification import EmailNotificationService, 
 from peachyprinter.infrastructure.layer_control import LayerWriter, LayerProcessing
 from peachyprinter.infrastructure.machine import *
 from peachyprinter.infrastructure.communicator import MissingPrinterException
+from peachyprinter.infrastructure.messages import PrinterStatusMessage
 
 
 class PrintQueueAPI(object):
@@ -97,6 +98,12 @@ class PrintAPI(object):
         gcode_layer_generator = gcode_reader.get_layers()
         layer_generator = gcode_layer_generator
         self.print_layers(layer_generator, print_sub_layers, dry_run, force_source_speed=force_source_speed)
+
+    def subscribe_to_status(self, callback):
+        if hasattr(self, '_communicator'):
+            self._communicator.register_handler(PrinterStatusMessage, callback)
+        else:
+            logger.warning("Printer not running subscription not complete")
 
     def _get_zaxis(self, dry_run):
         if dry_run:

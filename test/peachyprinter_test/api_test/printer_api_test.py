@@ -3,7 +3,7 @@ import os
 import sys
 import time
 
-from mock import patch, mock_open
+from mock import patch, mock_open, MagicMock
 
 import logging
 
@@ -12,6 +12,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..', 'sr
 
 from peachyprinter.api.print_api import PrintAPI, PrintQueueAPI
 from peachyprinter.infrastructure.machine import *
+from peachyprinter.infrastructure.messages import PrinterStatusMessage
+
 import test_helpers
 
 
@@ -705,6 +707,27 @@ class PrintAPITests(unittest.TestCase, test_helpers.TestHelpers):
 
         self.assertEqual(config, api.configuration)
 
+    def test_subscribe_to_status_should_do_nothing_if_printer_not_started(self, *args):
+        self.setup_mocks(args)
+        config = self.default_config
+        api = PrintAPI(config)
+        mock_call_back = MagicMock()
+
+        api.subscribe_to_status(mock_call_back)
+
+        self.assertEquals(0, self.mock_UsbPacketCommunicator.return_value.register_handler.call_count)
+
+    def test_subscribe_to_status_should_if_printer_started(self, *args):
+        self.setup_mocks(args)
+        config = self.default_config
+        api = PrintAPI(config)
+        mock_call_back = MagicMock()
+
+        with patch('__builtin__.open', mock_open(read_data='bibble'), create=True):
+            api.print_gcode('FakeFile')
+            api.subscribe_to_status(mock_call_back)
+
+        self.mock_UsbPacketCommunicator.return_value.register_handler.assert_called_with(PrinterStatusMessage, mock_call_back)
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', level='DEBUG')
