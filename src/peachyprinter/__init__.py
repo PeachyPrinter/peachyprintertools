@@ -14,6 +14,6 @@ except:
     version = "DEV"
 
 try:
-    from infrastructure.peachyusb import version as lib_version
+    from infrastructure.peachyusb import lib_version
 except:
     lib_version = "Unknown"

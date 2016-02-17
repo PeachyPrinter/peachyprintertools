@@ -18,11 +18,14 @@ def _load_library():
 
     dll.peachyusb_write.argtypes = [peachyusb_t_p, ctypes.c_char_p, ctypes.c_uint]
     dll.peachyusb_write.restype = None
+
+    dll.peachyusb_version.argtypes = []
+    dll.peachyusb_version.restype = ctypes.c_char_p
     return dll
 
 lib = _load_library()
 
-lib_version = "Not Implemented"
+lib_version = lib.peachyusb_version()
 
 class PeachyUSBException(Exception):
     pass
@@ -48,3 +51,4 @@ class PeachyUSB(object):
         self._read_callback = peachyusb_read_callback(func)
         lib.peachyusb_set_read_callback(self.context, self._read_callback)
         
+
