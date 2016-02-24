@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 import re
 from glob import glob
 import threading
@@ -30,7 +31,10 @@ class FirmwareAPI(object):
         return self.required_version == current_firmware
 
     def _bin_file(self):
-        path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dependancies', 'firmware'))
+        if getattr(sys, 'frozen', False):
+            path = sys._MEIPASS
+        else:
+            path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dependancies', 'firmware'))
         bin_file = glob(os.path.join(path, 'peachyprinter-firmware-*.bin'))
         if not bin_file:
             logger.error("Package missing required firmware")
