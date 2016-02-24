@@ -16,7 +16,7 @@ class FirmwareAPI(object):
     version_regex = '''.*-([0-9]*[.][0-9]*[.][0-9]*).bin'''
 
     def __init__(self):
-        self.firmware_manager = firmware_manager_factory.get_firmware_updater(logger)
+        self.firmware_manager = firmware_manager_factory.get_firmware_updater()
         self._required_version = None
         self._firmware_update = FirmwareUpdate(self._bin_file(), self.firmware_manager)
 
