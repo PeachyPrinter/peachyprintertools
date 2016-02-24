@@ -69,12 +69,6 @@ class FirmwareAPITests(unittest.TestCase):
         fwapi = FirmwareAPI()
         self.assertFalse(fwapi.is_ready())
 
-    def test_init_should_be_called_with_logger(self, mock_glob, mock_firmware_manager_factory, mock_FirmwareUpdate):
-        self._setup_mock(mock_firmware_manager_factory, mock_glob)
-
-        FirmwareAPI()
-        mock_firmware_manager_factory.get_firmware_updater.assert_called_with(firmware_api.logger)
-
     def test_required_version_gets_version_from_bin(self, mock_glob, mock_firmware_manager_factory, mock_FirmwareUpdate):
         expected_verison = "1.8.2"
         self._setup_mock(mock_firmware_manager_factory, mock_glob, firmware_version=expected_verison)
