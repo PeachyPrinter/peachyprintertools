@@ -19,14 +19,15 @@ setup(
                   '': ['*.dll', 'peachyprinter/dependancies/win/x86/*'],
                   '': ['*.dylib', 'peachyprinter/dependancies/mac/amd64/*'],
                   '': ['*.so', 'peachyprinter/dependancies/linux/amd64/*'],
-                  '': ['*.bin', 'peachyprinter/dependancies/firmware/*']
+                  '': ['*.bin', 'peachyprinter/dependancies/firmware/*'],
+                  '': ['*.dfu', 'peachyprinter/dependancies/firmware/*'],
                   },
     install_requires=[
       'protobuf>=2.6.1',
       'pyserial>=2.7',
       'numpy>=1.9.2',
       'libusb1>=1.3.1',
-      'PeachyPrinterFirmwareAPI==0.0.1.58'
+      'PeachyPrinterFirmwareAPI==0.0.1.62'
     ],
     packages=find_packages(),
     py_modules=['VERSION'],
