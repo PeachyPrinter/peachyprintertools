@@ -19,7 +19,8 @@ setup(
                   '': ['*.dll', 'peachyprinter/dependancies/win/x86/*'],
                   '': ['*.dylib', 'peachyprinter/dependancies/mac/amd64/*'],
                   '': ['*.so', 'peachyprinter/dependancies/linux/amd64/*'],
-                  '': ['*.bin', 'peachyprinter/dependancies/firmware/*']
+                  '': ['*.bin', 'peachyprinter/dependancies/firmware/*'],
+                  '': ['*.dfu', 'peachyprinter/dependancies/firmware/*'],
                   },
     install_requires=[
       'protobuf>=2.6.1',
