@@ -35,6 +35,7 @@ class FirmwareAPI(object):
             path = sys._MEIPASS
         else:
             path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dependancies', 'firmware'))
+        print('PLATFORM: {}'.format(sys.platform))
         if sys.platform.startswith('win') or sys.platform.startswith('cygwin'):
             bin_file = glob(os.path.join(path, 'peachyprinter-firmware-*.dfu'))
         else:

@@ -39,14 +39,13 @@ class FirmwareAPITests(unittest.TestCase):
         self.assertEquals("Package missing required firmware", context.exception.message)
 
     def test_is_firmware_valid_raises_exception_if_multipule_firmware_files_present(self, mock_sys, mock_glob, mock_firmware_manager_factory, mock_FirmwareUpdate):
+        self._setup_mock(mock_sys, mock_firmware_manager_factory, mock_glob)
         mock_glob.return_value = ['peachyprinter-firmware-1.0.0.bin', 'peachyprinter-firmware-1.0.1.bin']
-
         with self.assertRaises(Exception) as context:
             fwapi = FirmwareAPI()
             fwapi.is_firmware_valid('1.0.0')
 
         self.assertEquals("Unexpected firmware files", context.exception.message)
-
 
     def test_is_firmware_valid_returns_true_if_file_matches_version(self, mock_sys, mock_glob, mock_firmware_manager_factory, mock_FirmwareUpdate):
         self._setup_mock(mock_sys, mock_firmware_manager_factory, mock_glob)
