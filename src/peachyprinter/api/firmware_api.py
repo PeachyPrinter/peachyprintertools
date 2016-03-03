@@ -13,7 +13,7 @@ logger = logging.getLogger('peachy')
 
 
 class FirmwareAPI(object):
-    version_regex = '''.*-([0-9]*[.][0-9]*[.][0-9]*).bin'''
+    version_regex = '''.*-([0-9]*[.][0-9]*[.][0-9]*).(bin|dfu)'''
 
     def __init__(self):
         self.firmware_manager = firmware_manager_factory.get_firmware_updater()
@@ -35,7 +35,10 @@ class FirmwareAPI(object):
             path = sys._MEIPASS
         else:
             path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'dependancies', 'firmware'))
-        bin_file = glob(os.path.join(path, 'peachyprinter-firmware-*.bin'))
+        if sys.platform.startswith('win') or sys.platform.startswith('cygwin'):
+            bin_file = glob(os.path.join(path, 'peachyprinter-firmware-*.dfu'))
+        else:
+            bin_file = glob(os.path.join(path, 'peachyprinter-firmware-*.bin'))
         if not bin_file:
             logger.error("Package missing required firmware")
             raise Exception("Package missing required firmware")

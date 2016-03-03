@@ -4,7 +4,7 @@ Peachy Printer Tools
 Status
 -------------------------
 
-Active Development as of 25-Jan-2016
+Active Development as of 29-Feb-2016
 
 Note
 ---------------------------
