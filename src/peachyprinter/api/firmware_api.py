@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import re
+import time
 from glob import glob
 import threading
 import firmware as firmware_manager_factory
@@ -83,4 +84,5 @@ class FirmwareUpdate(threading.Thread):
         usb_communicator = UsbPacketCommunicator(50)
         usb_communicator.start()
         usb_communicator.send(EnterBootloaderMessage())
+        time.sleep(0.1)  #need to wait for usb
         usb_communicator.close()
