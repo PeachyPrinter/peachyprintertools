@@ -41,7 +41,7 @@ class FirmwareAPI(object):
         else:
             bin_file = glob(os.path.join(path, 'peachyprinter-firmware-*.bin'))
         if not bin_file:
-            logger.error("Package missing required firmware")
+            logger.error("Package missing required firmware at path: {}".format(path))
             raise Exception("Package missing required firmware")
         if len(bin_file) > 1:
             logger.error("Unexpected firmware files")
