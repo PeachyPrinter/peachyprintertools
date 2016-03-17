@@ -46,6 +46,7 @@ class InfoMixIn(object):
         else:
             raise Exception("Calibration queue length must be a positive integer")
 
+
 class DripperSetupMixIn(object):
 
     '''Depricated use get_dripper_drips_per_mm'''

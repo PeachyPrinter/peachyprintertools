@@ -97,24 +97,29 @@ class CalibrationAPI(object):
         self.make_pattern_fit()
         self._controller.start()
 
+    '''Provides ability to subscribe to a printer safety status message (PrinterStatusMessage)'''
     def subscribe_to_status(self, callback):
         self._communicator.register_handler(PrinterStatusMessage, callback)
 
+    '''Set the print area (width, height, depth) in mm'''
     def set_print_area(self, width, height, depth):
         self._configuration.calibration.print_area_x = width
         self._configuration.calibration.print_area_y = height
         self._configuration.calibration.print_area_z = depth
         self._save()
 
+    '''Gets the print area (width, height, depth) in mm'''
     def get_print_area(self):
         return (self._configuration.calibration.print_area_x, self._configuration.calibration.print_area_y, self._configuration.calibration.print_area_z)
 
+    '''Allows for compensation of coil hook up by flipping and reversing axis'''
     def set_orientation(self, x_flip, yflip, swap_axis):
         self._configuration.calibration.flip_x_axis = x_flip
         self._configuration.calibration.flip_y_axis = yflip
         self._configuration.calibration.swap_axis = swap_axis
         self._save()
 
+    '''Gets the compensation for coil hook up returns tuple3 of booleans (flip x axis, flip y axis, swap axis) '''
     def get_orientation(self):
         return (self._configuration.calibration.flip_x_axis, self._configuration.calibration.flip_y_axis, self._configuration.calibration.swap_axis)
 
@@ -165,9 +170,11 @@ class CalibrationAPI(object):
         self._unapply_calibration()
         self._update_generator(self._scale_generator)
 
+    '''Gets the maximum allowable deflection of the mirrors as percentage'''
     def get_max_deflection(self):
         return self._configuration.calibration.max_deflection
-
+    
+    '''Sets the maximum allowable deflection of the mirrors as percentage'''
     def set_max_deflection(self, deflection):
         self._configuration.calibration.max_deflection = deflection
         self._unapply_calibration()
@@ -273,5 +280,6 @@ class CalibrationAPI(object):
         logger.info("Calulated max radius of object as: %s mm" % lowest)
         return lowest
 
+    '''Stops the calibaration interactivity'''
     def stop(self):
             self._controller.stop()
