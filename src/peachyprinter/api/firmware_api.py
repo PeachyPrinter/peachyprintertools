@@ -12,7 +12,7 @@ from peachyprinter.infrastructure.messages import EnterBootloaderMessage
 
 logger = logging.getLogger('peachy')
 
-
+'''Allows for checking and upgrading device firmware'''
 class FirmwareAPI(object):
     version_regex = '''.*-([0-9]*[.][0-9]*[.][0-9]*).(bin|dfu)'''
 
@@ -21,6 +21,7 @@ class FirmwareAPI(object):
         self._required_version = None
         self._firmware_update = FirmwareUpdate(self._bin_file(), self.firmware_manager)
 
+    '''The version of firmware required by this version of the api'''
     @property
     def required_version(self):
         if self._required_version is None:
@@ -28,6 +29,7 @@ class FirmwareAPI(object):
             self._required_version = re.match(self.version_regex, bin_file).group(1)
         return self._required_version
 
+    '''Returns a boolean true if the version of the software matches the required version'''
     def is_firmware_valid(self, current_firmware):
         return self.required_version == current_firmware
 
@@ -49,12 +51,15 @@ class FirmwareAPI(object):
             raise Exception("Unexpected firmware files")
         return bin_file[0]
 
+    '''Forces the printer into bootloader mode so it can recieve an update'''
     def make_ready(self):
         self._firmware_update.prepare()
 
+    '''Checks if the printer is in bootloader mode so it can recieve an update'''
     def is_ready(self):
         return self.firmware_manager.check_ready()
 
+    '''Starts an a-syncronous firmware update a callback for completion of this process may be specified'''
     def update_firmware(self, complete_call_back=None):
         if self.is_ready():
             logger.info("Starting external update")
