@@ -624,8 +624,8 @@ class CureTestSetupMixInTest(object):
         self.assertEquals(expected_finish_speed,                    configuration_API.get_cure_rate_finish_speed())
         self.assertEquals(expected_draw_speed,                      configuration_API.get_cure_rate_draw_speed())
         self.assertEquals(expected_use_draw_speed,                  configuration_API.get_cure_rate_use_draw_speed())
-        self.assertEquals(expected_override_laser_power,            configuration_API.get_override_laser_power())
-        self.assertEquals(expected_override_laser_power_amount,     configuration_API.get_override_laser_power_amount())
+        self.assertEquals(expected_override_laser_power,            configuration_API.get_cure_rate_override_laser_power())
+        self.assertEquals(expected_override_laser_power_amount,     configuration_API.get_cure_rate_override_laser_power_amount())
 
     @patch.object(ConfigurationManager, 'load')
     def test_get_and_set_laser_amount_fails_if_out_of_range(self, mock_load):

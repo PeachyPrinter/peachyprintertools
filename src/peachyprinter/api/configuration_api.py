@@ -65,12 +65,6 @@ class InfoMixIn(object):
 class DripperSetupMixIn(object):
     '''This is a Mixin for the ConfigurationAPI and exists only for organizational purposes'''
 
-    def get_drips_per_mm(self):
-        '''Depricated use get_dripper_drips_per_mm'''
-
-        logging.warning("Depricated use get_dripper_drips_per_mm")
-        return self.get_dripper_drips_per_mm()
-
     def get_dripper_drips_per_mm(self):
         '''Returns Drips Per mm'''
 
@@ -81,33 +75,15 @@ class DripperSetupMixIn(object):
 
         return self._current_config.dripper.dripper_type
 
-    def get_emulated_drips_per_second(self):
-        '''Depricated use get_dripper_emulated_drips_per_second'''
-
-        logging.warning("Depricated use get_dripper_emulated_drips_per_second")
-        return self.get_dripper_emulated_drips_per_second()
-
     def get_dripper_emulated_drips_per_second(self):
         '''Gets the drips per second to be emulated'''
 
         return self._current_config.dripper.emulated_drips_per_second
 
-    def get_photo_zaxis_delay(self):
-        '''Depricated use get_dripper_photo_zaxis_delay'''
-
-        logging.warning("Depricated use get_dripper_photo_zaxis_delay")
-        return self.get_dripper_photo_zaxis_delay()
-
     def get_dripper_photo_zaxis_delay(self):
         '''Gets the photo delay in seconds'''
 
         return self._current_config.dripper.photo_zaxis_delay
-
-    def set_drips_per_mm(self, drips):
-        '''Depricated use set_dripper_drips_per_mm'''
-
-        logging.warning("Depricated use set_dripper_drips_per_mm")
-        self.set_dripper_drips_per_mm(drips)
 
     def set_dripper_drips_per_mm(self, drips):
         '''Sets Drips Per mm'''
@@ -123,23 +99,11 @@ class DripperSetupMixIn(object):
         self._current_config.dripper.dripper_type = value
         self.save()
 
-    def set_emulated_drips_per_second(self, value):
-        '''Depricated use set_dripper_emulated_drips_per_second'''
-
-        logging.warning("Depricated use set_dripper_emulated_drips_per_second")
-        self.set_dripper_emulated_drips_per_second(value)
-
     def set_dripper_emulated_drips_per_second(self, value):
         '''Sets the drips per second to be emulated'''
 
         self._current_config.dripper.emulated_drips_per_second = value
         self.save()
-
-    def set_photo_zaxis_delay(self, value):
-        '''Depricated use set_dripper_photo_zaxis_delay'''
-
-        logging.warning("Depricated use set_dripper_photo_zaxis_delay")
-        self.set_dripper_photo_zaxis_delay(value)
 
     def set_dripper_photo_zaxis_delay(self, value):
         '''Sets the photo delay in seconds'''
@@ -318,18 +282,6 @@ class CureTestSetupMixIn(object):
 
         self._current_config.cure_rate.use_draw_speed = use_draw_speed
 
-    def set_override_laser_power(self, override_laser_power):
-        '''Depricated use set_cure_rate_override_laser_power'''
-
-        logging.warning("set_override_laser_power(self, override_laser_ is Depricated use set_cure_rate_override_laser_power")
-        self.set_cure_rate_override_laser_power(override_laser_power)
-
-    def set_override_laser_power_amount(self, override_laser_power_amount):
-        '''Depricated use set_cure_rate_override_laser_power_amount'''
-
-        logging.warning("set_override_laser_power_amount(self, override_laser_power_a is Depricated use set_cure_rate_override_laser_power_amount")
-        self.set_cure_rate_override_laser_power(override_laser_power_amount)
-
     def set_cure_rate_override_laser_power(self, override_laser_power):
         '''Sets the override_laser_power for Cure Rate'''
 
@@ -382,18 +334,6 @@ class CureTestSetupMixIn(object):
 
         return self._current_config.cure_rate.use_draw_speed
 
-    def get_override_laser_power(self):
-        '''Depricated get_cure_rate_override_laser_power'''
-
-        logging.warning("get_override_laser_power is Depricated use get_cure_rate_override_laser_power")
-        return self.get_cure_rate_override_laser_power()
-
-    def get_override_laser_power_amount(self):
-        '''Depricated get_cure_rate_override_laser_power_amount'''
-
-        logging.warning("get_override_laser_power_amount is Depricated use get_cure_rate_override_laser_power_amount")
-        return self.get_cure_rate_override_laser_power_amount()
-
     def get_cure_rate_override_laser_power(self):
         '''Gets the override_laser_power for Cure Rate'''
 
@@ -412,10 +352,6 @@ class OptionsSetupMixIn(object):
         '''Returns the wait after move milliseconds'''
 
         return self._current_config.options.wait_after_move_milliseconds
-
-    def get_wait_after_move_milliseconds(self):
-        logger.warning("get_wait_after_move_milliseconds is depricated use get_options_wait_after_move_milliseconds")
-        return self.get_options_wait_after_move_milliseconds()
 
     def get_options_pre_layer_delay(self):
         '''Returns the pre layer delay'''
