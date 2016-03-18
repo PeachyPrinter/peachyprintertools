@@ -13,21 +13,32 @@ class InfoMixIn(object):
         return "TBD"
 
     def get_info_serial_number(self):
+        '''Returns the serial number of the atttached printer'''
+
         return self._current_config.circut.serial_number
 
     def get_info_hardware_version_number(self):
+        '''Returns the revision number of the current hardware'''
+
         return self._current_config.circut.hardware_revision
 
     def get_info_firmware_version_number(self):
+        '''Returns th current firmware revision of the hardware'''
+
         return self._current_config.circut.software_revision
 
     def get_info_firmware_data_rate(self):
+        '''Returns the expected data rate for the attached hardware'''
+
         return self._current_config.circut.data_rate
 
     def get_info_print_queue_length(self):
+        '''The length of the USB buffer in packets whilst printing'''
+
         return self._current_config.circut.print_queue_length
 
     def get_info_calibration_queue_length(self):
+        '''The length of the USB buffer in packets whilst calibrating (typically shorter the print to encourage responsiviness)'''
         return self._current_config.circut.calibration_queue_length
 
     def set_info_print_queue_length(self, length):
@@ -164,19 +175,24 @@ class DripperSetupMixIn(object):
             self._drip_detector.close()
             self._drip_detector = None
 
-    '''Turns off the counting of drips if counting'''
     def stop_counting_drips(self):
+        '''Turns off the counting of drips if counting'''
+
         if self._commander:
             self._commander.close()
         self._stop_current_dripper()
 
     def send_dripper_on_command(self):
+        '''If serial commuinication is enabled this send the turn on drips command'''
+
         if self._commander:
             self._commander.send_command(self._current_config.serial.on_command)
         else:
             raise Exception("Serial not Started")
 
     def send_dripper_off_command(self):
+        '''If serial commuinication is enabled this send the turn off drips command'''
+
         if self._commander:
             self._commander.send_command(self._current_config.serial.off_command)
         else:
@@ -401,120 +417,65 @@ class OptionsSetupMixIn(object):
 
         return self._current_config.options.pre_layer_delay
 
-    def get_pre_layer_delay(self):
-        logger.warning("get_pre_layer_delay is depricated use get_options_pre_layer_delay")
-        return self.get_options_pre_layer_delay()
-
     def get_options_print_queue_delay(self):
         '''Returns the print queue delay'''
 
         return self._current_config.options.print_queue_delay
 
-    def get_print_queue_delay(self):
-        logger.warning("get_print_queue_delay is depricated use get_options_print_queue_delay")
-        return self.get_options_print_queue_delay()
-
-    '''Returns the current setting for laser thickness'''
     def get_options_laser_thickness_mm(self):
-        return self._current_config.options.laser_thickness_mm
+        '''Returns the current setting for laser thickness'''
 
-    def get_laser_thickness_mm(self):
-        logger.warning("get_laser_thickness_mm is depricated use get_options_laser_thickness_mm")
-        return self.get_options_laser_thickness_mm()
+        return self._current_config.options.laser_thickness_mm
 
     def get_options_scaling_factor(self):
         '''Returns the current setting for scaling factor'''
 
         return self._current_config.options.scaling_factor
 
-    def get_scaling_factor(self):
-        logger.warning("get_scaling_factor is depricated use get_options_scaling_factor")
-        return self.get_options_scaling_factor()
-
     def get_options_sublayer_height_mm(self):
         '''Gets the Sublayer height sublayers are added between layers for grater definition'''
 
         return self._current_config.options.sublayer_height_mm
-
-    def get_sublayer_height_mm(self):
-        logger.warning("get_sublayer_height_mm is depricated use get_options_sublayer_height_mm")
-        return self.get_options_sublayer_height_mm()
 
     def get_options_max_lead_distance_mm(self):
         '''Gets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
 
         return self._current_config.dripper.max_lead_distance_mm
 
-    def get_max_lead_distance_mm(self):
-        logger.warning("get_max_lead_distance_mm is depricated use get_options_max_lead_distance_mm")
-        return self.get_options_max_lead_distance_mm()
-
     def get_options_post_fire_delay(self):
         '''Gets the Post Fire Delay for each layer'''
 
         return self._current_config.options.post_fire_delay
-
-    def get_post_fire_delay(self):
-        logger.warning("get_post_fire_delay is depricated use get_options_post_fire_delay")
-        return self.get_options_post_fire_delay()
 
     def get_options_slew_delay(self):
         '''Gets the Slew Delay for each layer'''
 
         return self._current_config.options.slew_delay
 
-    def get_slew_delay(self):
-        logger.warning("get_slew_delay is depricated use get_options_slew_delay")
-        return self.get_options_slew_delay()
-
     def get_options_overlap_amount_mm(self):
         '''Gets the Overlap Amount for each layer'''
 
         return self._current_config.options.overlap_amount
-
-    def get_overlap_amount_mm(self):
-        logger.warning("get_overlap_amount_mm is depricated use get_options_overlap_amount_mm")
-        return self.get_options_overlap_amount_mm()
 
     def get_options_shuffle_layers_amount(self):
         '''Gets the Shuffle Layers Amount for each layer'''
 
         return self._current_config.options.shuffle_layers_amount
 
-    def get_shuffle_layers_amount(self):
-        logger.warning("get_shuffle_layers_amount is depricated use get_options_shuffle_layers_amount")
-        return self.get_options_shuffle_layers_amount()
-
     def get_options_use_shufflelayers(self):
         '''Gets the Shuffle layers setting'''
 
         return self._current_config.options.use_shufflelayers
-
-    def get_use_shufflelayers(self):
-        logger.warning("get_use_shufflelayers is depricated use get_options_use_shufflelayers")
-        return self.get_options_use_shufflelayers()
 
     def get_options_use_sublayers(self):
         '''Gets the Sub layers setting'''
 
         return self._current_config.options.use_sublayers
 
-    def get_use_sublayers(self):
-        logger.warning("get_use_sublayers is depricated use get_options_use_sublayers")
-        return self.get_options_use_sublayers()
-
     def get_options_use_overlap(self):
         '''Gets the Overlap layers setting'''
 
         return self._current_config.options.use_overlap
-
-    def get_use_overlap(self):
-        logger.warning("get_use_overlap is depricated use get_options_use_overlap")
-        return self.get_options_use_overlap()
-
-    def set_wait_after_move_milliseconds(self, delay_milliseconds):
-        logger.warning(" set_wait_after_move_milliseconds is depricated use set_options_wait_after_move_milliseconds")
-        self.set_options_wait_after_move_milliseconds(delay_milliseconds)
 
     def set_options_wait_after_move_milliseconds(self, delay_milliseconds):
         '''Sets the wait after move milliseconds'''
@@ -525,10 +486,6 @@ class OptionsSetupMixIn(object):
         else:
             raise Exception("Wait after move milliseconds must be a positive int number")
 
-    def set_pre_layer_delay(self, delay):
-        logger.warning(" is depricated use set_options_pre_layer_delay")
-        self.set_options_pre_layer_delay(delay)
-
     def set_options_pre_layer_delay(self, delay):
         '''Sets the pre layer delay'''
 
@@ -537,10 +494,6 @@ class OptionsSetupMixIn(object):
             self.save()
         else:
             raise Exception("Print queue delay must be a positive floating point number")
-
-    def set_print_queue_delay(self, delay):
-        logger.warning(" is depricated use set_options_print_queue_delay")
-        self.set_options_print_queue_delay(delay)
 
     def set_options_print_queue_delay(self, delay):
         '''Sets the print queue delay'''
@@ -551,10 +504,6 @@ class OptionsSetupMixIn(object):
         else:
             raise Exception("Print queue delay must be a positive floating point number")
 
-    def set_laser_thickness_mm(self, thickness_mm):
-        logger.warning("set_laser_thickness_mm is depricated use set_options_laser_thickness_mm")
-        self.set_options_laser_thickness_mm(thickness_mm)
-
     def set_options_laser_thickness_mm(self, thickness_mm):
         '''Sets the laser thickness in mm'''
 
@@ -563,10 +512,6 @@ class OptionsSetupMixIn(object):
             self.save()
         else:
             raise Exception("Laser thickness must be a positive floating point number")
-
-    def set_scaling_factor(self, scaling_factor):
-        logger.warning("set_scaling_factor is depricated use set_options_scaling_factor")
-        self.set_options_scaling_factor(scaling_factor)
 
     def set_options_scaling_factor(self, scaling_factor):
         '''Sets the scaling factor in mm'''
@@ -577,10 +522,6 @@ class OptionsSetupMixIn(object):
         else:
             raise Exception("Scaling Factor must be a positive floating point number")
 
-    def set_sublayer_height_mm(self, thickness_mm):
-        logger.warning("set_sublayer_height_mm is depricated use set_options_sublayer_height_mm")
-        self.set_options_sublayer_height_mm(thickness_mm)
-
     def set_options_sublayer_height_mm(self, thickness_mm):
         '''Sets the Sublayer height sublayers are added between layers for grater definition'''
 
@@ -589,10 +530,6 @@ class OptionsSetupMixIn(object):
             self.save()
         else:
             raise Exception("Sublayer height must be a positive floating point number")
-
-    def set_max_lead_distance_mm(self, lead_distance_mm):
-        logger.warning("set_max_lead_distance_mm is depricated use set_options_max_lead_distance_mm")
-        self.set_options_max_lead_distance_mm(lead_distance_mm)
 
     def set_options_max_lead_distance_mm(self, lead_distance_mm):
         '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
@@ -603,10 +540,6 @@ class OptionsSetupMixIn(object):
         else:
             raise Exception("Max lead distance height must be a positive floating point number")
 
-    def set_overlap_amount_mm(self, overlap_amount):
-        logger.warning("set_overlap_amount_mm is depricated use set_options_overlap_amount_mm")
-        self.set_options_overlap_amount_mm(overlap_amount)
-
     def set_options_overlap_amount_mm(self, overlap_amount):
         '''Sets the Overlap Amount for each layer'''
 
@@ -615,10 +548,6 @@ class OptionsSetupMixIn(object):
             self.save()
         else:
             raise Exception("Overlap Amount must be a positive floating point number")
-
-    def set_post_fire_delay(self, post_fire_delay):
-        logger.warning("set_post_fire_delay is depricated use set_options_post_fire_delay")
-        self.set_options_post_fire_delay(post_fire_delay)
 
     def set_options_post_fire_delay(self, post_fire_delay):
         '''Sets the Post Fire Delay for each layer'''
@@ -629,10 +558,6 @@ class OptionsSetupMixIn(object):
         else:
             raise Exception("Post Fire Delay must be a positive integer number")
 
-    def set_slew_delay(self, slew_delay):
-        logger.warning("set_slew_delay is depricated use set_options_slew_delay")
-        self.set_options_slew_delay(slew_delay)
-
     def set_options_slew_delay(self, slew_delay):
         '''Sets the Slew Delay for each layer'''
 
@@ -641,10 +566,6 @@ class OptionsSetupMixIn(object):
             self.save()
         else:
             raise Exception("Post Fire Delay must be a positive integer number")
-
-    def set_shuffle_layers_amount(self, shuffle_layers_amount):
-        logger.warning("set_shuffle_layers_amount is depricated use set_options_shuffle_layers_amount")
-        self.set_options_shuffle_layers_amount(shuffle_layers_amount)
 
     def set_options_shuffle_layers_amount(self, shuffle_layers_amount):
         '''Sets the Shuffle Layers Amount for each layer'''
@@ -655,10 +576,6 @@ class OptionsSetupMixIn(object):
         else:
             raise Exception("Shuffle Layers Amount must be a positive floating point number")
 
-    def set_use_shufflelayers(self, use_shufflelayers):
-        logger.warning("set_use_shufflelayers is depricated use set_options_use_shufflelayers")
-        self.set_options_use_shufflelayers(use_shufflelayers)
-
     def set_options_use_shufflelayers(self, use_shufflelayers):
         '''Sets the Shuffle layers setting'''
 
@@ -668,10 +585,6 @@ class OptionsSetupMixIn(object):
         else:
             raise Exception("Use Shuffle Layers must be True or False")
 
-    def set_use_sublayers(self, use_sublayers):
-        logger.warning("set_use_sublayers is depricated use set_options_use_sublayers")
-        self.set_options_use_sublayers(use_sublayers)
-
     def set_options_use_sublayers(self, use_sublayers):
         '''Sets the Sub layers setting'''
 
@@ -680,10 +593,6 @@ class OptionsSetupMixIn(object):
             self.save()
         else:
             raise Exception("Use SubLayers must be True or False")
-
-    def set_use_overlap(self, use_overlap):
-        logger.warning("set_use_overlap is depricated use set_options_use_overlap")
-        self.set_options_use_overlap(use_overlap)
 
     def set_options_use_overlap(self, use_overlap):
         '''Sets the Overlap layers setting'''
@@ -698,129 +607,157 @@ class OptionsSetupMixIn(object):
 class EmailSetupMixin(object):
 
     def set_email_on(self, on):
+        '''Set email notifications to boolean'''
+
         self._current_config.email.on = on
 
     def set_email_port(self, port):
+        '''Sets the port of the smtp server'''
+
         self._current_config.email.port = port
 
     def set_email_host(self, host):
+        '''Sets the host address of the email server'''
+
         self._current_config.email.host = host
 
     def set_email_sender(self, sender):
+        '''Sets the email address of the sender'''
         self._current_config.email.sender = sender
 
     def set_email_recipient(self, recipient):
+        '''Sets the recipient for the email'''
+
         self._current_config.email.recipient = recipient
 
     def set_email_username(self, username):
+        '''Sets the username for the email account'''
+
         self._current_config.email.username = username
 
     def set_email_password(self, password):
+        '''Sets the password of the email account (Note: this is stored as plain text)'''
+
         self._current_config.email.password = password
 
     def get_email_on(self):
+        '''Returns status of email as boolean'''
+
         return self._current_config.email.on
 
     def get_email_port(self):
+        '''Returns the port for the smtp address'''
+
         return self._current_config.email.port
 
     def get_email_host(self):
+        '''Returns the host name for the smtp address'''
+
         return self._current_config.email.host
 
     def get_email_sender(self):
+        '''Returns the sender email address'''
+
         return self._current_config.email.sender
 
     def get_email_recipient(self):
+        '''Returns the email reciepient address'''
+
         return self._current_config.email.recipient
 
     def get_email_username(self):
+        '''Returns the email account username'''
+
         return self._current_config.email.username
 
     def get_email_password(self):
+        '''Returns the email account password'''
+
         return self._current_config.email.password
 
 
 class SerialSetupMixin(object):
 
     def get_serial_enabled(self):
+        '''Returns is serial is enabled'''
+
         return self._current_config.serial.on
 
     def get_serial_port(self):
+        '''Returns the current serial port'''
+
         return self._current_config.serial.port
 
     def get_serial_on_command(self):
+        '''Returns the serial dripper on command'''
+
         return self._current_config.serial.on_command
 
     def get_serial_off_command(self):
+        '''Returns the serial dripper off command'''
+
         return self._current_config.serial.off_command
 
-    def get_layer_started_command(self):
-        logger.warn("configuration_api.get_layer_started_command is depricated use get_serial_layer_started_command")
-        return self.get_serial_layer_started_command()
-
-    def get_layer_ended_command(self):
-        logger.warn("configuration_api.get_layer_ended_command is depricated use get_serial_layer_ended_command")
-        return self.get_serial_layer_ended_command()
-
-    def get_print_ended_command(self):
-        logger.warn("configuration_api.get_print_ended_command is depricated use get_serial_print_ended_command")
-        return self.get_serial_print_ended_command()
-
     def get_serial_layer_started_command(self):
+        '''Returns the layer started command'''
+
         return self._current_config.serial.layer_started
 
     def get_serial_layer_ended_command(self):
+        '''Returns the layer ended command'''
+
         return self._current_config.serial.layer_ended
 
     def get_serial_print_ended_command(self):
+        '''Returns the print ended command'''
+
         return self._current_config.serial.print_ended
 
     def set_serial_enabled(self, enabled):
+        '''Sets the serial enabnle as boolean'''
+
         logger.info("CFG Setting changed: serial_enabled -> %s" % enabled)
         self._current_config.serial.on = enabled
         self.save()
 
     def set_serial_port(self, port):
+        '''Sets the port as string'''
+
         logger.info("Setting changed: serial_port -> %s" % port)
         self._current_config.serial.port = port
         self.save()
 
     def set_serial_on_command(self, on_command):
+        '''Sets the on command as a single character string'''
+
         logger.info("Setting changed: serial_on_command -> %s" % on_command)
         self._current_config.serial.on_command = on_command
         self.save()
 
     def set_serial_off_command(self, off_command):
+        '''Sets the off command as a single character string'''
+
         logger.info("Setting changed: serial_off_command -> %s" % off_command)
         self._current_config.serial.off_command = off_command
         self.save()
 
-    def set_layer_started_command(self, layer_started):
-        logger.info("Setting changed: layer_started_command -> %s" % layer_started)
-        logger.warn("configuration_api.set_layer_started_command is depricated use set_serial_layer_started_command")
-        self.set_serial_layer_started_command(self, layer_started)
-
-    def set_layer_ended_command(self, layer_ended):
-        logger.info("Setting changed: layer_ended_command -> %s" % layer_ended)
-        logger.warn("configuration_api.set_layer_ended_command is depricated use set_serial_layer_ended_command")
-        self.set_serial_layer_ended_command(self, layer_ended)
-
-    def set_print_ended_command(self, print_ended):
-        logger.info("Setting changed: print_ended_command -> %s" % print_ended)
-        logger.warn("configuration_api.set_print_ended_command is depricated use set_serial_print_ended_command")
-        self.set_serial_print_ended_command(self, print_ended)
-
     def set_serial_layer_started_command(self, layer_started):
+        '''Sets the layer started command as a single character string'''
+
         logger.info("Setting changed: serial_layer_started_command -> %s" % layer_started)
         self._current_config.serial.layer_started = layer_started
         self.save()
 
     def set_serial_layer_ended_command(self, layer_ended):
+        '''Sets the layer ended command as a single character string'''
+
         logger.info("Setting changed: serial_layer_ended_command -> %s" % layer_ended)
         self._current_config.serial.layer_ended = layer_ended
         self.save()
 
     def set_serial_print_ended_command(self, print_ended):
+        '''Sets the print ended command as a single character string'''
+
         logger.info("Setting changed: serial_print_ended_command -> %s" % print_ended)
         self._current_config.serial.print_ended = print_ended
         self.save()
@@ -834,9 +771,9 @@ class ConfigurationAPI(
     EmailSetupMixin,
     SerialSetupMixin,
     ):
-'''Api for adjusting setting for the peachy current_printer.
-This API is still in active development and as is subject dramatic change
-'''
+    '''Api for adjusting setting for the peachy current_printer.
+    This API is still in active development and as is subject dramatic change
+    '''
 
     def __init__(self, configuration_manager):
         self._configuration_manager = configuration_manager
