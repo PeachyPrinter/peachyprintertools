@@ -312,4 +312,4 @@ class CalibrationAPI(object):
     def stop(self):
         '''Stops the calibaration interactivity'''
 
-            self._controller.stop()
+        self._controller.stop()
