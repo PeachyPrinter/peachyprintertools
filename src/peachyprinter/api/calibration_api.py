@@ -13,9 +13,11 @@ from peachyprinter.infrastructure.layer_control import LayerWriter, LayerProcess
 
 logger = logging.getLogger('peachy')
 
-'''The calibration API proivides the tools required to setup a Peacy Printer'''
+
 
 class CalibrationAPI(object):
+    '''The calibration API proivides the tools required to setup a Peacy Printer'''
+
     def __init__(self, configuration_manager):
         logger.info("Calibartion API Startup")
         self._configuration_manager = configuration_manager
@@ -97,34 +99,40 @@ class CalibrationAPI(object):
         self.make_pattern_fit()
         self._controller.start()
 
-    '''Provides ability to subscribe to a printer safety status message (PrinterStatusMessage)'''
     def subscribe_to_status(self, callback):
+        '''Provides ability to subscribe to a printer safety status message (PrinterStatusMessage)'''
+
         self._communicator.register_handler(PrinterStatusMessage, callback)
 
-    '''Set the print area (width, height, depth) in mm'''
     def set_print_area(self, width, height, depth):
+        '''Set the print area (width, height, depth) in mm'''
+
         self._configuration.calibration.print_area_x = width
         self._configuration.calibration.print_area_y = height
         self._configuration.calibration.print_area_z = depth
         self._save()
 
-    '''Gets the print area (width, height, depth) in mm'''
     def get_print_area(self):
+        '''Gets the print area (width, height, depth) in mm'''
+
         return (self._configuration.calibration.print_area_x, self._configuration.calibration.print_area_y, self._configuration.calibration.print_area_z)
 
-    '''Allows for compensation of coil hook up by flipping and reversing axis'''
     def set_orientation(self, x_flip, yflip, swap_axis):
+        '''Allows for compensation of coil hook up by flipping and reversing axis'''
+
         self._configuration.calibration.flip_x_axis = x_flip
         self._configuration.calibration.flip_y_axis = yflip
         self._configuration.calibration.swap_axis = swap_axis
         self._save()
 
-    '''Gets the compensation for coil hook up returns tuple3 of booleans (flip x axis, flip y axis, swap axis) '''
     def get_orientation(self):
+        '''Gets the compensation for coil hook up returns tuple3 of booleans (flip x axis, flip y axis, swap axis) '''
+
         return (self._configuration.calibration.flip_x_axis, self._configuration.calibration.flip_y_axis, self._configuration.calibration.swap_axis)
 
-    '''Used to show a single point with no calibration applied'''
     def show_point(self, xyz=[0.5, 0.5, 0.5]):
+        '''Used to show a single point with no calibration applied'''
+
         # logger.info('Showing point')
         x, y, z = xyz
         self._point_generator.xy = [x, y]
@@ -132,8 +140,9 @@ class CalibrationAPI(object):
             self._unapply_calibration()
             self._update_generator(self._point_generator)
 
-    '''Used to show a blinking point with no calibration applied used for aligning on and off laser posisition'''
     def show_blink(self, xyz=[0.5, 0.5, 0.0]):
+        '''Used to show a blinking point with no calibration applied used for aligning on and off laser posisition'''
+
         logger.info('Showing blink')
         x, y, z = xyz
         self._blink_generator.xy = [x, y]
@@ -141,21 +150,24 @@ class CalibrationAPI(object):
             self._unapply_calibration()
             self._update_generator(self._blink_generator)
 
-    '''Used to show pattern with no calibration applied used for determining orientation'''
     def show_orientation(self):
+        '''Used to show pattern with no calibration applied used for determining orientation'''
+
         logger.info('Showing Orientation')
         if (self._current_generator != self._orientaiton_generator):
             self._unapply_calibration()
             self._update_generator(self._orientaiton_generator)
 
-    '''Used to show a single line on one axis used to line up calibration grid'''
     def show_line(self):
+        '''Used to show a single line on one axis used to line up calibration grid'''
+
         logger.info('Showing line')
         self._unapply_calibration()
         self._update_generator(self._alignment_generator)
 
-    '''Used to show a test pattern with calibration applied'''
     def show_test_pattern(self, pattern):
+        '''Used to show a test pattern with calibration applied'''
+
         logger.info('Showing test pattern %s' % pattern)
         if pattern in self._test_patterns.keys():
             self._apply_calibration()
@@ -164,72 +176,87 @@ class CalibrationAPI(object):
             logger.error('Pattern: %s does not exist' % pattern)
             raise Exception('Pattern: %s does not exist' % pattern)
 
-    '''Shows the scale square'''
     def show_scale(self):
+        '''Shows the scale square'''
+
         logger.info('Showing scale')
         self._unapply_calibration()
         self._update_generator(self._scale_generator)
 
-    '''Gets the maximum allowable deflection of the mirrors as percentage'''
     def get_max_deflection(self):
+        '''Gets the maximum allowable deflection of the mirrors as percentage'''
+
         return self._configuration.calibration.max_deflection
     
-    '''Sets the maximum allowable deflection of the mirrors as percentage'''
     def set_max_deflection(self, deflection):
+        '''Sets the maximum allowable deflection of the mirrors as percentage'''
+
         self._configuration.calibration.max_deflection = deflection
         self._unapply_calibration()
         self._save()
 
-    '''Allows user so force the laser on'''
     def set_laser_off_override(self, state):
+        '''Allows user so force the laser on'''
+
         self._controller.laser_off_override = state
 
-    '''Changes the speed at which the test pattern is drawn in mm/sec'''
     def set_test_pattern_speed(self, speed):
+        '''Changes the speed at which the test pattern is drawn in mm/sec'''
+
         [pattern.set_speed(speed) for pattern in self._test_patterns.values()]
 
-    '''Changes the height at which the test pattern is drawn in mm'''
     def set_test_pattern_current_height(self, current_height):
+        '''Changes the height at which the test pattern is drawn in mm'''
+
         [pattern.set_current_height(current_height) for pattern in self._test_patterns.values()]
 
-    '''returns a list of test patterns'''
     def get_test_patterns(self):
+        '''returns a list of test patterns'''
+
         return self._test_patterns.keys()
 
-    '''Returns the current calibration for the printer'''
     def current_calibration(self):
+        '''Returns the current calibration for the printer'''
+
         return self._configuration.calibration
 
-    '''deprecated use set_lower_points and set_upper_points, set_height'''
     def save_points(self, height, lower_points, upper_points):
+        '''deprecated use set_lower_points and set_upper_points, set_height'''
+
         self.set_lower_points(lower_points)
         self.set_upper_points(upper_points)
         self.set_height(height)
 
-    '''Gets the lower calibration points'''
     def get_lower_points(self):
+        '''Gets the lower calibration points'''
+
         return self._configuration.calibration.lower_points
 
-    '''Set and saves the suppliled lower calibration'''
     def set_lower_points(self, lower_points):
+        '''Set and saves the suppliled lower calibration'''
+
         self._configuration.calibration.lower_points = lower_points
         self._save()
 
-    '''Gets the upper calibration points'''
     def get_upper_points(self):
+        '''Gets the upper calibration points'''
+
         return self._configuration.calibration.upper_points
 
-    '''Set and saves the suppliled upper calibration'''
     def set_upper_points(self, upper_points):
+        '''Set and saves the suppliled upper calibration'''
+
         self._configuration.calibration.upper_points = upper_points
         self._save()
 
-    '''Gets the calibration height'''
     def get_height(self):
+        '''Gets the calibration height'''
+
         return self._configuration.calibration.height
 
-    '''Set and saves the upper calibration height'''
     def set_height(self, height):
+        '''Set and saves the upper calibration height'''
+
         self._configuration.calibration.height = height
         self._save()
 
@@ -242,8 +269,9 @@ class CalibrationAPI(object):
         for pattern in self._test_patterns.values():
             pattern.set_radius(self.get_largest_object_radius())
 
-    '''Must be called before shutting down applications'''
     def close(self):
+        '''Must be called before shutting down applications'''
+
         self._controller.close()
 
     def _update_generator(self, generator):
@@ -269,8 +297,9 @@ class CalibrationAPI(object):
             return False
         return True
 
-    '''Based on current calibrations_gets_maximum_size_of_object at the base layer'''
     def get_largest_object_radius(self):
+        '''Based on current calibrations_gets_maximum_size_of_object at the base layer'''
+
         lowest = None
         for (x, y) in self._configuration.calibration.lower_points.values():
             if not lowest or abs(x) < lowest:
@@ -280,6 +309,7 @@ class CalibrationAPI(object):
         logger.info("Calulated max radius of object as: %s mm" % lowest)
         return lowest
 
-    '''Stops the calibaration interactivity'''
     def stop(self):
+        '''Stops the calibaration interactivity'''
+
             self._controller.stop()

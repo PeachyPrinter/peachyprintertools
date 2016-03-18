@@ -68,10 +68,10 @@ class PrintQueueAPI(object):
             self._api.close()
 
 
-'''API designed to use configuration to print a thing'''
 
 
 class PrintAPI(object):
+    '''API designed to use configuration to print a thing takes a configuration object'''
     def __init__(self, configuration, start_height=0.0):
         logger.info('Print API Startup')
         self._configuration = configuration
@@ -89,9 +89,13 @@ class PrintAPI(object):
 
     @property
     def configuration(self):
+        '''Returns the current configuration'''
+        
         return self._configuration
 
     def print_gcode(self, file_name, print_sub_layers=True, dry_run=False, force_source_speed=False):
+        ''' '''
+
         self._current_file_name = file_name
         self._current_file = open(file_name, 'r')
         gcode_reader = GCodeReader(self._current_file, scale=self._configuration.options.scaling_factor, start_height=self._start_height)

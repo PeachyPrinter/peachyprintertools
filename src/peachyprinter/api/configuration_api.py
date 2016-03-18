@@ -30,16 +30,18 @@ class InfoMixIn(object):
     def get_info_calibration_queue_length(self):
         return self._current_config.circut.calibration_queue_length
 
-    '''Sets the circut queue length'''
     def set_info_print_queue_length(self, length):
+        '''Sets the circut queue length'''
+
         if self._zero_or_positive_int(length):
             self._current_config.circut.print_queue_length = length
             self.save()
         else:
             raise Exception("Print queue length must be a positive integer")
 
-    '''Sets the circut calibration queue length'''
     def set_info_calibration_queue_length(self, length):
+        '''Sets the circut calibration queue length'''
+
         if self._zero_or_positive_int(length):
             self._current_config.circut.calibration_queue_length = length
             self.save()
@@ -49,80 +51,96 @@ class InfoMixIn(object):
 
 class DripperSetupMixIn(object):
 
-    '''Depricated use get_dripper_drips_per_mm'''
     def get_drips_per_mm(self):
+        '''Depricated use get_dripper_drips_per_mm'''
+
         logging.warning("Depricated use get_dripper_drips_per_mm")
         return self.get_dripper_drips_per_mm()
 
-    '''Returns Drips Per mm'''
     def get_dripper_drips_per_mm(self):
+        '''Returns Drips Per mm'''
+
         return self._current_config.dripper.drips_per_mm
 
-    '''Returns the configured Dripper Type'''
     def get_dripper_type(self):
+        '''Returns the configured Dripper Type'''
+
         return self._current_config.dripper.dripper_type
 
-    '''Depricated use get_dripper_emulated_drips_per_second'''
     def get_emulated_drips_per_second(self):
+        '''Depricated use get_dripper_emulated_drips_per_second'''
+
         logging.warning("Depricated use get_dripper_emulated_drips_per_second")
         return self.get_dripper_emulated_drips_per_second()
 
-    '''Gets the drips per second to be emulated'''
     def get_dripper_emulated_drips_per_second(self):
+        '''Gets the drips per second to be emulated'''
+
         return self._current_config.dripper.emulated_drips_per_second
 
-    '''Depricated use get_dripper_photo_zaxis_delay'''
     def get_photo_zaxis_delay(self):
+        '''Depricated use get_dripper_photo_zaxis_delay'''
+
         logging.warning("Depricated use get_dripper_photo_zaxis_delay")
         return self.get_dripper_photo_zaxis_delay()
 
-    '''Gets the photo delay in seconds'''
     def get_dripper_photo_zaxis_delay(self):
+        '''Gets the photo delay in seconds'''
+
         return self._current_config.dripper.photo_zaxis_delay
 
-    '''Depricated use set_dripper_drips_per_mm'''
     def set_drips_per_mm(self, drips):
+        '''Depricated use set_dripper_drips_per_mm'''
+
         logging.warning("Depricated use set_dripper_drips_per_mm")
         self.set_dripper_drips_per_mm(drips)
 
-    '''Sets Drips Per mm'''
     def set_dripper_drips_per_mm(self, drips):
+        '''Sets Drips Per mm'''
+
         self._current_config.dripper.drips_per_mm = drips
         if self._drip_detector:
             self._drip_detector.set_drips_per_mm(drips)
         self.save()
 
-    '''Sets the configured Dripper Type'''
     def set_dripper_type(self, value):
+        '''Sets the configured Dripper Type'''
+
         self._current_config.dripper.dripper_type = value
         self.save()
 
-    '''Depricated use set_dripper_emulated_drips_per_second'''
     def set_emulated_drips_per_second(self, value):
+        '''Depricated use set_dripper_emulated_drips_per_second'''
+
         logging.warning("Depricated use set_dripper_emulated_drips_per_second")
         self.set_dripper_emulated_drips_per_second(value)
 
-    '''Sets the drips per second to be emulated'''
     def set_dripper_emulated_drips_per_second(self, value):
+        '''Sets the drips per second to be emulated'''
+
         self._current_config.dripper.emulated_drips_per_second = value
         self.save()
 
-    '''Depricated use set_dripper_photo_zaxis_delay'''
     def set_photo_zaxis_delay(self, value):
+        '''Depricated use set_dripper_photo_zaxis_delay'''
+
         logging.warning("Depricated use set_dripper_photo_zaxis_delay")
         self.set_dripper_photo_zaxis_delay(value)
 
-    '''Sets the photo delay in seconds'''
     def set_dripper_photo_zaxis_delay(self, value):
+        '''Sets the photo delay in seconds'''
+
         self._current_config.dripper.photo_zaxis_delay = value
         self.save()
 
-    '''Sets the drip count back to 0'''
     def reset_drips(self):
+        '''Sets the drip count back to 0'''
+
         self._drip_detector.reset()
 
-    '''Turns on the counting of drips. Stop must be called to end this.'''
     def start_counting_drips(self, drip_call_back=None):
+        '''Turns on the counting of drips. Stop must be called to end this.'''
+
         self.drip_call_back = drip_call_back
         if self._current_config.serial.on:
             self._commander = SerialCommander(self._current_config.serial.port)
@@ -167,13 +185,15 @@ class DripperSetupMixIn(object):
 
 class CureTestSetupMixIn(object):
 
-    '''Returns a layer generator that can be used with the print API to print a cure test.'''
     def get_cure_test(self, base_height, total_height, start_speed, stop_speed, base_speed=None):
+        '''Returns a layer generator that can be used with the print API to print a cure test.'''
+
         self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed, base_speed=base_speed)
         return CureTestGenerator(base_height, total_height, start_speed, stop_speed, self._current_config.options.sublayer_height_mm)
 
-    '''Based on provided setting returns the speed the printer was going at the specified height'''
     def get_speed_at_height(self, base_height, total_height, start_speed, stop_speed, height, base_speed=None):
+        '''Based on provided setting returns the speed the printer was going at the specified height'''
+
         self._verify_cure_test_settings(base_height, total_height, start_speed, stop_speed, base_speed=base_speed)
         if (height < base_height or height > total_height):
             logger.warning('Height of ideal cure must be in range of cure test')
@@ -219,74 +239,85 @@ class CureTestSetupMixIn(object):
                 logger.warning('base_speed cannot be zero or negitive')
                 raise Exception('base_speed cannot be zero or negitive')
 
-    '''Sets the base_height for Cure Rate test.'''
     def set_cure_rate_base_height(self, base_height):
+        '''Sets the base_height for Cure Rate test.'''
+
         if (self._zero_or_positive_float(float(base_height))):
             self._current_config.cure_rate.base_height = base_height
         else:
             logger.warning('Base height must be 0 or positive')
             raise Exception('Specified base height must be positive')
 
-    '''Sets the total_height for Cure Rate test.'''
     def set_cure_rate_total_height(self, total_height):
+        '''Sets the total_height for Cure Rate test.'''
+
         if (self._positive_float(float(total_height))):
             self._current_config.cure_rate.total_height = total_height
         else:
             logger.warning('Total height must be positive')
             raise Exception('Specified total height must be positive')
 
-    '''Sets the start_speed for Cure Rate test.'''
     def set_cure_rate_start_speed(self, start_speed):
+        '''Sets the start_speed for Cure Rate test.'''
+
         if (self._positive_float(float(start_speed))):
             self._current_config.cure_rate.start_speed = start_speed
         else:
             logger.warning('start_speed must be positive')
             raise Exception('Specified start speed must be positive')
 
-    '''Sets the finish_speed for Cure Rate test.'''
     def set_cure_rate_finish_speed(self, finish_speed):
+        '''Sets the finish_speed for Cure Rate test.'''
+
         if (self._positive_float(float(finish_speed))):
             self._current_config.cure_rate.finish_speed = finish_speed
         else:
             logger.warning('finish_speed must be positive')
             raise Exception('Specified finish speed must be positive')
 
-    '''Sets the draw_speed for Cure Rate test.'''
     def set_cure_rate_move_speed(self, move_speed):
+        '''Sets the draw_speed for Cure Rate test.'''
+
         if (self._positive_float(float(move_speed))):
             self._current_config.cure_rate.move_speed = move_speed
         else:
             logger.warning('move_speed must be positive')
             raise Exception('Specified move speed must be positive')
 
-    '''Sets the draw_speed for Cure Rate test.'''
     def set_cure_rate_draw_speed(self, draw_speed):
+        '''Sets the draw_speed for Cure Rate test.'''
+
         if (self._positive_float(float(draw_speed))):
             self._current_config.cure_rate.draw_speed = draw_speed
         else:
             logger.warning('draw_speed must be positive')
             raise Exception('Specified draw speed must be positive')
 
-    '''Sets the use_draw_speed for Cure Rate test.'''
     def set_cure_rate_use_draw_speed(self, use_draw_speed):
+        '''Sets the use_draw_speed for Cure Rate test.'''
+
         self._current_config.cure_rate.use_draw_speed = use_draw_speed
 
-    '''Depricated use set_cure_rate_override_laser_power'''
     def set_override_laser_power(self, override_laser_power):
+        '''Depricated use set_cure_rate_override_laser_power'''
+
         logging.warning("set_override_laser_power(self, override_laser_ is Depricated use set_cure_rate_override_laser_power")
         self.set_cure_rate_override_laser_power(override_laser_power)
 
-    '''Depricated use set_cure_rate_override_laser_power_amount'''
     def set_override_laser_power_amount(self, override_laser_power_amount):
+        '''Depricated use set_cure_rate_override_laser_power_amount'''
+
         logging.warning("set_override_laser_power_amount(self, override_laser_power_a is Depricated use set_cure_rate_override_laser_power_amount")
         self.set_cure_rate_override_laser_power(override_laser_power_amount)
 
-    '''Sets the override_laser_power for Cure Rate'''
     def set_cure_rate_override_laser_power(self, override_laser_power):
+        '''Sets the override_laser_power for Cure Rate'''
+
         self._current_config.cure_rate.override_laser_power = override_laser_power
 
-    '''Sets the draw_speed for Cure Rate test.'''
     def set_cure_rate_override_laser_power_amount(self, override_laser_power_amount):
+        '''Sets the draw_speed for Cure Rate test.'''
+
         if override_laser_power_amount >= 1.0:
             raise Exception("Laser Power is too high")
 
@@ -296,73 +327,87 @@ class CureTestSetupMixIn(object):
             logger.warning('override_laser_power_amount must be positive percentage between 0 and 1')
             raise Exception('Specified override_laser_power_amount must be positive')
 
-    '''Gets the base_height for Cure Rate test.'''
     def get_cure_rate_base_height(self):
+        '''Gets the base_height for Cure Rate test.'''
+
         return self._current_config.cure_rate.base_height
 
-    '''Gets the total_height for Cure Rate test.'''
     def get_cure_rate_total_height(self):
+        '''Gets the total_height for Cure Rate test.'''
+
         return self._current_config.cure_rate.total_height
 
-    '''Gets the start_speed for Cure Rate test.'''
     def get_cure_rate_start_speed(self):
+        '''Gets the start_speed for Cure Rate test.'''
+
         return self._current_config.cure_rate.start_speed
 
-    '''Gets the finish_speed for Cure Rate test.'''
     def get_cure_rate_finish_speed(self):
+        '''Gets the finish_speed for Cure Rate test.'''
+
         return self._current_config.cure_rate.finish_speed
 
-    '''Gets the draw_speed for Cure Rate test.'''
     def get_cure_rate_draw_speed(self):
+        '''Gets the draw_speed for Cure Rate test.'''
+
         return self._current_config.cure_rate.draw_speed
 
-    '''Gets the move_speed for Cure Rate test.'''
     def get_cure_rate_move_speed(self):
+        '''Gets the move_speed for Cure Rate test.'''
+
         return self._current_config.cure_rate.move_speed
 
-    '''Gets the usedraw_speed for Cure Rate test.'''
     def get_cure_rate_use_draw_speed(self):
+        '''Gets the usedraw_speed for Cure Rate test.'''
+
         return self._current_config.cure_rate.use_draw_speed
 
-    '''Depricated get_cure_rate_override_laser_power'''
     def get_override_laser_power(self):
+        '''Depricated get_cure_rate_override_laser_power'''
+
         logging.warning("get_override_laser_power is Depricated use get_cure_rate_override_laser_power")
         return self.get_cure_rate_override_laser_power()
 
-    '''Depricated get_cure_rate_override_laser_power_amount'''
     def get_override_laser_power_amount(self):
+        '''Depricated get_cure_rate_override_laser_power_amount'''
+
         logging.warning("get_override_laser_power_amount is Depricated use get_cure_rate_override_laser_power_amount")
         return self.get_cure_rate_override_laser_power_amount()
 
-    '''Gets the override_laser_power for Cure Rate'''
     def get_cure_rate_override_laser_power(self):
+        '''Gets the override_laser_power for Cure Rate'''
+
         return self._current_config.cure_rate.override_laser_power
 
-    '''Gets the override_laser_power_amount for Cure Rate'''
     def get_cure_rate_override_laser_power_amount(self):
+        '''Gets the override_laser_power_amount for Cure Rate'''
+
         return self._current_config.cure_rate.override_laser_power_amount
 
 
 class OptionsSetupMixIn(object):
 
-    '''Returns the wait after move milliseconds'''
     def get_options_wait_after_move_milliseconds(self):
+        '''Returns the wait after move milliseconds'''
+
         return self._current_config.options.wait_after_move_milliseconds
 
     def get_wait_after_move_milliseconds(self):
         logger.warning("get_wait_after_move_milliseconds is depricated use get_options_wait_after_move_milliseconds")
         return self.get_options_wait_after_move_milliseconds()
 
-    '''Returns the pre layer delay'''
     def get_options_pre_layer_delay(self):
+        '''Returns the pre layer delay'''
+
         return self._current_config.options.pre_layer_delay
 
     def get_pre_layer_delay(self):
         logger.warning("get_pre_layer_delay is depricated use get_options_pre_layer_delay")
         return self.get_options_pre_layer_delay()
 
-    '''Returns the print queue delay'''
     def get_options_print_queue_delay(self):
+        '''Returns the print queue delay'''
+
         return self._current_config.options.print_queue_delay
 
     def get_print_queue_delay(self):
@@ -377,80 +422,90 @@ class OptionsSetupMixIn(object):
         logger.warning("get_laser_thickness_mm is depricated use get_options_laser_thickness_mm")
         return self.get_options_laser_thickness_mm()
 
-    '''Returns the current setting for scaling factor'''
     def get_options_scaling_factor(self):
+        '''Returns the current setting for scaling factor'''
+
         return self._current_config.options.scaling_factor
 
     def get_scaling_factor(self):
         logger.warning("get_scaling_factor is depricated use get_options_scaling_factor")
         return self.get_options_scaling_factor()
 
-    '''Gets the Sublayer height sublayers are added between layers for grater definition'''
     def get_options_sublayer_height_mm(self):
+        '''Gets the Sublayer height sublayers are added between layers for grater definition'''
+
         return self._current_config.options.sublayer_height_mm
 
     def get_sublayer_height_mm(self):
         logger.warning("get_sublayer_height_mm is depricated use get_options_sublayer_height_mm")
         return self.get_options_sublayer_height_mm()
 
-    '''Gets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
     def get_options_max_lead_distance_mm(self):
+        '''Gets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
+
         return self._current_config.dripper.max_lead_distance_mm
 
     def get_max_lead_distance_mm(self):
         logger.warning("get_max_lead_distance_mm is depricated use get_options_max_lead_distance_mm")
         return self.get_options_max_lead_distance_mm()
 
-    '''Gets the Post Fire Delay for each layer'''
     def get_options_post_fire_delay(self):
+        '''Gets the Post Fire Delay for each layer'''
+
         return self._current_config.options.post_fire_delay
 
     def get_post_fire_delay(self):
         logger.warning("get_post_fire_delay is depricated use get_options_post_fire_delay")
         return self.get_options_post_fire_delay()
 
-    '''Gets the Slew Delay for each layer'''
     def get_options_slew_delay(self):
+        '''Gets the Slew Delay for each layer'''
+
         return self._current_config.options.slew_delay
 
     def get_slew_delay(self):
         logger.warning("get_slew_delay is depricated use get_options_slew_delay")
         return self.get_options_slew_delay()
 
-    '''Gets the Overlap Amount for each layer'''
     def get_options_overlap_amount_mm(self):
+        '''Gets the Overlap Amount for each layer'''
+
         return self._current_config.options.overlap_amount
 
     def get_overlap_amount_mm(self):
         logger.warning("get_overlap_amount_mm is depricated use get_options_overlap_amount_mm")
         return self.get_options_overlap_amount_mm()
 
-    '''Gets the Shuffle Layers Amount for each layer'''
     def get_options_shuffle_layers_amount(self):
+        '''Gets the Shuffle Layers Amount for each layer'''
+
         return self._current_config.options.shuffle_layers_amount
 
     def get_shuffle_layers_amount(self):
         logger.warning("get_shuffle_layers_amount is depricated use get_options_shuffle_layers_amount")
         return self.get_options_shuffle_layers_amount()
 
-    '''Gets the Shuffle layers setting'''
     def get_options_use_shufflelayers(self):
+        '''Gets the Shuffle layers setting'''
+
         return self._current_config.options.use_shufflelayers
 
     def get_use_shufflelayers(self):
         logger.warning("get_use_shufflelayers is depricated use get_options_use_shufflelayers")
         return self.get_options_use_shufflelayers()
 
-    '''Gets the Sub layers setting'''
     def get_options_use_sublayers(self):
+        '''Gets the Sub layers setting'''
+
         return self._current_config.options.use_sublayers
 
     def get_use_sublayers(self):
         logger.warning("get_use_sublayers is depricated use get_options_use_sublayers")
         return self.get_options_use_sublayers()
 
-    '''Gets the Overlap layers setting'''
     def get_options_use_overlap(self):
+        '''Gets the Overlap layers setting'''
+
         return self._current_config.options.use_overlap
 
     def get_use_overlap(self):
@@ -461,8 +516,9 @@ class OptionsSetupMixIn(object):
         logger.warning(" set_wait_after_move_milliseconds is depricated use set_options_wait_after_move_milliseconds")
         self.set_options_wait_after_move_milliseconds(delay_milliseconds)
 
-    '''Sets the wait after move milliseconds'''
     def set_options_wait_after_move_milliseconds(self, delay_milliseconds):
+        '''Sets the wait after move milliseconds'''
+
         if self._zero_or_positive_int(delay_milliseconds):
             self._current_config.options.wait_after_move_milliseconds = delay_milliseconds
             self.save()
@@ -473,8 +529,9 @@ class OptionsSetupMixIn(object):
         logger.warning(" is depricated use set_options_pre_layer_delay")
         self.set_options_pre_layer_delay(delay)
 
-    '''Sets the pre layer delay'''
     def set_options_pre_layer_delay(self, delay):
+        '''Sets the pre layer delay'''
+
         if self._zero_or_positive_float(delay):
             self._current_config.options.pre_layer_delay = delay
             self.save()
@@ -485,8 +542,9 @@ class OptionsSetupMixIn(object):
         logger.warning(" is depricated use set_options_print_queue_delay")
         self.set_options_print_queue_delay(delay)
 
-    '''Sets the print queue delay'''
     def set_options_print_queue_delay(self, delay):
+        '''Sets the print queue delay'''
+
         if self._zero_or_positive_float(delay):
             self._current_config.options.print_queue_delay = delay
             self.save()
@@ -497,8 +555,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_laser_thickness_mm is depricated use set_options_laser_thickness_mm")
         self.set_options_laser_thickness_mm(thickness_mm)
 
-    '''Sets the laser thickness in mm'''
     def set_options_laser_thickness_mm(self, thickness_mm):
+        '''Sets the laser thickness in mm'''
+
         if self._positive_float(thickness_mm):
             self._current_config.options.laser_thickness_mm = thickness_mm
             self.save()
@@ -509,8 +568,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_scaling_factor is depricated use set_options_scaling_factor")
         self.set_options_scaling_factor(scaling_factor)
 
-    '''Sets the scaling factor in mm'''
     def set_options_scaling_factor(self, scaling_factor):
+        '''Sets the scaling factor in mm'''
+
         if self._positive_float(scaling_factor):
             self._current_config.options.scaling_factor = scaling_factor
             self.save()
@@ -521,8 +581,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_sublayer_height_mm is depricated use set_options_sublayer_height_mm")
         self.set_options_sublayer_height_mm(thickness_mm)
 
-    '''Sets the Sublayer height sublayers are added between layers for grater definition'''
     def set_options_sublayer_height_mm(self, thickness_mm):
+        '''Sets the Sublayer height sublayers are added between layers for grater definition'''
+
         if self._positive_float(thickness_mm):
             self._current_config.options.sublayer_height_mm = thickness_mm
             self.save()
@@ -533,8 +594,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_max_lead_distance_mm is depricated use set_options_max_lead_distance_mm")
         self.set_options_max_lead_distance_mm(lead_distance_mm)
 
-    '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
     def set_options_max_lead_distance_mm(self, lead_distance_mm):
+        '''Sets the Max Lead Distance or the amount the z layer can be ahead before layers are skipped'''
+
         if self._zero_or_positive_float(lead_distance_mm):
             self._current_config.dripper.max_lead_distance_mm = lead_distance_mm
             self.save()
@@ -545,8 +607,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_overlap_amount_mm is depricated use set_options_overlap_amount_mm")
         self.set_options_overlap_amount_mm(overlap_amount)
 
-    '''Sets the Overlap Amount for each layer'''
     def set_options_overlap_amount_mm(self, overlap_amount):
+        '''Sets the Overlap Amount for each layer'''
+
         if self._positive_float(overlap_amount):
             self._current_config.options.overlap_amount = overlap_amount
             self.save()
@@ -557,8 +620,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_post_fire_delay is depricated use set_options_post_fire_delay")
         self.set_options_post_fire_delay(post_fire_delay)
 
-    '''Sets the Post Fire Delay for each layer'''
     def set_options_post_fire_delay(self, post_fire_delay):
+        '''Sets the Post Fire Delay for each layer'''
+
         if self._zero_or_positive_int(post_fire_delay):
             self._current_config.options.post_fire_delay = post_fire_delay
             self.save()
@@ -569,8 +633,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_slew_delay is depricated use set_options_slew_delay")
         self.set_options_slew_delay(slew_delay)
 
-    '''Sets the Slew Delay for each layer'''
     def set_options_slew_delay(self, slew_delay):
+        '''Sets the Slew Delay for each layer'''
+
         if self._zero_or_positive_int(slew_delay):
             self._current_config.options.slew_delay = slew_delay
             self.save()
@@ -581,8 +646,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_shuffle_layers_amount is depricated use set_options_shuffle_layers_amount")
         self.set_options_shuffle_layers_amount(shuffle_layers_amount)
 
-    '''Sets the Shuffle Layers Amount for each layer'''
     def set_options_shuffle_layers_amount(self, shuffle_layers_amount):
+        '''Sets the Shuffle Layers Amount for each layer'''
+
         if self._positive_float(shuffle_layers_amount):
             self._current_config.options.shuffle_layers_amount = shuffle_layers_amount
             self.save()
@@ -593,8 +659,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_use_shufflelayers is depricated use set_options_use_shufflelayers")
         self.set_options_use_shufflelayers(use_shufflelayers)
 
-    '''Sets the Shuffle layers setting'''
     def set_options_use_shufflelayers(self, use_shufflelayers):
+        '''Sets the Shuffle layers setting'''
+
         if (type(use_shufflelayers) == types.BooleanType):
             self._current_config.options.use_shufflelayers = use_shufflelayers
             self.save()
@@ -605,8 +672,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_use_sublayers is depricated use set_options_use_sublayers")
         self.set_options_use_sublayers(use_sublayers)
 
-    '''Sets the Sub layers setting'''
     def set_options_use_sublayers(self, use_sublayers):
+        '''Sets the Sub layers setting'''
+
         if (type(use_sublayers) == types.BooleanType):
             self._current_config.options.use_sublayers = use_sublayers
             self.save()
@@ -617,8 +685,9 @@ class OptionsSetupMixIn(object):
         logger.warning("set_use_overlap is depricated use set_options_use_overlap")
         self.set_options_use_overlap(use_overlap)
 
-    '''Sets the Overlap layers setting'''
     def set_options_use_overlap(self, use_overlap):
+        '''Sets the Overlap layers setting'''
+
         if (type(use_overlap) == types.BooleanType):
             self._current_config.options.use_overlap = use_overlap
             self.save()
@@ -757,10 +826,6 @@ class SerialSetupMixin(object):
         self.save()
 
 
-'''Api for adjusting setting for the peachy current_printer.
-This API is still in active development and as is subject dramatic change'''
-
-
 class ConfigurationAPI(
     InfoMixIn,
     DripperSetupMixIn,
@@ -769,6 +834,9 @@ class ConfigurationAPI(
     EmailSetupMixin,
     SerialSetupMixin,
     ):
+'''Api for adjusting setting for the peachy current_printer.
+This API is still in active development and as is subject dramatic change
+'''
 
     def __init__(self, configuration_manager):
         self._configuration_manager = configuration_manager
@@ -778,29 +846,34 @@ class ConfigurationAPI(
         self._marked_drips = None
         self._commander = None
 
-    '''Returns the currently loaded printer name'''
     def current_printer(self):
+        '''Returns the currently loaded printer name'''
+
         if self._current_config:
             return self._current_config.name
         else:
             return None
 
-    '''Returns the current printer config in json'''
     def get_current_config(self):
+        '''Returns the current printer config in json'''
+
         self.load_printer()
         return self._current_config
 
-    '''Loads a previous configured printer by name'''
     def load_printer(self):
+        '''Loads a previous configured printer by name'''
+
         self._current_config = self._configuration_manager.load()
         # logger.debug("Loaded config:\n%s" % self._current_config)
 
-    '''Resets configured printer to defaults'''
     def reset_printer(self):
+        '''Resets configured printer to defaults'''
+
         self._current_config = self._configuration_manager.reset()
 
-    '''Saves the currently selected config'''
     def save(self):
+        '''Saves the currently selected config'''
+
         self._configuration_manager.save(self._current_config)
 
     def _positive_float(self, value):

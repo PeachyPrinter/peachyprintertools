@@ -13,8 +13,9 @@ class PrinterAPI(object):
         self._test_print_api = None
         self._firmware_api = None
 
-    '''Loads a connected printer'''
     def load_printer(self):
+        '''Loads a connected printer'''
+
         self._configuration_api.load_printer()
 
     def current_printer(self):
