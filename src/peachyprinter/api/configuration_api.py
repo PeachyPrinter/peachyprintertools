@@ -9,6 +9,8 @@ logger = logging.getLogger('peachy')
 
 
 class InfoMixIn(object):
+    '''This is a Mixin for the ConfigurationAPI and exists only for organizational purposes'''
+
     def get_info_version_number(self):
         return "TBD"
 
@@ -61,6 +63,7 @@ class InfoMixIn(object):
 
 
 class DripperSetupMixIn(object):
+    '''This is a Mixin for the ConfigurationAPI and exists only for organizational purposes'''
 
     def get_drips_per_mm(self):
         '''Depricated use get_dripper_drips_per_mm'''
@@ -200,6 +203,7 @@ class DripperSetupMixIn(object):
 
 
 class CureTestSetupMixIn(object):
+    '''This is a Mixin for the ConfigurationAPI and exists only for organizational purposes'''
 
     def get_cure_test(self, base_height, total_height, start_speed, stop_speed, base_speed=None):
         '''Returns a layer generator that can be used with the print API to print a cure test.'''
@@ -402,6 +406,7 @@ class CureTestSetupMixIn(object):
 
 
 class OptionsSetupMixIn(object):
+    '''This is a Mixin for the ConfigurationAPI and exists only for organizational purposes'''
 
     def get_options_wait_after_move_milliseconds(self):
         '''Returns the wait after move milliseconds'''
@@ -605,6 +610,7 @@ class OptionsSetupMixIn(object):
 
 
 class EmailSetupMixin(object):
+    '''This is a Mixin for the ConfigurationAPI and exists only for organizational purposes'''
 
     def set_email_on(self, on):
         '''Set email notifications to boolean'''
@@ -677,6 +683,7 @@ class EmailSetupMixin(object):
 
 
 class SerialSetupMixin(object):
+    '''This is a Mixin for the ConfigurationAPI and exists only for organizational purposes'''
 
     def get_serial_enabled(self):
         '''Returns is serial is enabled'''
@@ -771,9 +778,7 @@ class ConfigurationAPI(
     EmailSetupMixin,
     SerialSetupMixin,
     ):
-    '''Api for adjusting setting for the peachy current_printer.
-    This API is still in active development and as is subject dramatic change
-    '''
+    '''Api for adjusting settings for the peachy current_printer.'''
 
     def __init__(self, configuration_manager):
         self._configuration_manager = configuration_manager
