@@ -556,9 +556,9 @@ class CureTestSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer()
 
-        self.assertTrue(configuration_API.get_use_shufflelayers())
-        self.assertTrue(configuration_API.get_use_sublayers())
-        self.assertTrue(configuration_API.get_use_overlap())
+        self.assertTrue(configuration_API.get_options_use_shufflelayers())
+        self.assertTrue(configuration_API.get_options_use_sublayers())
+        self.assertTrue(configuration_API.get_options_use_overlap())
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -572,9 +572,9 @@ class CureTestSetupMixInTest(object):
         configuration_API = ConfigurationAPI(ConfigurationManager())
         configuration_API.load_printer()
 
-        configuration_API.set_use_shufflelayers(False)
-        configuration_API.set_use_sublayers(False)
-        configuration_API.set_use_overlap(False)
+        configuration_API.set_options_use_shufflelayers(False)
+        configuration_API.set_options_use_sublayers(False)
+        configuration_API.set_options_use_overlap(False)
 
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
@@ -1146,7 +1146,7 @@ class SerialSetupMixInTest(object):
         self.assertEquals(expected_off, configuration_API.get_serial_off_command())
         self.assertEquals(expected_layer_start, configuration_API.get_serial_layer_started_command())
         self.assertEquals(expected_layer_end, configuration_API.get_serial_layer_ended_command())
-        self.assertEquals(expected_print_end, configuration_API.get_print_ended_command())
+        self.assertEquals(expected_print_end, configuration_API.get_serial_print_ended_command())
 
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
 
