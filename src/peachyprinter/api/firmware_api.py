@@ -13,7 +13,25 @@ from peachyprinter.infrastructure.messages import EnterBootloaderMessage
 logger = logging.getLogger('peachy')
 
 class FirmwareAPI(object):
-    '''Allows for checking and upgrading device firmware'''
+    '''Allows for checking and upgrading device firmware
+    Simple usage:
+
+    is_complete = false
+
+    def complete_callback(result):
+        if result:
+            is_complete = true
+        else:
+            exit()
+
+    firmware_api = FirmwareAPI()
+
+    if not firmware_api.is_firmware_valid(configuration_api.get_info_firmware_version_number()):
+        firmware_api.make_ready()
+        update_firmware(complete_callback)
+        while not is_complete:
+            time.sleep(1)
+    '''
 
     version_regex = '''.*-([0-9]*[.][0-9]*[.][0-9]*).(bin|dfu)'''
 
