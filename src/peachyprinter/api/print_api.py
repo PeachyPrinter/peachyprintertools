@@ -29,7 +29,7 @@ class PrintQueueAPI(object):
         self._api = None
         self._configuration.options.print_queue_delay
 
-    def call_back(self, status):
+    def _call_back(self, status):
         if status['status'] == "Complete":
             if self._api:
                 self._api.close()
@@ -38,19 +38,19 @@ class PrintQueueAPI(object):
                 logger.info('Waiting %s seconds before proceeding to next file' % self._configuration.options.print_queue_delay)
                 time.sleep(self._configuration.options.print_queue_delay)
                 logger.info('Proceeding to next file')
-                self.print_next()
+                self._print_next()
             else:
                 logger.info('Print Queue Complete')
 
-    def print_next(self):
+    def _print_next(self):
         afile = self._files.pop(0)
         logger.info("Printing Next File: %s" % afile)
-        self._api = PrintAPI(self._configuration, self.call_back)
+        self._api = PrintAPI(self._configuration, self._call_back)
         self._api.print_gcode(afile)
 
     def print_folder(self, folder):
         self._files = self._get_files(folder)
-        self.print_next()
+        self._print_next()
 
     def _get_files(self, folder):
         if not path.isdir(folder):
@@ -71,7 +71,14 @@ class PrintQueueAPI(object):
 
 
 class PrintAPI(object):
-    '''API designed to use configuration to print a thing takes a configuration object'''
+    '''API designed to use configuration to print a thing takes a configuration object
+    Simple Usage:
+        print_api = PrintAPI(configuration_api.get_current_config())
+        print_api.print_gcode("file.gcode")
+        while print_api.get_status()['status'] != "Complete"
+            time.sleep(1)
+        print_api.close()
+    '''
     def __init__(self, configuration, start_height=0.0):
         logger.info('Print API Startup')
         self._configuration = configuration
@@ -94,7 +101,7 @@ class PrintAPI(object):
         return self._configuration
 
     def print_gcode(self, file_name, print_sub_layers=True, dry_run=False, force_source_speed=False):
-        ''' '''
+        '''Take a gcode file and starts the printing it with current settings.'''
 
         self._current_file_name = file_name
         self._current_file = open(file_name, 'r')
@@ -104,6 +111,8 @@ class PrintAPI(object):
         self.print_layers(layer_generator, print_sub_layers, dry_run, force_source_speed=force_source_speed)
 
     def subscribe_to_status(self, callback):
+        '''Allows a subscription to printer safety status messages'''
+
         if hasattr(self, '_communicator'):
             self._communicator.register_handler(PrinterStatusMessage, callback)
         else:
@@ -152,6 +161,8 @@ class PrintAPI(object):
                 )
 
     def print_layers(self, layer_generator, print_sub_layers=True, dry_run=False, force_source_speed=False):
+        '''Takes a layer_generator object and starts the printing it with current settings.'''
+
         logger.info("Shuffled: %s" % self._configuration.options.use_shufflelayers)
         logger.info("Sublayered: %s" % self._configuration.options.use_sublayers)
         logger.info("Overlapped: %s" % self._configuration.options.use_overlap)
@@ -258,15 +269,34 @@ class PrintAPI(object):
         self._controller.start()
 
     def get_status(self):
+        '''Returns a status dictionary of the print containing: 
+                start_time
+                elapsed_time
+                current_layer
+                status ->  ['Complete', 'Cancelled', 'Failed', 'Starting', 'Running']
+                errors
+                waiting_for_drips
+                height
+                drips
+                drips_per_second
+                model_height
+                skipped_layers
+                drip_histor
+        '''
+
         return self._controller.get_status()
 
     def can_set_drips_per_second(self):
+        '''When using an emulated dripper this returns if the use can cahnge the drip rate manually via software'''
+
         if getattr(self._zaxis, 'set_drips_per_second', False):
             return True
         else:
             return False
 
     def set_drips_per_second(self, drips_per_second):
+        '''Allows a user to set the number of drips per second in realtime whilst using the emulated dripper'''
+
         if getattr(self._zaxis, 'set_drips_per_second', False):
             self._zaxis.set_drips_per_second(drips_per_second)
         else:
@@ -274,6 +304,8 @@ class PrintAPI(object):
             raise Exception('Cannot change drips per second on %s' % type(self._zaxis))
 
     def get_drips_per_second(self):
+        '''Gets the current setting for drips per second when using the emulated dripper'''
+
         if getattr(self._zaxis, 'get_drips_per_second'):
             return self._zaxis.get_drips_per_second()
         else:
@@ -281,9 +313,13 @@ class PrintAPI(object):
             return 0.0
 
     def verify_gcode(self, file_name):
+        '''Runs a test of the gcode without printing to verify file intregrity ununsed at this time'''
+
         self.print_gcode(file_name,  print_sub_layers=False,  dry_run=True)
 
     def close(self):
+        '''Close the api required before running a second print or shutting down'''
+
         if self._zaxis:
             self._zaxis.close()
         if self._controller:
