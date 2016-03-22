@@ -62,7 +62,7 @@ class HalfVaseTestGenerator(LayerGenerator):
 
 
 class SolidObjectTestGenerator(LayerGenerator):
-    name = "Solidified Object of Opressive Beauty (BETA)"
+    name = "Solidified Object of Opressive Beauty"
 
     def __init__(self, height, width, layer_height, speed=100):
         self._height = float(height)
@@ -174,7 +174,7 @@ class TwistVaseTestGenerator(LayerGenerator):
 
 
 class SimpleVaseTestGenerator(LayerGenerator):
-    name = "Simple 5 Sided 180 Twist Vase (BETA)"
+    name = "Simple 5 Sided 180 Twist Vase"
 
     def __init__(self, height, width, layer_height, speed=100):
         self._height = float(height)
@@ -221,7 +221,7 @@ class SimpleVaseTestGenerator(LayerGenerator):
 
 
 class ConcentricCircleTestGenerator(LayerGenerator):
-    name = "Concentric Circles (BETA)"
+    name = "Concentric Circles"
 
     def __init__(self, height, width, layer_height, speed=100):
         self._height = float(height)
@@ -274,7 +274,7 @@ class ConcentricCircleTestGenerator(LayerGenerator):
 
 
 class LollipopTestGenerator(LayerGenerator):
-    name = "Lollipop (BETA)"
+    name = "Lollipop"
 
     def __init__(self, height, width, layer_height, speed=100):
         self._height = height
