@@ -97,7 +97,7 @@ class PrintAPI(object):
     @property
     def configuration(self):
         '''Returns the current configuration'''
-        
+
         return self._configuration
 
     def print_gcode(self, file_name, print_sub_layers=True, dry_run=False, force_source_speed=False):
