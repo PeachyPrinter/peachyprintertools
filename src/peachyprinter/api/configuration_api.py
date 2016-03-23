@@ -739,10 +739,11 @@ class ConfigurationAPI(
         return self._current_config
 
     def load_printer(self):
-        '''Loads a previous configured printer by name'''
-
-        self._current_config = self._configuration_manager.load()
-        # logger.debug("Loaded config:\n%s" % self._current_config)
+        '''Loads an attached printer'''
+        if self._current_config:
+            pass
+        else:
+            self._current_config = self._configuration_manager.load()
 
     def reset_printer(self):
         '''Resets configured printer to defaults'''
