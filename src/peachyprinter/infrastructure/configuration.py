@@ -770,6 +770,7 @@ class SerialConfiguration(ConfigurationBase):
         self._off_command = self.get(source, u'off_command', '8')
         self._layer_started = self.get(source, u'layer_started', 'S')
         self._layer_ended = self.get(source, u'layer_ended', 'E')
+        self._print_start = self.get(source, u'print_start', 'B')
         self._print_ended = self.get(source, u'print_ended', 'Z')
 
     @property
@@ -843,6 +844,18 @@ class SerialConfiguration(ConfigurationBase):
             self._layer_ended = value
         else:
             raise ValueError("Layer ended command must be of %s" % (str(_type)))
+
+    @property
+    def print_start(self):
+        return self._print_start
+
+    @print_start.setter
+    def print_start(self, value):
+        _type = types.StringType
+        if type(value) == _type:
+            self._print_start = value
+        else:
+            raise ValueError("Print start command must be of %s" % (str(_type)))
 
     @property
     def print_ended(self):

@@ -444,7 +444,7 @@ class LayerProcessingTest(unittest.TestCase):
         commander = Mock()
 
         layer_processing = LayerProcessing(
-            mock_writer, state, mock_machinestatus, mock_zaxis, 0.0, commander, 0, 'a', 'b', 'z','o','f')
+            mock_writer, state, mock_machinestatus, mock_zaxis, 0.0, commander, 0, print_start_command='s', layer_start_command='a', layer_ended_command='b', print_ended_command='z', dripper_on_command='o', dripper_off_command='f')
 
         layer_processing.process(test_layer)
 
@@ -453,7 +453,7 @@ class LayerProcessingTest(unittest.TestCase):
         self.assertEqual(1, mock_machinestatus.set_waiting_for_drips.call_count)
         self.assertEqual(1, mock_machinestatus.set_not_waiting_for_drips.call_count)
         print commander.send_command.call_args_list
-        self.assertEqual('o', commander.send_command.call_args_list[0][0][0])
+        self.assertEqual('o', commander.send_command.call_args_list[1][0][0])
 
     @patch('peachyprinter.infrastructure.commander.Commander')
     def test_process_should_write_layer_start_and_end_commands(self, mock_Commander, mock_ZAxis, mock_Writer):
@@ -466,12 +466,12 @@ class LayerProcessingTest(unittest.TestCase):
         test_layer = Layer(1.0, [LateralDraw(
             [0.0, 0.0], [2.0, 2.0], 2.0), LateralDraw([2.0, 2.0], [-1.0, -1.0], 2.0)])
         layer_processing = LayerProcessing(
-            mock_writer, state, status, mock_zaxis, 1.0, mock_commander, 0, 'a', 'b', 'z','o','f')
+            mock_writer, state, status, mock_zaxis, 1.0, mock_commander, 0, print_start_command='s', layer_start_command='a', layer_ended_command='b', print_ended_command='z', dripper_on_command='o', dripper_off_command='f')
 
         layer_processing.process(test_layer)
 
         self.assertEquals(
-            [call('f'), call('a'), call('b')], mock_commander.send_command.call_args_list)
+            [call('s'), call('f'), call('a'), call('b')], mock_commander.send_command.call_args_list)
 
     @patch('peachyprinter.infrastructure.commander.Commander')
     def test_abort_current_command_should(self, mock_Commander, mock_ZAxis, mock_Writer):

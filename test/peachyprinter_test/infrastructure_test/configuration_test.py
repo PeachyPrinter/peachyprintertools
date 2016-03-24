@@ -428,6 +428,7 @@ class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         expected_serial_off = True
         expected_layer_started = True
         expected_layer_ended = True
+        expected_print_start = True
         expected_print_ended = True
 
         config = Configuration()
@@ -480,6 +481,8 @@ class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         with self.assertRaises(Exception):
             config.serial.layer_ended = expected_layer_ended
         with self.assertRaises(Exception):
+            config.serial.print_start = expected_print_start
+        with self.assertRaises(Exception):
             config.serial.print_ended = expected_print_ended
 
     def test_can_create_json_and_load_from_json(self):
@@ -502,6 +505,7 @@ class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         expected_serial_off = "13"
         expected_layer_started = "14"
         expected_layer_ended = "15"
+        expected_print_start = "B"
         expected_print_ended = "Z"
 
         original_config = Configuration()
@@ -524,6 +528,7 @@ class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         original_config.serial.off_command                   = expected_serial_off
         original_config.serial.layer_started                 = expected_layer_started
         original_config.serial.layer_ended                   = expected_layer_ended
+        original_config.serial.print_start                   = expected_print_start
         original_config.serial.print_ended                   = expected_print_ended
 
         actual_json = json.loads(original_config.toJson())
@@ -557,6 +562,8 @@ class ConfigurationTests(unittest.TestCase, test_helpers.TestHelpers):
         self.assertEquals(expected_layer_started, config.serial.layer_started)
         self.assertEquals(type(expected_layer_ended), type(config.serial.layer_ended))
         self.assertEquals(expected_layer_ended, config.serial.layer_ended)
+        self.assertEquals(type(expected_print_start), type(config.serial.print_start))
+        self.assertEquals(expected_print_start, config.serial.print_start)
         self.assertEquals(type(expected_print_ended), type(config.serial.print_ended))
         self.assertEquals(expected_print_ended, config.serial.print_ended)
 

@@ -152,6 +152,7 @@ class LayerProcessing():
                  layer_start_command=None,
                  layer_ended_command=None,
                  print_ended_command=None,
+                 print_start_command=None,
                  dripper_on_command=None,
                  dripper_off_command=None
                  ):
@@ -165,6 +166,7 @@ class LayerProcessing():
         self._pre_layer_delay = pre_layer_delay
         self._layer_start_command = layer_start_command
         self._layer_ended_command = layer_ended_command
+        self._print_start_command = print_start_command
         self._print_ended_command = print_ended_command
         self._dripper_on_command = dripper_on_command
         self._dripper_off_command = dripper_off_command
@@ -178,6 +180,8 @@ class LayerProcessing():
         if self._shutting_down or self._shutdown:
             raise Exception("LayerProcessing already shutdown")
         with self._lock:
+            if self._layer_count == 0:
+                self._commander.send_command(self._print_start_command)
             self._layer_count += 1
             ahead_by = 0
             self._status.add_layer()
