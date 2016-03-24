@@ -651,6 +651,11 @@ class SerialSetupMixin(object):
 
         return self._current_config.serial.layer_ended
 
+    def get_serial_print_start_command(self):
+        '''Returns the print start command'''
+
+        return self._current_config.serial.print_start
+
     def get_serial_print_ended_command(self):
         '''Returns the print ended command'''
 
@@ -696,6 +701,13 @@ class SerialSetupMixin(object):
 
         logger.info("Setting changed: serial_layer_ended_command -> %s" % layer_ended)
         self._current_config.serial.layer_ended = layer_ended
+        self.save()
+
+    def set_serial_print_start_command(self, print_start):
+        '''Sets the print start command as a single character string'''
+
+        logger.info("Setting changed: serial_print_start_command -> %s" % print_start)
+        self._current_config.serial.print_start = print_start
         self.save()
 
     def set_serial_print_ended_command(self, print_ended):

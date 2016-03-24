@@ -1100,6 +1100,8 @@ class SerialSetupMixInTest(object):
         actual_off = configuration_API.get_serial_off_command()
         actual_layer_start = configuration_API.get_serial_layer_started_command()
         actual_layer_ended = configuration_API.get_serial_layer_ended_command()
+        actual_print_start = configuration_API.get_serial_print_start_command()
+        actual_print_ended = configuration_API.get_serial_print_ended_command()
 
         self.assertEquals(self.default_config.serial.on, actual_enabled)
         self.assertEquals(self.default_config.serial.port, actual_port)
@@ -1107,6 +1109,8 @@ class SerialSetupMixInTest(object):
         self.assertEquals(self.default_config.serial.off_command, actual_off)
         self.assertEquals(self.default_config.serial.layer_started, actual_layer_start)
         self.assertEquals(self.default_config.serial.layer_ended, actual_layer_ended)
+        self.assertEquals(self.default_config.serial.print_start, actual_print_start)
+        self.assertEquals(self.default_config.serial.print_ended, actual_print_ended)
 
     @patch.object(ConfigurationManager, 'load')
     @patch.object(ConfigurationManager, 'save')
@@ -1117,6 +1121,7 @@ class SerialSetupMixInTest(object):
         expected_off = 'STOPSTOP'
         expected_layer_start = 'S'
         expected_layer_end = 'E'
+        expected_print_start = 'B'
         expected_print_end = 'Z'
 
         mock_load.return_value = self.default_config
@@ -1127,6 +1132,7 @@ class SerialSetupMixInTest(object):
         expected.serial.off_command       = expected_off
         expected.serial.layer_started     = expected_layer_start
         expected.serial.layer_ended       = expected_layer_end
+        expected.serial.print_start       = expected_print_start
         expected.serial.print_ended       = expected_print_end
 
         configuration_API = ConfigurationAPI(ConfigurationManager())
@@ -1138,6 +1144,7 @@ class SerialSetupMixInTest(object):
         configuration_API.set_serial_off_command(expected_off)
         configuration_API.set_serial_layer_started_command(expected_layer_start)
         configuration_API.set_serial_layer_ended_command(expected_layer_end)
+        configuration_API.set_serial_print_start_command(expected_print_start)
         configuration_API.set_serial_print_ended_command(expected_print_end)
 
         self.assertEquals(expected_enabled, configuration_API.get_serial_enabled())
@@ -1146,6 +1153,7 @@ class SerialSetupMixInTest(object):
         self.assertEquals(expected_off, configuration_API.get_serial_off_command())
         self.assertEquals(expected_layer_start, configuration_API.get_serial_layer_started_command())
         self.assertEquals(expected_layer_end, configuration_API.get_serial_layer_ended_command())
+        self.assertEquals(expected_print_start, configuration_API.get_serial_print_start_command())
         self.assertEquals(expected_print_end, configuration_API.get_serial_print_ended_command())
 
         self.assertConfigurationEqual(expected, mock_save.mock_calls[0][1][0])
